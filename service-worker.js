@@ -10,7 +10,8 @@
 // ==========================================
 
 const CACHE_NAME =
-"sidat-pwa-v1";
+"sidat-pwa-v1";const CACHE_NAME =
+"sidat-pwa-v2";
 
 // ==========================================
 // FILE DASAR SIDAT
@@ -23,6 +24,24 @@ const STATIC_FILES = [
 "./index.html",
 
 "./manifest.json"
+
+]const STATIC_FILES = [
+
+    "./",
+
+    "./index.html",
+
+    "./manifest.json",
+
+    "./style.css",
+
+    "./install-pwa.css",
+
+    "./install-pwa.js",
+
+    "./icons/icon-192.png",
+
+    "./icons/icon-512.png"
 
 ];
 
