@@ -2,7 +2,6 @@
 // SIDAT
 // PENGATURAN ADMIN
 // Dibuat oleh Suwardi
-// BAGIAN 1
 // ==========================================
 
 
@@ -640,7 +639,7 @@ async function muatPengaturan() {
 
 
         // ======================================
-        // AMBIL SATU DATA WILAYAH
+        // AMBIL DATA WILAYAH
         // ======================================
 
         const {
@@ -820,13 +819,6 @@ function isiForm(
     );
 
 
-    setValue(
-        "warnaTema",
-        data.warna_tema ||
-        "#15803d"
-    );
-
-
     // ======================================
     // LOGO
     // ======================================
@@ -851,12 +843,6 @@ function isiForm(
 
     tampilkanPreviewLogo(
         data.logo_url
-    );
-
-
-    updateWarnaUI(
-        data.warna_tema ||
-        "#15803d"
     );
 
 }
@@ -922,12 +908,6 @@ function isiFormKosong() {
     );
 
 
-    setValue(
-        "warnaTema",
-        "#15803d"
-    );
-
-
     logoFileBaru =
         null;
 
@@ -936,17 +916,7 @@ function isiFormKosong() {
         null
     );
 
-
-    updateWarnaUI(
-        "#15803d"
-    );
-
 }
-// ==========================================
-// SIDAT
-// PENGATURAN ADMIN
-// BAGIAN 2
-// ==========================================
 
 
 // ==========================================
@@ -1004,126 +974,6 @@ function getValue(
     return String(
         element.value || ""
     ).trim();
-
-}
-
-
-// ==========================================
-// VALIDASI WARNA
-// ==========================================
-
-function validasiWarna(
-    warna
-) {
-
-    const value =
-        String(
-            warna || ""
-        ).trim();
-
-
-    if (
-        /^#[0-9A-Fa-f]{6}$/
-            .test(value)
-    ) {
-
-        return value;
-
-    }
-
-
-    return null;
-
-}
-
-
-// ==========================================
-// UPDATE UI WARNA
-// ==========================================
-
-function updateWarnaUI(
-    warna
-) {
-
-    const warnaValid =
-        validasiWarna(
-            warna
-        ) ||
-        "#15803d";
-
-
-    // ======================================
-    // COLOR INPUT
-    // ======================================
-
-    const colorInput =
-        el(
-            "warnaTema"
-        );
-
-
-    if (colorInput) {
-
-        colorInput.value =
-            warnaValid;
-
-    }
-
-
-    // ======================================
-    // PREVIEW WARNA
-    // ======================================
-
-    const warnaPreview =
-        el(
-            "warnaPreview"
-        );
-
-
-    if (warnaPreview) {
-
-        warnaPreview.style.backgroundColor =
-            warnaValid;
-
-    }
-
-
-    // ======================================
-    // TEXT WARNA
-    // ======================================
-
-    const warnaText =
-        el(
-            "warnaText"
-        );
-
-
-    if (warnaText) {
-
-        warnaText.textContent =
-            warnaValid.toUpperCase();
-
-    }
-
-
-    // ======================================
-    // THEME COLOR
-    // ======================================
-
-    document.documentElement
-        .style
-        .setProperty(
-            "--primary-color",
-            warnaValid
-        );
-
-
-    document.documentElement
-        .style
-        .setProperty(
-            "--theme-color",
-            warnaValid
-        );
 
 }
 
@@ -1316,7 +1166,7 @@ function previewLogo() {
         file;
 
 
-    // ======================================
+// ======================================
     // PREVIEW
     // ======================================
 
@@ -1390,14 +1240,6 @@ async function uploadLogo(
 
     // ======================================
     // BUCKET
-    // ======================================
-    //
-    // Bucket yang digunakan:
-    // sidat
-    //
-    // Jika bucket Anda berbeda,
-    // ubah satu nama ini saja.
-    //
     // ======================================
 
     const bucket =
@@ -1582,23 +1424,6 @@ async function simpanPengaturan(
             );
 
 
-        const warnaTema =
-            validasiWarna(
-                getValue(
-                    "warnaTema"
-                )
-            );
-
-
-        if (!warnaTema) {
-
-            throw new Error(
-                "Warna tema tidak valid."
-            );
-
-        }
-
-
         // ======================================
         // DISABLE BUTTON
         // ======================================
@@ -1676,9 +1501,6 @@ async function simpanPengaturan(
 
             logo_url:
                 logoUrl,
-
-            warna_tema:
-                warnaTema,
 
             updated_at:
                 new Date()
@@ -1789,15 +1611,6 @@ async function simpanPengaturan(
 
 
         // ======================================
-        // UPDATE TEMA
-        // ======================================
-
-        updateWarnaUI(
-            result.data.warna_tema
-        );
-
-
-        // ======================================
         // PESAN SUKSES
         // ======================================
 
@@ -1869,40 +1682,6 @@ async function simpanPengaturan(
         }
 
     }
-
-}
-
-
-// ==========================================
-// EVENT WARNA
-// ==========================================
-
-function ubahWarnaTema(
-    value
-) {
-
-    const warna =
-        validasiWarna(
-            value
-        );
-
-
-    if (!warna) {
-
-        return;
-
-    }
-
-
-    setValue(
-        "warnaTema",
-        warna
-    );
-
-
-    updateWarnaUI(
-        warna
-    );
 
 }
 
@@ -1989,32 +1768,6 @@ if (logoInput) {
 
 
 // ==========================================
-// EVENT WARNA
-// ==========================================
-
-const warnaInput =
-    el(
-        "warnaTema"
-    );
-
-
-if (warnaInput) {
-
-    warnaInput.addEventListener(
-        "input",
-        function () {
-
-            ubahWarnaTema(
-                this.value
-            );
-
-        }
-    );
-
-}
-
-
-// ==========================================
 // EXPORT FUNCTION
 // ==========================================
 
@@ -2036,14 +1789,6 @@ window.kembaliDashboard =
 
 window.previewLogo =
     previewLogo;
-
-
-window.ubahWarnaTema =
-    ubahWarnaTema;
-
-
-window.updateWarnaUI =
-    updateWarnaUI;
 
 
 // ==========================================
