@@ -96,20 +96,33 @@ let wargaTerpilih = [];
 // LOAD KEPALA KELUARGA
 // ==========================================
 
+// ==========================================
+// LOAD KEPALA KELUARGA
+// ==========================================
+
 async function muatKepalaKeluarga() {
 
     tampilkanLoading();
-
 
     try {
 
         const response =
             await fetch(
 
-                `${SUPABASE_URL}/rest/v1/residents` +
-                `?select=id,resident_code,name,kk_number,qr_token,is_active,family_status` +
-                `&is_active=eq.true` +
-                `&order=name.asc`,
+                `${SUPABASE_URL}/rest/v1/households` +
+                `?select=` +
+                `id,` +
+                `kk_number,` +
+                `head_resident_id,` +
+                `qr_token,` +
+                `address,` +
+                `head:residents!households_head_resident_id_fkey(` +
+                    `id,` +
+                    `resident_code,` +
+                    `name,` +
+                    `is_active` +
+                `)` +
+                `&order=kk_number.asc`,
 
                 {
 
@@ -145,27 +158,68 @@ async function muatKepalaKeluarga() {
 
 
         /*
-         * Untuk keamanan, kita tampilkan
-         * semua warga aktif yang memiliki
-         * nomor KK.
+         * Satu KK = satu pilihan.
          *
-         * Jika family_status tersedia,
-         * kepala keluarga diprioritaskan.
+         * Kepala keluarga ditentukan
+         * oleh households.head_resident_id.
+         *
+         * Token QR berasal dari
+         * households.qr_token.
          */
 
         daftarKepalaKeluarga =
             Array.isArray(data)
-                ? data.filter(
-                    warga =>
-                        warga.is_active !== false &&
-                        warga.kk_number
-                )
+
+                ? data
+                    .filter(
+                        kk =>
+                            kk &&
+                            kk.kk_number &&
+                            kk.head &&
+                            kk.head.is_active !== false
+                    )
+                    .map(
+                        kk => ({
+
+                            id:
+                                kk.head.id,
+
+                            resident_code:
+                                kk.head.resident_code,
+
+                            name:
+                                kk.head.name,
+
+                            kk_number:
+                                kk.kk_number,
+
+                            qr_token:
+                                kk.qr_token,
+
+                            household_id:
+                                kk.id,
+
+                            head_resident_id:
+                                kk.head_resident_id,
+
+                            address:
+                                kk.address
+
+                        })
+                    )
+
                 : [];
 
 
         console.log(
             "SIDAT QR JUMLAH KK:",
             daftarKepalaKeluarga.length
+        );
+
+
+        console.log(
+            "SIDAT QR DATA KK:",
+            daftarKepalaKeluarga
         );
 
 
@@ -201,17 +255,13 @@ async function muatKepalaKeluarga() {
 
             errorMessage.textContent =
                 error.message ||
-                "Gagal mengambil data warga.";
+                "Gagal mengambil data KK.";
 
         }
 
     }
 
 }
-
-
-// ==========================================
-// TAMPILKAN LIST
 // ==========================================
 
 function tampilkanKepalaKeluarga(
@@ -956,30 +1006,52 @@ async function cetakQR() {
             );
 
 
-            const img =
-                qrBox.querySelector(
-                    "img"
-                );
+const img =
+    qrBox.querySelector(
+        "img"
+    );
+
+const canvas =
+    qrBox.querySelector(
+        "canvas"
+    );
 
 
-            if (img) {
-
-                hasil.push({
-
-                    warga:
-                        warga,
-
-                    token:
-                        token,
-
-                    image:
-                        img.src
-
-                });
-
-            }
+let imageData =
+    null;
 
 
+if (img) {
+
+    imageData =
+        img.src;
+
+} else if (canvas) {
+
+    imageData =
+        canvas.toDataURL(
+            "image/png"
+        );
+
+}
+
+
+if (imageData) {
+
+    hasil.push({
+
+        warga:
+            warga,
+
+        token:
+            token,
+
+        image:
+            imageData
+
+    });
+
+}
             document.body.removeChild(
                 qrBox
             );
@@ -1033,15 +1105,22 @@ async function cetakQR() {
 // SIMPAN TOKEN
 // ==========================================
 
+
+// ==========================================
+// SIMPAN TOKEN QR KE HOUSEHOLDS
+// ==========================================
+
 async function simpanTokenQR(
     residentId,
     token
 ) {
 
+    // Cari KK berdasarkan kepala keluarga
     const response =
         await fetch(
 
-            `${SUPABASE_URL}/rest/v1/residents?id=eq.${encodeURIComponent(
+            `${SUPABASE_URL}/rest/v1/households` +
+            `?head_resident_id=eq.${encodeURIComponent(
                 residentId
             )}`,
 
@@ -1059,7 +1138,10 @@ async function simpanTokenQR(
                         `Bearer ${accessToken}`,
 
                     "Content-Type":
-                        "application/json"
+                        "application/json",
+
+                    "Prefer":
+                        "return=minimal"
 
                 },
 
@@ -1085,8 +1167,6 @@ async function simpanTokenQR(
     }
 
 }
-
-
 // ==========================================
 // JENDELA CETAK
 // ==========================================
