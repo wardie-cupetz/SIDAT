@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Pengumuman - SIDAT</title>
+
+    <link rel="stylesheet" href="pengumuman.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- HEADER -->
+    <header class="page-header">
+
+        <button
+            type="button"
+            class="btn-back"
+            onclick="kembaliDashboard()"
+        >
+            ‹
+        </button>
+
+        <div>
+            <h1>Pengumuman</h1>
+            <p>Pengumuman & notifikasi warga</p>
+        </div>
+
+    </header>
+
+
+    <!-- MAIN -->
+    <main class="container">
+
+
+        <!-- FORM PENGUMUMAN -->
+        <section class="card">
+
+            <div class="section-title">
+
+                <div>
+                    <h2>📢 Buat Pengumuman</h2>
+                    <p>
+                        Kirim informasi kepada warga
+                    </p>
+                </div>
+
+            </div>
+
+
+            <form id="formPengumuman">
+
+
+                <!-- JUDUL -->
+                <div class="form-group">
+
+                    <label for="judul">
+                        Judul Pengumuman
+                    </label>
+
+                    <input
+                        type="text"
+                        id="judul"
+                        maxlength="150"
+                        placeholder="Contoh: Kerja Bakti Minggu Ini"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- JENIS -->
+                <div class="form-group">
+
+                    <label for="jenis">
+                        Jenis Pengumuman
+                    </label>
+
+                    <select
+                        id="jenis"
+                        required
+                    >
+
+                        <option value="general">
+                            📢 Umum
+                        </option>
+
+                        <option value="important">
+                            🚨 Penting
+                        </option>
+
+                        <option value="activity">
+                            📅 Kegiatan
+                        </option>
+
+                        <option value="finance">
+                            💰 Keuangan
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- TARGET -->
+                <div class="form-group">
+
+                    <label for="targetType">
+                        Target Pengumuman
+                    </label>
+
+                    <select
+                        id="targetType"
+                        required
+                    >
+
+                        <option value="all">
+                            👥 Semua Warga
+                        </option>
+
+                        <option value="selected">
+                            👤 Warga Tertentu
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- WARGA TERTENTU -->
+                <div
+                    class="form-group hidden"
+                    id="targetWargaGroup"
+                >
+
+                    <label for="targetWarga">
+                        Pilih Warga
+                    </label>
+
+                    <select
+                        id="targetWarga"
+                    >
+
+                        <option value="">
+                            Memuat data warga...
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- ISI -->
+                <div class="form-group">
+
+                    <label for="isi">
+                        Isi Pengumuman
+                    </label>
+
+                    <textarea
+                        id="isi"
+                        rows="7"
+                        maxlength="5000"
+                        placeholder="Tuliskan isi pengumuman..."
+                        required
+                    ></textarea>
+
+                    <div class="char-count">
+                        <span id="charCount">0</span>
+                        / 5000
+                    </div>
+
+                </div>
+
+
+                <!-- BUTTON -->
+                <button
+                    type="submit"
+                    id="btnKirim"
+                    class="btn-primary"
+                >
+                    📢 Kirim Pengumuman
+                </button>
+
+
+                <div
+                    id="formMessage"
+                    class="form-message"
+                ></div>
+
+            </form>
+
+        </section>
+
+
+
+        <!-- RIWAYAT -->
+        <section class="card">
+
+            <div class="section-title">
+
+                <div>
+
+                    <h2>📋 Riwayat Pengumuman</h2>
+
+                    <p>
+                        Pengumuman yang telah dibuat
+                    </p>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="btnRefresh"
+                    class="btn-refresh"
+                >
+                    ↻ Refresh
+                </button>
+
+            </div>
+
+
+            <div
+                id="loading"
+                class="loading"
+            >
+                Memuat pengumuman...
+            </div>
+
+
+            <div
+                id="emptyState"
+                class="empty-state hidden"
+            >
+                <div class="empty-icon">
+                    📢
+                </div>
+
+                <h3>
+                    Belum ada pengumuman
+                </h3>
+
+                <p>
+                    Pengumuman yang dibuat akan muncul di sini.
+                </p>
+            </div>
+
+
+            <div
+                id="listPengumuman"
+                class="announcement-list"
+            ></div>
+
+        </section>
+
+    </main>
+
+
+    <!-- FOOTER -->
+    <footer>
+
+        <strong>SIDAT</strong>
+
+        <span>
+            Dibuat oleh Suwardi
+        </span>
+
+    </footer>
+
+</div>
+
+
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- KONFIGURASI SIDAT -->
+<script src="../js/supabase-config.js"></script>
+<!-- SCRIPT -->
+<script src="pengumuman.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,655 @@
+/* ==========================================
+   SIDAT
+   JIMPITAN TRANSFER
+   Dibuat oleh Suwardi
+========================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+
+body {
+    margin: 0;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #f3f4f6;
+
+    color: #1f2937;
+}
+
+
+.app {
+    min-height: 100vh;
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+/* ==========================================
+   HEADER
+========================================== */
+
+.header {
+    background: #15803d;
+
+    color: white;
+
+    padding: 14px 16px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 10;
+
+    box-shadow:
+        0 2px 8px
+        rgba(0, 0, 0, 0.15);
+}
+
+
+.back-button {
+    width: 42px;
+
+    height: 42px;
+
+    border: none;
+
+    background: rgba(
+        255,
+        255,
+        255,
+        0.15
+    );
+
+    color: white;
+
+    border-radius: 12px;
+
+    font-size: 30px;
+
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+
+.header-title {
+    flex: 1;
+}
+
+
+.header-title h1 {
+    margin: 0;
+
+    font-size: 19px;
+}
+
+
+.header-title span {
+    display: block;
+
+    margin-top: 3px;
+
+    font-size: 12px;
+
+    opacity: 0.85;
+}
+
+
+.header-icon {
+    font-size: 27px;
+}
+
+
+/* ==========================================
+   CONTENT
+========================================== */
+
+.content {
+    width: 100%;
+
+    max-width: 720px;
+
+    margin: 0 auto;
+
+    padding: 18px 14px 30px;
+
+    flex: 1;
+}
+
+
+/* ==========================================
+   SUMMARY
+========================================== */
+
+.summary-card {
+    background: white;
+
+    border-radius: 18px;
+
+    padding: 18px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    box-shadow:
+        0 2px 8px
+        rgba(0, 0, 0, 0.06);
+
+    margin-bottom: 14px;
+}
+
+
+.summary-icon {
+    width: 54px;
+
+    height: 54px;
+
+    border-radius: 16px;
+
+    background: #dcfce7;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 27px;
+}
+
+
+.summary-info {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+
+.summary-info span {
+    font-size: 13px;
+
+    color: #6b7280;
+}
+
+
+.summary-info strong {
+    font-size: 25px;
+
+    color: #15803d;
+}
+
+
+.summary-info small {
+    color: #9ca3af;
+
+    font-size: 12px;
+}
+
+
+/* ==========================================
+   INFO
+========================================== */
+
+.info-box {
+    display: flex;
+
+    gap: 10px;
+
+    background: #eff6ff;
+
+    border: 1px solid #bfdbfe;
+
+    color: #1e40af;
+
+    padding: 13px 14px;
+
+    border-radius: 14px;
+
+    margin-bottom: 18px;
+}
+
+
+.info-box span {
+    font-size: 18px;
+}
+
+
+.info-box p {
+    margin: 0;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+
+/* ==========================================
+   SECTION
+========================================== */
+
+.section {
+    background: white;
+
+    border-radius: 18px;
+
+    padding: 16px;
+
+    box-shadow:
+        0 2px 8px
+        rgba(0, 0, 0, 0.06);
+}
+
+
+.section-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-bottom: 14px;
+}
+
+
+.section-header h2 {
+    margin: 0;
+
+    font-size: 16px;
+}
+
+
+.section-header span {
+    display: block;
+
+    margin-top: 4px;
+
+    color: #9ca3af;
+
+    font-size: 12px;
+}
+
+
+.select-all-button {
+    border: 1px solid #bbf7d0;
+
+    background: #f0fdf4;
+
+    color: #15803d;
+
+    padding: 8px 11px;
+
+    border-radius: 10px;
+
+    font-size: 12px;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+}
+
+
+.select-all-button:active {
+    transform: scale(0.97);
+}
+
+
+/* ==========================================
+   TRANSACTION LIST
+========================================== */
+
+.transaction-list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+
+.transaction-item {
+    border: 1px solid #e5e7eb;
+
+    border-radius: 14px;
+
+    padding: 13px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    transition:
+        border-color 0.15s,
+        background 0.15s;
+}
+
+
+.transaction-item.selected {
+    border-color: #86efac;
+
+    background: #f0fdf4;
+}
+
+
+.transaction-checkbox {
+    width: 21px;
+
+    height: 21px;
+
+    accent-color: #15803d;
+
+    flex-shrink: 0;
+}
+
+
+.transaction-info {
+    flex: 1;
+
+    min-width: 0;
+}
+
+
+.transaction-name {
+    font-weight: 700;
+
+    font-size: 14px;
+
+    color: #111827;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+.transaction-meta {
+    margin-top: 4px;
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 5px 9px;
+
+    color: #6b7280;
+
+    font-size: 11px;
+}
+
+
+.transaction-amount {
+    font-size: 15px;
+
+    font-weight: 700;
+
+    color: #15803d;
+
+    white-space: nowrap;
+}
+
+
+/* ==========================================
+   LOADING
+========================================== */
+
+.loading {
+    text-align: center;
+
+    padding: 25px 10px;
+
+    color: #9ca3af;
+
+    font-size: 13px;
+}
+
+
+.empty {
+    text-align: center;
+
+    padding: 28px 10px;
+
+    color: #6b7280;
+
+    font-size: 13px;
+}
+
+
+/* ==========================================
+   SELECTED TOTAL
+========================================== */
+
+.selected-card {
+    margin-top: 14px;
+
+    background: #166534;
+
+    color: white;
+
+    border-radius: 18px;
+
+    padding: 17px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+}
+
+
+.selected-card span {
+    font-size: 12px;
+
+    opacity: 0.85;
+}
+
+
+.selected-card strong {
+    display: block;
+
+    margin-top: 3px;
+
+    font-size: 22px;
+}
+
+
+.selected-count {
+    white-space: nowrap;
+
+    background: rgba(
+        255,
+        255,
+        255,
+        0.12
+    );
+
+    padding: 7px 10px;
+
+    border-radius: 9px;
+}
+
+
+/* ==========================================
+   TRANSFER BUTTON
+========================================== */
+
+.transfer-button {
+    width: 100%;
+
+    border: none;
+
+    border-radius: 15px;
+
+    padding: 15px;
+
+    margin-top: 14px;
+
+    background: #15803d;
+
+    color: white;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 10px
+        rgba(21, 128, 61, 0.25);
+}
+
+
+.transfer-button:disabled {
+    background: #d1d5db;
+
+    color: #6b7280;
+
+    box-shadow: none;
+
+    cursor: not-allowed;
+}
+
+
+.transfer-button:not(:disabled):active {
+    transform: scale(0.98);
+}
+
+
+/* ==========================================
+   MESSAGE
+========================================== */
+
+.message-box {
+    margin-top: 14px;
+
+    padding: 13px;
+
+    border-radius: 12px;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+
+.message-box.success {
+    background: #dcfce7;
+
+    border: 1px solid #86efac;
+
+    color: #166534;
+}
+
+
+.message-box.error {
+    background: #fee2e2;
+
+    border: 1px solid #fecaca;
+
+    color: #991b1b;
+}
+
+
+/* ==========================================
+   FOOTER
+========================================== */
+
+footer {
+    padding: 20px 10px 25px;
+
+    text-align: center;
+
+    color: #9ca3af;
+
+    font-size: 11px;
+}
+
+
+footer strong {
+    display: block;
+
+    color: #15803d;
+
+    font-size: 13px;
+
+    margin-bottom: 3px;
+}
+
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (
+    max-width: 480px
+) {
+
+    .content {
+        padding:
+            14px 10px 25px;
+    }
+
+
+    .summary-card {
+        padding: 15px;
+    }
+
+
+    .summary-info strong {
+        font-size: 22px;
+    }
+
+
+    .section {
+        padding: 13px;
+    }
+
+
+    .section-header {
+        align-items: flex-start;
+    }
+
+
+    .section-header h2 {
+        font-size: 15px;
+    }
+
+
+    .transaction-item {
+        padding: 11px;
+    }
+
+
+    .transaction-amount {
+        font-size: 14px;
+    }
+
+}

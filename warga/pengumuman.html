@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#15803d"
+    >
+
+    <title>
+        SIDAT - Pengumuman
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="pengumuman.css"
+    >
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- ======================================
+         HEADER
+    ======================================= -->
+
+    <header class="header">
+
+        <button
+            type="button"
+            class="back-btn"
+            onclick="kembaliDashboard()"
+            aria-label="Kembali ke dashboard"
+        >
+            ‹
+        </button>
+
+
+        <div class="header-title">
+
+            <h1>
+                Pengumuman
+            </h1>
+
+            <span>
+                Informasi resmi dari Admin RT
+            </span>
+
+        </div>
+
+
+        <div class="header-icon">
+            📢
+        </div>
+
+    </header>
+
+
+
+    <!-- ======================================
+         CONTENT
+    ======================================= -->
+
+    <main class="content">
+
+
+        <!-- ==================================
+             JUDUL
+        =================================== -->
+
+        <section class="page-title">
+
+            <div class="page-icon">
+                📢
+            </div>
+
+
+            <div>
+
+                <h2>
+                    Pengumuman RT
+                </h2>
+
+
+                <p>
+                    Informasi terbaru dan resmi
+                    dari pengurus RT.
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==================================
+             LOADING
+        =================================== -->
+
+        <div
+            id="loading"
+            class="loading"
+        >
+
+            Memuat pengumuman...
+
+        </div>
+
+
+
+        <!-- ==================================
+             DAFTAR PENGUMUMAN
+        =================================== -->
+
+        <section
+            id="announcementList"
+            class="announcement-list"
+        ></section>
+
+
+
+        <!-- ==================================
+             EMPTY
+        =================================== -->
+
+        <div
+            id="emptyState"
+            class="empty-state hidden"
+        >
+
+            <div class="empty-icon">
+                📢
+            </div>
+
+
+            <strong>
+                Belum ada pengumuman
+            </strong>
+
+
+            <span>
+                Belum ada pengumuman terbaru
+                dari Admin RT.
+            </span>
+
+        </div>
+
+
+
+        <!-- ==================================
+             ERROR
+        =================================== -->
+
+        <div
+            id="errorState"
+            class="empty-state hidden"
+        >
+
+            <div class="empty-icon">
+                ⚠️
+            </div>
+
+
+            <strong>
+                Gagal memuat pengumuman
+            </strong>
+
+
+            <span>
+                Silakan coba lagi beberapa saat.
+            </span>
+
+        </div>
+
+
+    </main>
+
+
+
+    <!-- ======================================
+         FOOTER
+    ======================================= -->
+
+    <footer>
+
+        <strong>
+            SIDAT
+        </strong>
+
+        <span>
+            Dibuat oleh Suwardi
+        </span>
+
+    </footer>
+
+
+</div>
+
+
+
+<!-- ==========================================
+     SUPABASE CONFIG
+=========================================== -->
+
+<script
+    src="../js/supabase-config.js"
+></script>
+
+
+<!-- ==========================================
+     JAVASCRIPT
+=========================================== -->
+
+<script
+    src="pengumuman.js"
+></script>
+
+
+</body>
+
+</html>

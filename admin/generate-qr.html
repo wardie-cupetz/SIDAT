@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#15803d"
+    >
+
+    <title>
+        SIDAT - Generate QR KK
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="generate-qr.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<div class="qr-container">
+
+
+    <!-- =====================================
+         HEADER
+    ====================================== -->
+
+    <header class="top-header">
+
+        <button
+            type="button"
+            class="back-button"
+            onclick="kembaliDashboard()"
+        >
+            ←
+        </button>
+
+
+        <div class="header-title">
+
+            <div class="header-icon">
+                📱
+            </div>
+
+            <div>
+
+                <h1>
+                    Generate QR
+                </h1>
+
+                <span>
+                    QR KK untuk jimpitan
+                </span>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================
+         INFORMASI
+    ====================================== -->
+
+    <section class="info-card">
+
+        <div class="info-icon">
+            ℹ️
+        </div>
+
+        <div>
+
+            <strong>
+                QR Jimpitan Warga
+            </strong>
+
+            <p>
+                QR dibuat berdasarkan kode QR
+                kepala keluarga yang sudah
+                tersimpan di sistem SIDAT.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================
+         PENCARIAN
+    ====================================== -->
+
+    <section class="search-card">
+
+        <div class="section-title">
+
+            <div class="section-icon">
+                🔎
+            </div>
+
+            <div>
+
+                <strong>
+                    Pilih Kepala Keluarga
+                </strong>
+
+                <small>
+                    Cari berdasarkan nama, ID, atau nomor KK
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="search-box">
+
+            <span>
+                🔎
+            </span>
+
+            <input
+                type="search"
+                id="searchInput"
+                placeholder="Cari nama / ID / nomor KK..."
+                autocomplete="off"
+            >
+
+            <button
+                type="button"
+                id="clearSearch"
+                class="clear-search hidden"
+                onclick="bersihkanPencarian()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <!-- ==================================
+             PILIH SEMUA
+        =================================== -->
+
+        <div class="select-toolbar">
+
+            <label class="select-all">
+
+                <input
+                    type="checkbox"
+                    id="selectAll"
+                >
+
+                <span>
+                    Pilih Semua
+                </span>
+
+            </label>
+
+
+            <span
+                id="selectedCount"
+                class="selected-count"
+            >
+                0 dipilih
+            </span>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================
+         LOADING
+    ====================================== -->
+
+    <div
+        id="loadingState"
+        class="loading-state"
+    >
+
+        <div class="spinner"></div>
+
+        <span>
+            Memuat data kepala keluarga...
+        </span>
+
+    </div>
+
+
+    <!-- =====================================
+         ERROR
+    ====================================== -->
+
+    <div
+        id="errorState"
+        class="error-state hidden"
+    >
+
+        <div class="error-icon">
+            ⚠️
+        </div>
+
+        <strong>
+            Gagal memuat data
+        </strong>
+
+        <p id="errorMessage">
+            Terjadi kesalahan saat mengambil data warga.
+        </p>
+
+        <button
+            type="button"
+            onclick="muatKepalaKeluarga()"
+        >
+            Coba Lagi
+        </button>
+
+    </div>
+
+
+    <!-- =====================================
+         EMPTY
+    ====================================== -->
+
+    <div
+        id="emptyState"
+        class="empty-state hidden"
+    >
+
+        <div class="empty-icon">
+            👥
+        </div>
+
+        <strong>
+            Data tidak ditemukan
+        </strong>
+
+        <span>
+            Tidak ada kepala keluarga yang sesuai.
+        </span>
+
+    </div>
+
+
+    <!-- =====================================
+         LIST KEPALA KELUARGA
+    ====================================== -->
+
+    <main
+        id="residentList"
+        class="resident-list"
+    ></main>
+
+
+    <!-- =====================================
+         TOMBOL CETAK
+    ====================================== -->
+
+    <div class="print-bar">
+
+        <div class="print-info">
+
+            <strong id="printCount">
+                0
+            </strong>
+
+            <span>
+                QR dipilih
+            </span>
+
+        </div>
+
+
+        <button
+            type="button"
+            id="printButton"
+            class="print-button"
+            onclick="cetakQR()"
+            disabled
+        >
+            🖨️ Cetak QR
+        </button>
+
+    </div>
+
+
+    <!-- =====================================
+         FOOTER
+    ====================================== -->
+
+    <footer>
+
+        <strong>
+            SIDAT
+        </strong>
+
+        <span>
+            Sistem Data Warga
+        </span>
+
+        <small>
+            Dibuat oleh Suwardi
+        </small>
+
+    </footer>
+
+
+</div>
+
+
+<!-- ==========================================
+     SUPABASE
+========================================== -->
+
+<script
+    src="../js/supabase-config.js"
+></script>
+
+
+<!-- ==========================================
+     QR CODE LIBRARY
+========================================== -->
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
+></script>
+
+
+<!-- ==========================================
+     JAVASCRIPT
+========================================== -->
+
+<script
+    src="generate-qr.js"
+></script>
+
+
+</body>
+
+</html>

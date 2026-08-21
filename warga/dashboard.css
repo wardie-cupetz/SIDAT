@@ -1,0 +1,1698 @@
+/* =========================================
+   SIDAT - DASHBOARD WARGA
+========================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+body {
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background:
+        #f1f5f9;
+
+    color:
+        #1e293b;
+
+    min-height:
+        100vh;
+}
+
+
+button {
+    font-family:
+        inherit;
+}
+
+
+/* =========================================
+   CONTAINER
+========================================= */
+
+.dashboard-container {
+
+    width: 100%;
+
+    max-width: 520px;
+
+    min-height: 100vh;
+
+    margin: auto;
+
+    background:
+        #f8fafc;
+
+    padding-bottom: 30px;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.top-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding:
+        18px
+        18px
+        15px;
+
+    background:
+        white;
+
+    border-bottom:
+        1px solid
+        #e2e8f0;
+
+    position:
+        sticky;
+
+    top: 0;
+
+    z-index: 10;
+}
+
+
+.brand {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+}
+
+
+.brand-logo {
+
+    width: 43px;
+
+    height: 43px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #15803d,
+            #22c55e
+        );
+
+    color:
+        white;
+
+    font-size:
+        13px;
+
+    font-weight:
+        800;
+}
+
+
+.brand h1 {
+
+    font-size:
+        19px;
+
+    color:
+        #14532d;
+}
+
+
+.brand span {
+
+    display: block;
+
+    margin-top: 2px;
+
+    font-size:
+        10px;
+
+    color:
+        #64748b;
+}
+
+
+.notification-button {
+
+    position:
+        relative;
+
+    width:
+        42px;
+
+    height:
+        42px;
+
+    border:
+        1px solid
+        #e2e8f0;
+
+    border-radius:
+        12px;
+
+    background:
+        white;
+
+    font-size:
+        19px;
+
+    cursor:
+        pointer;
+}
+
+
+.notification-badge {
+
+    position:
+        absolute;
+
+    top:
+        -4px;
+
+    right:
+        -4px;
+
+    min-width:
+        18px;
+
+    height:
+        18px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    padding:
+        0 4px;
+
+    border-radius:
+        20px;
+
+    background:
+        #dc2626;
+
+    color:
+        white;
+
+    font-size:
+        9px;
+
+    font-weight:
+        bold;
+}
+
+
+/* =========================================
+   GENERAL
+========================================= */
+
+.hidden {
+    display:
+        none !important;
+}
+
+
+/* =========================================
+   REGION
+========================================= */
+
+.region-card {
+
+    margin:
+        15px
+        15px
+        12px;
+
+    padding:
+        15px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        13px;
+
+    border-radius:
+        15px;
+
+    background:
+        #14532d;
+
+    color:
+        white;
+}
+
+
+.region-logo {
+
+    width:
+        48px;
+
+    height:
+        48px;
+
+    border-radius:
+        12px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.15
+        );
+
+    font-weight:
+        800;
+}
+
+
+.region-info h2 {
+
+    font-size:
+        16px;
+
+    margin-bottom:
+        4px;
+}
+
+
+.region-info p {
+
+    font-size:
+        11px;
+
+    opacity:
+        0.8;
+}
+
+
+/* =========================================
+   PROFILE
+========================================= */
+
+.profile-card {
+
+    margin:
+        0 15px 12px;
+
+    padding:
+        15px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        12px;
+
+    background:
+        white;
+
+    border:
+        1px solid
+        #e2e8f0;
+
+    border-radius:
+        15px;
+}
+
+
+.profile-photo-wrapper {
+
+    width:
+        62px;
+
+    height:
+        62px;
+
+    flex-shrink:
+        0;
+
+    border-radius:
+        50%;
+
+    overflow:
+        hidden;
+
+    background:
+        #dcfce7;
+
+    border:
+        3px solid
+        #bbf7d0;
+}
+
+
+.profile-photo-wrapper img {
+
+    width:
+        100%;
+
+    height:
+        100%;
+
+    object-fit:
+        cover;
+}
+
+
+.profile-info {
+
+    flex:
+        1;
+}
+
+
+.welcome-text {
+
+    display:
+        block;
+
+    font-size:
+        11px;
+
+    color:
+        #64748b;
+
+    margin-bottom:
+        3px;
+}
+
+
+.profile-info h2 {
+
+    font-size:
+        17px;
+
+    color:
+        #14532d;
+
+    margin-bottom:
+        4px;
+}
+
+
+.profile-info p {
+
+    font-size:
+        11px;
+
+    color:
+        #64748b;
+}
+
+
+.profile-info strong {
+
+    color:
+        #15803d;
+}
+
+
+.profile-button {
+
+    width:
+        32px;
+
+    height:
+        32px;
+
+    border:
+        none;
+
+    border-radius:
+        9px;
+
+    background:
+        #f1f5f9;
+
+    color:
+        #64748b;
+
+    font-size:
+        22px;
+
+    cursor:
+        pointer;
+}
+
+
+/* =========================================
+   NOTIFICATION
+========================================= */
+
+.notification-card {
+
+    margin:
+        0 15px 12px;
+
+    padding:
+        15px;
+
+    background:
+        white;
+
+    border:
+        1px solid
+        #e2e8f0;
+
+    border-radius:
+        15px;
+}
+
+
+.section-title {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        10px;
+
+    margin-bottom:
+        12px;
+}
+
+
+.section-title > div:first-child {
+
+    width:
+        39px;
+
+    height:
+        39px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        10px;
+
+    background:
+        #fef3c7;
+
+    font-size:
+        18px;
+}
+
+
+.section-title h3 {
+
+    font-size:
+        14px;
+
+    margin-bottom:
+        3px;
+}
+
+
+.section-title span {
+
+    font-size:
+        10px;
+
+    color:
+        #64748b;
+}
+
+
+.notification-content {
+
+    padding:
+        12px;
+
+    border-radius:
+        10px;
+
+    background:
+        #f8fafc;
+
+    color:
+        #64748b;
+
+    font-size:
+        12px;
+
+    line-height:
+        1.5;
+}
+
+
+.text-button {
+
+    margin-top:
+        10px;
+
+    border:
+        none;
+
+    background:
+        transparent;
+
+    color:
+        #15803d;
+
+    font-size:
+        11px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+}
+
+
+/* =========================================
+   SALDO KAS
+========================================= */
+
+.balance-card {
+
+    margin:
+        0 15px 12px;
+
+    padding:
+        17px;
+
+    border-radius:
+        15px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #166534,
+            #15803d
+        );
+
+    color:
+        white;
+
+    cursor:
+        pointer;
+
+    box-shadow:
+        0 7px 18px
+        rgba(
+            21,
+            128,
+            61,
+            0.18
+        );
+}
+
+
+.balance-header {
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    font-size:
+        12px;
+
+    opacity:
+        0.9;
+}
+
+
+.balance-amount {
+
+    margin-top:
+        8px;
+
+    font-size:
+        27px;
+
+    font-weight:
+        800;
+}
+
+
+.balance-footer {
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    margin-top:
+        7px;
+
+    font-size:
+        10px;
+
+    opacity:
+        0.75;
+}
+
+
+/* =========================================
+   STATISTICS
+========================================= */
+
+.statistics-grid {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap:
+        12px;
+
+    margin:
+        0 15px 12px;
+}
+
+
+.stat-card {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        10px;
+
+    padding:
+        14px;
+
+    background:
+        white;
+
+    border:
+        1px solid
+        #e2e8f0;
+
+    border-radius:
+        14px;
+}
+
+
+.stat-icon {
+
+    width:
+        39px;
+
+    height:
+        39px;
+
+    flex-shrink:
+        0;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        10px;
+
+    background:
+        #dcfce7;
+
+    font-size:
+        17px;
+}
+
+
+.stat-card span {
+
+    display:
+        block;
+
+    font-size:
+        9px;
+
+    color:
+        #64748b;
+
+    margin-bottom:
+        3px;
+}
+
+
+.stat-card strong {
+
+    font-size:
+        19px;
+
+    color:
+        #14532d;
+}
+
+
+.stat-card small {
+
+    margin-left:
+        3px;
+
+    font-size:
+        9px;
+
+    color:
+        #64748b;
+}
+
+
+/* =========================================
+   JIMPITAN
+========================================= */
+
+.jimpitan-card {
+
+    margin:
+        0 15px 15px;
+
+    padding:
+        17px;
+
+    background:
+        white;
+
+    border:
+        1px solid
+        #e2e8f0;
+
+    border-radius:
+        15px;
+}
+
+
+.jimpitan-header {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        10px;
+}
+
+
+.jimpitan-icon {
+
+    width:
+        42px;
+
+    height:
+        42px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        11px;
+
+    background:
+        #fef3c7;
+
+    font-size:
+        19px;
+}
+
+
+.jimpitan-header h3 {
+
+    font-size:
+        14px;
+
+    margin-bottom:
+        3px;
+}
+
+
+.jimpitan-header span {
+
+    font-size:
+        10px;
+
+    color:
+        #64748b;
+}
+
+
+.jimpitan-amount {
+
+    margin-top:
+        14px;
+
+    font-size:
+        25px;
+
+    font-weight:
+        800;
+
+    color:
+        #15803d;
+}
+
+
+.jimpitan-info {
+
+    margin-top:
+        8px;
+
+    padding:
+        10px;
+
+    border-radius:
+        9px;
+
+    background:
+        #fffbeb;
+
+    color:
+        #92400e;
+
+    font-size:
+        10px;
+
+    line-height:
+        1.5;
+}
+
+
+/* =========================================
+   MENU
+========================================= */
+
+.menu-section {
+
+    margin:
+        0 15px;
+}
+
+
+.section-heading {
+
+    margin-bottom:
+        10px;
+
+    font-size:
+        14px;
+
+    font-weight:
+        800;
+
+    color:
+        #334155;
+
+    text-transform:
+        uppercase;
+}
+
+
+.menu-grid {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap:
+        10px;
+}
+
+
+.menu-item {
+
+    min-height:
+        92px;
+
+    border:
+        1px solid
+        #e2e8f0;
+
+    border-radius:
+        14px;
+
+    background:
+        white;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        8px;
+
+    cursor:
+        pointer;
+
+    color:
+        #334155;
+}
+
+
+.menu-item:active {
+
+    transform:
+        scale(0.97);
+}
+
+
+.menu-icon {
+
+    width:
+        40px;
+
+    height:
+        40px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        11px;
+
+    background:
+        #f0fdf4;
+
+    font-size:
+        19px;
+}
+
+
+.menu-item span {
+
+    font-size:
+        11px;
+
+    font-weight:
+        600;
+}
+
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+.logout-button {
+
+    width:
+        calc(100% - 30px);
+
+    margin:
+        18px 15px 0;
+
+    height:
+        44px;
+
+    border:
+        1px solid
+        #fecaca;
+
+    border-radius:
+        11px;
+
+    background:
+        #fff;
+
+    color:
+        #dc2626;
+
+    font-size:
+        12px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+}
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+footer {
+
+    margin-top:
+        25px;
+
+    padding:
+        10px 15px;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    gap:
+        4px;
+
+    color:
+        #94a3b8;
+
+    font-size:
+        10px;
+
+    text-align:
+        center;
+}
+
+
+footer strong {
+
+    color:
+        #64748b;
+}
+
+
+/* =========================================
+   DESKTOP
+========================================= */
+
+@media (min-width: 600px) {
+
+    body {
+        padding:
+            20px 0;
+    }
+
+
+    .dashboard-container {
+
+        border-radius:
+            22px;
+
+        overflow:
+            hidden;
+
+        box-shadow:
+            0 15px 40px
+            rgba(
+                15,
+                23,
+                42,
+                0.1
+            );
+    }
+
+}
+/* ==========================================
+   PENGUMUMAN WARGA
+========================================== */
+
+.pengumuman-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 14px;
+    margin-bottom: 12px;
+}
+
+.pengumuman-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pengumuman-icon {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #fff7cc;
+    border-radius: 12px;
+
+    font-size: 21px;
+}
+
+.pengumuman-title {
+    flex: 1;
+}
+
+.pengumuman-title-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.pengumuman-title h3 {
+    margin: 0;
+
+    font-size: 15px;
+    color: #263238;
+}
+
+.pengumuman-title p {
+    margin: 4px 0 0;
+
+    font-size: 11px;
+    color: #7b8794;
+}
+
+.badge-pengumuman {
+    min-width: 19px;
+    height: 19px;
+
+    padding: 2px 6px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #dc2626;
+    color: white;
+
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.badge-pengumuman.hidden {
+    display: none;
+}
+
+.preview-pengumuman {
+    margin-top: 12px;
+}
+
+.pengumuman-kosong {
+    padding: 13px;
+
+    border-radius: 10px;
+
+    background: #f8fafc;
+
+    color: #7b8794;
+
+    font-size: 11px;
+}
+
+.preview-item-pengumuman {
+    display: flex;
+    gap: 10px;
+
+    padding: 11px;
+
+    margin-bottom: 7px;
+
+    border-radius: 10px;
+
+    background: #f8fafc;
+
+    cursor: pointer;
+}
+
+.preview-item-pengumuman:last-child {
+    margin-bottom: 0;
+}
+
+.preview-item-icon {
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: #dcfce7;
+
+    font-size: 16px;
+}
+
+.preview-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.preview-item-content strong {
+    display: block;
+
+    font-size: 12px;
+
+    color: #263238;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.preview-item-content p {
+    margin: 3px 0 0;
+
+    font-size: 10px;
+
+    color: #7b8794;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.preview-item-time {
+    flex-shrink: 0;
+
+    font-size: 9px;
+
+    color: #9ca3af;
+}
+
+/* ==========================================
+   TOMBOL LIHAT SEMUA PENGUMUMAN
+========================================== */
+
+.btn-lihat-pengumuman {
+
+    width: 100%;
+
+    margin-top: 12px;
+
+    padding: 12px 16px;
+
+    border: 1px solid #bbf7d0;
+
+    border-radius: 12px;
+
+    background: #f0fdf4;
+
+    color: #15803d;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    text-align: center;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease;
+
+}
+
+
+/* HOVER */
+
+.btn-lihat-pengumuman:hover {
+
+    background: #dcfce7;
+
+    border-color: #86efac;
+
+}
+
+
+/* SAAT DITEKAN DI HP */
+
+.btn-lihat-pengumuman:active {
+
+    transform: scale(0.98);
+
+    background: #bbf7d0;
+
+}
+
+
+/* FOKUS */
+
+.btn-lihat-pengumuman:focus {
+
+    outline: none;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(34, 197, 94, 0.15);
+
+}
+/* ==========================================
+   AREA PENGUMUMAN
+========================================== */
+
+.pengumuman-card {
+
+    margin-top: 16px;
+
+}
+
+
+.pengumuman-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+}
+
+
+.pengumuman-title {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+}
+
+
+.pengumuman-icon {
+
+    width: 40px;
+
+    height: 40px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: #dcfce7;
+
+    font-size: 20px;
+
+}
+
+
+.pengumuman-title h3 {
+
+    margin: 0;
+
+    color: #166534;
+
+    font-size: 16px;
+
+}
+
+
+.pengumuman-title p {
+
+    margin: 3px 0 0;
+
+    color: #6b7280;
+
+    font-size: 12px;
+
+}
+
+
+/* BADGE JUMLAH */
+
+.pengumuman-badge {
+
+    min-width: 22px;
+
+    height: 22px;
+
+    padding: 0 6px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50px;
+
+    background: #16a34a;
+
+    color: white;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+}
+
+
+.pengumuman-badge.hidden {
+
+    display: none;
+
+}
+
+
+/* PREVIEW */
+
+.preview-pengumuman {
+
+    margin-top: 12px;
+
+}
+
+
+/* JIKA BELUM ADA */
+
+.pengumuman-kosong {
+
+    padding: 16px;
+
+    border-radius: 12px;
+
+    background: #f9fafb;
+
+    color: #6b7280;
+
+    font-size: 13px;
+
+    text-align: center;
+
+}
+/* ==========================================
+   BADGE NOTIFIKASI PENGUMUMAN
+========================================== */
+
+.notification-button {
+    position: relative;
+}
+
+
+.notification-badge {
+    position: absolute;
+
+    top: -8px;
+    right: -8px;
+
+    min-width: 22px;
+    height: 22px;
+
+    padding: 0 6px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #dc2626;
+    color: #ffffff;
+
+    border: 2px solid #ffffff;
+    border-radius: 999px;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    line-height: 1;
+    z-index: 20;
+
+    box-sizing: border-box;
+}
+
+
+.notification-badge.hidden {
+    display: none;
+}
+/* ==========================================
+   BADGE IKON NOTIFIKASI
+========================================== */
+
+.notification-button {
+    position: relative;
+}
+
+
+.notification-badge {
+    position: absolute;
+
+    top: -6px;
+    right: -6px;
+
+    min-width: 21px;
+    height: 21px;
+
+    padding: 0 5px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #dc2626;
+    color: #ffffff;
+
+    border: 2px solid #ffffff;
+    border-radius: 999px;
+
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1;
+
+    z-index: 20;
+    box-sizing: border-box;
+}
+
+
+.notification-badge.hidden {
+    display: none;
+}
+/* ==========================================
+   LOGO RT DASHBOARD WARGA
+========================================== */
+
+.brand-logo {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    border-radius: 12px;
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.brand-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+
+/* ==========================================
+   LOGO RT KARTU WILAYAH
+========================================== */
+
+.region-logo {
+    width: 58px;
+    height: 58px;
+    min-width: 58px;
+    border-radius: 14px;
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.region-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+/* ==========================================
+   DETAIL WILAYAH
+========================================== */
+
+.detail-wilayah {
+    margin: 5px 0 0;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #ffffff;
+}

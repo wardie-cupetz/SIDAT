@@ -1,0 +1,32 @@
+{
+"name": "SIDAT - Sistem Informasi Data RT",
+"short_name": "SIDAT",
+"description": "Sistem Informasi Data Warga RT",
+"start_url": "./index.html",
+"scope": "./",
+"display": "standalone",
+"orientation": "portrait",
+"background_color": "#f0fdf4",
+"theme_color": "#15803d",
+"lang": "id",
+"dir": "ltr",
+"categories": [
+"government",
+"productivity",
+"utilities"
+],
+"icons": [
+{
+"src": "icons/icon-192.png",
+"sizes": "192x192",
+"type": "image/png",
+"purpose": "any maskable"
+},
+{
+"src": "icons/icon-512.png",
+"sizes": "512x512",
+"type": "image/png",
+"purpose": "any maskable"
+}
+]
+}

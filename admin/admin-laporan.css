@@ -1,0 +1,3155 @@
+/* ==========================================
+   SIDAT
+   ADMIN LAPORAN
+========================================== */
+
+* {
+    box-sizing:
+        border-box;
+
+    margin:
+        0;
+
+    padding:
+        0;
+}
+
+
+html {
+    scroll-behavior:
+        smooth;
+}
+
+
+body {
+    min-height:
+        100vh;
+
+    background:
+        #f0fdf4;
+
+    color:
+        #1e293b;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    -webkit-font-smoothing:
+        antialiased;
+}
+
+
+/* ==========================================
+   HEADER
+========================================== */
+
+.admin-header {
+    position:
+        sticky;
+
+    top:
+        0;
+
+    z-index:
+        100;
+
+    width:
+        100%;
+
+    min-height:
+        64px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    padding:
+        10px 14px;
+
+    background:
+        #166534;
+
+    color:
+        #ffffff;
+
+    box-shadow:
+        0 2px 10px
+        rgba(
+            0,
+            0,
+            0,
+            0.12
+        );
+}
+
+
+.admin-header-left {
+    min-width:
+        0;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        10px;
+}
+
+
+.btn-back {
+    width:
+        40px;
+
+    height:
+        40px;
+
+    min-width:
+        40px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border:
+        none;
+
+    border-radius:
+        11px;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.14
+        );
+
+    color:
+        #ffffff;
+
+    font-size:
+        27px;
+
+    line-height:
+        1;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.2s ease;
+}
+
+
+.btn-back:hover {
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.23
+        );
+}
+
+
+.admin-header-title {
+    min-width:
+        0;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+}
+
+
+.admin-header-title strong {
+    font-size:
+        16px;
+
+    line-height:
+        1.3;
+
+    white-space:
+        nowrap;
+
+    overflow:
+        hidden;
+
+    text-overflow:
+        ellipsis;
+}
+
+
+.admin-header-title span {
+    margin-top:
+        2px;
+
+    color:
+        #bbf7d0;
+
+    font-size:
+        10px;
+}
+
+
+.btn-refresh {
+    width:
+        40px;
+
+    height:
+        40px;
+
+    min-width:
+        40px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border:
+        1px solid
+        rgba(
+            255,
+            255,
+            255,
+            0.25
+        );
+
+    border-radius:
+        11px;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.10
+        );
+
+    color:
+        #ffffff;
+
+    font-size:
+        20px;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.2s ease;
+}
+
+
+.btn-refresh:hover {
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.20
+        );
+}
+
+
+.btn-refresh:active {
+    transform:
+        rotate(
+            -30deg
+        );
+}
+
+
+/* ==========================================
+   CONTAINER
+========================================== */
+
+.admin-container {
+    width:
+        100%;
+
+    max-width:
+        900px;
+
+    margin:
+        0 auto;
+
+    padding:
+        18px 13px 45px;
+}
+
+
+/* ==========================================
+   PAGE INTRO
+========================================== */
+
+.page-intro {
+    width:
+        100%;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        12px;
+
+    margin-bottom:
+        16px;
+}
+
+
+.page-intro-icon {
+    width:
+        48px;
+
+    height:
+        48px;
+
+    min-width:
+        48px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        15px;
+
+    background:
+        #dcfce7;
+
+    font-size:
+        24px;
+}
+
+
+.page-intro h1 {
+    color:
+        #14532d;
+
+    font-size:
+        20px;
+
+    line-height:
+        1.25;
+}
+
+
+.page-intro p {
+    margin-top:
+        3px;
+
+    color:
+        #64748b;
+
+    font-size:
+        12px;
+
+    line-height:
+        1.4;
+}
+
+
+/* ==========================================
+   STATISTICS
+========================================== */
+
+.report-statistics {
+    width:
+        100%;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap:
+        9px;
+
+    margin-bottom:
+        14px;
+}
+
+
+.stat-card {
+    min-width:
+        0;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        9px;
+
+    padding:
+        12px;
+
+    background:
+        #ffffff;
+
+    border:
+        1px solid
+        #dcfce7;
+
+    border-radius:
+        14px;
+
+    box-shadow:
+        0 2px 8px
+        rgba(
+            15,
+            23,
+            42,
+            0.04
+        );
+}
+
+
+.stat-icon {
+    width:
+        36px;
+
+    height:
+        36px;
+
+    min-width:
+        36px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        10px;
+
+    background:
+        #f0fdf4;
+
+    font-size:
+        17px;
+}
+
+
+.stat-content {
+    min-width:
+        0;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+}
+
+
+.stat-content span {
+    color:
+        #64748b;
+
+    font-size:
+        10px;
+}
+
+
+.stat-content strong {
+    margin-top:
+        2px;
+
+    color:
+        #14532d;
+
+    font-size:
+        18px;
+
+    line-height:
+        1.2;
+}
+
+
+.stat-pending {
+    border-color:
+        #fde68a;
+}
+
+
+.stat-pending .stat-icon {
+    background:
+        #fffbeb;
+}
+
+
+.stat-process {
+    border-color:
+        #bfdbfe;
+}
+
+
+.stat-process .stat-icon {
+    background:
+        #eff6ff;
+}
+
+
+.stat-done {
+    border-color:
+        #bbf7d0;
+}
+
+
+.stat-done .stat-icon {
+    background:
+        #f0fdf4;
+}
+
+
+/* ==========================================
+   FILTER CARD
+========================================== */
+
+.filter-card {
+    width:
+        100%;
+
+    padding:
+        12px;
+
+    margin-bottom:
+        14px;
+
+    background:
+        #ffffff;
+
+    border:
+        1px solid
+        #e2e8f0;
+
+    border-radius:
+        14px;
+
+    box-shadow:
+        0 2px 8px
+        rgba(
+            15,
+            23,
+            42,
+            0.04
+        );
+}
+
+
+.search-wrapper {
+    position:
+        relative;
+
+    width:
+        100%;
+
+    margin-bottom:
+        9px;
+}
+
+
+.search-icon {
+    position:
+        absolute;
+
+    left:
+        12px;
+
+    top:
+        50%;
+
+    transform:
+        translateY(
+            -50%
+        );
+
+    color:
+        #94a3b8;
+
+    font-size:
+        14px;
+
+    pointer-events:
+        none;
+}
+
+
+#searchLaporan {
+    width:
+        100%;
+
+    min-height:
+        42px;
+
+    padding:
+        10px 12px 10px 37px;
+
+    border:
+        1px solid
+        #cbd5e1;
+
+    border-radius:
+        11px;
+
+    background:
+        #ffffff;
+
+    color:
+        #1e293b;
+
+    font-size:
+        12px;
+
+    outline:
+        none;
+
+    transition:
+        0.2s ease;
+}
+
+
+#searchLaporan::placeholder {
+    color:
+        #94a3b8;
+}
+
+
+#searchLaporan:focus {
+    border-color:
+        #22c55e;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(
+            34,
+            197,
+            94,
+            0.10
+        );
+}
+
+
+/* ==========================================
+   FILTER ROW
+========================================== */
+
+.filter-row {
+    width:
+        100%;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap:
+        8px;
+}
+
+
+.filter-row select {
+    width:
+        100%;
+
+    min-height:
+        40px;
+
+    padding:
+        9px 10px;
+
+    border:
+        1px solid
+        #cbd5e1;
+
+    border-radius:
+        10px;
+
+    background:
+        #ffffff;
+
+    color:
+        #334155;
+
+    font-size:
+        11px;
+
+    outline:
+        none;
+
+    cursor:
+        pointer;
+
+    appearance:
+        none;
+
+    -webkit-appearance:
+        none;
+}
+
+
+.filter-row select:focus {
+    border-color:
+        #22c55e;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(
+            34,
+            197,
+            94,
+            0.10
+        );
+}
+
+
+/* ==========================================
+   MESSAGE
+========================================== */
+
+.laporan-message {
+    width:
+        100%;
+
+    padding:
+        11px 13px;
+
+    margin-bottom:
+        13px;
+
+    border-radius:
+        10px;
+
+    font-size:
+        12px;
+
+    line-height:
+        1.5;
+}
+
+
+.laporan-message.hidden {
+    display:
+        none;
+}
+
+
+.laporan-message.success {
+    background:
+        #f0fdf4;
+
+    border:
+        1px solid
+        #bbf7d0;
+
+    color:
+        #166534;
+}
+
+
+.laporan-message.error {
+    background:
+        #fef2f2;
+
+    border:
+        1px solid
+        #fecaca;
+
+    color:
+        #b91c1c;
+}
+
+
+.laporan-message.info {
+    background:
+        #eff6ff;
+
+    border:
+        1px solid
+        #bfdbfe;
+
+    color:
+        #1d4ed8;
+}
+
+
+/* ==========================================
+   LOADING
+========================================== */
+
+.laporan-loading {
+    width:
+        100%;
+
+    padding:
+        30px 15px;
+
+    text-align:
+        center;
+
+    color:
+        #64748b;
+}
+
+
+.loading-spinner {
+    margin-bottom:
+        8px;
+
+    font-size:
+        25px;
+
+    animation:
+        putar
+        1s linear infinite;
+}
+
+
+@keyframes putar {
+
+    from {
+        transform:
+            rotate(
+                0deg
+            );
+    }
+
+    to {
+        transform:
+            rotate(
+                360deg
+            );
+    }
+
+}
+
+
+/* ==========================================
+   LIST
+========================================== */
+
+.laporan-list {
+    width:
+        100%;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        10px;
+}
+
+
+/* ==========================================
+   ITEM LAPORAN
+========================================== */
+
+.report-item {
+    width:
+        100%;
+
+    display:
+        flex;
+
+    align-items:
+        flex-start;
+
+    gap:
+        11px;
+
+    padding:
+        11px;
+
+    background:
+        #ffffff;
+
+    border:
+        1px solid
+        #e2e8f0;
+
+    border-radius:
+        14px;
+
+    box-shadow:
+        0 2px 8px
+        rgba(
+            15,
+            23,
+            42,
+            0.04
+        );
+
+    cursor:
+        pointer;
+
+    transition:
+        0.2s ease;
+
+    overflow:
+        hidden;
+}
+
+
+.report-item:hover {
+    border-color:
+        #86efac;
+
+    box-shadow:
+        0 5px 14px
+        rgba(
+            22,
+            101,
+            52,
+            0.08
+        );
+}
+
+
+.report-item:active {
+    transform:
+        scale(
+            0.99
+        );
+}
+
+
+/* ==========================================
+   FOTO LAPORAN
+========================================== */
+
+.report-photo-wrapper {
+    width:
+        95px;
+
+    height:
+        72px;
+
+    min-width:
+        95px;
+
+    flex:
+        0 0 95px;
+
+    overflow:
+        hidden;
+
+    border-radius:
+        10px;
+
+    background:
+        #f1f5f9;
+
+    border:
+        1px solid
+        #e2e8f0;
+}
+
+
+.report-photo-wrapper img {
+    display:
+        block;
+
+    width:
+        100%;
+
+    height:
+        100%;
+
+    object-fit:
+        cover;
+}
+
+
+.report-no-photo {
+    width:
+        95px;
+
+    height:
+        72px;
+
+    min-width:
+        95px;
+
+    flex:
+        0 0 95px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        10px;
+
+    background:
+        #f0fdf4;
+
+    color:
+        #166534;
+
+    font-size:
+        23px;
+}
+
+
+/* ==========================================
+   REPORT CONTENT
+========================================== */
+
+.report-content {
+    min-width:
+        0;
+
+    flex:
+        1;
+}
+
+
+.report-content h3 {
+    margin-bottom:
+        4px;
+
+    color:
+        #1e293b;
+
+    font-size:
+        14px;
+
+    line-height:
+        1.35;
+
+    display:
+        -webkit-box;
+
+    -webkit-box-orient:
+        vertical;
+
+    -webkit-line-clamp:
+        2;
+
+    overflow:
+        hidden;
+
+    word-break:
+        break-word;
+}
+
+
+.report-content p {
+    margin-bottom:
+        6px;
+
+    color:
+        #64748b;
+
+    font-size:
+        10px;
+
+    line-height:
+        1.45;
+
+    display:
+        -webkit-box;
+
+    -webkit-box-orient:
+        vertical;
+
+    -webkit-line-clamp:
+        2;
+
+    overflow:
+        hidden;
+}
+
+
+.report-meta {
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    flex-wrap:
+        wrap;
+
+    gap:
+        5px;
+}
+
+
+.report-resident {
+    color:
+        #475569;
+
+    font-size:
+        10px;
+
+    font-weight:
+        600;
+}
+
+
+.report-code {
+    color:
+        #94a3b8;
+
+    font-size:
+        9px;
+}
+
+
+.report-date {
+    color:
+        #94a3b8;
+
+    font-size:
+        9px;
+}
+
+
+/* ==========================================
+   STATUS
+========================================== */
+
+.status {
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    min-height:
+        22px;
+
+    padding:
+        4px 8px;
+
+    border-radius:
+        999px;
+
+    font-size:
+        9px;
+
+    font-weight:
+        700;
+
+    white-space:
+        nowrap;
+}
+
+
+.status-pending {
+    background:
+        #fef3c7;
+
+    color:
+        #92400e;
+}
+
+
+.status-processing,
+.status-process,
+.status-diproses {
+    background:
+        #dbeafe;
+
+    color:
+        #1d4ed8;
+}
+
+
+.status-resolved,
+.status-completed,
+.status-selesai {
+    background:
+        #dcfce7;
+
+    color:
+        #166534;
+}
+
+
+.status-rejected,
+.status-ditolak {
+    background:
+        #fee2e2;
+
+    color:
+        #b91c1c;
+}
+
+
+/* ==========================================
+   EMPTY STATE
+========================================== */
+
+.laporan-empty {
+    width:
+        100%;
+
+    padding:
+        35px 15px;
+
+    text-align:
+        center;
+
+    background:
+        #ffffff;
+
+    border:
+        1px dashed
+        #cbd5e1;
+
+    border-radius:
+        14px;
+}
+
+
+.laporan-empty.hidden {
+    display:
+        none;
+}
+
+
+.empty-icon {
+    margin-bottom:
+        9px;
+
+    font-size:
+        30px;
+}
+
+
+.laporan-empty h3 {
+    color:
+        #334155;
+
+    font-size:
+        14px;
+}
+
+
+.laporan-empty p {
+    margin-top:
+        4px;
+
+    color:
+        #94a3b8;
+
+    font-size:
+        11px;
+}
+
+
+/* ==========================================
+   MODAL
+========================================== */
+
+.modal {
+    position:
+        fixed;
+
+    inset:
+        0;
+
+    z-index:
+        1000;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    padding:
+        12px;
+}
+
+
+.modal.hidden {
+    display:
+        none !important;
+}
+
+
+.modal-overlay {
+    position:
+        absolute;
+
+    inset:
+        0;
+
+    background:
+        rgba(
+            15,
+            23,
+            42,
+            0.62
+        );
+
+    backdrop-filter:
+        blur(3px);
+}
+
+
+.modal-box {
+    position:
+        relative;
+
+    z-index:
+        2;
+
+    width:
+        100%;
+
+    max-width:
+        560px;
+
+    max-height:
+        92vh;
+
+    overflow-y:
+        auto;
+
+    padding:
+        17px;
+
+    background:
+        #ffffff;
+
+    border-radius:
+        19px;
+
+    box-shadow:
+        0 20px 50px
+        rgba(
+            0,
+            0,
+            0,
+            0.22
+        );
+
+    animation:
+        modalMasuk
+        0.2s ease;
+}
+
+
+@keyframes modalMasuk {
+
+    from {
+        opacity:
+            0;
+
+        transform:
+            translateY(
+                12px
+            )
+            scale(
+                0.98
+            );
+    }
+
+    to {
+        opacity:
+            1;
+
+        transform:
+            translateY(
+                0
+            )
+            scale(
+                1
+            );
+    }
+
+}
+
+
+/* ==========================================
+   MODAL HEADER
+========================================== */
+
+.modal-header {
+    display:
+        flex;
+
+    align-items:
+        flex-start;
+
+    justify-content:
+        space-between;
+
+    gap:
+        10px;
+
+    margin-bottom:
+        14px;
+}
+
+
+.modal-header h2 {
+    color:
+        #14532d;
+
+    font-size:
+        18px;
+}
+
+
+.modal-header p {
+    margin-top:
+        3px;
+
+    color:
+        #64748b;
+
+    font-size:
+        11px;
+}
+
+
+.detail-close {
+    width:
+        36px;
+
+    height:
+        36px;
+
+    min-width:
+        36px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border:
+        none;
+
+    border-radius:
+        10px;
+
+    background:
+        #f1f5f9;
+
+    color:
+        #475569;
+
+    font-size:
+        23px;
+
+    line-height:
+        1;
+
+    cursor:
+        pointer;
+}
+
+
+.detail-close:hover {
+    background:
+        #fee2e2;
+
+    color:
+        #dc2626;
+}
+
+
+/* ==========================================
+   DETAIL FOTO
+========================================== */
+
+.detail-photo {
+    width:
+        100%;
+
+    max-height:
+        280px;
+
+    margin-bottom:
+        15px;
+
+    overflow:
+        hidden;
+
+    border:
+        1px solid
+        #e2e8f0;
+
+    border-radius:
+        13px;
+
+    background:
+        #f1f5f9;
+}
+
+
+.detail-photo img {
+    display:
+        block;
+
+    width:
+        100%;
+
+    height:
+        280px;
+
+    object-fit:
+        cover;
+}
+
+
+/* ==========================================
+   DETAIL SECTION
+========================================== */
+
+.detail-section {
+    padding:
+        11px 0;
+
+    border-bottom:
+        1px solid
+        #f1f5f9;
+}
+
+
+.detail-label {
+    margin-bottom:
+        4px;
+
+    color:
+        #64748b;
+
+    font-size:
+        10px;
+
+    font-weight:
+        600;
+}
+
+
+.detail-section strong {
+    display:
+        block;
+
+    color:
+        #1e293b;
+
+    font-size:
+        13px;
+
+    line-height:
+        1.45;
+
+    word-break:
+        break-word;
+}
+
+
+.detail-section small {
+    display:
+        block;
+
+    margin-top:
+        3px;
+
+    color:
+        #94a3b8;
+
+    font-size:
+        10px;
+}
+
+
+.detail-description {
+    color:
+        #334155;
+
+    font-size:
+        12px;
+
+    line-height:
+        1.6;
+
+    white-space:
+        pre-wrap;
+
+    word-break:
+        break-word;
+}
+
+
+/* ==========================================
+   ADMIN ACTION
+========================================== */
+
+.admin-action {
+    margin-top:
+        15px;
+
+    padding-top:
+        14px;
+
+    border-top:
+        1px solid
+        #e2e8f0;
+}
+
+
+.form-group {
+    width:
+        100%;
+
+    margin-bottom:
+        12px;
+}
+
+
+.form-group label {
+    display:
+        block;
+
+    margin-bottom:
+        5px;
+
+    color:
+        #334155;
+
+    font-size:
+        11px;
+
+    font-weight:
+        700;
+}
+
+
+.form-group select,
+.form-group textarea {
+    width:
+        100%;
+
+    border:
+        1px solid
+        #cbd5e1;
+
+    border-radius:
+        10px;
+
+    background:
+        #ffffff;
+
+    color:
+        #1e293b;
+
+    font-family:
+        inherit;
+
+    font-size:
+        12px;
+
+    outline:
+        none;
+
+    transition:
+        0.2s ease;
+}
+
+
+.form-group select {
+    min-height:
+        42px;
+
+    padding:
+        9px 11px;
+
+    cursor:
+        pointer;
+}
+
+
+.form-group textarea {
+    min-height:
+        90px;
+
+    padding:
+        10px 11px;
+
+    resize:
+        vertical;
+
+    line-height:
+        1.5;
+}
+
+
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color:
+        #22c55e;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(
+            34,
+            197,
+            94,
+            0.10
+        );
+}
+
+
+/* ==========================================
+   ACTION MESSAGE
+========================================== */
+
+.action-message {
+    width:
+        100%;
+
+    padding:
+        9px 11px;
+
+    margin-bottom:
+        10px;
+
+    border-radius:
+        9px;
+
+    font-size:
+        11px;
+
+    line-height:
+        1.4;
+}
+
+
+.action-message.hidden {
+    display:
+        none;
+}
+
+
+.action-message.success {
+    background:
+        #f0fdf4;
+
+    color:
+        #166534;
+
+    border:
+        1px solid
+        #bbf7d0;
+}
+
+
+.action-message.error {
+    background:
+        #fef2f2;
+
+    color:
+        #b91c1c;
+
+    border:
+        1px solid
+        #fecaca;
+}
+
+
+/* ==========================================
+   DETAIL ACTIONS
+========================================== */
+
+.detail-actions {
+    width:
+        100%;
+
+    display:
+        flex;
+
+    gap:
+        8px;
+}
+
+
+.detail-actions button {
+    flex:
+        1;
+
+    min-height:
+        42px;
+
+    border-radius:
+        10px;
+
+    font-size:
+        12px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.2s ease;
+}
+
+
+.btn-cancel {
+    border:
+        1px solid
+        #cbd5e1;
+
+    background:
+        #ffffff;
+
+    color:
+        #475569;
+}
+
+
+.btn-cancel:hover {
+    background:
+        #f8fafc;
+}
+
+
+.btn-save {
+    border:
+        none;
+
+    background:
+        #166534;
+
+    color:
+        #ffffff;
+
+    box-shadow:
+        0 4px 10px
+        rgba(
+            22,
+            101,
+            52,
+            0.14
+        );
+}
+
+
+.btn-save:hover {
+    background:
+        #14532d;
+}
+
+
+.btn-save:disabled {
+    opacity:
+        0.55;
+
+    cursor:
+        not-allowed;
+}
+
+
+/* ==========================================
+   TOMBOL STATUS LAPORAN
+========================================== */
+
+.btn-status {
+    min-height:
+        40px;
+
+    padding:
+        9px 14px;
+
+    border:
+        none;
+
+    border-radius:
+        10px;
+
+    background:
+        #166534;
+
+    color:
+        #ffffff;
+
+    font-size:
+        11px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.2s ease;
+}
+
+
+.btn-status:hover {
+    background:
+        #14532d;
+
+    transform:
+        translateY(
+            -1px
+        );
+}
+
+
+.btn-status:disabled {
+    opacity:
+        0.55;
+
+    cursor:
+        not-allowed;
+
+    transform:
+        none;
+}
+
+
+/* ==========================================
+   TOMBOL TUTUP
+========================================== */
+
+.btn-close {
+    min-height:
+        40px;
+
+    padding:
+        9px 14px;
+
+    border:
+        1px solid
+        #cbd5e1;
+
+    border-radius:
+        10px;
+
+    background:
+        #ffffff;
+
+    color:
+        #475569;
+
+    font-size:
+        11px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.2s ease;
+}
+
+
+.btn-close:hover {
+    background:
+        #f8fafc;
+
+    border-color:
+        #94a3b8;
+}
+
+
+/* ==========================================
+   TOMBOL HAPUS
+========================================== */
+
+.btn-delete {
+    min-height:
+        40px;
+
+    padding:
+        9px 14px;
+
+    border:
+        none;
+
+    border-radius:
+        10px;
+
+    background:
+        #dc2626;
+
+    color:
+        #ffffff;
+
+    font-size:
+        11px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.2s ease;
+}
+
+
+.btn-delete:hover {
+    background:
+        #b91c1c;
+
+    transform:
+        translateY(
+            -1px
+        );
+}
+
+
+.btn-delete:disabled {
+    opacity:
+        0.55;
+
+    cursor:
+        not-allowed;
+
+    transform:
+        none;
+}
+
+
+/* ==========================================
+   TOMBOL EDIT
+========================================== */
+
+.btn-edit {
+    min-height:
+        40px;
+
+    padding:
+        9px 14px;
+
+    border:
+        1px solid
+        #bbf7d0;
+
+    border-radius:
+        10px;
+
+    background:
+        #f0fdf4;
+
+    color:
+        #166534;
+
+    font-size:
+        11px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.2s ease;
+}
+
+
+.btn-edit:hover {
+    background:
+        #dcfce7;
+
+    border-color:
+        #86efac;
+}
+
+
+/* ==========================================
+   TOMBOL FILTER
+========================================== */
+
+.btn-filter {
+    min-height:
+        40px;
+
+    padding:
+        9px 14px;
+
+    border:
+        none;
+
+    border-radius:
+        10px;
+
+    background:
+        #166534;
+
+    color:
+        #ffffff;
+
+    font-size:
+        11px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.2s ease;
+}
+
+
+.btn-filter:hover {
+    background:
+        #14532d;
+
+    transform:
+        translateY(
+            -1px
+        );
+}
+
+
+.btn-filter:active {
+    transform:
+        translateY(
+            0
+        );
+}
+
+
+.btn-reset {
+    min-height:
+        40px;
+
+    padding:
+        9px 14px;
+
+    border:
+        1px solid
+        #cbd5e1;
+
+    border-radius:
+        10px;
+
+    background:
+        #ffffff;
+
+    color:
+        #475569;
+
+    font-size:
+        11px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.2s ease;
+}
+
+
+.btn-reset:hover {
+    background:
+        #f8fafc;
+
+    border-color:
+        #94a3b8;
+
+    transform:
+        translateY(
+            -1px
+        );
+}
+
+
+.btn-reset:active {
+    transform:
+        translateY(
+            0
+        );
+}
+
+
+/* ==========================================
+   FORM BUTTON GROUP
+========================================== */
+
+.form-buttons {
+    width:
+        100%;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        8px;
+
+    margin-top:
+        12px;
+}
+
+
+.form-buttons button {
+    flex:
+        1;
+}
+
+
+/* ==========================================
+   ADMIN NOTE
+========================================== */
+
+.admin-note {
+    margin-top:
+        10px;
+
+    padding:
+        11px;
+
+    border:
+        1px solid
+        #bfdbfe;
+
+    border-radius:
+        10px;
+
+    background:
+        #eff6ff;
+}
+
+
+.admin-note span {
+    display:
+        block;
+
+    margin-bottom:
+        5px;
+
+    color:
+        #1d4ed8;
+
+    font-size:
+        10px;
+
+    font-weight:
+        700;
+}
+
+
+.admin-note p {
+    margin:
+        0;
+
+    color:
+        #334155;
+
+    font-size:
+        11px;
+
+    line-height:
+        1.5;
+
+    white-space:
+        pre-wrap;
+
+    word-break:
+        break-word;
+}
+
+
+.empty-note {
+    background:
+        #f8fafc;
+
+    border-color:
+        #e2e8f0;
+}
+
+
+.empty-note span {
+    color:
+        #64748b;
+}
+
+
+.empty-note p {
+    color:
+        #94a3b8;
+}
+
+
+/* ==========================================
+   DETAIL FOTO
+========================================== */
+
+.detail-photo {
+    width:
+        100%;
+
+    max-width:
+        500px;
+
+    margin:
+        0 auto 15px;
+
+    overflow:
+        hidden;
+
+    border:
+        1px solid
+        #e2e8f0;
+
+    border-radius:
+        13px;
+
+    background:
+        #f1f5f9;
+}
+
+
+.detail-photo img {
+    display:
+        block;
+
+    width:
+        100%;
+
+    max-width:
+        500px;
+
+    height:
+        260px;
+
+    object-fit:
+        cover;
+}
+
+
+/* ==========================================
+   DETAIL FOTO MOBILE
+========================================== */
+
+@media (
+    max-width: 480px
+) {
+
+    .detail-photo {
+        max-width:
+            100%;
+    }
+
+
+    .detail-photo img {
+        height:
+            220px;
+    }
+
+}
+
+
+/* ==========================================
+   DETAIL FOTO TABLET / DESKTOP
+========================================== */
+
+@media (
+    min-width: 600px
+) {
+
+    .detail-photo img {
+        height:
+            300px;
+    }
+
+}
+
+
+/* ==========================================
+   RESPONSIVE ACTION
+========================================== */
+
+@media (
+    max-width: 480px
+) {
+
+    .detail-actions {
+        flex-direction:
+            column;
+
+        gap:
+            7px;
+    }
+
+
+    .detail-actions button {
+        width:
+            100%;
+
+        flex:
+            none;
+    }
+
+
+    .form-buttons {
+        flex-direction:
+            column;
+    }
+
+
+    .form-buttons button {
+        width:
+            100%;
+
+        flex:
+            none;
+    }
+
+
+    .btn-filter,
+    .btn-reset,
+    .btn-status,
+    .btn-delete,
+    .btn-edit,
+    .btn-close {
+        width:
+            100%;
+    }
+
+}
+
+
+/* ==========================================
+   TABLET / DESKTOP ACTION
+========================================== */
+
+@media (
+    min-width: 600px
+) {
+
+    .detail-actions {
+        justify-content:
+            flex-end;
+    }
+
+
+    .detail-actions button {
+        flex:
+            0 0 auto;
+
+        min-width:
+            120px;
+    }
+
+
+    .form-buttons {
+        justify-content:
+            flex-end;
+    }
+
+
+    .form-buttons button {
+        flex:
+            0 0 auto;
+
+        min-width:
+            120px;
+    }
+
+}
+
+
+/* ==========================================
+   BUTTON FOCUS
+========================================== */
+
+.btn-filter:focus-visible,
+.btn-reset:focus-visible,
+.btn-status:focus-visible,
+.btn-delete:focus-visible,
+.btn-edit:focus-visible,
+.btn-close:focus-visible {
+
+    outline:
+        2px solid
+        #22c55e;
+
+    outline-offset:
+        2px;
+}
+
+
+/* ==========================================
+   DISABLED
+========================================== */
+
+.btn-filter:disabled,
+.btn-reset:disabled,
+.btn-status:disabled,
+.btn-delete:disabled,
+.btn-edit:disabled,
+.btn-close:disabled {
+
+    opacity:
+        0.55;
+
+    cursor:
+        not-allowed;
+
+    transform:
+        none;
+}
+/* ==========================================
+   TAHAP 1
+   FOTO LAPORAN
+========================================== */
+
+/* Container foto pada kartu */
+
+.laporan-card-photo {
+
+    width: 100%;
+
+    height: 190px;
+
+    overflow: hidden;
+
+    border-radius: 14px;
+
+    background:
+        #f1f5f9;
+
+    margin-bottom: 0;
+
+    position: relative;
+
+}
+
+
+/* Foto pada kartu */
+
+.laporan-card-photo img {
+
+    width: 100%;
+
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    object-position: center;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.25s ease;
+
+}
+
+
+/* Efek saat foto disentuh */
+
+.laporan-card-photo img:active {
+
+    transform:
+        scale(0.98);
+
+}
+
+
+/* ==========================================
+   FOTO DETAIL
+========================================== */
+
+.detail-photo {
+
+    width: 100%;
+
+    max-width: 100%;
+
+    height: 220px;
+
+    overflow: hidden;
+
+    border-radius: 14px;
+
+    background:
+        #f1f5f9;
+
+    margin-bottom: 18px;
+
+}
+
+
+.detail-photo img {
+
+    width: 100%;
+
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    object-position: center;
+
+    cursor: pointer;
+
+}
+
+
+/* ==========================================
+   FOTO PREVIEW FULLSCREEN
+========================================== */
+
+.foto-preview-modal {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 99999;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+}
+
+
+.foto-preview-overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        rgba(0, 0, 0, 0.82);
+
+}
+
+
+.foto-preview-box {
+
+    position: relative;
+
+    z-index: 2;
+
+    width: 100%;
+
+    max-width: 700px;
+
+    max-height: 90vh;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+.foto-preview-box img {
+
+    display: block;
+
+    max-width: 100%;
+
+    max-height: 85vh;
+
+    width: auto;
+
+    height: auto;
+
+    object-fit: contain;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 15px 50px
+        rgba(0, 0, 0, 0.35);
+
+}
+
+
+.foto-preview-close {
+
+    position: absolute;
+
+    top: -14px;
+
+    right: -8px;
+
+    z-index: 3;
+
+    width: 40px;
+
+    height: 40px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background:
+        #ffffff;
+
+    color:
+        #14532d;
+
+    font-size: 28px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 15px
+        rgba(0, 0, 0, 0.25);
+
+}
+
+
+/* ==========================================
+   TAHAP 2
+   KARTU LAPORAN
+========================================== */
+
+.laporan-list {
+
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        1fr;
+
+    gap: 16px;
+
+}
+
+
+/* Kartu utama */
+
+.laporan-card {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    background:
+        #ffffff;
+
+    border:
+        1px solid #e2e8f0;
+
+    border-radius: 18px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 4px 14px
+        rgba(15, 23, 42, 0.06);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+
+    cursor: pointer;
+
+}
+
+
+/* Saat disentuh */
+
+.laporan-card:active {
+
+    transform:
+        scale(0.99);
+
+}
+
+
+/* Body kartu */
+
+.laporan-card-body {
+
+    padding:
+        16px;
+
+}
+
+
+/* ==========================================
+   BAGIAN ATAS KARTU
+========================================== */
+
+.laporan-card-top {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-bottom: 10px;
+
+}
+
+
+.laporan-date {
+
+    font-size: 11px;
+
+    color:
+        #64748b;
+
+    white-space: nowrap;
+
+}
+
+
+/* ==========================================
+   KATEGORI
+========================================== */
+
+.laporan-category {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    width: fit-content;
+
+    padding:
+        5px 10px;
+
+    margin-bottom: 8px;
+
+    border-radius: 999px;
+
+    background:
+        #ecfdf5;
+
+    color:
+        #166534;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+}
+
+
+/* ==========================================
+   JUDUL
+========================================== */
+
+.laporan-card h3 {
+
+    margin:
+        0 0 7px;
+
+    color:
+        #14532d;
+
+    font-size: 17px;
+
+    line-height: 1.
+
+/* ==========================================
+   TOMBOL LIHAT DETAIL
+   FINAL
+========================================== */
+
+#laporanList button {
+
+    width: 100% !important;
+
+    min-height: 44px !important;
+
+    box-sizing: border-box !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    padding: 10px 16px !important;
+
+    margin-top: 14px !important;
+
+    border: 1px solid #16a34a !important;
+
+    border-radius: 12px !important;
+
+    background: #166534 !important;
+
+    color: #ffffff !important;
+
+    font-family: inherit !important;
+
+    font-size: 13px !important;
+
+    font-weight: 700 !important;
+
+    line-height: 1 !important;
+
+    text-align: center !important;
+
+    cursor: pointer !important;
+
+    appearance: none !important;
+
+    -webkit-appearance: none !important;
+
+    box-shadow: 0 3px 8px rgba(22, 101, 52, 0.18) !important;
+
+    outline: none !important;
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease !important;
+}
+
+
+/* Hover */
+
+#laporanList button:hover {
+
+    background: #15803d !important;
+
+    box-shadow:
+        0 5px 12px
+        rgba(22, 101, 52, 0.22) !important;
+
+}
+
+
+/* Saat ditekan */
+
+#laporanList button:active {
+
+    background: #14532d !important;
+
+    transform: scale(0.98) !important;
+
+    box-shadow:
+        0 2px 5px
+        rgba(22, 101, 52, 0.15) !important;
+
+}
+
+
+/* ==========================================
+   ICON TOMBOL
+========================================== */
+
+#laporanList button::first-letter {
+
+    font-size: 14px;
+
+}
+
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 600px) {
+
+    #laporanList button {
+
+        min-height: 44px !important;
+
+        margin-top: 14px !important;
+
+        border-radius: 11px !important;
+
+        font-size: 13px !important;
+
+    }
+
+}
+/* ==========================================
+   TOMBOL LIHAT DETAIL - FINAL
+========================================== */
+
+#laporanList .btn-detail {
+
+    display: flex !important;
+
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    min-height: 44px !important;
+
+    box-sizing: border-box !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    gap: 6px !important;
+
+    margin: 14px 0 0 0 !important;
+
+    padding: 0 16px !important;
+
+    background: #166534 !important;
+
+    color: #ffffff !important;
+
+    border: 1px solid #166534 !important;
+
+    border-radius: 11px !important;
+
+    font-family: inherit !important;
+
+    font-size: 13px !important;
+
+    font-weight: 700 !important;
+
+    line-height: 1 !important;
+
+    text-align: center !important;
+
+    cursor: pointer !important;
+
+    appearance: none !important;
+
+    -webkit-appearance: none !important;
+
+    outline: none !important;
+
+    box-shadow:
+        0 3px 8px
+        rgba(22, 101, 52, 0.18) !important;
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease !important;
+}
+
+
+#laporanList .btn-detail:hover {
+
+    background: #15803d !important;
+
+    border-color: #15803d !important;
+
+}
+
+
+#laporanList .btn-detail:active {
+
+    background: #14532d !important;
+
+    border-color: #14532d !important;
+
+    transform: scale(0.98) !important;
+
+}
+
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 600px) {
+
+    #laporanList .btn-detail {
+
+        min-height: 44px !important;
+
+        border-radius: 11px !important;
+
+        font-size: 13px !important;
+
+    }
+
+}
+/* ==========================================
+   AKHIR ADMIN LAPORAN CSS
+========================================== */

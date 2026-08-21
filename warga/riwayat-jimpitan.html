@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#15803d"
+    >
+
+    <title>SIDAT - Riwayat Jimpitan</title>
+
+    <link
+        rel="stylesheet"
+        href="riwayat-jimpitan.css"
+    >
+
+</head>
+
+<body>
+
+<div class="page-container">
+
+
+    <!-- HEADER -->
+
+    <header class="page-header">
+
+        <button
+            class="back-button"
+            onclick="kembaliDashboard()"
+        >
+            ‹
+        </button>
+
+        <div>
+
+            <h1>
+                Riwayat Jimpitan
+            </h1>
+
+            <span>
+                Seluruh transaksi jimpitan RT
+            </span>
+
+        </div>
+
+    </header>
+
+
+    <!-- SALDO -->
+
+    <section class="balance-card">
+
+        <div>
+
+            <span>
+                Saldo Jimpitan Saat Ini
+            </span>
+
+            <strong id="saldoJimpitan">
+                Rp 0
+            </strong>
+
+        </div>
+
+        <div class="balance-icon">
+            💰
+        </div>
+
+    </section>
+
+
+    <!-- FILTER -->
+
+    <section class="filter-card">
+
+        <input
+            type="date"
+            id="filterTanggal"
+        >
+
+        <button
+            onclick="resetFilter()"
+        >
+            Reset
+        </button>
+
+    </section>
+
+
+    <!-- JUMLAH -->
+
+    <div class="history-info">
+
+        <span>
+            Riwayat transaksi
+        </span>
+
+        <strong id="jumlahTransaksi">
+            0 transaksi
+        </strong>
+
+    </div>
+    <!-- MONITORING PENGAMBILAN -->
+
+<section class="monitoring-card">
+
+    <div class="monitoring-title">
+        📋 Monitoring Pengambilan
+    </div>
+
+    <p class="monitoring-info">
+        Cari warga dan lihat status pengambilan
+        jimpitan berdasarkan tanggal.
+    </p>
+
+
+    <!-- PENCARIAN -->
+
+    <div class="search-wrapper">
+
+        <span>🔎</span>
+
+        <input
+            type="text"
+            id="searchWarga"
+            placeholder="Cari nama / ID warga..."
+            autocomplete="off"
+        >
+
+    </div>
+
+
+    <!-- TANGGAL -->
+
+    <div class="filter-row">
+
+        <div class="filter-item">
+
+            <label for="filterTanggal">
+                Tanggal
+            </label>
+
+            <input
+                type="date"
+                id="filterTanggal"
+            >
+
+        </div>
+
+
+        <div class="filter-item">
+
+            <label for="filterStatus">
+                Status
+            </label>
+
+            <select
+                id="filterStatus"
+            >
+
+                <option value="semua">
+                    Semua
+                </option>
+
+                <option value="sudah">
+                    Sudah Diambil
+                </option>
+
+                <option value="belum">
+                    Belum Diambil
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <!-- STATISTIK HARIAN -->
+
+    <div class="daily-summary">
+
+        <div class="summary-item">
+
+            <strong
+                id="totalWargaHariIni"
+            >
+                0
+            </strong>
+
+            <span>
+                Total Warga
+            </span>
+
+        </div>
+
+
+        <div class="summary-item">
+
+            <strong
+                id="sudahDiambil"
+            >
+                0
+            </strong>
+
+            <span>
+                Sudah Diambil
+            </span>
+
+        </div>
+
+
+        <div class="summary-item">
+
+            <strong
+                id="belumDiambil"
+            >
+                0
+            </strong>
+
+            <span>
+                Belum Diambil
+            </span>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- DAFTAR MONITORING -->
+
+<section
+    id="monitoringList"
+    class="monitoring-list"
+>
+</section>
+
+
+    <!-- RIWAYAT -->
+
+    <main id="historyList">
+
+        <div class="loading">
+            Memuat riwayat...
+        </div>
+
+    </main>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        <strong>
+            SIDAT
+        </strong>
+
+        <span>
+            Dibuat oleh Suwardi
+        </span>
+
+    </footer>
+
+
+</div>
+
+
+<script src="../js/supabase-config.js"></script>
+
+<script src="riwayat-jimpitan.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#15803d"
+    >
+
+    <title>
+        SIDAT - Laporan & Aduan
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="laporan.css"
+    >
+
+</head>
+
+<body>
+
+<div class="app">
+
+
+    <!-- HEADER -->
+
+    <header class="header">
+
+        <button
+            class="back-btn"
+            onclick="kembaliDashboard()"
+        >
+            ‹
+        </button>
+
+        <div class="header-title">
+
+            <h1>
+                Laporan & Aduan
+            </h1>
+
+            <span>
+                SIDAT - Sistem Data Warga
+            </span>
+
+        </div>
+
+    </header>
+
+
+    <!-- CONTENT -->
+
+    <main class="content">
+
+
+        <!-- INTRO -->
+
+        <section class="intro-card">
+
+            <div class="intro-icon">
+                📝
+            </div>
+
+            <div>
+
+                <h2>
+                    Laporan & Aduan
+                </h2>
+
+                <p>
+                    Sampaikan laporan atau aduan
+                    kepada pengurus RT.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- BUTTON BUAT LAPORAN -->
+
+        <button
+            class="btn-buat"
+            onclick="bukaFormLaporan()"
+        >
+
+            <span class="btn-buat-icon">
+                ＋
+            </span>
+
+            <span>
+
+                <strong>
+                    Buat Laporan
+                </strong>
+
+                <small>
+                    Sampaikan laporan atau aduan baru
+                </small>
+
+            </span>
+
+            <span class="btn-arrow">
+                ›
+            </span>
+
+        </button>
+
+
+        <!-- STATISTIK -->
+
+        <section class="stat-grid">
+
+            <div class="stat-card">
+
+                <span class="stat-icon">
+                    📋
+                </span>
+
+                <strong id="totalLaporan">
+                    0
+                </strong>
+
+                <small>
+                    Total
+                </small>
+
+            </div>
+
+
+            <div class="stat-card menunggu">
+
+                <span class="stat-icon">
+                    🟡
+                </span>
+
+                <strong id="totalMenunggu">
+                    0
+                </strong>
+
+                <small>
+                    Menunggu
+                </small>
+
+            </div>
+
+
+            <div class="stat-card proses">
+
+                <span class="stat-icon">
+                    🔵
+                </span>
+
+                <strong id="totalProses">
+                    0
+                </strong>
+
+                <small>
+                    Diproses
+                </small>
+
+            </div>
+
+
+            <div class="stat-card selesai">
+
+                <span class="stat-icon">
+                    🟢
+                </span>
+
+                <strong id="totalSelesai">
+                    0
+                </strong>
+
+                <small>
+                    Selesai
+                </small>
+
+            </div>
+
+        </section>
+
+
+        <!-- DAFTAR LAPORAN -->
+
+        <section class="section">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>
+                        Laporan Saya
+                    </h2>
+
+                    <p>
+                        Riwayat laporan dan aduan Anda.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- LOADING -->
+
+            <div
+                id="loading"
+                class="loading"
+            >
+
+                Memuat laporan...
+
+            </div>
+
+
+            <!-- LIST -->
+
+            <div
+                id="laporanList"
+                class="laporan-list"
+            >
+            </div>
+
+
+            <!-- EMPTY -->
+
+            <div
+                id="emptyState"
+                class="empty-state hidden"
+            >
+
+                <div class="empty-icon">
+                    📝
+                </div>
+
+                <strong>
+                    Belum ada laporan
+                </strong>
+
+                <span>
+                    Anda belum membuat laporan atau aduan.
+                </span>
+
+                <button
+                    onclick="bukaFormLaporan()"
+                >
+                    ＋ Buat Laporan
+                </button>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        <strong>
+            SIDAT
+        </strong>
+
+        <span>
+            Dibuat oleh Suwardi
+        </span>
+
+    </footer>
+
+
+</div>
+
+
+<!-- ===================================== -->
+<!-- MODAL FORM LAPORAN -->
+<!-- ===================================== -->
+
+<div
+    id="formModal"
+    class="modal hidden"
+>
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <div>
+
+                <h2>
+                    Buat Laporan
+                </h2>
+
+                <p>
+                    Sampaikan laporan kepada pengurus RT.
+                </p>
+
+            </div>
+
+            <button
+                class="close-btn"
+                onclick="tutupFormLaporan()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form
+            id="laporanForm"
+        >
+
+
+            <!-- KATEGORI -->
+
+            <div class="form-group">
+
+                <label>
+                    Kategori
+                </label>
+
+                <select
+                    id="kategori"
+                    required
+                >
+
+                    <option value="">
+                        Pilih kategori
+                    </option>
+
+                    <option value="Infrastruktur">
+                        Infrastruktur
+                    </option>
+
+                    <option value="Keamanan">
+                        Keamanan
+                    </option>
+
+                    <option value="Kebersihan">
+                        Kebersihan
+                    </option>
+
+                    <option value="Sosial">
+                        Sosial
+                    </option>
+
+                    <option value="Administrasi">
+                        Administrasi
+                    </option>
+
+                    <option value="Jimpitan">
+                        Jimpitan
+                    </option>
+
+                    <option value="Lainnya">
+                        Lainnya
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- JUDUL -->
+
+            <div class="form-group">
+
+                <label>
+                    Judul Laporan
+                </label>
+
+                <input
+                    type="text"
+                    id="judul"
+                    placeholder="Contoh: Lampu jalan mati"
+                    maxlength="100"
+                    required
+                >
+
+            </div>
+
+
+            <!-- LOKASI -->
+
+            <div class="form-group">
+
+                <label>
+                    Lokasi
+                </label>
+
+                <input
+                    type="text"
+                    id="lokasi"
+                    placeholder="Contoh: Depan rumah RT 02"
+                    maxlength="150"
+                >
+
+            </div>
+
+
+            <!-- ISI -->
+
+            <div class="form-group">
+
+                <label>
+                    Isi Laporan
+                </label>
+
+                <textarea
+                    id="isi"
+                    rows="6"
+                    maxlength="1000"
+                    placeholder="Jelaskan laporan atau aduan Anda..."
+                    required
+                ></textarea>
+
+                <small class="counter">
+                    Maksimal 1000 karakter
+                </small>
+
+            </div>
+
+
+            <!-- ERROR -->
+
+            <div
+                id="formError"
+                class="form-error hidden"
+            >
+            </div>
+
+
+            <!-- BUTTON -->
+
+            <div class="form-actions">
+
+                <button
+                    type="button"
+                    class="btn-cancel"
+                    onclick="tutupFormLaporan()"
+                >
+                    Batal
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn-submit"
+                    id="submitButton"
+                >
+                    Kirim Laporan
+                </button>
+
+            </div>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- ===================================== -->
+<!-- MODAL DETAIL -->
+<!-- ===================================== -->
+
+<div
+    id="detailModal"
+    class="modal hidden"
+>
+
+    <div class="modal-content detail-modal">
+
+        <button
+            class="close-btn"
+            onclick="tutupDetail()"
+        >
+            ×
+        </button>
+
+
+        <div class="detail-header">
+
+            <span
+                id="detailKategori"
+                class="kategori-badge"
+            >
+                -
+            </span>
+
+            <h2 id="detailJudul">
+                -
+            </h2>
+
+            <span id="detailTanggal">
+                -
+            </span>
+
+        </div>
+
+
+        <div class="detail-box">
+
+            <label>
+                Lokasi
+            </label>
+
+            <p id="detailLokasi">
+                -
+            </p>
+
+        </div>
+
+
+        <div class="detail-box">
+
+            <label>
+                Isi Laporan
+            </label>
+
+            <p id="detailIsi">
+                -
+            </p>
+
+        </div>
+
+
+        <div class="detail-box tanggapan-box">
+
+            <label>
+                Tanggapan Admin
+            </label>
+
+            <p id="detailTanggapan">
+                Belum ada tanggapan dari admin.
+            </p>
+
+        </div>
+
+
+        <div class="detail-status">
+
+            <span>
+                Status
+            </span>
+
+            <strong id="detailStatus">
+                -
+            </strong>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- CONFIG -->
+
+<script
+    src="../js/supabase-config.js"
+></script>
+
+
+<!-- SUPABASE -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+
+<!-- JS -->
+
+<script
+    src="laporan.js"
+></script>
+
+
+</body>
+
+</html>

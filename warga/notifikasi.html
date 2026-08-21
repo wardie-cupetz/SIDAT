@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#15803d"
+    >
+
+    <title>
+        SIDAT - Notifikasi
+    </title>
+
+
+    <!-- ======================================
+         CSS NOTIFIKASI
+    ======================================= -->
+
+    <link
+        rel="stylesheet"
+        href="notifikasi.css"
+    >
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- ======================================
+         HEADER
+    ======================================= -->
+
+    <header class="header">
+
+        <button
+            type="button"
+            class="back-btn"
+            onclick="kembaliDashboard()"
+            aria-label="Kembali"
+        >
+            ‹
+        </button>
+
+
+        <div class="header-title">
+
+            <h1>
+                Notifikasi
+            </h1>
+
+            <span>
+                Informasi aktivitas akun Anda
+            </span>
+
+        </div>
+
+
+        <div
+            class="header-icon"
+            aria-hidden="true"
+        >
+            🔔
+        </div>
+
+    </header>
+
+
+
+    <!-- ======================================
+         CONTENT
+    ======================================= -->
+
+    <main class="content">
+
+
+        <!-- ==================================
+             JUDUL HALAMAN
+        =================================== -->
+
+        <section class="page-title">
+
+            <div
+                class="page-icon"
+                aria-hidden="true"
+            >
+                🔔
+            </div>
+
+
+            <div>
+
+                <h2>
+                    Notifikasi
+                </h2>
+
+                <p>
+                    Informasi aktivitas dan laporan
+                    yang berkaitan dengan akun Anda.
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==================================
+             LOADING
+        =================================== -->
+
+        <div
+            id="loadingNotifikasi"
+            class="loading"
+        >
+
+            Memuat notifikasi...
+
+        </div>
+
+
+
+        <!-- ==================================
+             DAFTAR NOTIFIKASI
+        =================================== -->
+
+        <section
+            id="notifikasiList"
+            class="notifikasi-list"
+            aria-live="polite"
+        >
+        </section>
+
+
+
+        <!-- ==================================
+             EMPTY STATE
+        =================================== -->
+
+        <div
+            id="emptyNotifikasi"
+            class="empty-state hidden"
+        >
+
+            <div
+                class="empty-icon"
+                aria-hidden="true"
+            >
+                🔔
+            </div>
+
+
+            <strong>
+                Belum ada notifikasi
+            </strong>
+
+
+            <span>
+                Belum ada notifikasi baru
+                untuk Anda.
+            </span>
+
+        </div>
+
+
+
+        <!-- ==================================
+             ERROR STATE
+        ================================== -->
+
+        <div
+            id="errorNotifikasi"
+            class="empty-state hidden"
+        >
+
+            <div
+                class="empty-icon"
+                aria-hidden="true"
+            >
+                ⚠️
+            </div>
+
+
+            <strong>
+                Gagal memuat notifikasi
+            </strong>
+
+
+            <span>
+                Silakan coba lagi beberapa saat.
+            </span>
+
+        </div>
+
+
+    </main>
+
+
+
+    <!-- ======================================
+         FOOTER
+    ======================================= -->
+
+    <footer>
+
+        <strong>
+            SIDAT
+        </strong>
+
+        <span>
+            Dibuat oleh Suwardi
+        </span>
+
+    </footer>
+
+
+</div>
+
+
+
+<!-- ==========================================
+     SUPABASE CONFIG
+=========================================== -->
+
+<script
+    src="../js/supabase-config.js"
+></script>
+
+
+
+<!-- ==========================================
+     JAVASCRIPT NOTIFIKASI
+=========================================== -->
+
+<script
+    src="notifikasi.js"
+></script>
+
+
+</body>
+
+</html>

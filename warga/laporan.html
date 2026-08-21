@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Laporan & Aduan - SIDAT</title>
+
+    <link
+        rel="stylesheet"
+        href="laporan.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<!-- ==========================================
+     HEADER
+========================================== -->
+
+<header class="top-header">
+
+    <button
+        type="button"
+        class="btn-back"
+        onclick="kembaliDashboard()"
+        aria-label="Kembali"
+    >
+        ←
+    </button>
+
+
+    <div class="header-title">
+
+        <strong>
+            Laporan & Aduan
+        </strong>
+
+        <span>
+            Sampaikan laporan kepada pengurus RT
+        </span>
+
+    </div>
+
+</header>
+
+
+
+<!-- ==========================================
+     MAIN
+========================================== -->
+
+<main class="laporan-container">
+
+
+    <!-- ======================================
+         FORM BUAT LAPORAN
+    ======================================= -->
+
+    <section class="laporan-card">
+
+
+        <div class="section-title">
+
+            <div class="section-icon">
+                📢
+            </div>
+
+
+            <div>
+
+                <strong>
+                    Buat Laporan
+                </strong>
+
+                <small>
+                    Sampaikan masalah atau aduan
+                </small>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ==================================
+             FORM
+        =================================== -->
+
+        <form
+            id="laporanForm"
+            autocomplete="off"
+        >
+
+
+            <!-- ==============================
+                 KATEGORI
+            =============================== -->
+
+            <div class="form-group">
+
+                <label
+                    for="category"
+                >
+                    Kategori Laporan
+                </label>
+
+
+                <select
+                    id="category"
+                    name="category"
+                    required
+                >
+
+                    <option value="">
+                        Pilih kategori
+                    </option>
+
+                    <option value="Fasilitas RT">
+                        Fasilitas RT
+                    </option>
+
+                    <option value="Keamanan">
+                        Keamanan
+                    </option>
+
+                    <option value="Kebersihan">
+                        Kebersihan
+                    </option>
+
+                    <option value="Jalan & Lingkungan">
+                        Jalan & Lingkungan
+                    </option>
+
+                    <option value="Jimpitan">
+                        Jimpitan
+                    </option>
+
+                    <option value="Administrasi">
+                        Administrasi
+                    </option>
+
+                    <option value="Kegiatan RT">
+                        Kegiatan RT
+                    </option>
+
+                    <option value="Lainnya">
+                        Lainnya
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- ==============================
+                 JUDUL
+            =============================== -->
+
+            <div class="form-group">
+
+                <label
+                    for="title"
+                >
+                    Judul Laporan
+                </label>
+
+
+                <input
+                    id="title"
+                    name="title"
+                    type="text"
+                    maxlength="150"
+                    placeholder="Contoh: Lampu jalan mati"
+                    required
+                >
+
+            </div>
+
+
+
+            <!-- ==============================
+                 DESKRIPSI
+            =============================== -->
+
+            <div class="form-group">
+
+                <label
+                    for="description"
+                >
+                    Isi Laporan
+                </label>
+
+
+                <textarea
+                    id="description"
+                    name="description"
+                    rows="6"
+                    maxlength="1000"
+                    placeholder="Jelaskan masalah atau aduan secara lengkap..."
+                    required
+                ></textarea>
+
+
+                <div
+                    class="textarea-counter"
+                >
+
+                    <span
+                        id="descriptionCounter"
+                    >
+                        0
+                    </span>
+
+                    / 1000 karakter
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ==============================
+                 FOTO BUKTI
+            =============================== -->
+
+            <div class="form-group">
+
+                <label>
+                    Foto Bukti
+                    <span class="optional">
+                        (opsional)
+                    </span>
+                </label>
+
+
+                <div
+                    class="photo-upload-box"
+                    id="photoUploadBox"
+                >
+
+
+                    <input
+                        id="photoInput"
+                        name="photo"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        hidden
+                    >
+
+
+                    <label
+                        for="photoInput"
+                        class="photo-upload-button"
+                    >
+
+                        <span class="photo-upload-icon">
+                            📷
+                        </span>
+
+
+                        <span>
+                            Tambah Foto
+                        </span>
+
+                    </label>
+
+
+                    <small>
+                        JPG, PNG atau WEBP
+                        maksimal 2 MB
+                    </small>
+
+                </div>
+
+
+
+                <!-- ==========================
+                     PREVIEW FOTO
+                =========================== -->
+
+                <div
+                    id="photoPreviewContainer"
+                    class="photo-preview-container hidden"
+                >
+
+                    <div
+                        class="photo-preview-wrapper"
+                    >
+
+                        <img
+                            id="photoPreview"
+                            src=""
+                            alt="Preview foto laporan"
+                        >
+
+
+                        <button
+                            type="button"
+                            id="removePhotoButton"
+                            class="remove-photo-button"
+                            aria-label="Hapus foto"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="photoInfo"
+                        class="photo-info"
+                    >
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ==============================
+                 ERROR
+            =============================== -->
+
+            <div
+                id="formError"
+                class="form-message form-error hidden"
+                role="alert"
+            >
+            </div>
+
+
+
+            <!-- ==============================
+                 SUCCESS
+            =============================== -->
+
+            <div
+                id="formSuccess"
+                class="form-message form-success hidden"
+                role="status"
+            >
+            </div>
+
+
+
+            <!-- ==============================
+                 SUBMIT
+            =============================== -->
+
+            <button
+                id="submitButton"
+                type="submit"
+                class="btn-submit"
+            >
+
+                📤 Kirim Laporan
+
+            </button>
+
+
+        </form>
+
+    </section>
+
+
+
+    <!-- ======================================
+         RIWAYAT SEMUA LAPORAN
+    ======================================= -->
+
+    <section
+        class="laporan-card riwayat-card"
+    >
+
+
+        <div class="section-title">
+
+            <div class="section-icon">
+                📋
+            </div>
+
+
+            <div>
+
+                <strong>
+                    Riwayat Laporan
+                </strong>
+
+                <small>
+                    Laporan warga RT
+                </small>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ==================================
+             FILTER
+        =================================== -->
+
+        <div
+            id="filterLaporan"
+            class="filter-laporan"
+        >
+
+
+            <div
+                class="filter-search"
+            >
+
+                <input
+                    id="searchLaporan"
+                    type="search"
+                    placeholder="🔎 Cari laporan atau nama warga..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+
+            <div
+                class="filter-row"
+            >
+
+                <select
+                    id="filterKategori"
+                >
+
+                    <option value="">
+                        Semua kategori
+                    </option>
+
+                    <option value="Fasilitas RT">
+                        Fasilitas RT
+                    </option>
+
+                    <option value="Keamanan">
+                        Keamanan
+                    </option>
+
+                    <option value="Kebersihan">
+                        Kebersihan
+                    </option>
+
+                    <option value="Jalan & Lingkungan">
+                        Jalan & Lingkungan
+                    </option>
+
+                    <option value="Jimpitan">
+                        Jimpitan
+                    </option>
+
+                    <option value="Administrasi">
+                        Administrasi
+                    </option>
+
+                    <option value="Kegiatan RT">
+                        Kegiatan RT
+                    </option>
+
+                    <option value="Lainnya">
+                        Lainnya
+                    </option>
+
+                </select>
+
+
+
+                <select
+                    id="filterStatus"
+                >
+
+                    <option value="">
+                        Semua status
+                    </option>
+
+                    <option value="pending">
+                        Menunggu
+                    </option>
+
+                    <option value="process">
+                        Diproses
+                    </option>
+
+                    <option value="done">
+                        Selesai
+                    </option>
+
+                    <option value="rejected">
+                        Ditolak
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ==================================
+             DAFTAR LAPORAN
+        =================================== -->
+
+        <div
+            id="laporanList"
+            class="laporan-list"
+        >
+
+            <div
+                class="loading"
+            >
+
+                Memuat laporan warga...
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+</main>
+
+
+
+<!-- ==========================================
+     MODAL DETAIL LAPORAN
+========================================== -->
+
+<div
+    id="detailModal"
+    class="modal hidden"
+>
+  
+
+    <div
+        class="modal-overlay"
+        onclick="tutupDetail()"
+    >
+    </div>
+
+
+    <div
+        class="modal-box"
+    >
+
+
+        <!-- ==============================
+             HEADER MODAL
+        =============================== -->
+
+        <div
+            class="modal-header"
+        >
+
+            <div>
+
+                <h2>
+                    Detail Laporan
+                </h2>
+
+                <p>
+                    Informasi laporan warga
+                </p>
+
+            </div>
+
+
+            <button
+    id="btnCloseDetail"
+    class="detail-close"
+    type="button"
+>
+    ×
+</button>
+
+        </div>
+
+
+
+        <!-- ==============================
+             DETAIL CONTENT
+        =============================== -->
+
+        <div
+            id="detailContent"
+            class="detail-content"
+        >
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- ==========================================
+     SUPABASE
+========================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="../js/supabase-config.js"></script>
+
+<script src="laporan.js"></script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,3533 @@
+/* ==========================================
+   SIDAT
+   SISTEM DATA WARGA
+   LAPORAN & ADUAN
+   laporan.css
+   BAGIAN 1
+========================================== */
+
+
+/* ==========================================
+   RESET
+========================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background:
+        #f0fdf4;
+
+    color:
+        #1f2937;
+
+    min-height:
+        100vh;
+
+    line-height:
+        1.5;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family:
+        inherit;
+}
+
+button {
+    cursor:
+        pointer;
+
+    -webkit-tap-highlight-color:
+        transparent;
+}
+
+img {
+    display:
+        block;
+
+    max-width:
+        100%;
+}
+
+.hidden {
+    display:
+        none !important;
+}
+
+
+/* ==========================================
+   HEADER
+========================================== */
+
+.top-header {
+    position:
+        sticky;
+
+    top:
+        0;
+
+    z-index:
+        100;
+
+    width:
+        100%;
+
+    min-height:
+        70px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        12px;
+
+    padding:
+        12px 16px;
+
+    background:
+        #166534;
+
+    color:
+        #ffffff;
+
+    box-shadow:
+        0 3px 12px
+        rgba(
+            0,
+            0,
+            0,
+            0.12
+        );
+}
+
+
+/* ==========================================
+   TOMBOL BACK
+========================================== */
+
+.btn-back {
+    width:
+        40px;
+
+    height:
+        40px;
+
+    min-width:
+        40px;
+
+    padding:
+        0;
+
+    border:
+        none;
+
+    border-radius:
+        12px;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.15
+        );
+
+    color:
+        #ffffff;
+
+    font-size:
+        23px;
+
+    line-height:
+        1;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    transition:
+        0.2s ease;
+}
+
+.btn-back:hover {
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.25
+        );
+}
+
+.btn-back:active {
+    transform:
+        scale(0.95);
+}
+
+
+/* ==========================================
+   HEADER TITLE
+========================================== */
+
+.header-title {
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    min-width:
+        0;
+}
+
+.header-title strong {
+    color:
+        #ffffff;
+
+    font-size:
+        17px;
+
+    line-height:
+        1.3;
+}
+
+.header-title span {
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            0.78
+        );
+
+    font-size:
+        12px;
+
+    margin-top:
+        2px;
+}
+
+
+/* ==========================================
+   MAIN CONTAINER
+========================================== */
+
+.laporan-container {
+    width:
+        100%;
+
+    max-width:
+        760px;
+
+    margin:
+        0 auto;
+
+    padding:
+        16px 14px 40px;
+}
+
+
+/* ==========================================
+   CARD UTAMA
+========================================== */
+
+.laporan-card {
+    width:
+        100%;
+
+    background:
+        #ffffff;
+
+    border:
+        1px solid
+        #dcfce7;
+
+    border-radius:
+        20px;
+
+    padding:
+        18px;
+
+    margin-bottom:
+        16px;
+
+    box-shadow:
+        0 5px 18px
+        rgba(
+            22,
+            101,
+            52,
+            0.07
+        );
+}
+
+
+/* ==========================================
+   SECTION TITLE
+========================================== */
+
+.section-title {
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        12px;
+
+    margin-bottom:
+        18px;
+}
+
+.section-icon {
+    width:
+        44px;
+
+    height:
+        44px;
+
+    min-width:
+        44px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        14px;
+
+    background:
+        #dcfce7;
+
+    font-size:
+        22px;
+}
+
+.section-title strong {
+    display:
+        block;
+
+    color:
+        #14532d;
+
+    font-size:
+        17px;
+
+    line-height:
+        1.3;
+}
+
+.section-title small {
+    display:
+        block;
+
+    color:
+        #64748b;
+
+    font-size:
+        12px;
+
+    margin-top:
+        3px;
+}
+
+
+/* ==========================================
+   FORM GROUP
+========================================== */
+
+.form-group {
+    width:
+        100%;
+
+    margin-bottom:
+        15px;
+}
+
+.form-group label {
+    display:
+        block;
+
+    margin-bottom:
+        7px;
+
+    color:
+        #334155;
+
+    font-size:
+        13px;
+
+    font-weight:
+        700;
+}
+
+
+/* ==========================================
+   INPUT SELECT TEXTAREA
+========================================== */
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width:
+        100%;
+
+    border:
+        1px solid
+        #cbd5e1;
+
+    border-radius:
+        12px;
+
+    background:
+        #ffffff;
+
+    color:
+        #1f2937;
+
+    padding:
+        12px 13px;
+
+    font-size:
+        14px;
+
+    outline:
+        none;
+
+    transition:
+        border-color
+        0.2s ease,
+        box-shadow
+        0.2s ease;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color:
+        #94a3b8;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color:
+        #22c55e;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(
+            34,
+            197,
+            94,
+            0.12
+        );
+}
+
+
+/* ==========================================
+   TEXTAREA
+========================================== */
+
+.form-group textarea {
+    min-height:
+        150px;
+
+    resize:
+        vertical;
+
+    line-height:
+        1.5;
+}
+
+
+/* ==========================================
+   COUNTER
+========================================== */
+
+.description-counter {
+    display:
+        block;
+
+    width:
+        100%;
+
+    text-align:
+        right;
+
+    color:
+        #64748b;
+
+    font-size:
+        11px;
+
+    margin-top:
+        5px;
+}
+
+
+/* ==========================================
+   UPLOAD FOTO
+========================================== */
+
+.photo-upload-box {
+    width:
+        100%;
+
+    padding:
+        18px;
+
+    margin-bottom:
+        16px;
+
+    text-align:
+        center;
+
+    background:
+        #f0fdf4;
+
+    border:
+        2px dashed
+        #bbf7d0;
+
+    border-radius:
+        14px;
+}
+
+
+/* ==========================================
+   TOMBOL PILIH FOTO
+========================================== */
+
+.photo-upload-label {
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        7px;
+
+    min-height:
+        42px;
+
+    padding:
+        10px 16px;
+
+    border:
+        1px solid
+        #166534;
+
+    border-radius:
+        11px;
+
+    background:
+        #ffffff;
+
+    color:
+        #166534;
+
+    font-size:
+        13px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.2s ease;
+}
+
+.photo-upload-label:hover {
+    background:
+        #dcfce7;
+}
+
+.photo-upload-label:active {
+    transform:
+        scale(0.97);
+}
+
+
+/* ==========================================
+   INFO FOTO
+========================================== */
+
+.photo-info {
+    display:
+        block;
+
+    color:
+        #64748b;
+
+    font-size:
+        11px;
+
+    margin-top:
+        8px;
+}
+
+
+/* ==========================================
+   INPUT FILE
+========================================== */
+
+#photoInput {
+    display:
+        none !important;
+}
+
+
+/* ==========================================
+   PREVIEW FOTO
+========================================== */
+
+.photo-preview-container {
+    position:
+        relative;
+
+    display:
+        inline-block;
+
+    margin-top:
+        12px;
+}
+
+.photo-preview-container.hidden {
+    display:
+        none !important;
+}
+
+.photo-preview {
+    width:
+        150px;
+
+    height:
+        105px;
+
+    object-fit:
+        cover;
+
+    border:
+        1px solid
+        #d1d5db;
+
+    border-radius:
+        11px;
+}
+
+
+/* ==========================================
+   HAPUS FOTO
+========================================== */
+
+.remove-photo-button {
+    position:
+        absolute;
+
+    top:
+        -8px;
+
+    right:
+        -8px;
+
+    width:
+        29px;
+
+    height:
+        29px;
+
+    padding:
+        0;
+
+    border:
+        none;
+
+    border-radius:
+        50%;
+
+    background:
+        #dc2626;
+
+    color:
+        #ffffff;
+
+    font-size:
+        16px;
+
+    line-height:
+        1;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    box-shadow:
+        0 3px 8px
+        rgba(
+            0,
+            0,
+            0,
+            0.20
+        );
+}
+
+.remove-photo-button:hover {
+    background:
+        #b91c1c;
+}
+
+
+/* ==========================================
+   FORM ACTION
+========================================== */
+
+.form-actions {
+    width:
+        100%;
+
+    display:
+        flex;
+
+    gap:
+        10px;
+
+    margin-top:
+        18px;
+}
+
+
+/* ==========================================
+   TOMBOL SUBMIT
+========================================== */
+
+.btn-submit,
+#submitButton,
+#kirimLaporanButton,
+#btnKirimLaporan,
+button[type="submit"] {
+    width:
+        100%;
+
+    min-height:
+        46px;
+
+    padding:
+        12px 16px;
+
+    border:
+        none !important;
+
+    border-radius:
+        13px !important;
+
+    background:
+        #166534 !important;
+
+    color:
+        #ffffff !important;
+
+    font-size:
+        14px !important;
+
+    font-weight:
+        700 !important;
+
+    line-height:
+        1.2;
+
+    cursor:
+        pointer;
+
+    box-shadow:
+        0 4px 10px
+        rgba(
+            22,
+            101,
+            52,
+            0.14
+        );
+
+    transition:
+        0.2s ease;
+}
+
+.btn-submit:hover,
+#submitButton:hover,
+#kirimLaporanButton:hover,
+#btnKirimLaporan:hover,
+button[type="submit"]:hover {
+    background:
+        #14532d !important;
+}
+
+.btn-submit:active,
+#submitButton:active,
+#kirimLaporanButton:active,
+#btnKirimLaporan:active,
+button[type="submit"]:active {
+    transform:
+        scale(0.98);
+}
+
+.btn-submit:disabled,
+#submitButton:disabled,
+#kirimLaporanButton:disabled,
+#btnKirimLaporan:disabled,
+button[type="submit"]:disabled {
+    opacity:
+        0.6;
+
+    cursor:
+        not-allowed;
+}
+
+
+/* ==========================================
+   PESAN ERROR
+========================================== */
+
+.form-error {
+    width:
+        100%;
+
+    padding:
+        11px 13px;
+
+    margin-bottom:
+        14px;
+
+    border:
+        1px solid
+        #fecaca;
+
+    border-radius:
+        10px;
+
+    background:
+        #fef2f2;
+
+    color:
+        #b91c1c;
+
+    font-size:
+        13px;
+}
+
+
+/* ==========================================
+   PESAN SUCCESS
+========================================== */
+
+.form-success {
+    width:
+        100%;
+
+    padding:
+        11px 13px;
+
+    margin-bottom:
+        14px;
+
+    border:
+        1px solid
+        #bbf7d0;
+
+    border-radius:
+        10px;
+
+    background:
+        #f0fdf4;
+
+    color:
+        #166534;
+
+    font-size:
+        13px;
+}
+
+
+/* ==========================================
+   RIWAYAT LAPORAN
+========================================== */
+
+.riwayat-header {
+    width:
+        100%;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        12px;
+
+    margin-bottom:
+        16px;
+}
+
+
+.riwayat-header-icon {
+    width:
+        44px;
+
+    height:
+        44px;
+
+    min-width:
+        44px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        14px;
+
+    background:
+        #dcfce7;
+
+    font-size:
+        22px;
+}
+
+
+.riwayat-header h2 {
+    color:
+        #14532d;
+
+    font-size:
+        18px;
+
+    line-height:
+        1.3;
+}
+
+
+.riwayat-header p {
+    color:
+        #64748b;
+
+    font-size:
+        12px;
+
+    margin-top:
+        2px;
+}
+
+
+/* ==========================================
+   FILTER LAPORAN
+========================================== */
+
+.laporan-filter {
+    width:
+        100%;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        8px;
+
+    margin-bottom:
+        14px;
+}
+
+
+/* ==========================================
+   SEARCH LAPORAN
+========================================== */
+
+.laporan-search,
+#searchInput,
+#searchLaporan,
+#cariLaporan,
+input[type="search"] {
+    width:
+        100%;
+
+    min-height:
+        42px;
+
+    padding:
+        10px 13px;
+
+    border:
+        1px solid
+        #cbd5e1;
+
+    border-radius:
+        11px;
+
+    background:
+        #ffffff;
+
+    color:
+        #1f2937;
+
+    font-size:
+        13px;
+
+    outline:
+        none;
+
+    appearance:
+        none;
+
+    -webkit-appearance:
+        none;
+
+    transition:
+        0.2s ease;
+}
+
+
+.laporan-search::placeholder,
+#searchInput::placeholder,
+#searchLaporan::placeholder,
+#cariLaporan::placeholder,
+input[type="search"]::placeholder {
+    color:
+        #94a3b8;
+}
+
+
+.laporan-search:focus,
+#searchInput:focus,
+#searchLaporan:focus,
+#cariLaporan:focus,
+input[type="search"]:focus {
+    border-color:
+        #22c55e;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(
+            34,
+            197,
+            94,
+            0.10
+        );
+}
+
+
+/* ==========================================
+   FILTER ROW
+========================================== */
+
+.filter-row {
+    width:
+        100%;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap:
+        8px;
+}
+
+
+/* ==========================================
+   SELECT FILTER
+========================================== */
+
+.filter-row select,
+#categoryFilter,
+#statusFilter,
+#filterCategory,
+#filterStatus,
+select[name="category"],
+select[name="status"] {
+    width:
+        100%;
+
+    min-height:
+        40px;
+
+    padding:
+        9px 11px;
+
+    border:
+        1px solid
+        #cbd5e1;
+
+    border-radius:
+        10px;
+
+    background:
+        #ffffff;
+
+    color:
+        #334155;
+
+    font-size:
+        12px;
+
+    outline:
+        none;
+
+    cursor:
+        pointer;
+
+    appearance:
+        none;
+
+    -webkit-appearance:
+        none;
+
+    transition:
+        0.2s ease;
+}
+
+
+.filter-row select:focus,
+#categoryFilter:focus,
+#statusFilter:focus,
+#filterCategory:focus,
+#filterStatus:focus,
+select[name="category"]:focus,
+select[name="status"]:focus {
+    border-color:
+        #22c55e;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(
+            34,
+            197,
+            94,
+            0.10
+        );
+}
+
+
+/* ==========================================
+   LIST LAPORAN
+========================================== */
+
+.laporan-list {
+    width:
+        100%;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        10px;
+}
+
+
+/* ==========================================
+   KARTU LAPORAN
+========================================== */
+
+.laporan-item {
+    position:
+        relative;
+
+    width:
+        100%;
+
+    min-width:
+        0;
+
+    display:
+        flex;
+
+    align-items:
+        flex-start;
+
+    gap:
+        11px;
+
+    padding:
+        11px;
+
+    background:
+        #ffffff;
+
+    border:
+        1px solid
+        #e2e8f0;
+
+    border-radius:
+        14px;
+
+    box-shadow:
+        0 2px 8px
+        rgba(
+            15,
+            23,
+            42,
+            0.04
+        );
+
+    cursor:
+        pointer;
+
+    overflow:
+        hidden;
+
+    transition:
+        0.2s ease;
+}
+
+
+.laporan-item:hover {
+    border-color:
+        #bbf7d0;
+
+    box-shadow:
+        0 5px 14px
+        rgba(
+            22,
+            101,
+            52,
+            0.08
+        );
+}
+
+
+.laporan-item:active {
+    transform:
+        scale(0.99);
+}
+
+
+/* ==========================================
+   FOTO THUMBNAIL LAPORAN
+========================================== */
+
+.laporan-item img,
+.laporan-item-photo,
+.laporan-photo,
+.laporan-thumbnail,
+.report-photo,
+.report-thumbnail,
+.riwayat-photo {
+    width:
+        105px !important;
+
+    height:
+        78px !important;
+
+    min-width:
+        105px !important;
+
+    max-width:
+        105px !important;
+
+    min-height:
+        78px !important;
+
+    max-height:
+        78px !important;
+
+    flex:
+        0 0 105px;
+
+    object-fit:
+        cover !important;
+
+    display:
+        block;
+
+    border:
+        1px solid
+        #e2e8f0;
+
+    border-radius:
+        10px;
+
+    background:
+        #f1f5f9;
+
+    overflow:
+        hidden;
+}
+
+
+/* ==========================================
+   WRAPPER FOTO
+========================================== */
+
+.laporan-item .foto-laporan,
+.laporan-item .report-image,
+.laporan-item .image-wrapper,
+.laporan-item .laporan-image,
+.laporan-item .foto-wrapper {
+    width:
+        105px !important;
+
+    height:
+        78px !important;
+
+    min-width:
+        105px !important;
+
+    max-width:
+        105px !important;
+
+    flex:
+        0 0 105px;
+
+    overflow:
+        hidden;
+
+    border-radius:
+        10px;
+
+    background:
+        #f1f5f9;
+}
+
+
+.laporan-item .foto-laporan img,
+.laporan-item .report-image img,
+.laporan-item .image-wrapper img,
+.laporan-item .laporan-image img,
+.laporan-item .foto-wrapper img {
+    width:
+        100% !important;
+
+    height:
+        100% !important;
+
+    min-width:
+        0 !important;
+
+    max-width:
+        none !important;
+
+    min-height:
+        0 !important;
+
+    max-height:
+        none !important;
+
+    object-fit:
+        cover !important;
+}
+
+
+/* ==========================================
+   TANPA FOTO
+========================================== */
+
+.laporan-item-no-photo,
+.no-photo,
+.report-no-photo {
+    width:
+        105px;
+
+    height:
+        78px;
+
+    min-width:
+        105px;
+
+    flex:
+        0 0 105px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        10px;
+
+    background:
+        #f0fdf4;
+
+    color:
+        #166534;
+
+    font-size:
+        24px;
+}
+
+
+/* ==========================================
+   KONTEN KARTU
+========================================== */
+
+.laporan-item-content {
+    min-width:
+        0;
+
+    flex:
+        1;
+
+    overflow:
+        hidden;
+}
+
+
+.laporan-item-content h3,
+.laporan-item-title {
+    margin:
+        0 0 4px;
+
+    color:
+        #1e293b;
+
+    font-size:
+        14px;
+
+    font-weight:
+        700;
+
+    line-height:
+        1.35;
+
+    display:
+        -webkit-box;
+
+    -webkit-box-orient:
+        vertical;
+
+    -webkit-line-clamp:
+        2;
+
+    overflow:
+        hidden;
+
+    word-break:
+        break-word;
+}
+
+
+.laporan-item-content p,
+.laporan-item-description {
+    margin:
+        0;
+
+    color:
+        #64748b;
+
+    font-size:
+        11px;
+
+    line-height:
+        1.45;
+
+    display:
+        -webkit-box;
+
+    -webkit-box-orient:
+        vertical;
+
+    -webkit-line-clamp:
+        2;
+
+    overflow:
+        hidden;
+
+    word-break:
+        break-word;
+}
+
+
+/* ==========================================
+   PELAPOR
+========================================== */
+
+.laporan-pelapor {
+    margin-top:
+        5px;
+
+    color:
+        #64748b;
+
+    font-size:
+        10px;
+
+    line-height:
+        1.4;
+}
+
+
+.laporan-pelapor strong {
+    color:
+        #334155;
+
+    font-size:
+        10px;
+}
+
+
+/* ==========================================
+   META LAPORAN
+========================================== */
+
+.laporan-meta {
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    flex-wrap:
+        wrap;
+
+    gap:
+        5px;
+
+    margin-top:
+        7px;
+}
+
+
+.laporan-category {
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    width:
+        fit-content;
+
+    padding:
+        3px 7px;
+
+    border-radius:
+        999px;
+
+    background:
+        #f0fdf4;
+
+    color:
+        #166534;
+
+    font-size:
+        10px;
+
+    font-weight:
+        700;
+}
+
+
+.laporan-date {
+    color:
+        #94a3b8;
+
+    font-size:
+        10px;
+}
+
+
+/* ==========================================
+   STATUS DASAR
+========================================== */
+
+.status {
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    width:
+        fit-content;
+
+    min-height:
+        24px;
+
+    padding:
+        4px 9px;
+
+    border-radius:
+        999px;
+
+    font-size:
+        10px;
+
+    font-weight:
+        700;
+
+    line-height:
+        1;
+
+    white-space:
+        nowrap;
+}
+
+
+/* ==========================================
+   STATUS PENDING
+========================================== */
+
+.status-pending {
+    background:
+        #fef3c7;
+
+    color:
+        #92400e;
+}
+
+
+/* ==========================================
+   STATUS DIPROSES
+========================================== */
+
+.status-diproses,
+.status-processing,
+.status-process {
+    background:
+        #dbeafe;
+
+    color:
+        #1d4ed8;
+}
+
+
+/* ==========================================
+   STATUS DITERIMA
+========================================== */
+
+.status-diterima {
+    background:
+        #dbeafe;
+
+    color:
+        #1d4ed8;
+}
+
+
+/* ==========================================
+   STATUS DITOLAK
+========================================== */
+
+.status-ditolak,
+.status-rejected {
+    background:
+        #fee2e2;
+
+    color:
+        #b91c1c;
+}
+
+
+/* ==========================================
+   STATUS SELESAI
+========================================== */
+
+.status-selesai,
+.status-resolved,
+.status-completed {
+    background:
+        #dcfce7;
+
+    color:
+        #166534;
+}
+
+
+/* ==========================================
+   STATUS DIBATALKAN
+========================================== */
+
+.status-dibatalkan,
+.status-cancelled {
+    background:
+        #f1f5f9;
+
+    color:
+        #475569;
+}
+
+
+/* ==========================================
+   EMPTY STATE
+========================================== */
+
+.laporan-empty,
+.empty-state,
+.pengumuman-kosong {
+    width:
+        100%;
+
+    padding:
+        30px 15px;
+
+    text-align:
+        center;
+
+    color:
+        #64748b;
+
+    font-size:
+        13px;
+
+    background:
+        #f8fafc;
+
+    border:
+        1px dashed
+        #cbd5e1;
+
+    border-radius:
+        14px;
+}
+
+
+/* ==========================================
+   LOADING
+========================================== */
+
+.laporan-loading {
+    width:
+        100%;
+
+    padding:
+        25px;
+
+    text-align:
+        center;
+
+    color:
+        #64748b;
+
+    font-size:
+        13px;
+}
+
+
+/* ==========================================
+   TOMBOL DETAIL
+========================================== */
+
+.btn-detail,
+.detail-button,
+.laporan-detail-button {
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    min-height:
+        34px;
+
+    padding:
+        7px 11px;
+
+    border:
+        1px solid
+        #bbf7d0;
+
+    border-radius:
+        9px;
+
+    background:
+        #f0fdf4;
+
+    color:
+        #166534;
+
+    font-size:
+        11px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.2s ease;
+}
+
+
+.btn-detail:hover,
+.detail-button:hover,
+.laporan-detail-button:hover {
+    background:
+        #dcfce7;
+
+    border-color:
+        #86efac;
+}
+
+
+/* ==========================================
+   TOMBOL TAMBAH LAPORAN
+========================================== */
+
+.btn-tambah-laporan,
+#btnTambahLaporan,
+#tambahLaporanButton {
+    width:
+        100%;
+
+    min-height:
+        44px;
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        7px;
+
+    padding:
+        10px 15px;
+
+    border:
+        none;
+
+    border-radius:
+        12px;
+
+    background:
+        #166534;
+
+    color:
+        #ffffff;
+
+    font-size:
+        13px;
+
+    font-weight:
+        700;
+
+    box-shadow:
+        0 4px 10px
+        rgba(
+            22,
+            101,
+            52,
+            0.14
+        );
+
+    transition:
+        0.2s ease;
+}
+
+
+.btn-tambah-laporan:hover,
+#btnTambahLaporan:hover,
+#tambahLaporanButton:hover {
+    background:
+        #14532d;
+}
+
+
+.btn-tambah-laporan:active,
+#btnTambahLaporan:active,
+#tambahLaporanButton:active {
+    transform:
+        scale(0.98);
+}
+/* ==========================================
+   TOMBOL REFRESH
+========================================== */
+
+.btn-refresh-laporan,
+#btnRefresh,
+#refreshLaporan {
+    min-width:
+        40px;
+
+    min-height:
+        40px;
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    padding:
+        8px 12px;
+
+    border:
+        1px solid
+        #bbf7d0;
+
+    border-radius:
+        10px;
+
+    background:
+        #ffffff;
+
+    color:
+        #166534;
+
+    font-size:
+        16px;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.2s ease;
+}
+
+.btn-refresh-laporan:hover,
+#btnRefresh:hover,
+#refreshLaporan:hover {
+    background:
+        #f0fdf4;
+
+    border-color:
+        #86efac;
+}
+
+
+/* ==========================================
+   MODAL
+========================================== */
+
+.modal {
+    position:
+        fixed;
+
+    inset:
+        0;
+
+    z-index:
+        1000;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    padding:
+        16px;
+}
+
+.modal.hidden {
+    display:
+        none !important;
+}
+
+
+/* ==========================================
+   MODAL OVERLAY
+========================================== */
+
+.modal-overlay {
+    position:
+        absolute;
+
+    inset:
+        0;
+
+    background:
+        rgba(
+            15,
+            23,
+            42,
+            0.60
+        );
+
+    backdrop-filter:
+        blur(3px);
+}
+
+
+/* ==========================================
+   MODAL BOX
+========================================== */
+
+.modal-box {
+    position:
+        relative;
+
+    z-index:
+        2;
+
+    width:
+        100%;
+
+    max-width:
+        560px;
+
+    max-height:
+        90vh;
+
+    overflow-y:
+        auto;
+
+    background:
+        #ffffff;
+
+    border-radius:
+        20px;
+
+    padding:
+        18px;
+
+    box-shadow:
+        0 20px 50px
+        rgba(
+            0,
+            0,
+            0,
+            0.20
+        );
+
+    animation:
+        modalMasuk
+        0.20s ease;
+}
+
+
+@keyframes modalMasuk {
+
+    from {
+        opacity:
+            0;
+
+        transform:
+            translateY(12px)
+            scale(0.98);
+    }
+
+    to {
+        opacity:
+            1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+}
+
+
+/* ==========================================
+   MODAL HEADER
+========================================== */
+
+.modal-header {
+    display:
+        flex;
+
+    align-items:
+        flex-start;
+
+    justify-content:
+        space-between;
+
+    gap:
+        12px;
+
+    margin-bottom:
+        18px;
+}
+
+
+.modal-header h2 {
+    color:
+        #14532d;
+
+    font-size:
+        18px;
+
+    line-height:
+        1.3;
+}
+
+
+.modal-header p {
+    margin-top:
+        3px;
+
+    color:
+        #64748b;
+
+    font-size:
+        12px;
+}
+
+
+/* ==========================================
+   TOMBOL CLOSE MODAL
+========================================== */
+
+.modal-close,
+.detail-close,
+#closeDetailButton {
+    width:
+        36px;
+
+    height:
+        36px;
+
+    min-width:
+        36px;
+
+    padding:
+        0;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border:
+        none;
+
+    border-radius:
+        10px;
+
+    background:
+        #f1f5f9;
+
+    color:
+        #475569;
+
+    font-size:
+        23px;
+
+    line-height:
+        1;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.2s ease;
+}
+
+
+.modal-close:hover,
+.detail-close:hover,
+#closeDetailButton:hover {
+    background:
+        #fee2e2;
+
+    color:
+        #dc2626;
+}
+
+
+/* ==========================================
+   DETAIL LAPORAN
+========================================== */
+
+.detail-content {
+    width:
+        100%;
+}
+
+
+/* ==========================================
+   FOTO DETAIL
+========================================== */
+
+.detail-photo {
+    width:
+        100%;
+
+    max-height:
+        280px;
+
+    margin-bottom:
+        16px;
+
+    overflow:
+        hidden;
+
+    border-radius:
+        14px;
+
+    background:
+        #f1f5f9;
+
+    border:
+        1px solid
+        #e2e8f0;
+}
+
+
+.detail-photo img {
+    display:
+        block;
+
+    width:
+        100%;
+
+    height:
+        280px;
+
+    max-width:
+        100%;
+
+    object-fit:
+        cover;
+}
+
+
+/* ==========================================
+   DETAIL SECTION
+========================================== */
+
+.detail-section {
+    width:
+        100%;
+
+    padding:
+        12px 0;
+
+    border-bottom:
+        1px solid
+        #f1f5f9;
+}
+
+
+.detail-section:last-child {
+    border-bottom:
+        none;
+}
+
+
+.detail-label {
+    margin-bottom:
+        4px;
+
+    color:
+        #64748b;
+
+    font-size:
+        11px;
+
+    font-weight:
+        600;
+}
+
+
+.detail-section strong {
+    display:
+        block;
+
+    color:
+        #1e293b;
+
+    font-size:
+        14px;
+
+    line-height:
+        1.4;
+
+    word-break:
+        break-word;
+}
+
+
+.detail-section small {
+    display:
+        block;
+
+    margin-top:
+        3px;
+
+    color:
+        #94a3b8;
+
+    font-size:
+        11px;
+}
+
+
+.detail-description {
+    color:
+        #334155;
+
+    font-size:
+        13px;
+
+    line-height:
+        1.6;
+
+    white-space:
+        pre-wrap;
+
+    word-break:
+        break-word;
+}
+
+
+/* ==========================================
+   ADMIN NOTE
+========================================== */
+
+.admin-note {
+    margin-top:
+        5px;
+
+    padding:
+        13px;
+
+    border:
+        1px solid
+        #bbf7d0;
+
+    border-radius:
+        12px;
+
+    background:
+        #f0fdf4;
+}
+
+
+.admin-note span {
+    display:
+        block;
+
+    margin-bottom:
+        5px;
+
+    color:
+        #166534;
+
+    font-size:
+        12px;
+
+    font-weight:
+        700;
+}
+
+
+.admin-note p {
+    color:
+        #334155;
+
+    font-size:
+        12px;
+
+    line-height:
+        1.5;
+
+    white-space:
+        pre-wrap;
+}
+
+
+.empty-note {
+    background:
+        #f8fafc;
+
+    border-color:
+        #e2e8f0;
+}
+
+
+.empty-note span {
+    color:
+        #64748b;
+}
+
+
+.empty-note p {
+    color:
+        #94a3b8;
+}
+
+
+/* ==========================================
+   DETAIL ACTIONS
+========================================== */
+
+.detail-actions {
+    width:
+        100%;
+
+    display:
+        flex;
+
+    gap:
+        8px;
+
+    margin-top:
+        16px;
+}
+
+
+.detail-actions button {
+    flex:
+        1;
+
+    min-height:
+        42px;
+
+    padding:
+        10px 12px;
+
+    border-radius:
+        11px;
+
+    font-size:
+        12px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.2s ease;
+}
+
+
+.detail-actions .btn-close,
+.detail-actions .btn-cancel {
+    border:
+        1px solid
+        #cbd5e1;
+
+    background:
+        #ffffff;
+
+    color:
+        #475569;
+}
+
+
+.detail-actions .btn-close:hover,
+.detail-actions .btn-cancel:hover {
+    background:
+        #f8fafc;
+}
+
+
+/* ==========================================
+   TOMBOL HAPUS / ADMIN
+========================================== */
+
+.btn-delete,
+.delete-button,
+.btn-hapus-laporan {
+    min-height:
+        38px;
+
+    padding:
+        8px 12px;
+
+    border:
+        none;
+
+    border-radius:
+        9px;
+
+    background:
+        #fee2e2;
+
+    color:
+        #b91c1c;
+
+    font-size:
+        11px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+}
+
+
+.btn-delete:hover,
+.delete-button:hover,
+.btn-hapus-laporan:hover {
+    background:
+        #fecaca;
+}
+
+
+/* ==========================================
+   BUTTON CANCEL
+========================================== */
+
+.btn-cancel,
+.btn-batal {
+    min-height:
+        42px;
+
+    padding:
+        10px 16px;
+
+    border:
+        1px solid
+        #cbd5e1;
+
+    border-radius:
+        11px;
+
+    background:
+        #ffffff;
+
+    color:
+        #475569;
+
+    font-size:
+        13px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.2s ease;
+}
+
+
+.btn-cancel:hover,
+.btn-batal:hover {
+    background:
+        #f8fafc;
+}
+
+
+/* ==========================================
+   ALERT / NOTIFICATION
+========================================== */
+
+.laporan-alert {
+    width:
+        100%;
+
+    padding:
+        11px 13px;
+
+    margin-bottom:
+        14px;
+
+    border-radius:
+        11px;
+
+    font-size:
+        12px;
+
+    line-height:
+        1.5;
+}
+
+
+.laporan-alert.success {
+    background:
+        #f0fdf4;
+
+    border:
+        1px solid
+        #bbf7d0;
+
+    color:
+        #166534;
+}
+
+
+.laporan-alert.error {
+    background:
+        #fef2f2;
+
+    border:
+        1px solid
+        #fecaca;
+
+    color:
+        #b91c1c;
+}
+
+
+.laporan-alert.info {
+    background:
+        #eff6ff;
+
+    border:
+        1px solid
+        #bfdbfe;
+
+    color:
+        #1d4ed8;
+}
+
+
+/* ==========================================
+   BADGE JUMLAH LAPORAN
+========================================== */
+
+.laporan-count {
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    min-width:
+        23px;
+
+    height:
+        23px;
+
+    padding:
+        0 7px;
+
+    border-radius:
+        999px;
+
+    background:
+        #166534;
+
+    color:
+        #ffffff;
+
+    font-size:
+        10px;
+
+    font-weight:
+        700;
+}
+
+
+/* ==========================================
+   PAGINATION
+========================================== */
+
+.laporan-pagination {
+    width:
+        100%;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        6px;
+
+    margin-top:
+        18px;
+}
+
+
+.laporan-pagination button {
+    min-width:
+        36px;
+
+    height:
+        36px;
+
+    padding:
+        0 9px;
+
+    border:
+        1px solid
+        #cbd5e1;
+
+    border-radius:
+        9px;
+
+    background:
+        #ffffff;
+
+    color:
+        #475569;
+
+    font-size:
+        12px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+}
+
+
+.laporan-pagination button:hover {
+    background:
+        #f0fdf4;
+
+    border-color:
+        #86efac;
+}
+
+
+.laporan-pagination button.active {
+    background:
+        #166534;
+
+    border-color:
+        #166534;
+
+    color:
+        #ffffff;
+}
+
+
+/* ==========================================
+   RESPONSIVE TABLET
+========================================== */
+
+@media (
+    min-width: 600px
+) {
+
+    .laporan-container {
+        padding:
+            22px 20px 50px;
+    }
+
+
+    .laporan-filter {
+        flex-direction:
+            row;
+
+        align-items:
+            center;
+    }
+
+
+    .laporan-search,
+    #searchInput,
+    #searchLaporan,
+    #cariLaporan,
+    input[type="search"] {
+        flex:
+            1;
+    }
+
+
+    .filter-row {
+        width:
+            330px;
+
+        flex:
+            0 0 330px;
+    }
+
+
+    .laporan-item {
+        padding:
+            13px;
+    }
+
+
+    .laporan-item img,
+    .laporan-item-photo,
+    .laporan-photo,
+    .laporan-thumbnail,
+    .report-photo,
+    .report-thumbnail,
+    .riwayat-photo {
+        width:
+            120px !important;
+
+        height:
+            88px !important;
+
+        min-width:
+            120px !important;
+
+        max-width:
+            120px !important;
+
+        min-height:
+            88px !important;
+
+        max-height:
+            88px !important;
+
+        flex-basis:
+            120px;
+    }
+
+}
+
+
+/* ==========================================
+   RESPONSIVE MOBILE
+========================================== */
+
+@media (
+    max-width: 480px
+) {
+
+    .top-header {
+        min-height:
+            64px;
+
+        padding:
+            10px 12px;
+    }
+
+
+    .header-title strong {
+        font-size:
+            16px;
+    }
+
+
+    .header-title span {
+        font-size:
+            11px;
+    }
+
+
+    .laporan-container {
+        padding:
+            12px 10px 35px;
+    }
+
+
+    .laporan-card {
+        padding:
+            14px;
+
+        border-radius:
+            17px;
+    }
+
+
+    .section-title {
+        margin-bottom:
+            14px;
+    }
+
+
+    .filter-row {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+
+    .laporan-item {
+        gap:
+            9px;
+
+        padding:
+            9px;
+    }
+
+
+    /* FOTO THUMBNAIL MOBILE */
+
+    .laporan-item img,
+    .laporan-item-photo,
+    .laporan-photo,
+    .laporan-thumbnail,
+    .report-photo,
+    .report-thumbnail,
+    .riwayat-photo {
+
+        width:
+            88px !important;
+
+        height:
+            68px !important;
+
+        min-width:
+            88px !important;
+
+        max-width:
+            88px !important;
+
+        min-height:
+            68px !important;
+
+        max-height:
+            68px !important;
+
+        flex:
+            0 0 88px;
+
+        object-fit:
+            cover !important;
+
+        border-radius:
+            9px;
+    }
+
+
+    .laporan-item-content h3,
+    .laporan-item-title {
+
+        font-size:
+            13px;
+    }
+
+
+    .laporan-item-content p,
+    .laporan-item-description {
+
+        font-size:
+            10px;
+    }
+
+
+    .laporan-pelapor {
+
+        font-size:
+            9px;
+    }
+
+
+    .laporan-category,
+    .laporan-date {
+
+        font-size:
+            9px;
+    }
+
+
+    .status {
+
+        min-height:
+            22px;
+
+        padding:
+            4px 7px;
+
+        font-size:
+            9px;
+    }
+
+
+    /* ==============================
+       MODAL MOBILE
+    ============================== */
+
+    .modal {
+
+        padding:
+            10px;
+    }
+
+
+    .modal-box {
+
+        width:
+            100%;
+
+        max-height:
+            94vh;
+
+        padding:
+            15px;
+
+        border-radius:
+            17px;
+    }
+
+
+    .modal-header {
+
+        margin-bottom:
+            14px;
+    }
+
+
+    .modal-header h2 {
+
+        font-size:
+            17px;
+    }
+
+
+    .modal-header p {
+
+        font-size:
+            11px;
+    }
+
+
+    .modal-close,
+    .detail-close,
+    #closeDetailButton {
+
+        width:
+            34px;
+
+        height:
+            34px;
+
+        min-width:
+            34px;
+
+        font-size:
+            21px;
+    }
+
+
+    /* ==============================
+       FOTO DETAIL MOBILE
+    ============================== */
+
+    .detail-photo {
+
+        width:
+            100%;
+
+        max-height:
+            240px;
+
+        margin-bottom:
+            14px;
+
+        border-radius:
+            12px;
+
+        overflow:
+            hidden;
+    }
+
+
+    .detail-photo img {
+
+        width:
+            100%;
+
+        height:
+            240px;
+
+        max-width:
+            100%;
+
+        object-fit:
+            cover;
+
+        display:
+            block;
+    }
+
+
+    .detail-section {
+
+        padding:
+            10px 0;
+    }
+
+
+    .detail-label {
+
+        font-size:
+            10px;
+    }
+
+
+    .detail-section strong {
+
+        font-size:
+            13px;
+    }
+
+
+    .detail-section small {
+
+        font-size:
+            10px;
+    }
+
+
+    .detail-description {
+
+        font-size:
+            12px;
+
+        line-height:
+            1.55;
+    }
+
+
+    .admin-note {
+
+        padding:
+            11px;
+
+        border-radius:
+            10px;
+    }
+
+
+    .admin-note span {
+
+        font-size:
+            11px;
+    }
+
+
+    .admin-note p {
+
+        font-size:
+            11px;
+    }
+
+
+    /* ==============================
+       DETAIL ACTION MOBILE
+    ============================== */
+
+    .detail-actions {
+
+        gap:
+            7px;
+
+        margin-top:
+            13px;
+    }
+
+
+    .detail-actions button {
+
+        min-height:
+            40px;
+
+        padding:
+            9px;
+
+        font-size:
+            11px;
+    }
+
+
+    /* ==============================
+       TOMBOL TAMBAH MOBILE
+    ============================== */
+
+    .btn-tambah-laporan,
+    #btnTambahLaporan,
+    #tambahLaporanButton {
+
+        min-height:
+            43px;
+
+        font-size:
+            12px;
+
+        border-radius:
+            11px;
+    }
+
+
+    /* ==============================
+       INPUT MOBILE
+    ============================== */
+
+    .laporan-search,
+    #searchInput,
+    #searchLaporan,
+    #cariLaporan,
+    input[type="search"] {
+
+        min-height:
+            40px;
+
+        font-size:
+            12px;
+    }
+
+
+    .filter-row select,
+    #categoryFilter,
+    #statusFilter,
+    #filterCategory,
+    #filterStatus {
+
+        min-height:
+            39px;
+
+        font-size:
+            11px;
+    }
+
+}
+
+
+/* ==========================================
+   MOBILE SANGAT KECIL
+========================================== */
+
+@media (
+    max-width: 360px
+) {
+
+    .laporan-container {
+
+        padding-left:
+            8px;
+
+        padding-right:
+            8px;
+    }
+
+
+    .laporan-item {
+
+        gap:
+            8px;
+
+        padding:
+            8px;
+
+        border-radius:
+            12px;
+    }
+
+
+    /* FOTO LEBIH KECIL */
+
+    .laporan-item img,
+    .laporan-item-photo,
+    .laporan-photo,
+    .laporan-thumbnail,
+    .report-photo,
+    .report-thumbnail,
+    .riwayat-photo {
+
+        width:
+            76px !important;
+
+        height:
+            62px !important;
+
+        min-width:
+            76px !important;
+
+        max-width:
+            76px !important;
+
+        min-height:
+            62px !important;
+
+        max-height:
+            62px !important;
+
+        flex:
+            0 0 76px;
+
+        border-radius:
+            8px;
+    }
+
+
+    .laporan-item-content h3,
+    .laporan-item-title {
+
+        font-size:
+            12px;
+    }
+
+
+    .laporan-item-content p,
+    .laporan-item-description {
+
+        font-size:
+            9px;
+
+        -webkit-line-clamp:
+            2;
+    }
+
+
+    .laporan-pelapor {
+
+        font-size:
+            8px;
+    }
+
+
+    .laporan-category,
+    .laporan-date {
+
+        font-size:
+            8px;
+    }
+
+
+    .status {
+
+        min-height:
+            20px;
+
+        padding:
+            3px 6px;
+
+        font-size:
+            8px;
+    }
+
+
+    .filter-row {
+
+        gap:
+            5px;
+    }
+
+
+    .filter-row select,
+    #categoryFilter,
+    #statusFilter {
+
+        font-size:
+            10px;
+
+        padding-left:
+            7px;
+
+        padding-right:
+            7px;
+    }
+
+
+    .modal {
+
+        padding:
+            7px;
+    }
+
+
+    .modal-box {
+
+        padding:
+            13px;
+
+        border-radius:
+            15px;
+    }
+
+
+    .detail-photo {
+
+        max-height:
+            210px;
+    }
+
+
+    .detail-photo img {
+
+        height:
+            210px;
+    }
+
+}
+
+
+/* ==========================================
+   SAFE AREA ANDROID
+========================================== */
+
+@supports (
+    padding-bottom: env(safe-area-inset-bottom)
+) {
+
+    .laporan-container {
+
+        padding-bottom:
+            calc(
+                35px +
+                env(
+                    safe-area-inset-bottom
+                )
+            );
+    }
+
+
+    .modal-box {
+
+        margin-bottom:
+            env(
+                safe-area-inset-bottom
+            );
+    }
+
+}
+
+
+/* ==========================================
+   ACCESSIBILITY
+========================================== */
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+
+    outline:
+        2px solid
+        #22c55e;
+
+    outline-offset:
+        2px;
+}
+
+
+/* ==========================================
+   DISABLED
+========================================== */
+
+button:disabled {
+
+    opacity:
+        0.55;
+
+    cursor:
+        not-allowed;
+
+    pointer-events:
+        none;
+}
+
+
+/* ==========================================
+   SCROLLBAR MODAL
+========================================== */
+
+.modal-box::-webkit-scrollbar {
+
+    width:
+        5px;
+}
+
+
+.modal-box::-webkit-scrollbar-track {
+
+    background:
+        transparent;
+}
+
+
+.modal-box::-webkit-scrollbar-thumb {
+
+    background:
+        #cbd5e1;
+
+    border-radius:
+        999px;
+}
+
+
+/* ==========================================
+   SCROLLBAR LAPORAN
+========================================== */
+
+.laporan-list::-webkit-scrollbar {
+
+    width:
+        4px;
+}
+
+
+.laporan-list::-webkit-scrollbar-thumb {
+
+    background:
+        #cbd5e1;
+
+    border-radius:
+        999px;
+}
+
+
+/* ==========================================
+   SELEKSI TEKS
+========================================== */
+
+.laporan-item,
+.laporan-card,
+.detail-section {
+
+    -webkit-tap-highlight-color:
+        transparent;
+}
+
+
+/* ==========================================
+   AKHIR LAPORAN CSS
+========================================== */

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#15803d"
+    >
+
+    <title>SIDAT - Dashboard Warga</title>
+
+    <link
+        rel="stylesheet"
+        href="dashboard.css"
+    >
+
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+
+    <!-- =====================================
+         HEADER
+    ====================================== -->
+
+    <header class="top-header">
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                RT
+            </div>
+
+            <div>
+
+                <h1>SIDAT</h1>
+
+                <span>
+                    Sistem Data Warga
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <button
+            class="notification-button"
+            onclick="bukaNotifikasi()"
+        >
+
+            🔔
+
+            <span
+                id="notificationBadge"
+                class="notification-badge hidden"
+            >
+                0
+            </span>
+
+        </button>
+
+    </header>
+
+
+    <!-- =====================================
+         INFORMASI WILAYAH
+    ====================================== -->
+
+    <section class="region-card">
+
+        <div class="region-logo">
+
+    <img
+        id="logoRT"
+        src=""
+        alt="Logo RT"
+        class="hidden"
+    >
+
+    <span id="logoPlaceholder">
+        RT
+    </span>
+
+</div>
+
+        <div class="region-info">
+
+            <h2 id="namaWilayah">
+                RT - RW
+            </h2>
+
+            <p id="namaKetua">
+                Ketua RT
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================
+         PROFIL WARGA
+    ====================================== -->
+
+    <section class="profile-card">
+
+        <div class="profile-photo-wrapper">
+
+            <img
+                id="profilePhoto"
+                src=""
+                alt="Foto Profil"
+            >
+
+        </div>
+
+
+        <div class="profile-info">
+
+            <span class="welcome-text">
+                Selamat datang,
+            </span>
+
+            <h2 id="wargaName">
+                Warga
+            </h2>
+
+            <p>
+                ID:
+                <strong id="wargaCode">
+                    -
+                </strong>
+            </p>
+
+        </div>
+
+
+        <button
+            class="profile-button"
+            onclick="bukaProfil()"
+        >
+            ›
+        </button>
+
+    </section>
+
+
+<!-- ==========================================
+     PENGUMUMAN
+========================================== -->
+
+<section class="pengumuman-card">
+
+    <div class="pengumuman-header">
+
+        <div class="pengumuman-title">
+
+            <div class="pengumuman-icon">
+                🔔
+            </div>
+
+            <div>
+
+                <h3>
+                    Pengumuman
+                </h3>
+
+                <p>
+                    Informasi terbaru dari admin
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <span
+            id="badgePengumuman"
+            class="pengumuman-badge hidden"
+        >
+            0
+        </span>
+
+    </div>
+
+
+    <div
+        id="previewPengumuman"
+        class="preview-pengumuman"
+    >
+
+        <div class="pengumuman-kosong">
+
+            Memuat pengumuman...
+
+        </div>
+
+    </div>
+
+
+    <button
+    type="button"
+    id="btnLihatPengumuman"
+    class="btn-lihat-pengumuman notification-button"
+    onclick="bukaPengumumanWarga()"
+>
+
+    Lihat semua →
+
+    <span
+        id="notificationBadge"
+        class="notification-badge hidden"
+    >
+        0
+    </span>
+
+</button>
+
+</section>
+
+
+    <!-- =====================================
+         SALDO KAS
+    ====================================== -->
+
+    <section
+        class="balance-card"
+        onclick="bukaSaldoKas()"
+    >
+
+        <div class="balance-header">
+
+            <span>
+                💰 Saldo Kas RT
+            </span>
+
+            <span>
+                →
+            </span>
+
+        </div>
+
+
+        <div
+            id="saldoKas"
+            class="balance-amount"
+        >
+            Rp 0
+        </div>
+
+
+        <div class="balance-footer">
+
+            <span>
+                Saldo kas saat ini
+            </span>
+
+            <span>
+                Lihat rincian
+            </span>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================
+         STATISTIK WARGA & KK
+    ====================================== -->
+
+    <section class="statistics-grid">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                👥
+            </div>
+
+            <div>
+
+                <span>
+                    Jumlah Warga
+                </span>
+
+                <strong id="totalWarga">
+                    0
+                </strong>
+
+                <small>
+                    orang
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                🏠
+            </div>
+
+            <div>
+
+                <span>
+                    Total KK
+                </span>
+
+                <strong id="totalKK">
+                    0
+                </strong>
+
+                <small>
+                    KK
+                </small>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================
+         SALDO JIMPITAN
+    ====================================== -->
+
+    <section class="jimpitan-card">
+
+        <div class="jimpitan-header">
+
+            <div class="jimpitan-icon">
+                💰
+            </div>
+
+            <div>
+
+                <h3>
+                    Saldo Jimpitan
+                </h3>
+
+                <span>
+                    Total jimpitan RT
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="saldoJimpitan"
+            class="jimpitan-amount"
+        >
+            Rp 0
+        </div>
+
+
+        <div class="jimpitan-info">
+
+            Saldo ini merupakan total jimpitan
+            seluruh warga yang belum ditransfer
+            ke saldo kas RT.
+
+        </div>
+
+
+        <button
+            class="text-button"
+            onclick="bukaRiwayatJimpitan()"
+        >
+            Lihat riwayat jimpitan →
+        </button>
+
+    </section>
+
+
+    <!-- =====================================
+         MENU
+    ====================================== -->
+
+    <section class="menu-section">
+
+        <div class="section-heading">
+            Menu
+        </div>
+
+
+        <div class="menu-grid">
+
+
+            <!-- PROFIL -->
+
+            <button
+                class="menu-item"
+                onclick="bukaProfil()"
+            >
+
+                <div class="menu-icon">
+                    👤
+                </div>
+
+                <span>
+                    Profil Saya
+                </span>
+
+            </button>
+            <!-- DATA WARGA -->
+
+<button
+    class="menu-item"
+    onclick="bukaDataWarga()"
+>
+
+    <div class="menu-icon">
+        👥
+    </div>
+
+    <span>
+        Data Warga
+    </span>
+
+</button>
+
+
+            <!-- SALDO JIMPITAN -->
+
+            <button
+                class="menu-item"
+                onclick="bukaRiwayatJimpitan()"
+            >
+
+                <div class="menu-icon">
+                    💰
+                </div>
+
+                <span>
+                    Saldo Jimpitan
+                </span>
+
+            </button>
+
+
+            <!-- SCAN QR -->
+
+            <button
+                class="menu-item"
+                onclick="bukaScanQR()"
+            >
+
+                <div class="menu-icon">
+                    📷
+                </div>
+
+                <span>
+                    Scan QR Jimpitan
+                </span>
+
+            </button>
+
+
+            <!-- LAPORAN -->
+
+            <button
+                class="menu-item"
+                onclick="bukaLaporan()"
+            >
+
+                <div class="menu-icon">
+                    📝
+                </div>
+
+                <span>
+                    Laporan & Aduan
+                </span>
+
+            </button>
+
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================
+         LOGOUT
+    ====================================== -->
+
+    <button
+        class="logout-button"
+        onclick="logoutWarga()"
+    >
+        Keluar dari akun
+    </button>
+
+
+    <!-- =====================================
+         FOOTER
+    ====================================== -->
+
+    <footer>
+
+        <strong>
+            SIDAT
+        </strong>
+
+        <span>
+            Dibuat oleh Suwardi
+        </span>
+
+    </footer>
+
+
+</div>
+
+
+<script src="../js/supabase-config.js"></script>
+
+<script src="dashboard.js"></script>
+
+</body>
+
+</html>

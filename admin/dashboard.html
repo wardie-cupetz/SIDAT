@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#15803d"
+    >
+
+    <title>SIDAT - Dashboard Admin</title>
+
+    <link
+        rel="stylesheet"
+        href="dashboard.css"
+    >
+
+</head>
+
+<body>
+
+<div class="app">
+
+
+    <!-- HEADER -->
+
+    <header class="header">
+
+    <div class="header-left">
+
+    <div
+        class="logo-box"
+        id="logoRTWrapper"
+    >
+
+        <img
+            id="logoRT"
+            class="logo-rt hidden"
+            src=""
+            alt="Logo RT"
+        >
+
+        <span
+            id="logoDefault"
+            class="logo-default"
+        >
+            S
+        </span>
+
+    </div>
+
+
+    <div>
+
+        <h1 id="namaAplikasi">
+            SIDAT
+        </h1>
+
+        <span>
+            Sistem Informasi Data RT
+        </span>
+
+    </div>
+
+</div>
+
+
+    <!-- ======================================
+         NOTIFIKASI ADMIN
+    ======================================= -->
+
+    <button
+        type="button"
+        id="adminNotificationButton"
+        class="admin-notification-button"
+        onclick="bukaNotifikasiAdmin()"
+        aria-label="Notifikasi admin"
+    >
+
+        🔔
+
+        <span
+            id="adminNotificationBadge"
+            class="admin-notification-badge hidden"
+        >
+            0
+        </span>
+
+    </button>
+
+
+    <button
+        class="logout-small"
+        onclick="logoutAdmin()"
+    >
+        Keluar
+    </button>
+
+</header>
+
+
+    <!-- CONTENT -->
+
+    <main class="content">
+
+
+        <!-- WILAYAH -->
+
+        <section class="welcome-card">
+
+            <div>
+
+                <span class="small-title">
+                    DASHBOARD ADMIN
+                </span>
+
+                <h2 id="wilayahTitle">
+                    Selamat datang, Admin
+                </h2>
+
+                <p id="wilayahInfo">
+                    Memuat informasi wilayah...
+                </p>
+
+            </div>
+
+            <div class="admin-icon">
+                👤
+            </div>
+
+        </section>
+
+
+        <!-- STATISTIK -->
+
+        <section class="section">
+
+            <div class="section-title">
+
+                <h3>
+                    Statistik Wilayah
+                </h3>
+
+            </div>
+
+
+            <div class="stats-grid">
+
+
+                <!-- WARGA -->
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        👥
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Jumlah Warga
+                        </span>
+
+                        <strong id="totalWarga">
+                            0
+                        </strong>
+
+                        <small>
+                            orang
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- KK -->
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        🏠
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Total KK
+                        </span>
+
+                        <strong id="totalKK">
+                            0
+                        </strong>
+
+                        <small>
+                            KK
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- KEUANGAN -->
+
+        <section class="section">
+
+            <div class="section-title">
+
+                <h3>
+                    Statistik Keuangan
+                </h3>
+
+            </div>
+
+
+            <div class="finance-card">
+
+
+                <div class="finance-item">
+
+                    <div class="finance-icon">
+                        💰
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Saldo Kas RT
+                        </span>
+
+                        <strong id="saldoKas">
+                            Rp 0
+                        </strong>
+
+                        <small>
+                            Saldo kas saat ini
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="divider"></div>
+
+
+                <div class="finance-item">
+
+                    <div class="finance-icon">
+                        🪙
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Saldo Jimpitan
+                        </span>
+
+                        <strong id="saldoJimpitan">
+                            Rp 0
+                        </strong>
+
+                        <small>
+                            Belum ditransfer ke kas
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- MENU -->
+
+        <section class="section">
+
+            <div class="section-title">
+
+                <h3>
+                    Menu Admin
+                </h3>
+
+            </div>
+
+
+            <div class="menu-grid">
+
+
+                <button
+                    class="menu-card"
+                    onclick="bukaDataWarga()"
+                >
+
+                    <div class="menu-icon">
+                        👥
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Data Warga
+                        </strong>
+
+                        <span>
+                            Kelola data warga
+                        </span>
+
+                    </div>
+
+                    <b>
+                        ›
+                    </b>
+
+                </button>
+
+
+                <button
+                    class="menu-card"
+                    onclick="bukaArusKas()"
+                >
+
+                    <div class="menu-icon">
+                        💰
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Arus Kas
+                        </strong>
+
+                        <span>
+                            Kas masuk & keluar
+                        </span>
+
+                    </div>
+
+                    <b>
+                        ›
+                    </b>
+
+                </button>
+
+
+                <button
+                    class="menu-card"
+                    onclick="bukaJimpitan()"
+                >
+
+                    <div class="menu-icon">
+                        🪙
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Jimpitan
+                        </strong>
+
+                        <span>
+                            Riwayat & transfer
+                        </span>
+
+                    </div>
+
+                    <b>
+                        ›
+                    </b>
+
+                </button>
+
+
+                <button
+                    class="menu-card"
+                    onclick="bukaGenerateQR()"
+                >
+
+                    <div class="menu-icon">
+                        📱
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Generate QR
+                        </strong>
+
+                        <span>
+                            QR Jimpitan warga
+                        </span>
+
+                    </div>
+
+                    <b>
+                        ›
+                    </b>
+
+                </button>
+
+
+                <button
+                    class="menu-card"
+                    onclick="bukaLaporan()"
+                >
+
+                    <div class="menu-icon">
+                        📝
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Laporan & Aduan
+                        </strong>
+
+                        <span>
+                            Tindak lanjut warga
+                        </span>
+
+                    </div>
+
+                    <b>
+                        ›
+                    </b>
+
+                </button>
+<button
+    class="menu-card"
+    onclick="bukaBackupRestore()"
+>
+
+    <div class="menu-icon">
+        💾
+    </div>
+
+    <div>
+
+        <strong>
+            Backup & Restore
+        </strong>
+
+        <span>
+            Cadangkan & pulihkan data SIDAT
+        </span>
+
+    </div>
+
+    <b>
+        ›
+    </b>
+
+</button>
+
+                <button
+                    class="menu-card"
+                    onclick="bukaPengumuman()"
+                >
+
+                    <div class="menu-icon">
+                        🔔
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Pengumuman
+                        </strong>
+
+                        <span>
+                            Kirim notifikasi kepada warga
+                        </span>
+
+                    </div>
+
+                    <b>
+                        ›
+                    </b>
+
+                </button>
+
+
+                <button
+                    class="menu-card"
+                    onclick="bukaPengaturan()"
+                >
+
+                    <div class="menu-icon">
+                        ⚙️
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Pengaturan
+                        </strong>
+
+                        <span>
+                            Wilayah & identitas RT
+                        </span>
+
+                    </div>
+
+                    <b>
+                        ›
+                    </b>
+
+                </button>
+
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        <strong>
+            SIDAT
+        </strong>
+
+        <span>
+            Dibuat oleh Suwardi
+        </span>
+
+    </footer>
+
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="../js/supabase-config.js"></script>
+
+<script src="dashboard.js"></script>
+
+</body>
+
+</html>
