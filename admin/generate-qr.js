@@ -96,10 +96,6 @@ let wargaTerpilih = [];
 // LOAD KEPALA KELUARGA
 // ==========================================
 
-// ==========================================
-// LOAD KEPALA KELUARGA
-// ==========================================
-
 async function muatKepalaKeluarga() {
 
     tampilkanLoading();
@@ -157,16 +153,6 @@ async function muatKepalaKeluarga() {
             await response.json();
 
 
-        /*
-         * Satu KK = satu pilihan.
-         *
-         * Kepala keluarga ditentukan
-         * oleh households.head_resident_id.
-         *
-         * Token QR berasal dari
-         * households.qr_token.
-         */
-
         daftarKepalaKeluarga =
             Array.isArray(data)
 
@@ -217,12 +203,6 @@ async function muatKepalaKeluarga() {
         );
 
 
-        console.log(
-            "SIDAT QR DATA KK:",
-            daftarKepalaKeluarga
-        );
-
-
         sembunyikanLoading();
 
 
@@ -262,6 +242,10 @@ async function muatKepalaKeluarga() {
     }
 
 }
+
+
+// ==========================================
+// TAMPILKAN LIST
 // ==========================================
 
 function tampilkanKepalaKeluarga(
@@ -291,6 +275,8 @@ function tampilkanKepalaKeluarga(
             );
 
         }
+
+        updateSelectionUI();
 
         return;
 
@@ -410,9 +396,7 @@ function tampilkanKepalaKeluarga(
 
             item.addEventListener(
                 "click",
-                function (
-                    event
-                ) {
+                function(event) {
 
                     if (
                         event.target.tagName ===
@@ -443,7 +427,7 @@ function tampilkanKepalaKeluarga(
 
                 checkbox.addEventListener(
                     "change",
-                    function () {
+                    function() {
 
                         toggleWarga(
                             warga,
@@ -537,7 +521,7 @@ function toggleWarga(
 
 
 // ==========================================
-// UPDATE JUMLAH PILIHAN
+// UPDATE SELECTION
 // ==========================================
 
 function updateSelectionUI() {
@@ -604,7 +588,7 @@ if (selectAll) {
 
     selectAll.addEventListener(
         "change",
-        function () {
+        function() {
 
             const data =
                 getDataTampilan();
@@ -736,7 +720,7 @@ if (searchInput) {
 
     searchInput.addEventListener(
         "input",
-        function () {
+        function() {
 
             const keyword =
                 searchInput.value.trim();
@@ -875,6 +859,27 @@ function buatQR(
     token
 ) {
 
+    if (!element) {
+
+        throw new Error(
+            "Elemen QR tidak ditemukan."
+        );
+
+    }
+
+
+    if (
+        typeof QRCode ===
+        "undefined"
+    ) {
+
+        throw new Error(
+            "Library QR belum termuat."
+        );
+
+    }
+
+
     element.innerHTML =
         "";
 
@@ -887,10 +892,10 @@ function buatQR(
                 token,
 
             width:
-                190,
+                200,
 
             height:
-                190,
+                200,
 
             colorDark:
                 "#111827",
@@ -905,7 +910,262 @@ function buatQR(
     );
 
 }
+// ==========================================
+// AMBIL GAMBAR QR
+// ==========================================
 
+async function ambilGambarQR(
+    token
+) {
+
+    return new Promise(
+        function (resolve, reject) {
+
+            const qrBox =
+                document.createElement(
+                    "div"
+                );
+
+            qrBox.style.position =
+                "fixed";
+
+            qrBox.style.left =
+                "0";
+
+            qrBox.style.top =
+                "0";
+
+            qrBox.style.width =
+                "210px";
+
+            qrBox.style.height =
+                "210px";
+
+            qrBox.style.padding =
+                "10px";
+
+            qrBox.style.background =
+                "#ffffff";
+
+            qrBox.style.zIndex =
+                "999999";
+
+            document.body.appendChild(
+                qrBox
+            );
+
+
+            try {
+
+                qrBox.innerHTML =
+                    "";
+
+
+                new QRCode(
+                    qrBox,
+                    {
+
+                        text:
+                            String(token),
+
+                        width:
+                            190,
+
+                        height:
+                            190,
+
+                        colorDark:
+                            "#111827",
+
+                        colorLight:
+                            "#ffffff",
+
+                        correctLevel:
+                            QRCode.CorrectLevel.H
+
+                    }
+                );
+
+
+            } catch (error) {
+
+                if (
+                    qrBox.parentNode
+                ) {
+
+                    qrBox.parentNode.removeChild(
+                        qrBox
+                    );
+
+                }
+
+                reject(
+                    error
+                );
+
+                return;
+
+            }
+
+
+            let percobaan =
+                0;
+
+
+            const cekQR =
+                setInterval(
+                    function () {
+
+                        percobaan++;
+
+
+                        const canvas =
+                            qrBox.querySelector(
+                                "canvas"
+                            );
+
+
+                        const img =
+                            qrBox.querySelector(
+                                "img"
+                            );
+
+
+                        // ==========================
+                        // CANVAS
+                        // ==========================
+
+                        if (canvas) {
+
+                            try {
+
+                                const imageData =
+                                    canvas.toDataURL(
+                                        "image/png"
+                                    );
+
+
+                                if (
+                                    imageData &&
+                                    imageData.length > 100
+                                ) {
+
+                                    clearInterval(
+                                        cekQR
+                                    );
+
+
+                                    if (
+                                        qrBox.parentNode
+                                    ) {
+
+                                        qrBox.parentNode.removeChild(
+                                            qrBox
+                                        );
+
+                                    }
+
+
+                                    resolve(
+                                        imageData
+                                    );
+
+                                    return;
+
+                                }
+
+                            } catch (error) {
+
+                                console.warn(
+                                    "Canvas QR:",
+                                    error
+                                );
+
+                            }
+
+                        }
+
+
+                        // ==========================
+                        // IMAGE
+                        // ==========================
+
+                        if (
+                            img &&
+                            img.src &&
+                            img.complete &&
+                            img.naturalWidth > 0
+                        ) {
+
+                            clearInterval(
+                                cekQR
+                            );
+
+
+                            const imageData =
+                                img.src;
+
+
+                            if (
+                                qrBox.parentNode
+                            ) {
+
+                                qrBox.parentNode.removeChild(
+                                    qrBox
+                                );
+
+                            }
+
+
+                            resolve(
+                                imageData
+                            );
+
+                            return;
+
+                        }
+
+
+                        // ==========================
+                        // TIMEOUT
+                        // ==========================
+
+                        if (
+                            percobaan >= 50
+                        ) {
+
+                            clearInterval(
+                                cekQR
+                            );
+
+
+                            if (
+                                qrBox.parentNode
+                            ) {
+
+                                qrBox.parentNode.removeChild(
+                                    qrBox
+                                );
+
+                            }
+
+
+                            reject(
+                                new Error(
+                                    "QR tidak berhasil dibuat oleh library QRCode."
+                                )
+                            );
+
+                        }
+
+                    },
+                    100
+                );
+
+        }
+    );
+
+}
 
 // ==========================================
 // CETAK QR
@@ -914,8 +1174,8 @@ function buatQR(
 async function cetakQR() {
 
     if (
-        wargaTerpilih.length ===
-        0
+        !wargaTerpilih ||
+        wargaTerpilih.length === 0
     ) {
 
         alert(
@@ -944,6 +1204,10 @@ async function cetakQR() {
             [];
 
 
+        // ==================================
+        // SIAPKAN TOKEN DAN GAMBAR
+        // ==================================
+
         for (
             const warga
             of wargaTerpilih
@@ -956,17 +1220,19 @@ async function cetakQR() {
 
 
             /*
-             * Jika QR belum ada,
-             * simpan token ke database.
+             * Token sekarang disimpan langsung
+             * berdasarkan ID households.
              */
 
             if (
                 !warga.qr_token ||
-                warga.qr_token !== token
+                String(
+                    warga.qr_token
+                ).toUpperCase() !== token
             ) {
 
                 await simpanTokenQR(
-                    warga.id,
+                    warga.household_id,
                     token
                 );
 
@@ -977,83 +1243,35 @@ async function cetakQR() {
             }
 
 
-            const qrBox =
-                document.createElement(
-                    "div"
+            // Buat gambar QR
+            const image =
+                await ambilGambarQR(
+                    token
                 );
 
 
-            qrBox.style.position =
-                "fixed";
+            hasil.push({
 
-            qrBox.style.left =
-                "-99999px";
+                warga:
+                    warga,
 
+                token:
+                    token,
 
-            document.body.appendChild(
-                qrBox
-            );
+                image:
+                    image
 
+            });
 
-            buatQR(
-                qrBox,
-                token
-            );
+        }
 
 
-            await tunggu(
-                300
-            );
+        if (
+            hasil.length === 0
+        ) {
 
-
-const img =
-    qrBox.querySelector(
-        "img"
-    );
-
-const canvas =
-    qrBox.querySelector(
-        "canvas"
-    );
-
-
-let imageData =
-    null;
-
-
-if (img) {
-
-    imageData =
-        img.src;
-
-} else if (canvas) {
-
-    imageData =
-        canvas.toDataURL(
-            "image/png"
-        );
-
-}
-
-
-if (imageData) {
-
-    hasil.push({
-
-        warga:
-            warga,
-
-        token:
-            token,
-
-        image:
-            imageData
-
-    });
-
-}
-            document.body.removeChild(
-                qrBox
+            throw new Error(
+                "Tidak ada QR yang berhasil dibuat."
             );
 
         }
@@ -1061,11 +1279,6 @@ if (imageData) {
 
         bukaJendelaCetak(
             hasil
-        );
-
-
-        tampilkanKepalaKeluarga(
-            getDataTampilan()
         );
 
 
@@ -1079,7 +1292,10 @@ if (imageData) {
 
         alert(
             "Gagal menyiapkan QR.\n\n" +
-            error.message
+            (
+                error.message ||
+                "Terjadi kesalahan."
+            )
         );
 
 
@@ -1088,8 +1304,7 @@ if (imageData) {
         if (printButton) {
 
             printButton.disabled =
-                wargaTerpilih.length ===
-                0;
+                wargaTerpilih.length === 0;
 
             printButton.textContent =
                 "🖨️ Cetak QR";
@@ -1102,26 +1317,28 @@ if (imageData) {
 
 
 // ==========================================
-// SIMPAN TOKEN
-// ==========================================
-
-
-// ==========================================
-// SIMPAN TOKEN QR KE HOUSEHOLDS
+// SIMPAN TOKEN KE HOUSEHOLDS
 // ==========================================
 
 async function simpanTokenQR(
-    residentId,
+    householdId,
     token
 ) {
 
-    // Cari KK berdasarkan kepala keluarga
+    if (!householdId) {
+
+        throw new Error(
+            "ID KK tidak ditemukan."
+        );
+
+    }
+
+
     const response =
         await fetch(
 
-            `${SUPABASE_URL}/rest/v1/households` +
-            `?head_resident_id=eq.${encodeURIComponent(
-                residentId
+            `${SUPABASE_URL}/rest/v1/households?id=eq.${encodeURIComponent(
+                householdId
             )}`,
 
             {
@@ -1167,6 +1384,8 @@ async function simpanTokenQR(
     }
 
 }
+
+
 // ==========================================
 // JENDELA CETAK
 // ==========================================
@@ -1216,6 +1435,7 @@ function bukaJendelaCetak(
                     <img
                         src="${item.image}"
                         class="qr-image"
+                        alt="QR Jimpitan"
                     >
 
                     <div class="qr-name">
@@ -1240,7 +1460,8 @@ function bukaJendelaCetak(
                     </div>
 
                     <div class="qr-footer">
-                        Sistem Data Warga
+                        Sistem Data Warga<br>
+                        Dibuat oleh Suwardi
                     </div>
 
                 </div>
@@ -1249,6 +1470,9 @@ function bukaJendelaCetak(
 
         }
     );
+
+
+    printWindow.document.open();
 
 
     printWindow.document.write(
@@ -1262,6 +1486,11 @@ function bukaJendelaCetak(
 
             <meta charset="UTF-8">
 
+            <meta
+                name="viewport"
+                content="width=device-width, initial-scale=1.0"
+            >
+
             <title>
                 QR Jimpitan SIDAT
             </title>
@@ -1272,6 +1501,7 @@ function bukaJendelaCetak(
                     box-sizing:
                         border-box;
                 }
+
 
                 body {
 
@@ -1290,6 +1520,7 @@ function bukaJendelaCetak(
 
                 }
 
+
                 .print-grid {
 
                     display:
@@ -1298,13 +1529,17 @@ function bukaJendelaCetak(
                     grid-template-columns:
                         repeat(
                             2,
-                            1fr
+                            minmax(
+                                0,
+                                1fr
+                            )
                         );
 
                     gap:
                         15px;
 
                 }
+
 
                 .qr-card {
 
@@ -1324,78 +1559,87 @@ function bukaJendelaCetak(
                     page-break-inside:
                         avoid;
 
+                    break-inside:
+                        avoid;
+
                 }
 
+
                 .qr-brand {
+
+                    font-size:
+                        22px;
+
+                    font-weight:
+                        bold;
 
                     color:
                         #15803d;
 
-                    font-size:
-                        20px;
-
-                    font-weight:
-                        800;
-
                 }
+
 
                 .qr-title {
 
                     margin-top:
-                        3px;
+                        4px;
 
-                    color:
-                        #64748b;
+                    margin-bottom:
+                        10px;
 
                     font-size:
-                        11px;
+                        14px;
 
                     font-weight:
-                        700;
+                        bold;
 
                 }
 
+
                 .qr-image {
+
+                    width:
+                        200px;
+
+                    height:
+                        200px;
 
                     display:
                         block;
 
-                    width:
-                        190px;
-
-                    height:
-                        190px;
-
                     margin:
-                        12px auto;
+                        0 auto 12px;
+
+                    object-fit:
+                        contain;
 
                 }
+
 
                 .qr-name {
 
                     font-size:
-                        16px;
+                        17px;
 
                     font-weight:
-                        800;
+                        bold;
 
-                    color:
-                        #1f2937;
+                    margin-top:
+                        5px;
 
                 }
+
 
                 .qr-kk {
 
                     margin-top:
-                        4px;
-
-                    color:
-                        #64748b;
+                        5px;
 
                     font-size:
-                        11px;
+                        13px;
 
                 }
+
 
                 .qr-token {
 
@@ -1403,43 +1647,58 @@ function bukaJendelaCetak(
                         8px;
 
                     padding:
-                        6px;
-
-                    border-radius:
-                        7px;
+                        5px;
 
                     background:
-                        #f1f5f9;
+                        #f3f4f6;
 
-                    color:
-                        #475569;
+                    border-radius:
+                        6px;
 
                     font-size:
-                        8px;
+                        10px;
 
                     word-break:
                         break-all;
 
                 }
 
+
                 .qr-footer {
 
                     margin-top:
                         8px;
 
-                    color:
-                        #94a3b8;
-
                     font-size:
-                        8px;
+                        10px;
+
+                    color:
+                        #6b7280;
+
+                    line-height:
+                        1.4;
 
                 }
+
 
                 @media print {
 
                     body {
+
                         padding:
                             8px;
+
+                    }
+
+
+                    .qr-card {
+
+                        page-break-inside:
+                            avoid;
+
+                        break-inside:
+                            avoid;
+
                     }
 
                 }
@@ -1460,10 +1719,10 @@ function bukaJendelaCetak(
             <script>
 
                 window.onload =
-                    function () {
+                    function() {
 
                         setTimeout(
-                            function () {
+                            function() {
 
                                 window.print();
 
@@ -1501,6 +1760,7 @@ function tampilkanLoading() {
         );
 
     }
+
 
     if (errorState) {
 
