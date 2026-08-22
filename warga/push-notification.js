@@ -489,6 +489,11 @@ async function daftarkanPushNotification() {
             error
         );
 
+        alert(
+            "Push Notification gagal:\n\n" +
+            (error?.message || error)
+        );
+
         return false;
 
     }
