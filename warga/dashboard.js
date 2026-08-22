@@ -2054,7 +2054,7 @@ function pasangTombolPengumuman() {
         function() {
 
             window.location.href =
-                "notifikasi.html";
+                "pengumuman.html";
 
         }
     );
