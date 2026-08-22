@@ -5,27 +5,20 @@
 // Dibuat oleh Suwardi
 // ==========================================
 
+
 // ==========================================
 // VERSI CACHE
 // ==========================================
 
 const CACHE_NAME =
-"sidat-pwa-v1";const CACHE_NAME =
-"sidat-pwa-v2";
+    "sidat-pwa-v3";
+
 
 // ==========================================
 // FILE DASAR SIDAT
 // ==========================================
 
 const STATIC_FILES = [
-
-"./",
-
-"./index.html",
-
-"./manifest.json"
-
-]const STATIC_FILES = [
 
     "./",
 
@@ -45,203 +38,190 @@ const STATIC_FILES = [
 
 ];
 
+
 // ==========================================
 // INSTALL
 // ==========================================
 
 self.addEventListener(
-"install",
-event => {
+    "install",
+    event => {
 
-    console.log(
-        "SIDAT PWA: Service Worker install"
-    );
+        console.log(
+            "SIDAT PWA: Service Worker install"
+        );
 
+        event.waitUntil(
 
-    event.waitUntil(
+            caches.open(
+                CACHE_NAME
+            )
+            .then(
+                cache => {
 
-        caches.open(
-            CACHE_NAME
-        )
-        .then(
-            cache => {
+                    return cache.addAll(
+                        STATIC_FILES
+                    );
 
-                return cache.addAll(
-                    STATIC_FILES
-                );
+                }
+            )
 
-            }
-        )
+        );
 
-    );
+        self.skipWaiting();
 
-
-    self.skipWaiting();
-
-}
-
+    }
 );
+
 
 // ==========================================
 // ACTIVATE
 // ==========================================
 
 self.addEventListener(
-"activate",
-event => {
+    "activate",
+    event => {
 
-    console.log(
-        "SIDAT PWA: Service Worker aktif"
-    );
+        console.log(
+            "SIDAT PWA: Service Worker aktif"
+        );
 
+        event.waitUntil(
 
-    event.waitUntil(
+            caches.keys()
+                .then(
+                    cacheNames => {
 
-        caches.keys()
-            .then(
-                cacheNames => {
+                        return Promise.all(
 
-                    return Promise.all(
+                            cacheNames
+                                .filter(
+                                    cacheName =>
+                                        cacheName !==
+                                        CACHE_NAME
+                                )
+                                .map(
+                                    cacheName =>
+                                        caches.delete(
+                                            cacheName
+                                        )
+                                )
 
-                        cacheNames
-                            .filter(
-                                cacheName =>
+                        );
 
-                                    cacheName !==
-                                    CACHE_NAME
+                    }
+                )
 
-                            )
-                            .map(
-                                cacheName =>
+        );
 
-                                    caches.delete(
-                                        cacheName
-                                    )
+        self.clients.claim();
 
-                            )
-
-                    );
-
-                }
-            )
-
-    );
-
-
-    self.clients.claim();
-
-}
-
+    }
 );
+
 
 // ==========================================
 // FETCH
 // ==========================================
 
 self.addEventListener(
-"fetch",
-event => {
+    "fetch",
+    event => {
 
-    const request =
-        event.request;
-
-
-    /*
-     * Hanya menangani request GET.
-     */
-
-    if (
-        request.method !==
-        "GET"
-    ) {
-
-        return;
-
-    }
+        const request =
+            event.request;
 
 
-    /*
-     * Jangan mengambil alih
-     * request Supabase.
-     *
-     * Database tetap menggunakan
-     * koneksi online seperti sebelumnya.
-     */
+        // Hanya menangani GET
 
-    if (
-        request.url.includes(
-            "supabase.co"
-        )
-    ) {
+        if (
+            request.method !==
+            "GET"
+        ) {
 
-        return;
+            return;
 
-    }
+        }
 
 
-    event.respondWith(
+        /*
+         * Jangan mengambil alih
+         * koneksi Supabase.
+         */
 
-        fetch(
-            request
-        )
-        .then(
-            response => {
+        if (
+            request.url.includes(
+                "supabase.co"
+            )
+        ) {
 
-                /*
-                 * Simpan response yang valid
-                 * ke cache.
-                 */
+            return;
 
-                if (
-                    response &&
-                    response.status ===
-                    200 &&
-                    response.type ===
-                    "basic"
-                ) {
-
-                    const responseClone =
-                        response.clone();
+        }
 
 
-                    caches.open(
-                        CACHE_NAME
-                    )
-                    .then(
-                        cache => {
+        event.respondWith(
 
-                            cache.put(
-                                request,
-                                responseClone
-                            );
+            fetch(
+                request
+            )
+            .then(
+                response => {
 
-                        }
+                    /*
+                     * Simpan response valid
+                     * ke cache.
+                     */
+
+                    if (
+                        response &&
+                        response.status ===
+                        200 &&
+                        response.type ===
+                        "basic"
+                    ) {
+
+                        const responseClone =
+                            response.clone();
+
+
+                        caches.open(
+                            CACHE_NAME
+                        )
+                        .then(
+                            cache => {
+
+                                cache.put(
+                                    request,
+                                    responseClone
+                                );
+
+                            }
+                        );
+
+                    }
+
+
+                    return response;
+
+                }
+            )
+            .catch(
+                () => {
+
+                    /*
+                     * Jika internet tidak tersedia,
+                     * gunakan cache.
+                     */
+
+                    return caches.match(
+                        request
                     );
 
                 }
+            )
 
+        );
 
-                return response;
-
-            }
-        )
-        .catch(
-            () => {
-
-                /*
-                 * Jika internet tidak tersedia,
-                 * coba gunakan cache.
-                 */
-
-                return caches.match(
-                    request
-                );
-
-            }
-        )
-
-    );
-
-}
-
+    }
 );

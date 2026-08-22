@@ -2218,6 +2218,16 @@ async function initDashboard() {
 
     await loadProfilTerbaru();
 
+    // ======================================
+    // PUSH NOTIFICATION
+    // ======================================
+
+    if (typeof daftarkanPushNotification === "function") {
+
+        await daftarkanPushNotification();
+
+    }
+
 
     // ======================================
     // EVENT
