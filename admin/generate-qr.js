@@ -1445,13 +1445,6 @@ function bukaJendelaCetak(
                         )}
                     </div>
 
-                    <div class="qr-kk">
-                        No. KK:
-                        ${escapeHTML(
-                            item.warga.kk_number ||
-                            "-"
-                        )}
-                    </div>
 
                     <div class="qr-token">
                         ${escapeHTML(
