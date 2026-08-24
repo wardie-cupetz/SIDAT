@@ -225,3 +225,148 @@ self.addEventListener(
 
     }
 );
+
+// ==========================================
+// SIDAT - PUSH NOTIFICATION
+// ==========================================
+
+self.addEventListener(
+    "push",
+    event => {
+
+        let data = {};
+
+        try {
+
+            data =
+                event.data
+                    ? event.data.json()
+                    : {};
+
+        } catch (error) {
+
+            data = {
+
+                title:
+                    "📢 SIDAT",
+
+                message:
+                    event.data
+                        ? event.data.text()
+                        : "Ada notifikasi baru dari SIDAT."
+
+            };
+
+        }
+
+
+        const title =
+            data.title ||
+            "📢 SIDAT";
+
+
+        const options = {
+
+            body:
+                data.message ||
+                "Ada notifikasi baru dari SIDAT.",
+
+            icon:
+                "/icons/icon-192.png",
+
+            badge:
+                "/icons/icon-192.png",
+
+            tag:
+                data.notification_id
+                    ? `sidat-${data.notification_id}`
+                    : "sidat-notification",
+
+            data: {
+
+                url:
+                    data.url ||
+                    "/warga/pengumuman.html"
+
+            }
+
+        };
+
+
+        event.waitUntil(
+
+            self.registration
+                .showNotification(
+                    title,
+                    options
+                )
+
+        );
+
+    }
+);
+
+
+// ==========================================
+// KLIK NOTIFIKASI
+// ==========================================
+
+self.addEventListener(
+    "notificationclick",
+    event => {
+
+        event.notification.close();
+
+
+        const url =
+            event.notification?.data?.url ||
+            "/warga/pengumuman.html";
+
+
+        event.waitUntil(
+
+            clients
+                .matchAll({
+                    type: "window",
+                    includeUncontrolled: true
+                })
+                .then(
+                    clientList => {
+
+                        for (
+                            const client
+                            of clientList
+                        ) {
+
+                            if (
+                                "focus" in client
+                            ) {
+
+                                client.navigate(
+                                    url
+                                );
+
+                                return client.focus();
+
+                            }
+
+                        }
+
+
+                        if (
+                            clients.openWindow
+                        ) {
+
+                            return clients.openWindow(
+                                url
+                            );
+
+                        }
+
+                    }
+                )
+
+        );
+
+    }
+);
