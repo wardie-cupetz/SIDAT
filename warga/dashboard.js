@@ -354,6 +354,7 @@ async function loadProfilTerbaru() {
     await loadProfilTerbaru();
 
 
+
     } catch (error) {
 
         console.error(
@@ -2218,6 +2219,7 @@ async function initDashboard() {
     tampilkanDataWarga();
 
     await loadProfilTerbaru();
+
 
 
 
