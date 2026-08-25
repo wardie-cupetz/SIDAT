@@ -1,103 +1,130 @@
 // ==========================================
 // SIDAT
 // PUSH NOTIFICATION WARGA
-// Versi sederhana
+// RESET & REGISTER VAPID
 // ==========================================
 
+(function () {
 
-// ==========================================
-// VAPID PUBLIC KEY
-// ==========================================
-
-const SIDAT_VAPID_PUBLIC_KEY =
-    "BIBLdBe6ORdVY4UuJB0iHTKOuJXFJ2wPN-05x96b1hNYR4h7G-RptBHscw6wMrTfZndz4SqTDUvBncgeOCQYJhM";
+    "use strict";
 
 
-// ==========================================
-// KONVERSI VAPID KEY
-// ==========================================
+    // ======================================
+    // VAPID PUBLIC KEY
+    // ======================================
 
-function urlBase64ToUint8Array(
-    base64String
-) {
+    const SIDAT_VAPID_PUBLIC_KEY =
+        "BIBLdBe6ORdVY4UuJB0iHTKOuJXFJ2wPN-05x96b1hNYR4h7G-RptBHscw6wMrTfZndz4SqTDUvBncgeOCQYJhM";
 
-    const padding =
-        "=".repeat(
-            (
-                4 -
-                base64String.length % 4
-            ) % 4
-        );
 
-    const base64 =
-        (
-            base64String +
-            padding
-        )
-        .replace(
-            /-/g,
-            "+"
-        )
-        .replace(
-            /_/g,
-            "/"
-        );
+    // ======================================
+    // STORAGE KEY
+    // ======================================
 
-    const rawData =
-        window.atob(
-            base64
-        );
+    const VAPID_STORAGE_KEY =
+        "sidat_push_vapid_public_key";
 
-    const outputArray =
-        new Uint8Array(
-            rawData.length
-        );
 
-    for (
-        let i = 0;
-        i < rawData.length;
-        i++
+    // ======================================
+    // KONVERSI VAPID KEY
+    // ======================================
+
+    function urlBase64ToUint8Array(
+        base64String
     ) {
 
-        outputArray[i] =
-            rawData.charCodeAt(i);
-
-    }
-
-    return outputArray;
-
-}
-
-
-// ==========================================
-// ARRAY BUFFER → BASE64 URL
-// ==========================================
-
-function arrayBufferToBase64Url(
-    buffer
-) {
-
-    const bytes =
-        new Uint8Array(
-            buffer
-        );
-
-    let binary = "";
-
-    for (
-        let i = 0;
-        i < bytes.byteLength;
-        i++
-    ) {
-
-        binary +=
-            String.fromCharCode(
-                bytes[i]
+        const padding =
+            "=".repeat(
+                (
+                    4 -
+                    base64String.length % 4
+                ) % 4
             );
 
+
+        const base64 =
+            (
+                base64String +
+                padding
+            )
+            .replace(
+                /-/g,
+                "+"
+            )
+            .replace(
+                /_/g,
+                "/"
+            );
+
+
+        const rawData =
+            window.atob(
+                base64
+            );
+
+
+        const outputArray =
+            new Uint8Array(
+                rawData.length
+            );
+
+
+        for (
+            let i = 0;
+            i < rawData.length;
+            i++
+        ) {
+
+            outputArray[i] =
+                rawData.charCodeAt(i);
+
+        }
+
+
+        return outputArray;
+
     }
 
-    return btoa(binary)
+
+    // ======================================
+    // ARRAY BUFFER → BASE64 URL
+    // ======================================
+
+    function arrayBufferToBase64Url(
+        buffer
+    ) {
+
+        if (!buffer) {
+            return null;
+        }
+
+
+        const bytes =
+            new Uint8Array(
+                buffer
+            );
+
+
+        let binary = "";
+
+
+        for (
+            let i = 0;
+            i < bytes.byteLength;
+            i++
+        ) {
+
+            binary +=
+                String.fromCharCode(
+                    bytes[i]
+                );
+
+        }
+
+
+        return btoa(
+            binary
+        )
         .replace(
             /\+/g,
             "-"
@@ -111,394 +138,531 @@ function arrayBufferToBase64Url(
             ""
         );
 
-}
+    }
 
 
-// ==========================================
-// DAFTARKAN PUSH NOTIFICATION
-// ==========================================
+    // ======================================
+    // AMBIL DATA WARGA
+    // ======================================
 
-async function daftarkanPushNotification() {
+    function ambilDataWarga() {
 
-    try {
+        try {
 
-        // ----------------------------------
-        // CEK BROWSER
-        // ----------------------------------
-
-        if (
-            !("serviceWorker" in navigator)
-        ) {
-
-            console.warn(
-                "SIDAT: Service Worker tidak didukung."
-            );
-
-            return false;
-
-        }
-
-
-        if (
-            !("PushManager" in window)
-        ) {
-
-            console.warn(
-                "SIDAT: Push Notification tidak didukung."
-            );
-
-            return false;
-
-        }
-
-
-        if (
-            !("Notification" in window)
-        ) {
-
-            console.warn(
-                "SIDAT: Notification API tidak didukung."
-            );
-
-            return false;
-
-        }
-
-
-        // ----------------------------------
-        // DATA WARGA
-        // ----------------------------------
-
-        const dataWarga =
-            JSON.parse(
+            return JSON.parse(
                 localStorage.getItem(
                     "sidat_user"
-                ) ||
-                "{}"
+                ) || "{}"
             );
-
-
-        const residentId =
-            dataWarga.resident_id ||
-            dataWarga.residentId ||
-            dataWarga.id_resident ||
-            null;
-
-
-        if (!residentId) {
-
-            console.warn(
-                "SIDAT: resident_id tidak ditemukan."
-            );
-
-            return false;
 
         }
 
+        catch (error) {
 
-        // ----------------------------------
-        // ACCESS TOKEN
-        // ----------------------------------
-
-        const accessToken =
-            localStorage.getItem(
-                "sidat_access_token"
+            console.error(
+                "SIDAT: Data warga tidak valid.",
+                error
             );
 
-
-        if (!accessToken) {
-
-            console.warn(
-                "SIDAT: Access token tidak ditemukan."
-            );
-
-            return false;
+            return {};
 
         }
 
-
-        // ----------------------------------
-        // SERVICE WORKER
-        // ----------------------------------
-
-        const registration =
-            await navigator
-                .serviceWorker
-                .register(
-                    "../service-worker.js"
-                );
+    }
 
 
-        await navigator
-            .serviceWorker
-            .ready;
+    // ======================================
+    // DAFTARKAN PUSH NOTIFICATION
+    // ======================================
 
+    async function daftarkanPushNotification() {
 
-        // ----------------------------------
-        // IZIN NOTIFIKASI
-        // ----------------------------------
+        try {
 
-        if (
-            Notification.permission ===
-            "default"
-        ) {
-
-            const permission =
-                await Notification
-                    .requestPermission();
-
+            // ----------------------------------
+            // CEK BROWSER
+            // ----------------------------------
 
             if (
-                permission !==
-                "granted"
+                !(
+                    "serviceWorker" in navigator
+                )
             ) {
 
                 console.warn(
-                    "SIDAT: Izin notifikasi tidak diberikan."
+                    "SIDAT: Service Worker tidak didukung."
                 );
 
                 return false;
 
             }
 
+
+            if (
+                !(
+                    "PushManager" in window
+                )
+            ) {
+
+                console.warn(
+                    "SIDAT: Push Notification tidak didukung."
+                );
+
+                return false;
+
+            }
+
+
+            if (
+                !(
+                    "Notification" in window
+                )
+            ) {
+
+                console.warn(
+                    "SIDAT: Notification tidak didukung."
+                );
+
+                return false;
+
+            }
+
+
+            // ----------------------------------
+            // CEK SESSION
+            // ----------------------------------
+
+            const accessToken =
+                localStorage.getItem(
+                    "sidat_access_token"
+                );
+
+
+            if (!accessToken) {
+
+                console.warn(
+                    "SIDAT: Access token tidak ditemukan."
+                );
+
+                return false;
+
+            }
+
+
+            const dataWarga =
+                ambilDataWarga();
+
+
+            const residentId =
+                dataWarga.resident_id ||
+                dataWarga.residentId ||
+                dataWarga.id_resident ||
+                null;
+
+
+            if (!residentId) {
+
+                console.warn(
+                    "SIDAT: Resident ID tidak ditemukan."
+                );
+
+                return false;
+
+            }
+
+
+            // ----------------------------------
+            // DAFTARKAN SERVICE WORKER
+            // ----------------------------------
+
+            const registration =
+                await navigator
+                    .serviceWorker
+                    .ready;
+
+
+            if (!registration) {
+
+                throw new Error(
+                    "Service Worker belum siap."
+                );
+
+            }
+
+
+            // ----------------------------------
+            // MINTA IZIN NOTIFIKASI
+            // ----------------------------------
+
+            if (
+                Notification.permission ===
+                "default"
+            ) {
+
+                const permission =
+                    await Notification
+                        .requestPermission();
+
+
+                if (
+                    permission !==
+                    "granted"
+                ) {
+
+                    console.warn(
+                        "SIDAT: Izin notifikasi tidak diberikan."
+                    );
+
+                    return false;
+
+                }
+
+            }
+
+
+            if (
+                Notification.permission !==
+                "granted"
+            ) {
+
+                console.warn(
+                    "SIDAT: Notifikasi belum diizinkan."
+                );
+
+                return false;
+
+            }
+
+
+            // ----------------------------------
+            // AMBIL SUBSCRIPTION LAMA
+            // ----------------------------------
+
+            let subscription =
+                await registration
+                    .pushManager
+                    .getSubscription();
+
+
+            // ----------------------------------
+            // CEK VAPID YANG TERSIMPAN
+            // ----------------------------------
+
+            const vapidTersimpan =
+                localStorage.getItem(
+                    VAPID_STORAGE_KEY
+                );
+
+
+            // ----------------------------------
+            // RESET SUBSCRIPTION JIKA
+            // VAPID BERBEDA / BELUM PERNAH
+            // ----------------------------------
+
+            if (
+                subscription &&
+                vapidTersimpan !==
+                SIDAT_VAPID_PUBLIC_KEY
+            ) {
+
+                console.log(
+                    "SIDAT: Subscription lama ditemukan."
+                );
+
+                console.log(
+                    "SIDAT: Menghapus subscription lama dari Chrome."
+                );
+
+
+                try {
+
+                    const berhasilUnsubscribe =
+                        await subscription
+                            .unsubscribe();
+
+
+                    console.log(
+                        "SIDAT: Unsubscribe lama:",
+                        berhasilUnsubscribe
+                    );
+
+                }
+
+                catch (unsubscribeError) {
+
+                    console.warn(
+                        "SIDAT: Gagal unsubscribe lama.",
+                        unsubscribeError
+                    );
+
+                }
+
+
+                subscription =
+                    null;
+
+            }
+
+
+            // ----------------------------------
+            // BUAT SUBSCRIPTION BARU
+            // ----------------------------------
+
+            if (!subscription) {
+
+                console.log(
+                    "SIDAT: Membuat Push Subscription baru."
+                );
+
+
+                subscription =
+                    await registration
+                        .pushManager
+                        .subscribe(
+                            {
+
+                                userVisibleOnly:
+                                    true,
+
+                                applicationServerKey:
+                                    urlBase64ToUint8Array(
+                                        SIDAT_VAPID_PUBLIC_KEY
+                                    )
+
+                            }
+                        );
+
+
+                console.log(
+                    "SIDAT: Push Subscription baru berhasil dibuat."
+                );
+
+            }
+
+
+            if (!subscription) {
+
+                throw new Error(
+                    "Push Subscription gagal dibuat."
+                );
+
+            }
+
+
+            // ----------------------------------
+            // AMBIL KEYS SUBSCRIPTION
+            // ----------------------------------
+
+            const p256dh =
+                arrayBufferToBase64Url(
+                    subscription.getKey(
+                        "p256dh"
+                    )
+                );
+
+
+            const auth =
+                arrayBufferToBase64Url(
+                    subscription.getKey(
+                        "auth"
+                    )
+                );
+
+
+            if (
+                !subscription.endpoint ||
+                !p256dh ||
+                !auth
+            ) {
+
+                throw new Error(
+                    "Data Push Subscription tidak lengkap."
+                );
+
+            }
+
+
+            console.log(
+                "SIDAT: Endpoint Push:",
+                subscription.endpoint
+            );
+
+
+            console.log(
+                "SIDAT: Key length:",
+                {
+                    p256dh:
+                        p256dh.length,
+
+                    auth:
+                        auth.length
+                }
+            );
+
+
+            // ----------------------------------
+            // HAPUS SUBSCRIPTION LAMA
+            // DARI SUPABASE
+            // ----------------------------------
+
+            const deleteResponse =
+                await fetch(
+
+                    `${SUPABASE_URL}` +
+                    `/rest/v1/push_subscriptions` +
+                    `?resident_id=eq.${encodeURIComponent(
+                        residentId
+                    )}`,
+
+                    {
+
+                        method:
+                            "DELETE",
+
+                        headers: {
+
+                            "apikey":
+                                SUPABASE_KEY,
+
+                            "Authorization":
+                                `Bearer ${accessToken}`
+
+                        }
+
+                    }
+
+                );
+
+
+            if (
+                !deleteResponse.ok &&
+                deleteResponse.status !== 404
+            ) {
+
+                const deleteError =
+                    await deleteResponse.text();
+
+
+                console.warn(
+                    "SIDAT: Subscription Supabase lama gagal dihapus.",
+                    deleteError
+                );
+
+            }
+
+
+            // ----------------------------------
+            // SIMPAN SUBSCRIPTION BARU
+            // ----------------------------------
+
+            const response =
+                await fetch(
+
+                    `${SUPABASE_URL}` +
+                    `/rest/v1/push_subscriptions`,
+
+                    {
+
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            "apikey":
+                                SUPABASE_KEY,
+
+                            "Authorization":
+                                `Bearer ${accessToken}`,
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Prefer":
+                                "return=minimal"
+
+                        },
+
+                        body:
+                            JSON.stringify(
+                                {
+
+                                    resident_id:
+                                        residentId,
+
+                                    endpoint:
+                                        subscription.endpoint,
+
+                                    p256dh:
+                                        p256dh,
+
+                                    auth:
+                                        auth,
+
+                                    updated_at:
+                                        new Date()
+                                            .toISOString()
+
+                                }
+                            )
+
+                    }
+
+                );
+
+
+            if (!response.ok) {
+
+                const errorText =
+                    await response.text();
+
+
+                throw new Error(
+                    errorText ||
+                    "Gagal menyimpan Push Subscription."
+                );
+
+            }
+
+
+            // ----------------------------------
+            // SIMPAN VAPID AKTIF
+            // ----------------------------------
+
+            localStorage.setItem(
+                VAPID_STORAGE_KEY,
+                SIDAT_VAPID_PUBLIC_KEY
+            );
+
+
+            console.log(
+                "SIDAT: Push Notification aktif dengan VAPID terbaru."
+            );
+
+
+            return true;
+
         }
 
+        catch (error) {
 
-        if (
-            Notification.permission !==
-            "granted"
-        ) {
-
-            console.warn(
-                "SIDAT: Notifikasi belum diizinkan."
+            console.error(
+                "SIDAT: Gagal mengaktifkan Push Notification.",
+                error
             );
+
 
             return false;
 
         }
 
-
-        // ----------------------------------
-        // AMBIL SUBSCRIPTION
-        // ----------------------------------
-
-        let subscription =
-            await registration
-                .pushManager
-                .getSubscription();
-
-
-        // ----------------------------------
-        // BUAT SUBSCRIPTION
-        // ----------------------------------
-
-        if (!subscription) {
-
-            subscription =
-                await registration
-                    .pushManager
-                    .subscribe(
-                        {
-
-                            userVisibleOnly:
-                                true,
-
-                            applicationServerKey:
-                                urlBase64ToUint8Array(
-                                    SIDAT_VAPID_PUBLIC_KEY
-                                )
-
-                        }
-                    );
-
-        }
-
-
-        if (!subscription) {
-
-            throw new Error(
-                "Push Subscription gagal dibuat."
-            );
-
-        }
-
-
-        // ----------------------------------
-        // AMBIL KEYS
-        // ----------------------------------
-
-        const p256dh =
-            arrayBufferToBase64Url(
-                subscription.getKey(
-                    "p256dh"
-                )
-            );
-
-
-        const auth =
-            arrayBufferToBase64Url(
-                subscription.getKey(
-                    "auth"
-                )
-            );
-
-
-        if (
-            !subscription.endpoint ||
-            !p256dh ||
-            !auth
-        ) {
-
-            throw new Error(
-                "Data Push Subscription tidak lengkap."
-            );
-
-        }
-
-
-        // ----------------------------------
-        // HAPUS SUBSCRIPTION LAMA
-        // ----------------------------------
-
-        const deleteResponse =
-            await fetch(
-
-                `${SUPABASE_URL}` +
-                `/rest/v1/push_subscriptions` +
-                `?resident_id=eq.${encodeURIComponent(
-                    residentId
-                )}`,
-
-                {
-
-                    method:
-                        "DELETE",
-
-                    headers: {
-
-                        "apikey":
-                            SUPABASE_KEY,
-
-                        "Authorization":
-                            `Bearer ${accessToken}`
-
-                    }
-
-                }
-
-            );
-
-
-        if (
-            !deleteResponse.ok &&
-            deleteResponse.status !== 404
-        ) {
-
-            console.warn(
-                "SIDAT: Subscription lama gagal dihapus."
-            );
-
-        }
-
-
-        // ----------------------------------
-        // SIMPAN SUBSCRIPTION
-        // ----------------------------------
-
-        const response =
-            await fetch(
-
-                `${SUPABASE_URL}` +
-                `/rest/v1/push_subscriptions`,
-
-                {
-
-                    method:
-                        "POST",
-
-                    headers: {
-
-                        "apikey":
-                            SUPABASE_KEY,
-
-                        "Authorization":
-                            `Bearer ${accessToken}`,
-
-                        "Content-Type":
-                            "application/json",
-
-                        "Prefer":
-                            "return=minimal"
-
-                    },
-
-                    body:
-                        JSON.stringify(
-                            {
-
-                                resident_id:
-                                    residentId,
-
-                                endpoint:
-                                    subscription.endpoint,
-
-                                p256dh:
-                                    p256dh,
-
-                                auth:
-                                    auth,
-
-                                updated_at:
-                                    new Date()
-                                        .toISOString()
-
-                            }
-                        )
-
-                }
-
-            );
-
-
-        if (!response.ok) {
-
-            const errorText =
-                await response.text();
-
-            throw new Error(
-                errorText ||
-                "Gagal menyimpan Push Subscription."
-            );
-
-        }
-
-
-        console.log(
-            "SIDAT: Push Notification aktif."
-        );
-
-
-        return true;
-
     }
 
-    catch (error) {
 
-        console.error(
-            "SIDAT: Gagal mengaktifkan Push Notification.",
-            error
-        );
+    // ======================================
+    // EXPORT GLOBAL
+    // ======================================
 
-        return false;
+    window.daftarkanPushNotification =
+        daftarkanPushNotification;
 
-    }
-
-}
-
-
-// ==========================================
-// EXPORT GLOBAL
-// ==========================================
-
-window.daftarkanPushNotification =
-    daftarkanPushNotification;
+})();
