@@ -276,9 +276,15 @@
             // ----------------------------------
 
             const registration =
-                await navigator
-                    .serviceWorker
-                    .ready;
+                await navigator.serviceWorker.ready;
+
+            alert(
+                "SIDAT PUSH DEBUG\n\n" +
+                "Scope: " + registration.scope + "\n" +
+                "Active: " + !!registration.active + "\n" +
+                "Notification: " + Notification.permission + "\n" +
+                "Resident ID: " + residentId
+            );
 
 
             if (!registration) {
