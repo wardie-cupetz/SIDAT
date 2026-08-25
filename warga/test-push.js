@@ -3,11 +3,15 @@
     const notificationId =
         "76b1ca36-f938-4cdc-897c-fdc431da8b5b";
 
+    const url =
+        `${SUPABASE_URL}/functions/v1/send-push-notification`;
+
+
     try {
 
         const response =
             await fetch(
-                `${SUPABASE_URL}/functions/v1/send-push-notification`,
+                url,
                 {
                     method: "POST",
 
@@ -23,15 +27,16 @@
                 }
             );
 
+
         const hasil =
             await response.text();
 
+
         alert(
             "SIDAT TEST PUSH\n\n" +
-            "Status: " +
-            response.status +
-            "\n\nHasil:\n" +
-            hasil
+            "URL:\n" + url +
+            "\n\nStatus: " + response.status +
+            "\n\nHasil:\n" + hasil
         );
 
     }
@@ -40,7 +45,12 @@
 
         alert(
             "SIDAT TEST PUSH ERROR\n\n" +
-            String(error)
+            "URL:\n" + url +
+            "\n\nNama error:\n" +
+            (error.name || "-") +
+
+            "\n\nPesan:\n" +
+            (error.message || String(error))
         );
 
     }
