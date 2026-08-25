@@ -22,7 +22,7 @@
     // ======================================
 
     const VAPID_STORAGE_KEY =
-        "sidat_push_vapid_public_key";
+        "sidat_push_vapid_public_key_v2";
 
 
     // ======================================
