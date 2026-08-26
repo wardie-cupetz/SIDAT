@@ -692,7 +692,36 @@ if (jwtMatch) {
     "SIDAT VAPID JWT DEBUG:",
     "JWT TIDAK DITEMUKAN"
   );
+console.log(
+  "SIDAT VAPID FINAL CHECK:",
+  {
+    publicKeyLength:
+      VAPID_PUBLIC_KEY.length,
 
+    privateKeyLength:
+      VAPID_PRIVATE_KEY.length,
+
+    subject:
+      VAPID_SUBJECT,
+
+    jwtAud:
+      jwtPayload?.aud || null,
+
+    jwtSub:
+      jwtPayload?.sub || null,
+
+    jwtExp:
+      jwtPayload?.exp || null,
+
+    currentTime:
+      Math.floor(Date.now() / 1000),
+
+    expValid:
+      typeof jwtPayload?.exp === "number"
+        ? jwtPayload.exp > Math.floor(Date.now() / 1000)
+        : false
+  }
+);	
 }
           /*
           ==================================
