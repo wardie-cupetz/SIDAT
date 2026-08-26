@@ -573,6 +573,77 @@ console.log(
       subscription.auth?.length || 0
   }
 );
+// ==========================================
+// DEBUG VAPID JWT
+// ==========================================
+
+const requestDetails =
+  webpush.generateRequestDetails(
+    pushSubscription,
+    payload,
+    {
+      TTL: 60,
+    }
+  );
+
+const authorization =
+  requestDetails.headers?.Authorization || "";
+
+const jwtMatch =
+  authorization.match(
+    /vapid t=([^,]+)/
+  );
+
+if (jwtMatch) {
+
+  const jwt =
+    jwtMatch[1];
+
+  const parts =
+    jwt.split(".");
+
+  let jwtPayload = null;
+
+  if (parts.length === 3) {
+
+    try {
+
+      let base64 =
+        parts[1]
+          .replace(/-/g, "+")
+          .replace(/_/g, "/");
+
+      while (base64.length % 4) {
+        base64 += "=";
+      }
+
+      jwtPayload =
+        JSON.parse(
+          atob(base64)
+        );
+
+    } catch {
+      jwtPayload =
+        "DECODE_FAILED";
+    }
+
+  }
+
+  console.log(
+    "SIDAT VAPID JWT DEBUG:",
+    {
+      hasAuthorization:
+        !!authorization,
+
+      jwtParts:
+        parts.length,
+
+      payload:
+        jwtPayload
+    }
+  );
+
+}
 
           await webpush.sendNotification(
             pushSubscription,
