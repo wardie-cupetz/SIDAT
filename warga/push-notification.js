@@ -170,6 +170,60 @@
 
     }
 
+// ======================================
+// REGISTER SERVICE WORKER
+// ======================================
+
+async function daftarkanServiceWorker() {
+
+    if (!("serviceWorker" in navigator)) {
+
+        console.warn(
+            "SIDAT: Service Worker tidak didukung."
+        );
+
+        return null;
+
+    }
+
+    try {
+
+        const registration =
+            await navigator.serviceWorker.register(
+                "../service-worker.js",
+                {
+                    scope: "../"
+                }
+            );
+
+        console.log(
+            "SIDAT: Service Worker berhasil didaftarkan.",
+            registration.scope
+        );
+
+        await navigator.serviceWorker.ready;
+
+        console.log(
+            "SIDAT: Service Worker siap digunakan."
+        );
+
+        return registration;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "SIDAT: Gagal mendaftarkan Service Worker.",
+            error
+        );
+
+        return null;
+
+    }
+
+}
+
 
     // ======================================
     // DAFTARKAN PUSH NOTIFICATION
@@ -276,7 +330,7 @@
             // ----------------------------------
 
             const registration =
-                await navigator.serviceWorker.ready;
+    await daftarkanServiceWorker();
 
             alert(
                 "SIDAT PUSH DEBUG\n\n" +
@@ -287,13 +341,7 @@
             );
 
 
-            if (!registration) {
-
-                throw new Error(
-                    "Service Worker belum siap."
-                );
-
-            }
+            
 
 
             // ----------------------------------
