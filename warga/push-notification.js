@@ -716,7 +716,19 @@ async function daftarkanServiceWorker() {
     // EXPORT GLOBAL
     // ======================================
 
-    window.daftarkanPushNotification =
-        daftarkanPushNotification;
+    // ======================================
+// EXPORT GLOBAL
+// ======================================
+
+window.daftarkanPushNotification =
+    daftarkanPushNotification;
+
+
+// ======================================
+// AKTIFKAN PUSH OTOMATIS
+// ======================================
+
+daftarkanPushNotification();
+
 
 })();
