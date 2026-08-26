@@ -118,7 +118,22 @@ webpush.setVapidDetails(
   VAPID_PUBLIC_KEY,
   VAPID_PRIVATE_KEY
 );
+console.log(
+  "SIDAT VAPID CONFIG CHECK:",
+  {
+    publicKeyLength:
+      VAPID_PUBLIC_KEY.length,
 
+    privateKeyLength:
+      VAPID_PRIVATE_KEY.length,
+
+    subject:
+      VAPID_SUBJECT,
+
+    publicKey:
+      VAPID_PUBLIC_KEY
+  }
+);
 
 /*
 ==========================================
