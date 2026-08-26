@@ -351,9 +351,6 @@ async function loadProfilTerbaru() {
 
         tampilkanDataWarga();
 
-    await loadProfilTerbaru();
-
-
 
     } catch (error) {
 
@@ -2218,31 +2215,10 @@ async function initDashboard() {
 
     tampilkanDataWarga();
 
+
     await loadProfilTerbaru();
 
-
-
-
     // ======================================
-    // ======================================
-    // ======================================
-    // PUSH NOTIFICATION
-    // ======================================
-
-    if (
-        typeof daftarkanPushNotification ===
-        "function"
-    ) {
-
-        console.log(
-            "SIDAT: Memulai registrasi Push Notification..."
-        );
-
-        await daftarkanPushNotification();
-
-    }
-
-
     // POPUP NOTIFIKASI
     // ======================================
 
@@ -2251,6 +2227,9 @@ async function initDashboard() {
         mulaiPopupNotifikasi();
 
     }
+
+
+    // ======================================
 
 
     // ======================================
