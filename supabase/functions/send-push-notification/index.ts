@@ -588,6 +588,7 @@ console.log(
       subscription.auth?.length || 0
   }
 );
+
 // ==========================================
 // DEBUG VAPID JWT
 // ==========================================
@@ -601,12 +602,38 @@ const requestDetails =
     }
   );
 
+console.log(
+  "SIDAT REQUEST HEADER KEYS:",
+  Object.keys(
+    requestDetails.headers || {}
+  )
+);
+
 const authorization =
-  requestDetails.headers?.Authorization || "";
+  requestDetails.headers?.Authorization ||
+  requestDetails.headers?.authorization ||
+  "";
+
+console.log(
+  "SIDAT AUTH HEADER CHECK:",
+  {
+    exists:
+      !!authorization,
+
+    startsWithVapid:
+      authorization.startsWith("vapid"),
+
+    length:
+      authorization.length
+  }
+);
 
 const jwtMatch =
   authorization.match(
-    /vapid t=([^,]+)/
+    /(?:^|,\s*)t=([^,\s]+)/
+  ) ||
+  authorization.match(
+    /vapid\s+t=([^,\s]+)/
   );
 
 if (jwtMatch) {
@@ -628,7 +655,9 @@ if (jwtMatch) {
           .replace(/-/g, "+")
           .replace(/_/g, "/");
 
-      while (base64.length % 4) {
+      while (
+        base64.length % 4 !== 0
+      ) {
         base64 += "=";
       }
 
@@ -637,9 +666,11 @@ if (jwtMatch) {
           atob(base64)
         );
 
-    } catch {
+    } catch (error) {
+
       jwtPayload =
         "DECODE_FAILED";
+
     }
 
   }
@@ -647,9 +678,6 @@ if (jwtMatch) {
   console.log(
     "SIDAT VAPID JWT DEBUG:",
     {
-      hasAuthorization:
-        !!authorization,
-
       jwtParts:
         parts.length,
 
@@ -658,56 +686,14 @@ if (jwtMatch) {
     }
   );
 
+} else {
+
+  console.log(
+    "SIDAT VAPID JWT DEBUG:",
+    "JWT TIDAK DITEMUKAN"
+  );
+
 }
-
-          await webpush.sendNotification(
-            pushSubscription,
-            payload,
-            {
-              TTL: 60,
-            }
-          );
-
-
-          sent++;
-
-
-          console.log(
-            "SIDAT PUSH: BERHASIL",
-            subscription.id
-          );
-
-        }
-
-
-        catch (pushError) {
-console.error(
-  "SIDAT PUSH ERROR DETAIL:",
-  {
-    name: pushError?.name,
-    message: pushError?.message,
-    statusCode: pushError?.statusCode,
-    body: pushError?.body,
-    endpoint:
-      pushError?.endpoint
-        ? new URL(pushError.endpoint).origin
-        : null
-  }
-);
-          failed++;
-
-
-          console.error(
-            "SIDAT PUSH ERROR:",
-            subscription.id,
-            pushError
-          );
-
-
-          const statusCode =
-            pushError?.statusCode;
-
-
           /*
           ==================================
           404 / 410 = SUBSCRIPTION MATI
