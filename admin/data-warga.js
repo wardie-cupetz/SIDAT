@@ -5789,6 +5789,240 @@ function exportDataWarga() {
 
 window.exportDataWarga =
     exportDataWarga;
+    
+// ==========================================
+// EXPORT DATA WARGA - EXCEL
+// ==========================================
+
+function exportDataWargaExcel() {
+
+    try {
+
+        // ==================================
+        // CEK SHEETJS
+        // ==================================
+
+        if (
+            typeof XLSX === "undefined"
+        ) {
+
+            alert(
+                "Library Excel belum tersedia.\n\n" +
+                "Silakan refresh halaman SIDAT."
+            );
+
+            return;
+
+        }
+
+
+        // ==================================
+        // CEK DATA
+        // ==================================
+
+        if (
+            !Array.isArray(
+                semuaWarga
+            ) ||
+            semuaWarga.length === 0
+        ) {
+
+            alert(
+                "Belum ada data warga yang dapat di-export."
+            );
+
+            return;
+
+        }
+
+
+        // ==================================
+        // DATA EXCEL
+        // ==================================
+
+        const headers = [
+
+            "resident_code",
+            "nik",
+            "kk_number",
+            "name",
+            "birth_place",
+            "birth_date",
+            "gender",
+            "address",
+            "house_number",
+            "phone",
+            "family_status",
+            "is_active"
+
+        ];
+
+
+        const data = [
+
+            headers,
+
+            ...semuaWarga.map(
+                warga => [
+
+                    warga.resident_code ?? "",
+
+                    warga.nik ?? "",
+
+                    warga.kk_number ?? "",
+
+                    warga.name ?? "",
+
+                    warga.birth_place ?? "",
+
+                    warga.birth_date ?? "",
+
+                    warga.gender ?? "",
+
+                    warga.address ?? "",
+
+                    warga.house_number ?? "",
+
+                    warga.phone ?? "",
+
+                    warga.family_status ?? "",
+
+                    warga.is_active ?? ""
+
+                ]
+            )
+
+        ];
+
+
+        // ==================================
+        // BUAT WORKSHEET
+        // ==================================
+
+        const worksheet =
+            XLSX.utils.aoa_to_sheet(
+                data
+            );
+
+
+        // ==================================
+        // LEBAR KOLOM
+        // ==================================
+
+        worksheet["!cols"] = [
+
+            { wch: 16 },
+            { wch: 18 },
+            { wch: 20 },
+            { wch: 30 },
+            { wch: 20 },
+            { wch: 15 },
+            { wch: 10 },
+            { wch: 40 },
+            { wch: 15 },
+            { wch: 18 },
+            { wch: 20 },
+            { wch: 12 }
+
+        ];
+
+
+        // ==================================
+        // BUAT WORKBOOK
+        // ==================================
+
+        const workbook =
+            XLSX.utils.book_new();
+
+
+        XLSX.utils.book_append_sheet(
+            workbook,
+            worksheet,
+            "Data Warga"
+        );
+
+
+        // ==================================
+        // NAMA FILE
+        // ==================================
+
+        const sekarang =
+            new Date();
+
+
+        const tahun =
+            sekarang.getFullYear();
+
+
+        const bulan =
+            String(
+                sekarang.getMonth() + 1
+            )
+            .padStart(
+                2,
+                "0"
+            );
+
+
+        const tanggal =
+            String(
+                sekarang.getDate()
+            )
+            .padStart(
+                2,
+                "0"
+            );
+
+
+        const namaFile =
+            `SIDAT_Data_Warga_${tahun}-${bulan}-${tanggal}.xlsx`;
+
+
+        // ==================================
+        // DOWNLOAD
+        // ==================================
+
+        XLSX.writeFile(
+            workbook,
+            namaFile
+        );
+
+
+        // ==================================
+        // INFORMASI
+        // ==================================
+
+        alert(
+            `Export Excel berhasil.\n\n` +
+            `Jumlah warga: ${semuaWarga.length}\n` +
+            `File: ${namaFile}`
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "EXPORT EXCEL DATA WARGA ERROR:",
+            error
+        );
+
+
+        alert(
+            "Gagal melakukan export Excel data warga:\n" +
+            error.message
+        );
+
+    }
+
+}
+
+
+// ==========================================
+// EXPORT EXCEL
+// ==========================================
+
+window.exportDataWargaExcel =
+    exportDataWargaExcel;
     // ==========================================
 // IMPORT DATA WARGA
 // BUKA MODAL
@@ -6086,7 +6320,7 @@ async function bacaFileImportWarga(file) {
     if (!file) {
 
         tampilkanErrorImport(
-            "File CSV belum dipilih."
+            "File belum dipilih."
         );
 
         return;
@@ -6094,19 +6328,27 @@ async function bacaFileImportWarga(file) {
     }
 
 
-    if (
-        !file.name
-            .toLowerCase()
-            .endsWith(".csv")
-    ) {
+    const namaFile =
+    file.name
+        .toLowerCase();
 
-        tampilkanErrorImport(
-            "File harus berformat CSV."
-        );
+const isCSV =
+    namaFile.endsWith(".csv");
 
-        return;
+const isExcel =
+    namaFile.endsWith(".xlsx") ||
+    namaFile.endsWith(".xls");
 
-    }
+
+if (!isCSV && !isExcel) {
+
+    tampilkanErrorImport(
+        "File harus berformat CSV, XLSX, atau XLS."
+    );
+
+    return;
+
+}
 
 
     try {
@@ -6132,38 +6374,146 @@ async function bacaFileImportWarga(file) {
         // BACA FILE
         // ==========================================
 
-        const text =
-            await file.text();
+                // ==========================================
+        // BACA FILE
+        // CSV / EXCEL
+        // ==========================================
+
+        let rows;
 
 
-        if (!text.trim()) {
+        if (isCSV) {
 
-            throw new Error(
-                "File CSV kosong."
+            // ======================================
+            // CSV
+            // ======================================
+
+            const text =
+                await file.text();
+
+
+            if (!text.trim()) {
+
+                throw new Error(
+                    "File CSV kosong."
+                );
+
+            }
+
+
+            console.log(
+                "CSV RAW:",
+                text.substring(0, 1000)
+            );
+
+
+            rows =
+                parseCSV(text);
+
+
+            console.log(
+                "CSV ROWS:",
+                rows
+            );
+
+        } else {
+
+            // ======================================
+            // EXCEL
+            // ======================================
+
+            if (
+                typeof XLSX === "undefined"
+            ) {
+
+                throw new Error(
+                    "Library Excel belum tersedia. Silakan refresh halaman."
+                );
+
+            }
+
+
+            const arrayBuffer =
+                await file.arrayBuffer();
+
+
+            if (
+                !arrayBuffer ||
+                arrayBuffer.byteLength === 0
+            ) {
+
+                throw new Error(
+                    "File Excel kosong."
+                );
+
+            }
+
+
+            console.log(
+                "EXCEL FILE:",
+                file.name
+            );
+
+
+            const workbook =
+                XLSX.read(
+                    arrayBuffer,
+                    {
+                        type: "array"
+                    }
+                );
+
+
+            if (
+                !workbook.SheetNames ||
+                workbook.SheetNames.length === 0
+            ) {
+
+                throw new Error(
+                    "File Excel tidak memiliki sheet."
+                );
+
+            }
+
+
+            const namaSheet =
+                workbook.SheetNames[0];
+
+
+            const worksheet =
+                workbook.Sheets[
+                    namaSheet
+                ];
+
+
+            rows =
+                XLSX.utils.sheet_to_json(
+                    worksheet,
+                    {
+                        header: 1,
+                        defval: "",
+                        raw: false
+                    }
+                );
+
+
+            console.log(
+                "EXCEL SHEET:",
+                namaSheet
+            );
+
+
+            console.log(
+                "EXCEL ROWS:",
+                rows
             );
 
         }
 
 
-        console.log(
-            "CSV RAW:",
-            text.substring(0, 1000)
-        );
-
-
         // ==========================================
-        // PARSE CSV
+        // CEK HASIL BACA
         // ==========================================
-
-        const rows =
-            parseCSV(text);
-
-
-        console.log(
-            "CSV ROWS:",
-            rows
-        );
-
 
         if (
             !rows ||
@@ -6171,7 +6521,9 @@ async function bacaFileImportWarga(file) {
         ) {
 
             throw new Error(
-                "CSV tidak memiliki data warga."
+                isCSV
+                    ? "CSV tidak memiliki data warga."
+                    : "Excel tidak memiliki data warga."
             );
 
         }
@@ -6197,9 +6549,11 @@ async function bacaFileImportWarga(file) {
 
 
         console.log(
-            "CSV HEADERS:",
-            headers
-        );
+    isCSV
+        ? "CSV HEADERS:"
+        : "EXCEL HEADERS:",
+    headers
+);
 
 
         // ==========================================

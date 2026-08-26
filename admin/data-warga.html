@@ -90,33 +90,43 @@
 
     <div class="title-actions">
 
-        <button
-            id="btnExportWarga"
-            class="btn-secondary"
-            type="button"
-            onclick="exportDataWarga()"
-        >
-            📤 Export CSV
-        </button>
-<button
-    id="btnImportWarga"
-    class="btn-secondary"
-    type="button"
-    onclick="bukaImportWarga()"
->
-    📥 Import CSV
-</button>
+    <button
+        id="btnExportWarga"
+        class="btn-secondary"
+        type="button"
+        onclick="exportDataWarga()"
+    >
+        📤 Export CSV
+    </button>
 
-        <button
-            id="btnTambahWarga"
-            class="btn-primary"
-            type="button"
-            onclick="bukaTambahWarga()"
-        >
-            ＋ Tambah Warga
-        </button>
+    <button
+        id="btnExportExcelWarga"
+        class="btn-secondary"
+        type="button"
+        onclick="exportDataWargaExcel()"
+    >
+        📊 Export Excel
+    </button>
 
-    </div>
+    <button
+        id="btnImportWarga"
+        class="btn-secondary"
+        type="button"
+        onclick="bukaImportWarga()"
+    >
+        📥 Import CSV / Excel
+    </button>
+
+    <button
+        id="btnTambahWarga"
+        class="btn-primary"
+        type="button"
+        onclick="bukaTambahWarga()"
+    >
+        ＋ Tambah Warga
+    </button>
+
+</div>
 
 </section>
 
@@ -1468,7 +1478,7 @@
             </h2>
 
             <p>
-                Import data warga dari file CSV hasil export SIDAT.
+                Import data warga dari file CSV atau Excel hasil export SIDAT.
             </p>
 
         </div>
@@ -1479,17 +1489,16 @@
         <div class="form-group">
 
             <label for="importWargaFile">
-                Pilih File CSV
+                Pilih File CSV atau Excel
             </label>
 
             <input
-                type="file"
-                id="importWargaFile"
-                accept=".csv,text/csv"
-            >
-
+    type="file"
+    id="importWargaFile"
+    accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+>
             <small>
-                Gunakan file CSV hasil Export SIDAT.
+                Gunakan file CSV atau Excel hasil Export SIDAT.
             </small>
 
         </div>
@@ -1743,11 +1752,13 @@
 <!-- ==================================================
      DATA WARGA JS
 =================================================== -->
+<script
+    src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"
+></script>
 
 <script
     src="data-warga.js"
 ></script>
-
 
 </body>
 
