@@ -192,7 +192,7 @@ async function tampilkanPopup(
 
                 data: {
                     url:
-                        "pengumuman.html"
+                        "/warga/pengumuman.html"
                 }
 
             }
