@@ -595,7 +595,19 @@ console.log(
 
 
         catch (pushError) {
-
+console.error(
+  "SIDAT PUSH ERROR DETAIL:",
+  {
+    name: pushError?.name,
+    message: pushError?.message,
+    statusCode: pushError?.statusCode,
+    body: pushError?.body,
+    endpoint:
+      pushError?.endpoint
+        ? new URL(pushError.endpoint).origin
+        : null
+  }
+);
           failed++;
 
 
