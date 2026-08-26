@@ -551,6 +551,28 @@ Deno.serve(
             }
           );
 
+console.log(
+  "SIDAT PUSH DEBUG REQUEST:",
+  {
+    endpointOrigin:
+      new URL(subscription.endpoint).origin,
+
+    endpointHost:
+      new URL(subscription.endpoint).host,
+
+    publicKeyLength:
+      VAPID_PUBLIC_KEY.length,
+
+    subject:
+      VAPID_SUBJECT,
+
+    p256dhLength:
+      subscription.p256dh?.length || 0,
+
+    authLength:
+      subscription.auth?.length || 0
+  }
+);
 
           await webpush.sendNotification(
             pushSubscription,
