@@ -8,24 +8,16 @@
     "use strict";
 
 
-    // ======================================
-    // KONFIGURASI
-    // ======================================
-
-    const CEK_INTERVAL =
-        15000;
-
+    const CEK_INTERVAL = 15000;
 
     const STORAGE_KEY =
         "sidat_popup_notifikasi_terakhir";
 
-
-    let sedangMemuat =
-        false;
+    let sedangMemuat = false;
 
 
     // ======================================
-    // AMBIL DATA WARGA
+    // DATA WARGA
     // ======================================
 
     function ambilDataWarga() {
@@ -35,13 +27,10 @@
             return JSON.parse(
                 localStorage.getItem(
                     "sidat_user"
-                ) ||
-                "{}"
+                ) || "{}"
             );
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "SIDAT: Data warga tidak valid.",
@@ -66,11 +55,8 @@
                 "sidat_access_token"
             );
 
-
         if (!token) {
-
             return [];
-
         }
 
 
@@ -105,9 +91,7 @@
                 )}` +
                 `))`;
 
-        }
-
-        else {
+        } else {
 
             url +=
                 `&target_type=eq.all`;
@@ -120,8 +104,7 @@
                 url,
                 {
 
-                    method:
-                        "GET",
+                    method: "GET",
 
                     headers: {
 
@@ -164,77 +147,81 @@
     }
 
 
-    // ======================================
-    // TAMPILKAN POPUP
-    // ======================================
+// ======================================
+// TAMPILKAN POPUP
+// ======================================
 
-    function tampilkanPopup(
-        notification
+async function tampilkanPopup(
+    notification
+) {
+
+    if (
+        !("Notification" in window)
     ) {
-
-        if (
-            !("Notification" in window)
-        ) {
-
-            return;
-
-        }
-
-
-        if (
-            Notification.permission !==
-            "granted"
-        ) {
-
-            return;
-
-        }
-
-
-        const popup =
-            new Notification(
-                notification.title ||
-                "SIDAT",
-                {
-
-                    body:
-                        notification.message ||
-                        "Ada notifikasi baru.",
-
-                    tag:
-                        `sidat-${notification.id}`
-
-                }
-            );
-
-
-        popup.onclick =
-            function () {
-
-                window.focus();
-
-                popup.close();
-
-            };
-
+        return;
     }
 
 
+    if (
+        Notification.permission !==
+        "granted"
+    ) {
+        return;
+    }
+
+
+    try {
+
+        const registration =
+            await navigator
+                .serviceWorker
+                .ready;
+
+
+        await registration.showNotification(
+            notification.title ||
+            "SIDAT",
+            {
+
+                body:
+                    notification.message ||
+                    "Ada notifikasi baru.",
+
+                tag:
+                    `sidat-${notification.id}`,
+
+                data: {
+                    url:
+                        "pengumuman.html"
+                }
+
+            }
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "SIDAT: Gagal menampilkan notifikasi:",
+            error
+        );
+
+    }
+
+}
+
     // ======================================
-    // CEK NOTIFIKASI BARU
+    // CEK NOTIFIKASI
     // ======================================
 
     async function cekNotifikasiBaru() {
 
         if (sedangMemuat) {
-
             return;
-
         }
 
 
-        sedangMemuat =
-            true;
+        sedangMemuat = true;
 
 
         try {
@@ -244,16 +231,17 @@
 
 
             if (
-                notifications.length ===
-                0
+                notifications.length === 0
             ) {
-
                 return;
-
             }
 
 
-            const terakhir =
+            const terbaru =
+                notifications[0];
+
+
+            const waktuTerakhir =
                 localStorage.getItem(
                     STORAGE_KEY
                 );
@@ -261,14 +249,13 @@
 
             // ==================================
             // PERTAMA KALI
-            // Jangan tampilkan notifikasi lama
             // ==================================
 
-            if (!terakhir) {
+            if (!waktuTerakhir) {
 
                 localStorage.setItem(
                     STORAGE_KEY,
-                    notifications[0].created_at
+                    terbaru.created_at
                 );
 
                 return;
@@ -278,54 +265,41 @@
 
             const notifikasiBaru =
                 notifications.filter(
-                    notification =>
+                    item =>
                         new Date(
-                            notification.created_at
+                            item.created_at
                         ).getTime() >
                         new Date(
-                            terakhir
+                            waktuTerakhir
                         ).getTime()
                 );
 
 
             if (
-                notifikasiBaru.length ===
-                0
+                notifikasiBaru.length === 0
             ) {
-
                 return;
-
             }
 
 
-            // ==================================
-            // TAMPILKAN YANG BARU
-            // ==================================
-
             const urut =
-                [
-                    ...notifikasiBaru
-                ].reverse();
+                [...notifikasiBaru].reverse();
 
 
             urut.forEach(
-                notification => {
+                item => {
 
                     tampilkanPopup(
-                        notification
+                        item
                     );
 
                 }
             );
 
 
-            // ==================================
-            // SIMPAN WAKTU TERBARU
-            // ==================================
-
             localStorage.setItem(
                 STORAGE_KEY,
-                notifications[0].created_at
+                terbaru.created_at
             );
 
         }
@@ -333,7 +307,7 @@
         catch (error) {
 
             console.error(
-                "SIDAT: Gagal mengecek popup notifikasi:",
+                "SIDAT: Gagal mengecek notifikasi.",
                 error
             );
 
@@ -341,8 +315,7 @@
 
         finally {
 
-            sedangMemuat =
-                false;
+            sedangMemuat = false;
 
         }
 
@@ -350,7 +323,7 @@
 
 
     // ======================================
-    // START
+    // MULAI
     // ======================================
 
     function mulaiPopupNotifikasi() {
@@ -360,7 +333,7 @@
         ) {
 
             console.warn(
-                "SIDAT: Browser tidak mendukung Notification API."
+                "SIDAT: Notification API tidak tersedia."
             );
 
             return;
@@ -392,27 +365,3 @@
 
 
 })();
-
-
-// ==========================================
-// TES POPUP SIDAT
-// ==========================================
-
-setTimeout(function () {
-
-    if (
-        "Notification" in window &&
-        Notification.permission === "granted"
-    ) {
-
-        new Notification(
-            "🔔 Tes Popup SIDAT",
-            {
-                body:
-                    "Jika pesan ini muncul, popup SIDAT berhasil."
-            }
-        );
-
-    }
-
-}, 5000);
