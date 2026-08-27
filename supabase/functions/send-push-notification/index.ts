@@ -118,22 +118,7 @@ webpush.setVapidDetails(
   VAPID_PUBLIC_KEY,
   VAPID_PRIVATE_KEY
 );
-console.log(
-  "SIDAT VAPID CONFIG CHECK:",
-  {
-    publicKeyLength:
-      VAPID_PUBLIC_KEY.length,
 
-    privateKeyLength:
-      VAPID_PRIVATE_KEY.length,
-
-    subject:
-      VAPID_SUBJECT,
-
-    publicKey:
-      VAPID_PUBLIC_KEY
-  }
-);
 
 /*
 ==========================================
@@ -589,140 +574,42 @@ console.log(
   }
 );
 
-// ==========================================
-// DEBUG VAPID JWT
-// ==========================================
+          await webpush.sendNotification(
+            pushSubscription,
+            payload,
+            {
+              TTL: 60,
+            }
+          );
 
-const requestDetails =
-  webpush.generateRequestDetails(
-    pushSubscription,
-    payload,
-    {
-      TTL: 60,
-    }
-  );
 
-console.log(
-  "SIDAT REQUEST HEADER KEYS:",
-  Object.keys(
-    requestDetails.headers || {}
-  )
-);
+          sent++;
 
-const authorization =
-  requestDetails.headers?.Authorization ||
-  requestDetails.headers?.authorization ||
-  "";
 
-console.log(
-  "SIDAT AUTH HEADER CHECK:",
-  {
-    exists:
-      !!authorization,
+          console.log(
+            "SIDAT PUSH: BERHASIL",
+            subscription.id
+          );
 
-    startsWithVapid:
-      authorization.startsWith("vapid"),
+        }
 
-    length:
-      authorization.length
-  }
-);
 
-const jwtMatch =
-  authorization.match(
-    /(?:^|,\s*)t=([^,\s]+)/
-  ) ||
-  authorization.match(
-    /vapid\s+t=([^,\s]+)/
-  );
+        catch (pushError) {
 
-if (jwtMatch) {
+          failed++;
 
-  const jwt =
-    jwtMatch[1];
 
-  const parts =
-    jwt.split(".");
+          console.error(
+            "SIDAT PUSH ERROR:",
+            subscription.id,
+            pushError
+          );
 
-  let jwtPayload = null;
 
-  if (parts.length === 3) {
+          const statusCode =
+            pushError?.statusCode;
 
-    try {
 
-      let base64 =
-        parts[1]
-          .replace(/-/g, "+")
-          .replace(/_/g, "/");
-
-      while (
-        base64.length % 4 !== 0
-      ) {
-        base64 += "=";
-      }
-
-      jwtPayload =
-        JSON.parse(
-          atob(base64)
-        );
-
-    } catch (error) {
-
-      jwtPayload =
-        "DECODE_FAILED";
-
-    }
-
-  }
-
-  console.log(
-    "SIDAT VAPID JWT DEBUG:",
-    {
-      jwtParts:
-        parts.length,
-
-      payload:
-        jwtPayload
-    }
-  );
-
-} else {
-
-  console.log(
-    "SIDAT VAPID JWT DEBUG:",
-    "JWT TIDAK DITEMUKAN"
-  );
-console.log(
-  "SIDAT VAPID FINAL CHECK:",
-  {
-    publicKeyLength:
-      VAPID_PUBLIC_KEY.length,
-
-    privateKeyLength:
-      VAPID_PRIVATE_KEY.length,
-
-    subject:
-      VAPID_SUBJECT,
-
-    jwtAud:
-      jwtPayload?.aud || null,
-
-    jwtSub:
-      jwtPayload?.sub || null,
-
-    jwtExp:
-      jwtPayload?.exp || null,
-
-    currentTime:
-      Math.floor(Date.now() / 1000),
-
-    expValid:
-      typeof jwtPayload?.exp === "number"
-        ? jwtPayload.exp > Math.floor(Date.now() / 1000)
-        : false
-  }
-);	
-}
           /*
           ==================================
           404 / 410 = SUBSCRIPTION MATI

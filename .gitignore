@@ -1,0 +1,15 @@
+vapid-private.pem
+vapid-public.pem
+vapid-private.der
+
+# Backup / temporary files
+*.backup
+*.backup-*
+*-sebelum-*
+send-push-notification.zip
+send-push-original.ts
+public-from-private.der
+vapid-public-baru.pem
+vapid-public-key.txt
+vapid-public.der
+node_modules/
