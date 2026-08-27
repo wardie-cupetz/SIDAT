@@ -1,3 +1,4 @@
+console.log("### SIDAT BUILD 2026-08-27 16:45 ###");
 // ==========================================
 // SIDAT
 // PENGUMUMAN & NOTIFIKASI ADMIN
@@ -704,45 +705,86 @@ async function kirimPengumuman(
         }
 
 
-        const {
-            error
-        } = await supabaseClient
+       const {
+    data: announcement,
+    error
+} = await supabaseClient
+    .from("announcements")
+    .insert({
+        title: title,
+        content: content,
+        type: type,
+        target_type: target,
+        target_user_id:
+            target === "selected"
+                ? targetUser
+                : null,
+        is_active: true,
+        created_by: userData.user.id
+    })
+    .select()
+    .single();
 
-            .from("announcements")
-
-            .insert({
-
-                title:
-                    title,
-
-                content:
-                    content,
-
-                type:
-                    type,
-
-                target_type:
-                    target,
-
-                target_user_id:
-                    target ===
-                    "selected"
-                        ? targetUser
-                        : null,
-
-                is_active:
-                    true,
-
-                created_by:
-                    userData.user.id
-
-            });
+console.log("notification =", notification);
+console.log("notificationError =", notificationError);
 
 
+
+console.log("INSERT RESULT:", announcement, error);
         if (error) {
             throw error;
         }
+console.log("LEWAT SETELAH INSERT");
+await new Promise(resolve => setTimeout(resolve, 500));
 
+const {
+    data: notification,
+    error: notificationError
+} = await supabaseClient
+    .from("notifications")
+    .select("id")
+    .eq("created_by", userData.user.id)
+    .eq("title", title)
+    .order("created_at", {
+        ascending: false
+    })
+    .limit(1)
+    .single();
+
+console.log("notification =", notification);
+console.log("notificationError =", notificationError);
+
+
+if (notification) {
+
+    const {
+        data: sessionData
+    } = await supabaseClient.auth.getSession();
+
+    const accessToken =
+        sessionData.session?.access_token;
+
+    console.log("Memanggil Edge Function", notification.id);
+    const response = await fetch(
+        `${SUPABASE_URL}/functions/v1/send-push-notification`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${accessToken}`,
+                "apikey": SUPABASE_KEY
+            },
+            body: JSON.stringify({
+                notification_id: notification.id
+            })
+        }
+    );
+
+    console.log(
+        "Push Result:",
+        await response.json()
+    );
+}
 
         tampilkanPesan(
             "Pengumuman berhasil dikirim kepada warga.",
@@ -831,7 +873,9 @@ async function togglePengumuman(
         if (error) {
             throw error;
         }
-
+await new Promise(resolve =>
+    setTimeout(resolve, 500)
+);
 
         await loadPengumuman();
 
