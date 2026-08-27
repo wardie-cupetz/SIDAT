@@ -725,8 +725,6 @@ async function kirimPengumuman(
     .select()
     .single();
 
-console.log("notification =", notification);
-console.log("notificationError =", notificationError);
 
 
 
