@@ -14,8 +14,7 @@
     // ======================================
 
     const SIDAT_VAPID_PUBLIC_KEY =
-        "BIBLdBe6ORdVY4UuJB0iHTKOuJXFJ2wPN-05x96b1hNYR4h7G-RptBHscw6wMrTfZndz4SqTDUvBncgeOCQYJhM";
-
+    "BJDmuGKNeSj2DDsWzQYaPUKe3cH2M7-zyUeL-xtZq5CCmBwsfMMOQZCrvf7_WRjcDP-oDQuxy4WmX7VRe4TTOk0";
 
     // ======================================
     // STORAGE KEY
