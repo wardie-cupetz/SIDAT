@@ -59,3 +59,127 @@ function openOfflineDatabase() {
     });
 
 }
+// ==========================================
+// SIMPAN DATA OFFLINE
+// ==========================================
+
+function saveOfflineData(data) {
+
+    return new Promise((resolve, reject) => {
+
+        const transaction =
+            sidatDB.transaction(
+                SIDAT_STORE,
+                "readwrite"
+            );
+
+        const store =
+            transaction.objectStore(
+                SIDAT_STORE
+            );
+
+        const request =
+            store.add(data);
+
+        request.onsuccess = () => {
+
+            resolve();
+
+        };
+
+        request.onerror = () => {
+
+            reject(request.error);
+
+        };
+
+    });
+
+}
+// ==========================================
+// LIHAT SEMUA DATA
+// ==========================================
+
+function getOfflineData() {
+
+    return new Promise((resolve, reject) => {
+
+        const transaction =
+            sidatDB.transaction(
+                SIDAT_STORE,
+                "readonly"
+            );
+
+        const store =
+            transaction.objectStore(
+                SIDAT_STORE
+            );
+
+        const request =
+            store.getAll();
+
+        request.onsuccess = () => {
+
+            resolve(request.result);
+
+        };
+
+        request.onerror = () => {
+
+            reject(request.error);
+
+        };
+
+    });
+
+}
+// ==========================================
+// TAMBAH KE ANTREAN SINKRONISASI
+// ==========================================
+
+function addToSyncQueue(data) {
+
+    return new Promise((resolve, reject) => {
+
+        const transaction =
+            sidatDB.transaction(
+                SIDAT_STORE,
+                "readwrite"
+            );
+
+        const store =
+            transaction.objectStore(
+                SIDAT_STORE
+            );
+
+        const request =
+            store.put({
+
+                id:
+                    crypto.randomUUID(),
+
+                created_at:
+                    new Date().toISOString(),
+
+                status:
+                    "pending",
+
+                ...data
+
+            });
+
+        request.onsuccess = () => {
+
+            resolve();
+
+        };
+
+        request.onerror = () => {
+
+            reject(request.error);
+
+        };
+
+    });
+
+}
