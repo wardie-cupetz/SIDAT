@@ -904,3 +904,15 @@ openOfflineDatabase()
         console.error(err);
 
     });
+
+openOfflineDatabase()
+
+.then(() => {
+
+    console.log(
+        "SIDAT Offline DB siap."
+    );
+
+    syncOfflineQueue();
+
+});
