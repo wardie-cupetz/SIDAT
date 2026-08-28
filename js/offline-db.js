@@ -183,3 +183,33 @@ function addToSyncQueue(data) {
     });
 
 }
+// ==========================================
+// STATUS INTERNET
+// ==========================================
+
+function isOnline() {
+
+    return navigator.onLine;
+
+}
+// ==========================================
+// SIMPAN TRANSAKSI OFFLINE
+// ==========================================
+
+async function saveOfflineTransaction(data) {
+
+    await addToSyncQueue({
+
+        module: "jimpitan",
+
+        payload: data,
+
+        status: "pending",
+
+        created_at: new Date().toISOString()
+
+    });
+
+}
+
+
