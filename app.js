@@ -851,3 +851,37 @@ localStorage.setItem(
 
         }
     );
+
+// ======================================
+// CEK VERSI APLIKASI
+// ======================================
+
+async function checkAppVersion() {
+
+    try {
+
+        const response = await fetch(
+            "/SIDAT/version.json?ts=" + Date.now()
+        );
+
+        const data = await response.json();
+
+        if (data.version !== SIDAT_APP_VERSION) {
+
+            alert(
+                "Versi baru SIDAT tersedia.\nHalaman akan dimuat ulang."
+            );
+
+            location.reload();
+
+        }
+
+    } catch (err) {
+
+        console.error("Gagal cek versi:", err);
+
+    }
+
+}
+
+checkAppVersion();
