@@ -889,3 +889,18 @@ async function checkAppVersion() {
 }
 
 checkAppVersion();
+
+
+openOfflineDatabase()
+    .then(() => {
+
+        console.log(
+            "SIDAT Offline DB siap."
+        );
+
+    })
+    .catch(err => {
+
+        console.error(err);
+
+    });
