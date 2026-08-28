@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#15803d"
+    >
+
+    <title>
+        SIDAT - Backup & Restore
+    </title>
+
+
+    <!-- ======================================
+         CSS
+    ======================================= -->
+
+    <link
+        rel="stylesheet"
+        href="backup-restore.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<div class="app">
+
+
+    <!-- ======================================
+         HEADER
+    ======================================= -->
+
+    <header class="header">
+
+        <div class="header-left">
+
+            <button
+                type="button"
+                class="back-btn"
+                onclick="kembaliAdmin()"
+                aria-label="Kembali"
+            >
+                ‹
+            </button>
+
+
+            <div class="header-title">
+
+                <h1>
+                    Backup & Restore
+                </h1>
+
+                <span>
+                    Cadangkan dan pulihkan data SIDAT
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div
+            class="header-icon"
+            aria-hidden="true"
+        >
+            💾
+        </div>
+
+    </header>
+
+
+
+    <!-- ======================================
+         CONTENT
+    ======================================= -->
+
+    <main class="content">
+
+
+        <!-- ==================================
+             INTRO
+        =================================== -->
+
+        <section class="intro-card">
+
+            <div class="intro-icon">
+                💾
+            </div>
+
+
+            <div>
+
+                <h2>
+                    Backup & Restore Data
+                </h2>
+
+                <p>
+                    Simpan salinan data SIDAT
+                    dan gunakan kembali jika
+                    diperlukan.
+                </p>
+
+            </div>
+
+        </section>
+
+<!-- ==================================
+     BACKUP TERAKHIR
+=================================== -->
+
+<section class="last-backup-card">
+
+    <div class="last-backup-header">
+
+        <div class="last-backup-icon">
+            🟢
+        </div>
+
+        <div>
+
+            <h3>
+                Backup Terakhir
+            </h3>
+
+            <p>
+                Informasi backup yang terakhir dibuat.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="last-backup-info">
+
+        <div class="last-backup-item">
+
+            <span>
+                📅 Waktu
+            </span>
+
+            <strong id="lastBackupDate">
+                Belum ada backup
+            </strong>
+
+        </div>
+
+
+        <div class="last-backup-item">
+
+            <span>
+                📦 Jumlah Data
+            </span>
+
+            <strong id="lastBackupRecords">
+                -
+            </strong>
+
+        </div>
+
+
+        <div class="last-backup-item">
+
+            <span>
+                💾 Ukuran File
+            </span>
+
+            <strong id="lastBackupSize">
+                -
+            </strong>
+
+        </div>
+
+
+        <div class="last-backup-item">
+
+            <span>
+                📄 Nama File
+            </span>
+
+            <strong
+                id="lastBackupFileName"
+                class="backup-file-name"
+            >
+                -
+            </strong>
+
+        </div>
+
+    </div>
+
+</section>
+
+        <!-- ==================================
+             PESAN
+        =================================== -->
+
+        <div
+            id="backupMessage"
+            class="message hidden"
+            role="alert"
+        >
+        </div>
+
+
+
+        <!-- ==================================
+             BACKUP
+        =================================== -->
+
+        <section class="backup-card">
+
+
+            <div class="card-header">
+
+                <div class="card-icon backup-icon">
+                    📦
+                </div>
+
+
+                <div>
+
+                    <h3>
+                        Backup Data
+                    </h3>
+
+                    <p>
+                        Download seluruh data SIDAT
+                        dalam satu file.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <strong>
+                    Data yang dicadangkan
+                </strong>
+
+                <ul>
+
+                    <li>
+                        👥 Data warga
+                    </li>
+
+                    <li>
+                        🏠 Data KK
+                    </li>
+
+                    <li>
+                        💰 Arus kas
+                    </li>
+
+                    <li>
+                        🪙 Transaksi jimpitan
+                    </li>
+
+                    <li>
+                        📝 Laporan & aduan
+                    </li>
+
+                    <li>
+                        📢 Pengumuman
+                    </li>
+
+                    <li>
+                        🔔 Notifikasi
+                    </li>
+
+                    <li>
+                        ⚙️ Pengaturan
+                    </li>
+
+                </ul>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="backupButton"
+                class="btn-primary"
+                onclick="buatBackup()"
+            >
+
+                💾
+                Backup Data Sekarang
+
+            </button>
+
+
+            <div
+                id="backupProgress"
+                class="progress hidden"
+            >
+
+                <div class="spinner">
+                    ⏳
+                </div>
+
+                <span>
+                    Menyiapkan backup...
+                </span>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- ==================================
+             PEMBATAS
+        =================================== -->
+
+        <div class="section-divider">
+
+            <span>
+                ATAU
+            </span>
+
+        </div>
+
+
+
+        <!-- ==================================
+             RESTORE
+        =================================== -->
+
+        <section class="restore-card">
+
+
+            <div class="card-header">
+
+                <div class="card-icon restore-icon">
+                    ♻️
+                </div>
+
+
+                <div>
+
+                    <h3>
+                        Restore Data
+                    </h3>
+
+                    <p>
+                        Pulihkan data dari file
+                        backup SIDAT.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- FILE INPUT -->
+
+            <label
+                for="restoreFile"
+                class="file-label"
+            >
+
+                <div class="file-icon">
+                    📁
+                </div>
+
+
+                <strong>
+                    Pilih File Backup
+                </strong>
+
+
+                <span>
+                    Format yang didukung:
+                    JSON
+                </span>
+
+            </label>
+
+
+            <input
+                type="file"
+                id="restoreFile"
+                accept=".json,application/json"
+                hidden
+            >
+
+
+
+            <!-- FILE INFO -->
+
+            <div
+                id="restoreFileInfo"
+                class="file-info hidden"
+            >
+
+                <div class="file-info-icon">
+                    📄
+                </div>
+
+
+                <div class="file-info-text">
+
+                    <strong id="restoreFileName">
+                        -
+                    </strong>
+
+                    <span id="restoreFileSize">
+                        -
+                    </span>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- PREVIEW -->
+
+            <div
+                id="restorePreview"
+                class="restore-preview hidden"
+            >
+
+                <h4>
+                    📋 Isi Backup
+                </h4>
+
+
+                <div class="backup-summary">
+
+
+                    <div class="summary-item">
+
+                        <span>
+                            Warga
+                        </span>
+
+                        <strong id="previewResidents">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-item">
+
+                        <span>
+                            KK
+                        </span>
+
+                        <strong id="previewHouseholds">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-item">
+
+                        <span>
+                            Kas
+                        </span>
+
+                        <strong id="previewCash">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-item">
+
+                        <span>
+                            Jimpitan
+                        </span>
+
+                        <strong id="previewJimpitan">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-item">
+
+                        <span>
+                            Laporan
+                        </span>
+
+                        <strong id="previewReports">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-item">
+
+                        <span>
+                            Pengumuman
+                        </span>
+
+                        <strong id="previewAnnouncements">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-item">
+
+                        <span>
+                            Notifikasi
+                        </span>
+
+                        <strong id="previewNotifications">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="restoreValidation"
+                    class="validation-message"
+                >
+                </div>
+
+            </div>
+
+
+
+            <!-- RESTORE WARNING -->
+
+            <div
+                id="restoreWarning"
+                class="warning-box hidden"
+            >
+
+                <strong>
+                    ⚠️ Perhatian
+                </strong>
+
+                <p>
+                    Restore akan memasukkan data dari
+                    file backup ke database SIDAT.
+                    Pastikan file yang dipilih adalah
+                    backup SIDAT yang benar.
+                </p>
+
+            </div>
+
+
+
+            <!-- RESTORE BUTTON -->
+
+            <button
+                type="button"
+                id="restoreButton"
+                class="btn-restore"
+                onclick="restoreData()"
+                disabled
+            >
+
+                ♻️
+                Restore Data
+
+            </button>
+
+
+            <div
+                id="restoreProgress"
+                class="progress hidden"
+            >
+
+                <div class="spinner">
+                    ⏳
+                </div>
+
+                <span>
+                    Memulihkan data...
+                </span>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- ==================================
+             CATATAN KEAMANAN
+        =================================== -->
+
+        <section class="security-card">
+
+            <div class="security-icon">
+                🔐
+            </div>
+
+
+            <div>
+
+                <h3>
+                    Catatan Keamanan
+                </h3>
+
+                <p>
+                    Simpan file backup di tempat
+                    yang aman. File backup dapat
+                    berisi data warga dan informasi
+                    administrasi SIDAT.
+                </p>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- ======================================
+         FOOTER
+    ======================================= -->
+
+    <footer>
+
+        <strong>
+            SIDAT
+        </strong>
+
+        <span>
+            Dibuat oleh Suwardi
+        </span>
+
+    </footer>
+
+
+</div>
+
+
+
+<!-- ==========================================
+     SUPABASE
+=========================================== -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+
+<script
+    src="../js/supabase-config.js"
+></script>
+
+
+
+<!-- ==========================================
+     JAVASCRIPT
+=========================================== -->
+
+<script
+    src="backup-restore.js"
+></script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,897 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+body {
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background:
+        #f1f5f9;
+
+    color:
+        #1e293b;
+
+    min-height:
+        100vh;
+}
+
+
+.app {
+
+    width:
+        100%;
+
+    max-width:
+        520px;
+
+    min-height:
+        100vh;
+
+    margin:
+        auto;
+
+    background:
+        #f8fafc;
+
+    padding-bottom:
+        30px;
+}
+
+
+/* HEADER */
+
+.header {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    padding:
+        15px 17px;
+
+    background:
+        #ffffff;
+
+    border-bottom:
+        1px solid #e2e8f0;
+
+    position:
+        sticky;
+
+    top:
+        0;
+
+    z-index:
+        20;
+}
+
+
+.header-left {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        10px;
+}
+
+
+.logo-box {
+
+    width:
+        43px;
+
+    height:
+        43px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        12px;
+
+    background:
+        #15803d;
+
+    color:
+        white;
+
+    font-size:
+        22px;
+
+    font-weight:
+        800;
+}
+
+
+.header h1 {
+
+    font-size:
+        17px;
+
+    color:
+        #14532d;
+}
+
+
+.header span {
+
+    display:
+        block;
+
+    margin-top:
+        2px;
+
+    font-size:
+        9px;
+
+    color:
+        #64748b;
+}
+
+
+.logout-small {
+
+    border:
+        none;
+
+    padding:
+        9px 12px;
+
+    border-radius:
+        9px;
+
+    background:
+        #fee2e2;
+
+    color:
+        #b91c1c;
+
+    font-size:
+        10px;
+
+    font-weight:
+        700;
+}
+
+
+/* CONTENT */
+
+.content {
+
+    padding:
+        15px;
+}
+
+
+/* WELCOME */
+
+.welcome-card {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    padding:
+        18px;
+
+    border-radius:
+        18px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #166534,
+            #15803d
+        );
+
+    color:
+        white;
+
+    box-shadow:
+        0 5px 15px
+        rgba(
+            0,
+            0,
+            0,
+            0.08
+        );
+}
+
+
+.small-title {
+
+    font-size:
+        9px;
+
+    font-weight:
+        700;
+
+    opacity:
+        0.75;
+
+    letter-spacing:
+        0.5px;
+}
+
+
+.welcome-card h2 {
+
+    margin-top:
+        5px;
+
+    font-size:
+        18px;
+}
+
+
+.welcome-card p {
+
+    margin-top:
+        5px;
+
+    font-size:
+        10px;
+
+    opacity:
+        0.8;
+}
+
+
+.admin-icon {
+
+    width:
+        53px;
+
+    height:
+        53px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        15px;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.15
+        );
+
+    font-size:
+        25px;
+}
+
+
+/* SECTION */
+
+.section {
+
+    margin-top:
+        18px;
+}
+
+
+.section-title {
+
+    margin-bottom:
+        9px;
+}
+
+
+.section-title h3 {
+
+    font-size:
+        13px;
+
+    color:
+        #334155;
+}
+
+
+/* STATISTICS */
+
+.stats-grid {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap:
+        10px;
+}
+
+
+.stat-card {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        10px;
+
+    padding:
+        14px;
+
+    background:
+        white;
+
+    border:
+        1px solid #e2e8f0;
+
+    border-radius:
+        14px;
+}
+
+
+.stat-icon {
+
+    width:
+        40px;
+
+    height:
+        40px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        11px;
+
+    background:
+        #dcfce7;
+
+    font-size:
+        18px;
+}
+
+
+.stat-card span {
+
+    display:
+        block;
+
+    font-size:
+        9px;
+
+    color:
+        #64748b;
+}
+
+
+.stat-card strong {
+
+    display:
+        inline-block;
+
+    margin-top:
+        3px;
+
+    font-size:
+        20px;
+
+    color:
+        #166534;
+}
+
+
+.stat-card small {
+
+    margin-left:
+        2px;
+
+    font-size:
+        9px;
+
+    color:
+        #64748b;
+}
+
+
+/* FINANCE */
+
+.finance-card {
+
+    padding:
+        15px;
+
+    background:
+        white;
+
+    border:
+        1px solid #e2e8f0;
+
+    border-radius:
+        15px;
+}
+
+
+.finance-item {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        12px;
+}
+
+
+.finance-icon {
+
+    width:
+        43px;
+
+    height:
+        43px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        12px;
+
+    background:
+        #f0fdf4;
+
+    font-size:
+        19px;
+}
+
+
+.finance-item span {
+
+    display:
+        block;
+
+    font-size:
+        9px;
+
+    color:
+        #64748b;
+}
+
+
+.finance-item strong {
+
+    display:
+        block;
+
+    margin-top:
+        3px;
+
+    font-size:
+        19px;
+
+    color:
+        #15803d;
+}
+
+
+.finance-item small {
+
+    display:
+        block;
+
+    margin-top:
+        3px;
+
+    font-size:
+        8px;
+
+    color:
+        #94a3b8;
+}
+
+
+.divider {
+
+    height:
+        1px;
+
+    margin:
+        13px 0;
+
+    background:
+        #e2e8f0;
+}
+
+
+/* MENU */
+
+.menu-grid {
+
+    display:
+        grid;
+
+    gap:
+        9px;
+}
+
+
+.menu-card {
+
+    width:
+        100%;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        11px;
+
+    padding:
+        13px;
+
+    border:
+        1px solid #e2e8f0;
+
+    border-radius:
+        14px;
+
+    background:
+        white;
+
+    text-align:
+        left;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.15s;
+}
+
+
+.menu-card:active {
+
+    transform:
+        scale(0.98);
+}
+
+
+.menu-icon {
+
+    width:
+        41px;
+
+    height:
+        41px;
+
+    flex-shrink:
+        0;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        11px;
+
+    background:
+        #f0fdf4;
+
+    font-size:
+        18px;
+}
+
+
+.menu-card div:nth-child(2) {
+
+    flex:
+        1;
+}
+
+
+.menu-card strong {
+
+    display:
+        block;
+
+    font-size:
+        12px;
+
+    color:
+        #1e293b;
+}
+
+
+.menu-card span {
+
+    display:
+        block;
+
+    margin-top:
+        3px;
+
+    font-size:
+        9px;
+
+    color:
+        #64748b;
+}
+
+
+.menu-card b {
+
+    font-size:
+        22px;
+
+    font-weight:
+        400;
+
+    color:
+        #94a3b8;
+}
+
+
+/* FOOTER */
+
+footer {
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    gap:
+        4px;
+
+    margin-top:
+        15px;
+
+    color:
+        #94a3b8;
+
+    font-size:
+        9px;
+}
+
+
+footer strong {
+
+    color:
+        #64748b;
+
+    font-size:
+        11px;
+}
+/* ==========================================
+   TOMBOL NOTIFIKASI ADMIN
+========================================== */
+
+.admin-notification-button {
+    position: relative !important;
+
+    width: 42px !important;
+    height: 42px !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    border: none !important;
+    border-radius: 12px !important;
+
+    background: #f0fdf4 !important;
+    color: #166534 !important;
+
+    font-size: 21px !important;
+    line-height: 1 !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    cursor: pointer !important;
+
+    box-sizing: border-box !important;
+
+    z-index: 100 !important;
+}
+
+
+/* ==========================================
+   BADGE NOTIFIKASI ADMIN
+========================================== */
+
+.admin-notification-button
+.admin-notification-badge {
+
+    position: absolute !important;
+
+    top: -5px !important;
+    right: -5px !important;
+
+    min-width: 21px !important;
+    width: 21px !important;
+
+    height: 21px !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    background: #dc2626 !important;
+    color: #ffffff !important;
+
+    border: 2px solid #ffffff !important;
+    border-radius: 50% !important;
+
+    font-family: Arial, sans-serif !important;
+
+    font-size: 11px !important;
+    font-weight: 800 !important;
+
+    line-height: 1 !important;
+    text-align: center !important;
+
+    box-sizing: border-box !important;
+
+    z-index: 9999 !important;
+}
+
+
+.admin-notification-button
+.admin-notification-badge.hidden {
+
+    display: none !important;
+
+}
+
+
+/* ==========================================
+   POSISI TOMBOL DI HEADER
+========================================== */
+
+.header {
+    position: relative !important;
+}
+
+
+.header .admin-notification-button {
+
+    position: absolute !important;
+
+    right: 70px !important;
+    top: 50% !important;
+
+    transform: translateY(-50%) !important;
+
+}
+
+
+/* ==========================================
+   HOVER
+========================================== */
+
+.admin-notification-button:hover {
+
+    background: #dcfce7 !important;
+
+}
+/* ==========================================
+   LOGO RT DINAMIS
+========================================== */
+
+.logo-box {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+
+    border-radius: 14px;
+
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(
+        --primary-color,
+        #15803d
+    );
+
+    color: #ffffff;
+
+    font-size: 22px;
+    font-weight: 800;
+}
+
+
+.logo-rt {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    display: block;
+}
+
+
+.logo-default {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.logo-rt.hidden {
+    display: none;
+}
+
+
+.logo-default.hidden {
+    display: none;
+}

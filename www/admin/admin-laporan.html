@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Laporan & Aduan Warga
+    </title>
+
+
+    <!-- ======================================
+         CSS
+    ======================================= -->
+
+    <link
+    rel="stylesheet"
+    href="admin-laporan.css?v=3"
+>
+<style>
+/* ==========================================
+   TOMBOL LIHAT DETAIL
+========================================== */
+
+#laporanList .btn-detail {
+
+    width: 100% !important;
+
+    min-height: 44px !important;
+
+    box-sizing: border-box !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    gap: 6px !important;
+
+    margin-top: 14px !important;
+
+    padding: 10px 16px !important;
+
+    background: #166534 !important;
+
+    color: #ffffff !important;
+
+    border: 1px solid #166534 !important;
+
+    border-radius: 11px !important;
+
+    font-family: inherit !important;
+
+    font-size: 13px !important;
+
+    font-weight: 700 !important;
+
+    line-height: 1 !important;
+
+    cursor: pointer !important;
+
+    appearance: none !important;
+
+    -webkit-appearance: none !important;
+
+    box-shadow:
+        0 3px 8px
+        rgba(22, 101, 52, 0.18) !important;
+
+}
+
+#laporanList .btn-detail:hover {
+
+    background: #15803d !important;
+
+    border-color: #15803d !important;
+
+}
+
+#laporanList .btn-detail:active {
+
+    background: #14532d !important;
+
+    transform: scale(0.98) !important;
+
+}
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- ==========================================
+     HEADER
+========================================== -->
+
+<header class="admin-header">
+
+    <div class="admin-header-left">
+
+        <button
+            type="button"
+            class="btn-back"
+            onclick="kembaliAdmin()"
+            aria-label="Kembali"
+        >
+            ‹
+        </button>
+
+
+        <div class="admin-header-title">
+
+            <strong>
+                Laporan & Aduan
+            </strong>
+
+            <span>
+                Kelola laporan warga
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <button
+        type="button"
+        id="refreshButton"
+        class="btn-refresh"
+        title="Muat ulang"
+    >
+        ↻
+    </button>
+
+</header>
+
+
+
+<!-- ==========================================
+     MAIN
+========================================== -->
+
+<main class="admin-container">
+
+
+    <!-- ======================================
+         JUDUL HALAMAN
+    ======================================= -->
+
+    <section class="page-intro">
+
+        <div class="page-intro-icon">
+            📢
+        </div>
+
+
+        <div>
+
+            <h1>
+                Laporan Warga
+            </h1>
+
+            <p>
+                Kelola laporan dan aduan dari seluruh warga.
+            </p>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ======================================
+         STATISTIK
+    ======================================= -->
+
+    <section class="report-statistics">
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                📋
+            </div>
+
+            <div class="stat-content">
+
+                <span>
+                    Total
+                </span>
+
+                <strong id="totalLaporan">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="stat-card stat-pending">
+
+            <div class="stat-icon">
+                🟡
+            </div>
+
+            <div class="stat-content">
+
+                <span>
+                    Menunggu
+                </span>
+
+                <strong id="totalPending">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="stat-card stat-process">
+
+            <div class="stat-icon">
+                🔵
+            </div>
+
+            <div class="stat-content">
+
+                <span>
+                    Diproses
+                </span>
+
+                <strong id="totalDiproses">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="stat-card stat-done">
+
+            <div class="stat-icon">
+                🟢
+            </div>
+
+            <div class="stat-content">
+
+                <span>
+                    Selesai
+                </span>
+
+                <strong id="totalSelesai">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ======================================
+         FILTER
+    ======================================= -->
+
+    <section class="filter-card">
+
+
+        <div class="search-wrapper">
+
+            <span class="search-icon">
+                🔎
+            </span>
+
+
+            <input
+                type="search"
+                id="searchLaporan"
+                placeholder="Cari judul, pelapor, atau ID warga..."
+                autocomplete="off"
+            >
+
+        </div>
+
+
+
+        <div class="filter-row">
+
+
+            <select
+                id="statusFilter"
+            >
+
+                <option value="">
+                    Semua Status
+                </option>
+
+                <option value="pending">
+                    Menunggu
+                </option>
+
+                <option value="processing">
+                    Diproses
+                </option>
+
+                <option value="completed">
+                    Selesai
+                </option>
+
+            </select>
+
+
+
+            <select
+                id="categoryFilter"
+            >
+
+                <option value="">
+                    Semua Kategori
+                </option>
+
+                <option value="Infrastruktur">
+                    Infrastruktur
+                </option>
+
+                <option value="Kebersihan">
+                    Kebersihan
+                </option>
+
+                <option value="Keamanan">
+                    Keamanan
+                </option>
+
+                <option value="Sosial">
+                    Sosial
+                </option>
+
+                <option value="Administrasi">
+                    Administrasi
+                </option>
+
+                <option value="Lainnya">
+                    Lainnya
+                </option>
+
+            </select>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ======================================
+         PESAN
+    ======================================= -->
+
+    <div
+        id="laporanMessage"
+        class="laporan-message hidden"
+    >
+    </div>
+
+
+
+    <!-- ======================================
+         LOADING
+    ======================================= -->
+
+    <div
+        id="laporanLoading"
+        class="laporan-loading"
+    >
+
+        <div class="loading-spinner">
+            ⏳
+        </div>
+
+        <p>
+            Memuat laporan...
+        </p>
+
+    </div>
+
+
+
+    <!-- ======================================
+         LIST LAPORAN
+    ======================================= -->
+
+    <section
+        id="laporanList"
+        class="laporan-list"
+    >
+    </section>
+
+
+
+    <!-- ======================================
+         EMPTY STATE
+    ======================================= -->
+
+    <section
+        id="laporanEmpty"
+        class="laporan-empty hidden"
+    >
+
+        <div class="empty-icon">
+            📭
+        </div>
+
+        <h3>
+            Belum ada laporan
+        </h3>
+
+        <p>
+            Tidak ditemukan laporan yang sesuai.
+        </p>
+
+    </section>
+
+
+
+</main>
+
+
+
+<!-- ==========================================
+     MODAL DETAIL LAPORAN
+========================================== -->
+
+<div
+    id="detailModal"
+    class="modal hidden"
+    aria-hidden="true"
+>
+
+
+    <div
+        class="modal-overlay"
+        onclick="tutupDetail()"
+    >
+    </div>
+
+
+    <div
+        class="modal-box"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="detailTitle"
+    >
+
+
+        <!-- ==================================
+             HEADER DETAIL
+        =================================== -->
+
+        <div class="modal-header">
+
+            <div>
+
+                <h2 id="detailTitle">
+                    Detail Laporan
+                </h2>
+
+                <p>
+                    Informasi laporan warga
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="closeDetailButton"
+                class="detail-close"
+                aria-label="Tutup"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+
+        <!-- ==================================
+             DETAIL CONTENT
+        =================================== -->
+
+        <div
+            id="detailContent"
+            class="detail-content"
+        >
+        </div>
+
+
+
+        <!-- ==================================
+             ADMIN ACTION
+        =================================== -->
+
+        <div class="admin-action">
+
+
+            <div class="form-group">
+
+                <label
+                    for="detailStatus"
+                >
+                    Status Laporan
+                </label>
+
+
+                <select
+                    id="detailStatus"
+                >
+
+                    <option value="pending">
+                        Menunggu
+                    </option>
+
+                    <option value="processing">
+                        Diproses
+                    </option>
+
+                    <option value="completed">
+                        Selesai
+                    </option>
+
+
+                </select>
+
+            </div>
+
+
+
+            <div class="form-group">
+
+                <label
+                    for="detailAdminNote"
+                >
+                    Tanggapan Admin
+                </label>
+
+
+                <textarea
+                    id="detailAdminNote"
+                    rows="4"
+                    placeholder="Tulis tanggapan untuk warga..."
+                ></textarea>
+
+            </div>
+
+
+
+            <div
+                id="detailActionMessage"
+                class="action-message hidden"
+            >
+            </div>
+
+
+
+            <div class="detail-actions">
+
+
+                <button
+                    type="button"
+                    class="btn-cancel"
+                    onclick="tutupDetail()"
+                >
+                    Batal
+                </button>
+
+
+<button
+    type="button"
+    id="saveReportButton"
+    class="btn-save"
+    onclick="simpanPerubahanLaporan()"
+>
+    💾 Simpan Perubahan
+</button>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- ==========================================
+     SUPABASE CONFIG
+========================================== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+
+
+<!-- ==========================================
+     JAVASCRIPT
+========================================== -->
+
+<script src="admin-laporan.js"></script>
+
+
+</body>
+
+</html>

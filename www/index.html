@@ -1,0 +1,366 @@
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#15803d"
+    >
+
+    <link
+        rel="manifest"
+        href="./manifest.json"
+    >
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="./install-pwa.css"
+    >
+
+    <title>SIDAT - Sistem Data Warga</title>
+
+</head>
+
+<body>
+
+<main class="app-container">
+
+    <!-- HEADER -->
+
+    <section class="welcome-section">
+
+        <div class="logo-wrapper">
+
+            <div class="logo-placeholder">
+                RT
+            </div>
+
+        </div>
+
+        <h1>SIDAT</h1>
+
+        <p>
+            Sistem Informasi Data Warga RT
+        </p>
+
+    </section>
+
+
+    <!-- PILIH LOGIN -->
+
+    <section
+        class="login-choice"
+        id="loginChoice"
+    >
+
+        <h2>Selamat Datang</h2>
+
+        <p class="subtitle">
+            Silakan pilih jenis akun untuk masuk
+        </p>
+
+
+        <button
+            class="login-card warga"
+            onclick="showWargaLogin()"
+        >
+
+            <div class="login-icon">
+                👤
+            </div>
+
+            <div class="login-card-text">
+
+                <strong>
+                    Login Warga
+                </strong>
+
+                <span>
+                    Masuk menggunakan ID & PIN
+                </span>
+
+            </div>
+
+            <div class="arrow">
+                ›
+            </div>
+
+        </button>
+
+
+        <button
+            class="login-card admin"
+            onclick="showAdminLogin()"
+        >
+
+            <div class="login-icon">
+                🛡️
+            </div>
+
+            <div class="login-card-text">
+
+                <strong>
+                    Login Admin
+                </strong>
+
+                <span>
+                    Kelola data dan administrasi RT
+                </span>
+
+            </div>
+
+            <div class="arrow">
+                ›
+            </div>
+
+        </button>
+
+    </section>
+
+
+    <!-- LOGIN WARGA -->
+
+    <section
+        class="login-form-section hidden"
+        id="wargaLogin"
+    >
+
+        <button
+            class="back-button"
+            onclick="showLoginChoice()"
+        >
+            ← Kembali
+        </button>
+
+
+        <div class="form-header">
+
+            <div class="form-icon warga-icon">
+                👤
+            </div>
+
+            <h2>Login Warga</h2>
+
+            <p>
+                Masukkan ID warga dan PIN Anda
+            </p>
+
+        </div>
+
+
+        <form id="wargaLoginForm">
+
+            <div class="input-group">
+
+                <label for="wargaId">
+                    ID Warga
+                </label>
+
+                <input
+                    type="text"
+                    id="wargaId"
+                    placeholder="Contoh: RT001"
+                    autocomplete="username"
+                    required
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label for="wargaPin">
+                    PIN
+                </label>
+
+                <div class="pin-wrapper">
+
+                    <input
+                        type="password"
+                        id="wargaPin"
+                        placeholder="PIN 4–6 digit"
+                        inputmode="numeric"
+                        maxlength="6"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        class="show-pin"
+                        onclick="togglePin()"
+                    >
+                        👁
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="wargaError"
+                class="error-message hidden"
+            ></div>
+
+
+            <button
+                type="submit"
+                class="primary-button"
+                id="wargaLoginButton"
+            >
+                MASUK
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <!-- LOGIN ADMIN -->
+
+    <section
+        class="login-form-section hidden"
+        id="adminLogin"
+    >
+
+        <button
+            class="back-button"
+            onclick="showLoginChoice()"
+        >
+            ← Kembali
+        </button>
+
+
+        <div class="form-header">
+
+            <div class="form-icon admin-icon">
+                🛡️
+            </div>
+
+            <h2>Login Admin</h2>
+
+            <p>
+                Masuk untuk mengelola administrasi RT
+            </p>
+
+        </div>
+
+
+        <form id="adminLoginForm">
+
+            <div class="input-group">
+
+                <label for="adminEmail">
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    id="adminEmail"
+                    placeholder="Email admin"
+                    autocomplete="username"
+                    required
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label for="adminPassword">
+                    Password
+                </label>
+
+                <div class="pin-wrapper">
+
+                    <input
+                        type="password"
+                        id="adminPassword"
+                        placeholder="Password admin"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        class="show-pin"
+                        onclick="toggleAdminPassword()"
+                    >
+                        👁
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="adminError"
+                class="error-message hidden"
+            ></div>
+
+
+            <button
+                type="submit"
+                class="primary-button"
+                id="adminLoginButton"
+            >
+                MASUK
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        <span>
+            SIDAT
+        </span>
+
+        <span>
+            Dibuat oleh Suwardi
+        </span>
+
+    </footer>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+    <script src="js/offline-db.js"></script>
+<script src="app.js"></script>
+<script src="./install-pwa.js"></script>
+<script>
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function() {
+        navigator.serviceWorker.register("./service-worker.js")
+            .then(function(registration) {
+                console.log("SIDAT: Service Worker aktif", registration.scope);
+            })
+            .catch(function(error) {
+                console.error("SIDAT: Service Worker gagal", error);
+            });
+    });
+}
+</script>
+
+</body>
+
+</html>

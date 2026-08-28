@@ -1,0 +1,724 @@
+/* ==========================================
+   SIDAT - PENGATURAN
+========================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    background: #f3f7f4;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background: #f3f7f4;
+    color: #1f2937;
+}
+
+.settings-container {
+    width: 100%;
+    max-width: 700px;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 14px;
+}
+
+
+/* ==========================================
+   HEADER
+========================================== */
+
+.top-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.back-button {
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
+
+    border: none;
+    border-radius: 15px;
+
+    background: #ffffff;
+    color: #166534;
+
+    font-size: 28px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.back-button:active {
+    transform: scale(0.96);
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.header-icon {
+    width: 46px;
+    height: 46px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 46px;
+
+    border-radius: 15px;
+
+    background: #dcfce7;
+
+    font-size: 22px;
+}
+
+.header-title h1 {
+    margin: 0;
+
+    font-size: 21px;
+
+    color: #14532d;
+}
+
+.header-title span {
+    display: block;
+
+    margin-top: 4px;
+
+    font-size: 12px;
+
+    color: #64748b;
+}
+
+
+/* ==========================================
+   CARD
+========================================== */
+
+.settings-card {
+    margin-bottom: 14px;
+    padding: 18px;
+
+    border-radius: 21px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+
+/* ==========================================
+   SECTION TITLE
+========================================== */
+
+.section-title {
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+
+    margin-bottom: 18px;
+}
+
+.section-icon {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 42px;
+
+    border-radius: 13px;
+
+    background: #dcfce7;
+
+    font-size: 19px;
+}
+
+.section-title h2 {
+    margin: 0;
+
+    font-size: 16px;
+
+    color: #1f2937;
+}
+
+.section-title p {
+    margin: 4px 0 0;
+
+    font-size: 11px;
+
+    line-height: 1.4;
+
+    color: #64748b;
+}
+
+
+/* ==========================================
+   FORM
+========================================== */
+
+.form-group {
+    margin-bottom: 14px;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 6px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    color: #475569;
+}
+
+.form-group input {
+    width: 100%;
+    height: 45px;
+
+    padding: 0 13px;
+
+    border: 1px solid #dfe7e2;
+    border-radius: 12px;
+
+    outline: none;
+
+    background: #f8fafc;
+
+    color: #1f2937;
+
+    font-size: 14px;
+
+    transition:
+        border-color 0.2s,
+        background 0.2s,
+        box-shadow 0.2s;
+}
+
+.form-group input::placeholder {
+    color: #94a3b8;
+}
+
+.form-group input:focus {
+    border-color: #22c55e;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 0 0 3px rgba(34, 197, 94, 0.10);
+}
+
+
+/* ==========================================
+   DUA KOLOM
+========================================== */
+
+.two-column {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 10px;
+}
+
+
+/* ==========================================
+   LOGO
+========================================== */
+
+.logo-upload-area {
+    display: flex;
+    align-items: center;
+
+    gap: 16px;
+
+    padding: 14px;
+
+    border: 1px dashed #bbf7d0;
+
+    border-radius: 17px;
+
+    background: #f8fffa;
+}
+
+.logo-preview-wrapper {
+    width: 90px;
+    height: 90px;
+
+    flex: 0 0 90px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    border-radius: 18px;
+
+    background: #dcfce7;
+
+    border: 1px solid #bbf7d0;
+}
+
+.logo-preview {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+
+    background: #ffffff;
+}
+
+.logo-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;
+
+    font-size: 32px;
+
+    color: #166534;
+}
+
+.logo-upload-info {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.logo-upload-info strong {
+    font-size: 14px;
+
+    color: #1f2937;
+}
+
+.logo-upload-info span {
+    font-size: 11px;
+
+    line-height: 1.4;
+
+    color: #64748b;
+}
+
+.upload-button {
+    width: fit-content;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 38px;
+
+    padding: 0 13px;
+
+    margin-top: 5px;
+
+    border-radius: 11px;
+
+    background: #dcfce7;
+
+    color: #166534;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.upload-button:active {
+    transform: scale(0.97);
+}
+
+
+/* ==========================================
+   THEME PICKER
+========================================== */
+
+.theme-picker {
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 14px;
+
+    border-radius: 16px;
+
+    background: #f8fafc;
+
+    border: 1px solid #edf2ef;
+}
+
+.theme-picker input[type="color"] {
+    width: 58px;
+    height: 48px;
+
+    padding: 3px;
+
+    border: 1px solid #dbe5df;
+
+    border-radius: 12px;
+
+    background: #ffffff;
+
+    cursor: pointer;
+}
+
+.theme-value {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+}
+
+.theme-value span {
+    width: 28px;
+    height: 28px;
+
+    display: block;
+
+    border-radius: 9px;
+
+    background: #15803d;
+
+    border: 2px solid #ffffff;
+
+    box-shadow:
+        0 2px 7px rgba(0, 0, 0, 0.12);
+}
+
+.theme-value strong {
+    font-size: 13px;
+
+    letter-spacing: 0.4px;
+
+    color: #334155;
+}
+
+
+/* ==========================================
+   LOADING
+========================================== */
+
+.loading-state {
+    min-height: 220px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 12px;
+
+    color: #64748b;
+
+    font-size: 13px;
+}
+
+.spinner {
+    width: 34px;
+    height: 34px;
+
+    border: 3px solid #dcfce7;
+
+    border-top-color: #15803d;
+
+    border-radius: 50%;
+
+    animation:
+        sidatSpin 0.8s linear infinite;
+}
+
+@keyframes sidatSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* ==========================================
+   ERROR
+========================================== */
+
+.error-state {
+    padding: 24px 18px;
+
+    margin-bottom: 15px;
+
+    text-align: center;
+
+    border-radius: 18px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 4px 18px rgba(0, 0, 0, 0.05);
+}
+
+.error-icon {
+    font-size: 30px;
+
+    margin-bottom: 8px;
+}
+
+.error-state strong {
+    display: block;
+
+    color: #991b1b;
+
+    font-size: 15px;
+}
+
+.error-state p {
+    margin: 7px 0 15px;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+
+    color: #64748b;
+}
+
+.error-state button {
+    height: 40px;
+
+    padding: 0 16px;
+
+    border: none;
+
+    border-radius: 11px;
+
+    background: #15803d;
+
+    color: #ffffff;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+/* ==========================================
+   PESAN FORM
+========================================== */
+
+.form-error,
+.form-success {
+    margin: 0 0 14px;
+
+    padding: 12px 14px;
+
+    border-radius: 12px;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+.form-error {
+    color: #991b1b;
+
+    background: #fef2f2;
+
+    border: 1px solid #fecaca;
+}
+
+.form-success {
+    color: #166534;
+
+    background: #f0fdf4;
+
+    border: 1px solid #bbf7d0;
+}
+
+
+/* ==========================================
+   TOMBOL SIMPAN
+========================================== */
+
+.save-area {
+    position: sticky;
+
+    bottom: 10px;
+
+    z-index: 5;
+
+    margin-bottom: 8px;
+}
+
+.save-button {
+    width: 100%;
+
+    height: 50px;
+
+    border: none;
+
+    border-radius: 15px;
+
+    background: #15803d;
+
+    color: #ffffff;
+
+    font-size: 14px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 22px rgba(21, 128, 61, 0.22);
+
+    transition:
+        transform 0.15s,
+        opacity 0.15s;
+}
+
+.save-button:active {
+    transform: scale(0.98);
+}
+
+.save-button:disabled {
+    opacity: 0.65;
+
+    cursor: not-allowed;
+}
+
+
+/* ==========================================
+   HIDDEN
+========================================== */
+
+.hidden {
+    display: none !important;
+}
+
+
+/* ==========================================
+   FOOTER
+========================================== */
+
+footer {
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 4px;
+
+    padding: 20px 0 12px;
+
+    text-align: center;
+
+    color: #94a3b8;
+
+    font-size: 11px;
+}
+
+footer strong {
+    color: #166534;
+
+    font-size: 14px;
+}
+
+footer small {
+    font-size: 10px;
+}
+
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 430px) {
+
+    .settings-container {
+        padding: 12px;
+    }
+
+    .settings-card {
+        padding: 16px;
+
+        border-radius: 19px;
+    }
+
+    .header-title h1 {
+        font-size: 19px;
+    }
+
+    .header-title span {
+        font-size: 11px;
+    }
+
+    .section-icon {
+        width: 40px;
+        height: 40px;
+        flex-basis: 40px;
+    }
+
+    .logo-upload-area {
+        align-items: flex-start;
+    }
+
+    .logo-preview-wrapper {
+        width: 78px;
+        height: 78px;
+        flex-basis: 78px;
+    }
+
+    .save-button {
+        height: 48px;
+    }
+}
+
+
+/* ==========================================
+   MOBILE KECIL
+========================================== */
+
+@media (max-width: 360px) {
+
+    .two-column {
+        grid-template-columns: 1fr;
+    }
+
+    .logo-upload-area {
+        flex-direction: column;
+    }
+
+    .logo-preview-wrapper {
+        width: 90px;
+        height: 90px;
+        flex-basis: 90px;
+    }
+
+}

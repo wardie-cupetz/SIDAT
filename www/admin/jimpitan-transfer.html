@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#15803d"
+    >
+
+    <title>SIDAT - Transfer Jimpitan</title>
+
+    <link
+        rel="stylesheet"
+        href="jimpitan-transfer.css"
+    >
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- HEADER -->
+
+    <header class="header">
+
+        <button
+            class="back-button"
+            onclick="kembaliDashboard()"
+        >
+            ‹
+        </button>
+
+
+        <div class="header-title">
+
+            <h1>
+                Jimpitan
+            </h1>
+
+            <span>
+                Transfer ke Kas RT
+            </span>
+
+        </div>
+
+
+        <div class="header-icon">
+            🪙
+        </div>
+
+    </header>
+
+
+
+    <!-- CONTENT -->
+
+    <main class="content">
+
+
+        <!-- RINGKASAN -->
+
+        <section class="summary-card">
+
+            <div class="summary-icon">
+                💰
+            </div>
+
+
+            <div class="summary-info">
+
+                <span>
+                    Belum Ditransfer ke Kas
+                </span>
+
+                <strong id="totalBelumTransfer">
+                    Rp 0
+                </strong>
+
+                <small id="jumlahBelumTransfer">
+                    0 transaksi
+                </small>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- INFORMASI -->
+
+        <div class="info-box">
+
+            <span>
+                ℹ️
+            </span>
+
+            <p>
+                Pilih transaksi jimpitan yang akan
+                dipindahkan ke saldo Kas RT.
+            </p>
+
+        </div>
+
+
+
+        <!-- DAFTAR TRANSAKSI -->
+
+        <section class="section">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>
+                        Jimpitan Belum Ditransfer
+                    </h2>
+
+                    <span>
+                        Pilih transaksi
+                    </span>
+
+                </div>
+
+
+                <button
+                    id="btnPilihSemua"
+                    class="select-all-button"
+                    type="button"
+                >
+                    Pilih Semua
+                </button>
+
+            </div>
+
+
+            <div
+                id="transactionList"
+                class="transaction-list"
+            >
+
+                <div class="loading">
+
+                    Memuat transaksi...
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- TOTAL PILIHAN -->
+
+        <section class="selected-card">
+
+            <div>
+
+                <span>
+                    Total dipilih
+                </span>
+
+                <strong id="totalDipilih">
+                    Rp 0
+                </strong>
+
+            </div>
+
+
+            <span
+                id="jumlahDipilih"
+                class="selected-count"
+            >
+                0 transaksi
+            </span>
+
+        </section>
+
+
+
+        <!-- TOMBOL TRANSFER -->
+
+        <button
+            id="btnTransfer"
+            class="transfer-button"
+            type="button"
+            disabled
+        >
+
+            💰 Transfer ke Kas RT
+
+        </button>
+
+
+
+        <!-- PESAN -->
+
+        <div
+            id="messageBox"
+            class="message-box"
+            hidden
+        ></div>
+
+
+    </main>
+
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        <strong>
+            SIDAT
+        </strong>
+
+        <span>
+            Dibuat oleh Suwardi
+        </span>
+
+    </footer>
+
+
+</div>
+
+
+
+<!-- KONFIGURASI SUPABASE -->
+
+<script
+    src="../js/supabase-config.js"
+></script>
+
+
+<!-- JAVASCRIPT HALAMAN -->
+
+<script
+    src="jimpitan-transfer.js"
+></script>
+
+
+</body>
+
+</html>

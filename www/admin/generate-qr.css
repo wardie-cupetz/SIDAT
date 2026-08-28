@@ -1,0 +1,600 @@
+/* ==========================================
+   SIDAT
+   GENERATE QR KK
+========================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    background: #f3f7f4;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background: #f3f7f4;
+    color: #1f2937;
+}
+
+.qr-container {
+    width: 100%;
+    max-width: 760px;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 14px;
+}
+
+
+/* ==========================================
+   HEADER
+========================================== */
+
+.top-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.back-button {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    border: none;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #166534;
+    font-size: 27px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,.06);
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: #dcfce7;
+    font-size: 22px;
+}
+
+.header-title h1 {
+    margin: 0;
+    color: #14532d;
+    font-size: 20px;
+}
+
+.header-title span {
+    display: block;
+    margin-top: 3px;
+    color: #64748b;
+    font-size: 12px;
+}
+
+
+/* ==========================================
+   INFO
+========================================== */
+
+.info-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+    padding: 15px;
+    border: 1px solid #bbf7d0;
+    border-radius: 18px;
+    background: #f0fdf4;
+}
+
+.info-icon {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #dcfce7;
+    font-size: 18px;
+}
+
+.info-card strong {
+    display: block;
+    color: #166534;
+    font-size: 14px;
+}
+
+.info-card p {
+    margin: 5px 0 0;
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+
+/* ==========================================
+   SEARCH
+========================================== */
+
+.search-card {
+    margin-bottom: 14px;
+    padding: 16px;
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 4px 18px rgba(0,0,0,.05);
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.section-icon {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #dcfce7;
+}
+
+.section-title strong {
+    display: block;
+    color: #1f2937;
+    font-size: 14px;
+}
+
+.section-title small {
+    display: block;
+    margin-top: 3px;
+    color: #64748b;
+    font-size: 10px;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.search-box > span {
+    position: absolute;
+    left: 13px;
+    font-size: 15px;
+    pointer-events: none;
+}
+
+.search-box input {
+    width: 100%;
+    height: 44px;
+    padding: 0 42px 0 38px;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    outline: none;
+    background: #f8fafc;
+    color: #1f2937;
+    font-size: 13px;
+}
+
+.search-box input:focus {
+    border-color: #22c55e;
+    background: #ffffff;
+}
+
+.clear-search {
+    position: absolute;
+    right: 8px;
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 9px;
+    background: #e2e8f0;
+    color: #475569;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+
+/* ==========================================
+   TOOLBAR
+========================================== */
+
+.select-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 13px;
+    padding-top: 12px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.select-all {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.select-all input {
+    width: 17px;
+    height: 17px;
+    accent-color: #15803d;
+}
+
+.selected-count {
+    padding: 5px 9px;
+    border-radius: 20px;
+    background: #dcfce7;
+    color: #166534;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+
+/* ==========================================
+   LIST
+========================================== */
+
+.resident-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-bottom: 90px;
+}
+
+.resident-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 17px;
+    background: #ffffff;
+    cursor: pointer;
+    transition: .15s ease;
+}
+
+.resident-item:hover {
+    border-color: #86efac;
+    background: #f0fdf4;
+}
+
+.resident-item.selected {
+    border-color: #22c55e;
+    background: #f0fdf4;
+    box-shadow: 0 3px 12px rgba(34,197,94,.10);
+}
+
+
+/* ==========================================
+   CHECKBOX
+========================================== */
+
+.resident-check {
+    width: 24px;
+    flex: 0 0 24px;
+}
+
+.resident-checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: #15803d;
+}
+
+
+/* ==========================================
+   AVATAR
+========================================== */
+
+.resident-avatar {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    background: #dcfce7;
+    font-size: 19px;
+}
+
+
+/* ==========================================
+   INFO WARGA
+========================================== */
+
+.resident-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.resident-info strong {
+    display: block;
+    overflow: hidden;
+    color: #1e293b;
+    font-size: 13px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.resident-info span,
+.resident-info small {
+    display: block;
+    margin-top: 3px;
+    color: #64748b;
+    font-size: 10px;
+}
+
+.resident-info small {
+    color: #94a3b8;
+}
+
+
+/* ==========================================
+   STATUS QR
+========================================== */
+
+.resident-qr-status {
+    flex: 0 0 auto;
+    padding: 5px 8px;
+    border-radius: 9px;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.qr-ready {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.qr-new {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+
+/* ==========================================
+   LOADING
+========================================== */
+
+.loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 35px 15px;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.spinner {
+    width: 22px;
+    height: 22px;
+    border: 3px solid #dcfce7;
+    border-top-color: #15803d;
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* ==========================================
+   EMPTY
+========================================== */
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    padding: 40px 15px;
+    color: #64748b;
+    text-align: center;
+}
+
+.empty-icon {
+    font-size: 34px;
+    margin-bottom: 3px;
+}
+
+.empty-state strong {
+    color: #334155;
+    font-size: 14px;
+}
+
+.empty-state span {
+    font-size: 11px;
+}
+
+
+/* ==========================================
+   ERROR
+========================================== */
+
+.error-state {
+    padding: 30px 15px;
+    text-align: center;
+}
+
+.error-icon {
+    font-size: 30px;
+}
+
+.error-state strong {
+    display: block;
+    margin-top: 8px;
+    color: #dc2626;
+}
+
+.error-state p {
+    color: #64748b;
+    font-size: 11px;
+}
+
+.error-state button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 10px;
+    background: #15803d;
+    color: #ffffff;
+    font-weight: 700;
+}
+
+
+/* ==========================================
+   PRINT BAR
+========================================== */
+
+.print-bar {
+    position: fixed;
+    left: 50%;
+    bottom: 12px;
+    z-index: 50;
+    width: calc(100% - 28px);
+    max-width: 732px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 12px 11px 15px;
+    border: 1px solid #d1fae5;
+    border-radius: 18px;
+    background: rgba(255,255,255,.96);
+    box-shadow: 0 8px 30px rgba(0,0,0,.12);
+    transform: translateX(-50%);
+    backdrop-filter: blur(8px);
+}
+
+.print-info {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.print-info strong {
+    min-width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: #dcfce7;
+    color: #166534;
+    font-size: 12px;
+}
+
+.print-info span {
+    color: #64748b;
+    font-size: 11px;
+}
+
+.print-button {
+    height: 40px;
+    padding: 0 17px;
+    border: none;
+    border-radius: 12px;
+    background: #15803d;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.print-button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+
+/* ==========================================
+   FOOTER
+========================================== */
+
+footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 25px 0 85px;
+    color: #94a3b8;
+    font-size: 11px;
+    text-align: center;
+}
+
+footer strong {
+    color: #166534;
+    font-size: 14px;
+}
+
+
+/* ==========================================
+   HIDDEN
+========================================== */
+
+.hidden {
+    display: none !important;
+}
+
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 430px) {
+
+    .qr-container {
+        padding: 11px;
+    }
+
+    .resident-item {
+        padding: 10px;
+        gap: 8px;
+    }
+
+    .resident-avatar {
+        width: 38px;
+        height: 38px;
+        flex-basis: 38px;
+    }
+
+    .resident-qr-status {
+        font-size: 8px;
+        padding: 4px 6px;
+    }
+
+    .print-bar {
+        width: calc(100% - 22px);
+    }
+
+    .print-button {
+        padding: 0 13px;
+    }
+
+}

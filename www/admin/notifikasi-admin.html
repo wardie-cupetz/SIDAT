@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Notifikasi Admin - SIDAT</title>
+
+    <link
+        rel="stylesheet"
+        href="notifikasi-admin.css"
+    >
+
+</head>
+
+<body>
+
+    <header class="top-header">
+
+        <button
+            type="button"
+            class="back-button"
+            onclick="kembaliDashboardAdmin()"
+        >
+            ‹
+        </button>
+
+        <div class="header-title">
+
+            <h1>Notifikasi</h1>
+
+            <p>Informasi terbaru untuk Admin RT</p>
+
+        </div>
+
+    </header>
+
+
+    <main class="container">
+
+        <section class="page-title">
+
+            <div class="title-icon">
+                🔔
+            </div>
+
+            <div>
+
+                <h2>
+                    Notifikasi Admin
+                </h2>
+
+                <p>
+                    Laporan dan informasi terbaru dari warga.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <section class="notification-summary">
+
+            <div class="summary-card">
+
+                <span class="summary-icon">
+                    🔴
+                </span>
+
+                <div>
+
+                    <strong id="unreadCount">
+                        0
+                    </strong>
+
+                    <small>
+                        Belum dibaca
+                    </small>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <div
+            id="notificationLoading"
+            class="notification-loading"
+        >
+
+            <div class="loading-icon">
+                ⏳
+            </div>
+
+            <p>
+                Memuat notifikasi...
+            </p>
+
+        </div>
+
+
+        <div
+            id="notificationMessage"
+            class="notification-message hidden"
+        >
+        </div>
+
+
+        <section
+            id="notificationList"
+            class="notification-list"
+        >
+        </section>
+
+
+        <section
+            id="notificationEmpty"
+            class="notification-empty hidden"
+        >
+
+            <div class="empty-icon">
+                📭
+            </div>
+
+            <h3>
+                Belum ada notifikasi
+            </h3>
+
+            <p>
+                Notifikasi laporan baru akan muncul di sini.
+            </p>
+
+        </section>
+
+    </main>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="../js/supabase-config.js"></script>
+
+    <script src="notifikasi-admin.js"></script>
+
+</body>
+
+</html>

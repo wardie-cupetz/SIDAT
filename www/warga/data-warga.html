@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#15803d"
+    >
+
+    <title>
+        SIDAT - Data Warga
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="data-warga.css"
+    >
+
+</head>
+
+<body>
+
+<div class="page-container">
+
+
+    <!-- =====================================
+         HEADER
+    ====================================== -->
+
+    <header class="top-header">
+
+        <button
+            type="button"
+            class="back-button"
+            onclick="kembaliDashboard()"
+            aria-label="Kembali"
+        >
+            ←
+        </button>
+
+
+        <div class="header-title">
+
+            <div class="header-icon">
+                👥
+            </div>
+
+            <div>
+
+                <h1>
+                    Data Warga
+                </h1>
+
+                <span>
+                    Data warga RT
+                </span>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================
+         INFO CARD
+    ====================================== -->
+
+    <section class="info-card">
+
+        <div class="info-icon">
+            👨‍👩‍👧‍👦
+        </div>
+
+        <div class="info-content">
+
+            <strong>
+                Informasi Warga
+            </strong>
+
+            <p>
+                Lihat nama dan nomor HP warga
+                beserta anggota keluarganya.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================
+         STATISTIK
+    ====================================== -->
+
+    <section class="summary-card">
+
+        <div class="summary-icon">
+            👥
+        </div>
+
+        <div class="summary-content">
+
+            <span>
+                Total Warga
+            </span>
+
+            <strong id="totalWarga">
+                0
+            </strong>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================
+         PENCARIAN
+    ====================================== -->
+
+    <section class="search-card">
+
+        <div class="search-label">
+            Cari Warga
+        </div>
+
+
+        <div class="search-box">
+
+            <span class="search-icon">
+                🔎
+            </span>
+
+            <input
+                type="search"
+                id="searchInput"
+                placeholder="Cari berdasarkan nama..."
+                autocomplete="off"
+            >
+
+            <button
+                type="button"
+                id="clearSearch"
+                class="clear-search hidden"
+                onclick="bersihkanPencarian()"
+                aria-label="Hapus pencarian"
+            >
+                ×
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================
+         STATUS
+    ====================================== -->
+
+    <div
+        id="loading"
+        class="loading-state"
+    >
+
+        <div class="loading-spinner"></div>
+
+        <span>
+            Memuat data warga...
+        </span>
+
+    </div>
+
+
+    <!-- =====================================
+         DAFTAR WARGA
+    ====================================== -->
+
+    <main
+        id="residentList"
+        class="resident-list"
+    ></main>
+
+
+    <!-- =====================================
+         EMPTY STATE
+    ====================================== -->
+
+    <section
+        id="emptyState"
+        class="empty-state hidden"
+    >
+
+        <div class="empty-icon">
+            🔍
+        </div>
+
+        <strong>
+            Data tidak ditemukan
+        </strong>
+
+        <p>
+            Tidak ada warga yang sesuai
+            dengan pencarian.
+        </p>
+
+    </section>
+
+
+    <!-- =====================================
+         ERROR STATE
+    ====================================== -->
+
+    <section
+        id="errorState"
+        class="error-state hidden"
+    >
+
+        <div class="error-icon">
+            ⚠️
+        </div>
+
+        <strong>
+            Gagal memuat data
+        </strong>
+
+        <p id="errorMessage">
+            Terjadi kesalahan saat mengambil
+            data warga.
+        </p>
+
+        <button
+            type="button"
+            class="retry-button"
+            onclick="muatDataWarga()"
+        >
+            Coba Lagi
+        </button>
+
+    </section>
+
+
+    <!-- =====================================
+         FOOTER
+    ====================================== -->
+
+    <footer class="page-footer">
+
+        <strong>
+            SIDAT
+        </strong>
+
+        <span>
+            Sistem Data Warga
+        </span>
+
+        <small>
+            Dibuat oleh Suwardi
+        </small>
+
+    </footer>
+
+
+</div>
+
+
+<!-- =====================================
+     SUPABASE CONFIG
+====================================== -->
+
+<script src="../js/supabase-config.js"></script>
+
+
+<!-- =====================================
+     DATA WARGA
+====================================== -->
+
+<script src="data-warga.js"></script>
+
+</body>
+
+</html>

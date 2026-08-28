@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#15803d"
+    >
+
+    <title>
+        SIDAT - Pengaturan
+    </title>
+
+
+    <!-- CSS -->
+
+    <link
+        rel="stylesheet"
+        href="pengaturan.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<div class="settings-container">
+
+
+    <!-- =====================================
+         HEADER
+    ====================================== -->
+
+    <header class="top-header">
+
+
+        <button
+            type="button"
+            class="back-button"
+            onclick="kembaliDashboard()"
+            aria-label="Kembali ke Dashboard"
+        >
+            ←
+        </button>
+
+
+        <div class="header-title">
+
+
+            <div class="header-icon">
+
+                ⚙️
+
+            </div>
+
+
+            <div>
+
+                <h1>
+                    Pengaturan
+                </h1>
+
+                <span>
+                    Pengaturan identitas RT
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+    </header>
+
+
+    <!-- =====================================
+         LOADING
+    ====================================== -->
+
+    <div
+        id="loadingState"
+        class="loading-state"
+    >
+
+        <div class="spinner"></div>
+
+        <span>
+            Memuat pengaturan...
+        </span>
+
+    </div>
+
+
+    <!-- =====================================
+         ERROR
+    ====================================== -->
+
+    <div
+        id="errorState"
+        class="error-state hidden"
+    >
+
+
+        <div class="error-icon">
+
+            ⚠️
+
+        </div>
+
+
+        <strong>
+            Gagal memuat pengaturan
+        </strong>
+
+
+        <p
+            id="errorMessage"
+        >
+            Terjadi kesalahan.
+        </p>
+
+
+        <button
+            type="button"
+            onclick="muatPengaturan()"
+        >
+            Coba Lagi
+        </button>
+
+
+    </div>
+
+
+    <!-- =====================================
+         FORM
+    ====================================== -->
+
+    <form
+        id="settingsForm"
+        class="settings-form hidden"
+        autocomplete="off"
+    >
+
+
+        <!-- =================================
+             IDENTITAS APLIKASI
+        ================================== -->
+
+        <section class="settings-card">
+
+
+            <div class="section-title">
+
+
+                <div class="section-icon">
+
+                    📱
+
+                </div>
+
+
+                <div>
+
+                    <h2>
+                        Identitas Aplikasi
+                    </h2>
+
+                    <p>
+                        Nama yang ditampilkan pada SIDAT
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="form-group">
+
+
+                <label
+                    for="namaAplikasi"
+                >
+                    Nama Aplikasi
+                </label>
+
+
+                <input
+                    type="text"
+                    id="namaAplikasi"
+                    maxlength="50"
+                    placeholder="Contoh: SIDAT"
+                >
+
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =================================
+             WILAYAH
+        ================================== -->
+
+        <section class="settings-card">
+
+
+            <div class="section-title">
+
+
+                <div class="section-icon">
+
+                    🏘️
+
+                </div>
+
+
+                <div>
+
+                    <h2>
+                        Wilayah
+                    </h2>
+
+                    <p>
+                        Informasi wilayah RT
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="form-group">
+
+
+                <label
+                    for="namaDusun"
+                >
+                    Dusun / Kampung
+                </label>
+
+
+                <input
+                    type="text"
+                    id="namaDusun"
+                    maxlength="100"
+                    placeholder="Masukkan nama dusun atau kampung"
+                >
+
+
+            </div>
+
+
+            <div class="form-group">
+
+
+                <label
+                    for="namaDesa"
+                >
+                    Desa / Kelurahan
+                </label>
+
+
+                <input
+                    type="text"
+                    id="namaDesa"
+                    maxlength="100"
+                    placeholder="Masukkan nama desa atau kelurahan"
+                >
+
+
+            </div>
+
+
+            <div class="two-column">
+
+
+                <div class="form-group">
+
+
+                    <label
+                        for="rt"
+                    >
+                        RT
+                    </label>
+
+
+                    <input
+                        type="text"
+                        id="rt"
+                        maxlength="10"
+                        placeholder="Contoh: 04"
+                    >
+
+
+                </div>
+
+
+                <div class="form-group">
+
+
+                    <label
+                        for="rw"
+                    >
+                        RW
+                    </label>
+
+
+                    <input
+                        type="text"
+                        id="rw"
+                        maxlength="10"
+                        placeholder="Contoh: 02"
+                    >
+
+
+                </div>
+
+
+            </div>
+
+
+            <div class="form-group">
+
+
+                <label
+                    for="kecamatan"
+                >
+                    Kecamatan
+                </label>
+
+
+                <input
+                    type="text"
+                    id="kecamatan"
+                    maxlength="100"
+                    placeholder="Masukkan nama kecamatan"
+                >
+
+
+            </div>
+
+
+            <div class="form-group">
+
+
+                <label
+                    for="kabupaten"
+                >
+                    Kabupaten / Kota
+                </label>
+
+
+                <input
+                    type="text"
+                    id="kabupaten"
+                    maxlength="100"
+                    placeholder="Masukkan nama kabupaten atau kota"
+                >
+
+
+            </div>
+
+
+            <div class="form-group">
+
+
+                <label
+                    for="provinsi"
+                >
+                    Provinsi
+                </label>
+
+
+                <input
+                    type="text"
+                    id="provinsi"
+                    maxlength="100"
+                    placeholder="Masukkan nama provinsi"
+                >
+
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =================================
+             PENGURUS RT
+        ================================== -->
+
+        <section class="settings-card">
+
+
+            <div class="section-title">
+
+
+                <div class="section-icon">
+
+                    👤
+
+                </div>
+
+
+                <div>
+
+                    <h2>
+                        Pengurus RT
+                    </h2>
+
+                    <p>
+                        Informasi pengurus utama RT
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="form-group">
+
+
+                <label
+                    for="namaKetuaRT"
+                >
+                    Nama Ketua RT
+                </label>
+
+
+                <input
+                    type="text"
+                    id="namaKetuaRT"
+                    maxlength="100"
+                    placeholder="Masukkan nama Ketua RT"
+                >
+
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =================================
+             LOGO RT
+        ================================== -->
+
+        <section class="settings-card">
+
+
+            <div class="section-title">
+
+
+                <div class="section-icon">
+
+                    🖼️
+
+                </div>
+
+
+                <div>
+
+                    <h2>
+                        Logo RT
+                    </h2>
+
+                    <p>
+                        Logo ditampilkan pada dashboard SIDAT
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="logo-upload-area">
+
+
+                <div class="logo-preview-wrapper">
+
+
+                    <img
+                        id="logoPreview"
+                        class="logo-preview hidden"
+                        src=""
+                        alt="Preview Logo RT"
+                    >
+
+
+                    <div
+                        id="logoPlaceholder"
+                        class="logo-placeholder"
+                    >
+
+                        🏘️
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="logo-upload-info">
+
+
+                    <strong>
+                        Upload Logo
+                    </strong>
+
+
+                    <span>
+                        JPG, PNG atau WEBP maksimal 2 MB
+                    </span>
+
+
+                    <label
+                        for="logoInput"
+                        class="upload-button"
+                    >
+
+                        📷 Pilih Logo
+
+                    </label>
+
+
+                    <input
+                        type="file"
+                        id="logoInput"
+                        accept="image/jpeg,image/png,image/webp"
+                        hidden
+                    >
+
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =================================
+             PESAN
+        ================================== -->
+
+        <div
+            id="formError"
+            class="form-error hidden"
+        ></div>
+
+
+        <div
+            id="formSuccess"
+            class="form-success hidden"
+        ></div>
+
+
+        <!-- =================================
+             SIMPAN
+        ================================== -->
+
+        <div class="save-area">
+
+
+            <button
+                type="submit"
+                id="saveButton"
+                class="save-button"
+            >
+
+                💾 Simpan Pengaturan
+
+            </button>
+
+
+        </div>
+
+
+    </form>
+
+
+    <!-- =====================================
+         FOOTER
+    ====================================== -->
+
+    <footer>
+
+
+        <strong>
+            SIDAT
+        </strong>
+
+
+        <span>
+            Sistem Informasi Data Warga
+        </span>
+
+
+        <small>
+            Dibuat oleh Suwardi
+        </small>
+
+
+    </footer>
+
+
+</div>
+
+
+<!-- ==========================================
+     SUPABASE
+========================================== -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+
+<script
+    src="../js/supabase-config.js"
+></script>
+
+
+<!-- ==========================================
+     JAVASCRIPT
+========================================== -->
+
+<script
+    src="pengaturan.js"
+></script>
+
+
+</body>
+
+</html>

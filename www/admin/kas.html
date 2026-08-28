@@ -1,0 +1,531 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<meta
+    name="theme-color"
+    content="#15803d"
+>
+
+<title>SIDAT - Kas RT</title>
+
+<link
+    rel="stylesheet"
+    href="kas.css"
+>
+
+</head><body><div class="app"><!-- HEADER -->
+
+<header class="header">
+
+    <div class="header-left">
+
+        <button
+            class="back-button"
+            onclick="kembaliDashboard()"
+        >
+            ‹
+        </button>
+
+        <div>
+
+            <h1>
+                Kas RT
+            </h1>
+
+            <span>
+                Arus kas dan saldo RT
+            </span>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- CONTENT -->
+
+<main class="content">
+
+
+    <!-- SALDO -->
+
+    <section class="balance-card">
+
+        <span>
+            Saldo Kas RT
+        </span>
+
+        <strong id="saldoKas">
+            Rp 0
+        </strong>
+
+        <small>
+            Saldo kas saat ini
+        </small>
+
+    </section>
+
+
+    <!-- STATISTIK -->
+
+    <section class="stats-grid">
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                📥
+            </div>
+
+            <div>
+
+                <span>
+                    Kas Masuk
+                </span>
+
+                <strong id="totalMasuk">
+                    Rp 0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                📤
+            </div>
+
+            <div>
+
+                <span>
+                    Kas Keluar
+                </span>
+
+                <strong id="totalKeluar">
+                    Rp 0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+    <!-- TAMBAH TRANSAKSI -->
+
+    <section class="section">
+
+        <div class="section-title">
+
+            <div>
+
+                <h2>
+                    Tambah Transaksi
+                </h2>
+
+                <p>
+                    Catat pemasukan atau pengeluaran kas RT
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form
+            id="formKas"
+            class="kas-form"
+        >
+
+
+            <!-- JENIS -->
+
+            <div class="form-group">
+
+                <label for="jenisKas">
+                    Jenis Transaksi
+                </label>
+
+                <select
+                    id="jenisKas"
+                    required
+                >
+
+                    <option value="income">
+                        Kas Masuk
+                    </option>
+
+                    <option value="expense">
+                        Kas Keluar
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- KATEGORI -->
+
+            <div class="form-group">
+
+                <label for="kategoriKas">
+                    Kategori
+                </label>
+
+                <input
+                    type="text"
+                    id="kategoriKas"
+                    placeholder="Contoh: Iuran RT"
+                    required
+                >
+
+            </div>
+
+
+            <!-- NOMINAL -->
+
+            <div class="form-group">
+
+                <label for="nominalKas">
+                    Nominal
+                </label>
+
+                <input
+                    type="number"
+                    id="nominalKas"
+                    min="1"
+                    inputmode="numeric"
+                    placeholder="Masukkan nominal"
+                    required
+                >
+
+            </div>
+
+
+            <!-- TANGGAL -->
+
+            <div class="form-group">
+
+                <label for="tanggalKas">
+                    Tanggal
+                </label>
+
+                <input
+                    type="date"
+                    id="tanggalKas"
+                    required
+                >
+
+            </div>
+
+
+            <!-- KETERANGAN -->
+
+            <div class="form-group">
+
+                <label for="keteranganKas">
+                    Keterangan
+                </label>
+
+                <textarea
+                    id="keteranganKas"
+                    rows="3"
+                    placeholder="Keterangan transaksi..."
+                ></textarea>
+
+            </div>
+
+
+            <!-- SIMPAN -->
+
+            <button
+                type="submit"
+                id="btnSimpanKas"
+                class="btn-simpan"
+            >
+                Simpan Transaksi
+            </button>
+
+
+        </form>
+
+    </section>
+
+
+    <!-- FILTER RIWAYAT -->
+
+    <section class="section">
+
+        <div class="section-title">
+
+            <div>
+
+                <h2>
+                    Filter Riwayat Kas
+                </h2>
+
+                <p>
+                    Pilih periode dan jenis transaksi
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="filter-kas">
+
+
+            <!-- TANGGAL MULAI -->
+
+            <div class="form-group">
+
+                <label for="filterTanggalMulai">
+                    Tanggal Mulai
+                </label>
+
+                <input
+                    type="date"
+                    id="filterTanggalMulai"
+                >
+
+            </div>
+
+
+            <!-- TANGGAL AKHIR -->
+
+            <div class="form-group">
+
+                <label for="filterTanggalAkhir">
+                    Tanggal Akhir
+                </label>
+
+                <input
+                    type="date"
+                    id="filterTanggalAkhir"
+                >
+
+            </div>
+
+
+            <!-- JENIS -->
+
+            <div class="form-group">
+
+                <label for="filterJenisKas">
+                    Jenis Transaksi
+                </label>
+
+                <select
+                    id="filterJenisKas"
+                >
+
+                    <option value="all">
+                        Semua Transaksi
+                    </option>
+
+                    <option value="income">
+                        Kas Masuk
+                    </option>
+
+                    <option value="expense">
+                        Kas Keluar
+                    </option>
+
+                    <option value="jimpitan_transfer">
+                        Transfer Jimpitan
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- BUTTON -->
+
+            <div class="filter-buttons">
+
+
+                <button
+                    type="button"
+                    id="btnTerapkanFilter"
+                    class="btn-filter"
+                >
+                    Terapkan Filter
+                </button>
+
+
+                <button
+                    type="button"
+                    id="btnResetFilter"
+                    class="btn-reset"
+                >
+                    Reset
+                </button>
+
+
+                <button
+                    type="button"
+                    id="btnExportKas"
+                    class="btn-export"
+                >
+                    📥 Export CSV
+                </button>
+<button
+    type="button"
+    id="btnCetakKas"
+    class="btn-cetak"
+>
+    🖨️ Cetak Laporan
+</button>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+    <!-- REKAP FILTER -->
+
+    <section
+        class="filter-summary"
+        id="filterSummary"
+    >
+
+
+        <div>
+
+            <span>
+                Transaksi
+            </span>
+
+            <strong id="jumlahFilter">
+                0
+            </strong>
+
+        </div>
+
+
+        <div>
+
+            <span>
+                Masuk
+            </span>
+
+            <strong id="filterMasuk">
+                Rp 0
+            </strong>
+
+        </div>
+
+
+        <div>
+
+            <span>
+                Keluar
+            </span>
+
+            <strong id="filterKeluar">
+                Rp 0
+            </strong>
+
+        </div>
+
+
+        <div>
+
+            <span>
+                Saldo Periode
+            </span>
+
+            <strong id="filterSaldo">
+                Rp 0
+            </strong>
+
+        </div>
+
+
+    </section>
+
+
+    <!-- RIWAYAT -->
+
+    <section class="section">
+
+
+        <div class="section-title">
+
+            <div>
+
+                <h2>
+                    Riwayat Kas
+                </h2>
+
+                <p id="judulRiwayat">
+                    Seluruh transaksi kas RT
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div id="loading">
+            Memuat transaksi...
+        </div>
+
+
+        <div
+            id="emptyState"
+            class="empty-state"
+            style="display:none;"
+        >
+            Belum ada transaksi kas.
+        </div>
+
+
+        <div
+            id="riwayatKas"
+            class="transaction-list"
+        ></div>
+
+
+    </section>
+
+
+</main>
+
+
+<!-- FOOTER -->
+
+<footer>
+
+    <strong>
+        SIDAT
+    </strong>
+
+    <span>
+        Dibuat oleh Suwardi
+    </span>
+
+</footer>
+
+</div><!-- SUPABASE LIBRARY --><script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script><!-- SUPABASE CONFIG --><script
+    src="../js/supabase-config.js"
+></script><!-- KAS JS --><script
+    src="kas.js"
+></script></body></html>

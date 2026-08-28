@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#15803d"
+    >
+
+    <title>SIDAT - Scan QR Jimpitan</title>
+
+    <link
+        rel="stylesheet"
+        href="scan-jimpitan.css"
+    >
+
+</head>
+
+<body>
+
+<div class="page-container">
+
+
+    <!-- HEADER -->
+
+    <header class="page-header">
+
+        <button
+            class="back-button"
+            onclick="kembaliDashboard()"
+        >
+            ‹
+        </button>
+
+        <div>
+
+            <h1>
+                Scan QR Jimpitan
+            </h1>
+
+            <span>
+                Pengambilan jimpitan warga
+            </span>
+
+        </div>
+
+    </header>
+
+
+    <!-- SCANNER -->
+
+    <section class="scanner-card">
+
+        <div
+            id="reader"
+            class="reader"
+        ></div>
+        <div class="scanner-controls">
+
+    <button
+        type="button"
+        id="btnTorch"
+        class="btn-secondary"
+        onclick="toggleTorch()"
+    >
+        🔦 Nyalakan Senter
+    </button>
+
+</div>
+
+        <p id="scannerStatus">
+            Arahkan kamera ke QR jimpitan warga
+        </p>
+
+    </section>
+
+<!-- INPUT KODE MANUAL -->
+
+<div class="manual-code-section">
+
+    <div class="manual-title">
+        Tidak bisa scan QR?
+    </div>
+
+    <p>
+        Masukkan kode jimpitan warga secara manual.
+    </p>
+
+    <div class="manual-input-row">
+
+        <input
+            type="text"
+            id="manualQrCode"
+            placeholder="Contoh: JMP-852D8D10F71B4666"
+            autocomplete="off"
+            autocapitalize="characters"
+        >
+
+        <button
+            type="button"
+            onclick="cariKodeManual()"
+        >
+            Cari
+        </button>
+
+    </div>
+
+</div>
+
+    <!-- HASIL SCAN -->
+
+    <section
+        id="resultCard"
+        class="result-card hidden"
+    >
+
+        <div class="result-title">
+            QR berhasil ditemukan
+        </div>
+
+
+        <div class="resident-box">
+
+            <div class="resident-icon">
+                👤
+            </div>
+
+            <div>
+
+                <span>
+                    Warga
+                </span>
+
+                <strong id="residentName">
+                    -
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <label for="amount">
+            Nominal Jimpitan
+        </label>
+
+        <div class="amount-input">
+
+            <span>
+                Rp
+            </span>
+
+            <input
+                type="number"
+                id="amount"
+                value="500"
+                min="1"
+                step="100"
+            >
+
+        </div>
+
+
+        <label for="notes">
+            Catatan (opsional)
+        </label>
+
+        <textarea
+            id="notes"
+            placeholder="Contoh: jimpitan hari Kamis"
+        ></textarea>
+
+
+        <button
+            id="saveButton"
+            class="save-button"
+            onclick="simpanJimpitan()"
+        >
+            Simpan Jimpitan
+        </button>
+
+
+        <button
+            class="cancel-button"
+            onclick="scanUlang()"
+        >
+            Scan QR Lain
+        </button>
+
+    </section>
+
+
+    <!-- PETUNJUK -->
+
+    <section class="info-card">
+
+        <strong>
+            Cara menggunakan
+        </strong>
+
+        <ol>
+
+            <li>
+                Arahkan kamera ke QR warga.
+            </li>
+
+            <li>
+                Pastikan nama warga sesuai.
+            </li>
+
+            <li>
+                Nominal otomatis Rp500.
+            </li>
+
+            <li>
+                Ubah nominal jika tidak sesuai.
+            </li>
+
+            <li>
+                Tekan Simpan Jimpitan.
+            </li>
+
+        </ol>
+
+    </section>
+
+
+    <footer>
+
+        <strong>
+            SIDAT
+        </strong>
+
+        <span>
+            Dibuat oleh Suwardi
+        </span>
+
+    </footer>
+
+
+</div>
+
+
+<script
+    src="https://unpkg.com/html5-qrcode"
+></script>
+
+<script
+    src="../js/supabase-config.js"
+></script>
+
+<script
+    src="scan-jimpitan.js"
+></script>
+
+</body>
+
+</html>

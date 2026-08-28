@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#15803d"
+    >
+
+    <title>
+        SIDAT - Data Warga
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="data-warga.css"
+    >
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- ==========================================
+         HEADER
+    =========================================== -->
+
+    <header class="header">
+
+        <button
+            class="back-btn"
+            type="button"
+            onclick="kembaliDashboard()"
+        >
+            ‹
+        </button>
+
+
+        <div class="header-title">
+
+            <h1>
+                Data Warga
+            </h1>
+
+            <span>
+                SIDAT - Administrasi RT
+            </span>
+
+        </div>
+
+    </header>
+
+
+    <!-- ==========================================
+         CONTENT
+    =========================================== -->
+
+    <main class="content">
+
+
+        <!-- ======================================
+             JUDUL & TOMBOL TAMBAH
+        ======================================= -->
+
+<section class="title-card">
+
+    <div>
+
+        <h2>
+            Data Warga
+        </h2>
+
+        <p>
+            Kelola data KK dan warga dalam satu keluarga.
+        </p>
+
+    </div>
+
+
+    <div class="title-actions">
+
+    <button
+        id="btnExportWarga"
+        class="btn-secondary"
+        type="button"
+        onclick="exportDataWarga()"
+    >
+        📤 Export CSV
+    </button>
+
+    <button
+        id="btnExportExcelWarga"
+        class="btn-secondary"
+        type="button"
+        onclick="exportDataWargaExcel()"
+    >
+        📊 Export Excel
+    </button>
+
+    <button
+        id="btnImportWarga"
+        class="btn-secondary"
+        type="button"
+        onclick="bukaImportWarga()"
+    >
+        📥 Import CSV / Excel
+    </button>
+
+    <button
+        id="btnTambahWarga"
+        class="btn-primary"
+        type="button"
+        onclick="bukaTambahWarga()"
+    >
+        ＋ Tambah Warga
+    </button>
+
+</div>
+
+</section>
+
+        <!-- ======================================
+             RINGKASAN
+        ======================================= -->
+
+        <section class="summary-grid">
+
+            <div class="summary-card">
+
+                <span>
+                    👥
+                </span>
+
+                <div>
+
+                    <strong
+                        id="jumlahWarga"
+                    >
+                        0
+                    </strong>
+
+                    <small>
+                        Warga
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span>
+                    🏠
+                </span>
+
+                <div>
+
+                    <strong
+                        id="jumlahKK"
+                    >
+                        0
+                    </strong>
+
+                    <small>
+                        KK
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span>
+                    👑
+                </span>
+
+                <div>
+
+                    <strong
+                        id="jumlahKepala"
+                    >
+                        0
+                    </strong>
+
+                    <small>
+                        Kepala Keluarga
+                    </small>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ======================================
+             SEARCH
+        ======================================= -->
+
+        <section class="search-box">
+
+            <span>
+                🔎
+            </span>
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Cari nama, ID, NIK, atau nomor KK..."
+                autocomplete="off"
+            >
+
+        </section>
+
+
+        <!-- ======================================
+             FILTER
+        ======================================= -->
+
+        <section class="filter-bar">
+
+            <button
+                type="button"
+                class="filter-btn active"
+                data-filter="all"
+                onclick="filterKK('all')"
+            >
+                Semua KK
+            </button>
+
+
+            <button
+                type="button"
+                class="filter-btn"
+                data-filter="lengkap"
+                onclick="filterKK('lengkap')"
+            >
+                KK Lengkap
+            </button>
+
+
+            <button
+                type="button"
+                class="filter-btn"
+                data-filter="tanpa-kepala"
+                onclick="filterKK('tanpa-kepala')"
+            >
+                Tanpa Kepala
+            </button>
+
+        </section>
+
+
+        <!-- ======================================
+             LOADING
+        ======================================= -->
+
+        <div
+            id="loading"
+            class="loading"
+        >
+
+            Memuat data KK...
+
+        </div>
+
+
+        <!-- ======================================
+             LIST KK
+        ======================================= -->
+
+        <section
+            id="householdList"
+            class="household-list"
+        >
+        </section>
+
+
+        <!-- ======================================
+             EMPTY STATE
+        ======================================= -->
+
+        <div
+            id="emptyState"
+            class="empty-state hidden"
+        >
+
+            <div>
+                🏠
+            </div>
+
+            <strong>
+                Data KK tidak ditemukan
+            </strong>
+
+            <span>
+                Belum ada data keluarga yang sesuai.
+            </span>
+
+        </div>
+
+
+    </main>
+
+
+    <!-- ==========================================
+         FOOTER
+    =========================================== -->
+
+    <footer>
+
+        <strong>
+            SIDAT
+        </strong>
+
+        <span>
+            Dibuat oleh Suwardi
+        </span>
+
+    </footer>
+
+
+</div>
+
+
+
+<!-- ==================================================
+     MODAL TAMBAH WARGA
+=================================================== -->
+
+<div
+    id="wargaModal"
+    class="modal hidden"
+>
+
+    <div class="modal-content">
+
+
+        <button
+            type="button"
+            class="close-btn"
+            onclick="tutupWargaModal()"
+        >
+            ×
+        </button>
+
+
+        <div class="modal-header">
+
+            <span>
+                DATA WARGA
+            </span>
+
+            <h2>
+                Tambah Warga
+            </h2>
+
+            <p>
+                Tambahkan warga baru atau gunakan data warga yang sudah ada.
+            </p>
+
+        </div>
+
+
+        <!-- ======================================
+             SUMBER DATA
+        ======================================= -->
+
+        <div class="form-group">
+
+            <label>
+                Sumber Data
+            </label>
+
+
+            <div class="source-options">
+
+                <label class="source-option">
+
+                    <input
+                        type="radio"
+                        name="sumberData"
+                        value="manual"
+                        checked
+                        onchange="ubahSumberData('manual')"
+                    >
+
+                    <span>
+
+                        <strong>
+                            Input Manual
+                        </strong>
+
+                        <small>
+                            Masukkan data warga baru
+                        </small>
+
+                    </span>
+
+                </label>
+
+
+                <label class="source-option">
+
+                    <input
+                        type="radio"
+                        name="sumberData"
+                        value="existing"
+                        onchange="ubahSumberData('existing')"
+                    >
+
+                    <span>
+
+                        <strong>
+                            Pilih Warga yang Sudah Ada
+                        </strong>
+
+                        <small>
+                            Gunakan data dari daftar warga
+                        </small>
+
+                    </span>
+
+                </label>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ==================================================
+             MODE PILIH WARGA YANG SUDAH ADA
+        =================================================== -->
+
+        <div
+            id="existingResidentSection"
+            class="existing-resident-section hidden"
+        >
+
+            <div class="form-group">
+
+                <label>
+                    Pilih Warga
+                </label>
+
+
+                <input
+                    type="text"
+                    id="existingResidentSearch"
+                    placeholder="Cari nama, NIK, atau ID..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <div
+                id="existingResidentList"
+                class="existing-resident-list"
+            >
+            </div>
+
+
+            <input
+                type="hidden"
+                id="selectedResidentId"
+            >
+
+        </div>
+
+
+
+        <!-- ==================================================
+             DATA PRIBADI
+        =================================================== -->
+
+        <div id="manualResidentSection">
+
+
+            <div class="form-group">
+
+                <label for="wargaNama">
+                    Nama Lengkap *
+                </label>
+
+                <input
+                    type="text"
+                    id="wargaNama"
+                    placeholder="Masukkan nama lengkap"
+                    autocomplete="name"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="wargaNik">
+                        NIK
+                    </label>
+
+                    <input
+                        type="text"
+                        id="wargaNik"
+                        placeholder="16 digit NIK"
+                        inputmode="numeric"
+                        maxlength="16"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="wargaPhone">
+                        Nomor HP
+                    </label>
+
+                    <input
+                        type="tel"
+                        id="wargaPhone"
+                        placeholder="08xxxxxxxxxx"
+                        inputmode="tel"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="wargaBirthPlace">
+                        Tempat Lahir
+                    </label>
+
+                    <input
+                        type="text"
+                        id="wargaBirthPlace"
+                        placeholder="Contoh: Klaten"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="wargaBirthDate">
+                        Tanggal Lahir
+                    </label>
+
+                    <input
+                        type="date"
+                        id="wargaBirthDate"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="wargaGender">
+                    Jenis Kelamin *
+                </label>
+
+                <select
+                    id="wargaGender"
+                    required
+                >
+
+                    <option value="">
+                        Pilih jenis kelamin
+                    </option>
+
+                    <option value="L">
+                        Laki-laki
+                    </option>
+
+                    <option value="P">
+                        Perempuan
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ==================================================
+             DATA KK
+        =================================================== -->
+
+        <div class="section-divider">
+
+            <span>
+                DATA KELUARGA
+            </span>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="wargaFamilyStatus">
+                Status Dalam Keluarga *
+            </label>
+
+            <select
+                id="wargaFamilyStatus"
+                onchange="ubahStatusKeluarga()"
+                required
+            >
+
+                <option value="">
+                    Pilih status
+                </option>
+
+                <option value="Kepala Keluarga">
+                    Kepala Keluarga
+                </option>
+
+                <option value="Istri">
+                    Istri
+                </option>
+
+                <option value="Anak">
+                    Anak
+                </option>
+
+                <option value="Orang Tua">
+                    Orang Tua
+                </option>
+
+                <option value="Saudara">
+                    Saudara
+                </option>
+
+                <option value="Anggota Keluarga">
+                    Anggota Keluarga
+                </option>
+
+            </select>
+
+        </div>
+
+
+
+        <!-- ======================================
+             KK MANUAL
+        ======================================= -->
+
+        <div
+            id="kkManualSection"
+            class="form-group hidden"
+        >
+
+            <label for="wargaKKManual">
+                Nomor KK Baru *
+            </label>
+
+            <input
+                type="text"
+                id="wargaKKManual"
+                placeholder="Masukkan 16 digit nomor KK"
+                inputmode="numeric"
+                maxlength="16"
+            >
+
+            <small>
+                KK baru akan dibuat otomatis setelah Kepala Keluarga disimpan.
+            </small>
+
+        </div>
+
+
+
+        <!-- ======================================
+             PILIH KK
+        ======================================= -->
+
+        <div
+            id="kkSelectSection"
+            class="form-group hidden"
+        >
+
+            <label for="wargaKK">
+                Nomor KK *
+            </label>
+
+            <select
+                id="wargaKK"
+            >
+
+                <option value="">
+                    Pilih KK
+                </option>
+
+            </select>
+
+            <small>
+                Pilih KK yang sudah terdaftar.
+            </small>
+
+        </div>
+
+
+
+        <!-- ======================================
+             ALAMAT
+        ====================================== -->
+
+        <div class="form-group">
+
+            <label for="wargaAddress">
+                Alamat
+            </label>
+
+            <textarea
+                id="wargaAddress"
+                rows="3"
+                placeholder="Masukkan alamat lengkap"
+            ></textarea>
+
+        </div>
+
+
+
+        <!-- ======================================
+             INFORMASI AKUN
+        ====================================== -->
+
+        <div
+            id="accountInfo"
+            class="info-box"
+        >
+
+            <div>
+                🔐
+            </div>
+
+            <div>
+
+                <strong>
+                    Akun Login
+                </strong>
+
+                <p>
+                    Hanya Kepala Keluarga yang memiliki akun login warga.
+                    Anggota keluarga tidak dibuatkan akun.
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ======================================
+             ERROR
+        ====================================== -->
+
+        <div
+            id="wargaFormError"
+            class="form-error hidden"
+        >
+        </div>
+
+
+
+        <!-- ======================================
+             ACTION
+        ====================================== -->
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                class="btn-secondary"
+                onclick="tutupWargaModal()"
+            >
+                Batal
+            </button>
+
+
+            <button
+                type="button"
+                id="btnSimpanWarga"
+                class="btn-primary"
+                onclick="simpanFormWarga()"
+            >
+                Simpan Warga
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ==================================================
+     MODAL DETAIL KK
+=================================================== -->
+
+<div
+    id="householdModal"
+    class="modal hidden"
+>
+
+    <div class="modal-content household-modal">
+
+
+        <button
+            type="button"
+            class="close-btn"
+            onclick="tutupDetailKK()"
+        >
+            ×
+        </button>
+
+
+        <div class="modal-header">
+
+            <span>
+                DETAIL KARTU KELUARGA
+            </span>
+
+            <h2 id="detailKKNumber">
+                -
+            </h2>
+
+            <p id="detailKKAddress">
+                -
+            </p>
+
+        </div>
+
+
+        <!-- ======================================
+             KEPALA KELUARGA
+        ======================================= -->
+
+        <div class="detail-section">
+
+            <div class="section-title">
+
+                <strong>
+                    👑 Kepala Keluarga
+                </strong>
+
+            </div>
+
+
+            <div
+                id="headResident"
+                class="head-resident"
+            >
+            </div>
+
+        </div>
+
+
+
+        <!-- ======================================
+             ANGGOTA
+        ======================================= -->
+
+        <div class="detail-section">
+
+            <div class="section-title">
+
+                <strong>
+                    👥 Anggota Keluarga
+                </strong>
+
+                <span
+                    id="memberCount"
+                >
+                    0 orang
+                </span>
+
+            </div>
+
+
+            <div
+                id="familyMemberList"
+                class="family-member-list"
+            >
+            </div>
+
+        </div>
+
+
+
+        <!-- ======================================
+             ACTION KK
+        ======================================= -->
+
+        <div class="detail-actions">
+
+            <button
+                type="button"
+                class="btn-secondary"
+                onclick="tambahAnggotaDariKK()"
+            >
+                ＋ Tambah Anggota
+            </button>
+
+
+            <button
+                type="button"
+                class="btn-primary"
+                onclick="editKepalaKeluarga()"
+            >
+                ✏️ Edit KK
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ==================================================
+     MODAL EDIT WARGA
+=================================================== -->
+
+<div
+    id="editResidentModal"
+    class="modal hidden"
+>
+
+    <div class="modal-content">
+
+
+        <button
+            type="button"
+            class="close-btn"
+            onclick="tutupEditWarga()"
+        >
+            ×
+        </button>
+
+
+        <div class="modal-header">
+
+            <span>
+                DATA WARGA
+            </span>
+
+            <h2>
+                Edit Warga
+            </h2>
+
+            <p>
+                Perbarui data warga.
+            </p>
+
+        </div>
+
+
+        <input
+            type="hidden"
+            id="editResidentId"
+        >
+
+
+        <div class="form-group">
+
+            <label for="editNama">
+                Nama Lengkap *
+            </label>
+
+            <input
+                type="text"
+                id="editNama"
+                placeholder="Masukkan nama lengkap"
+            >
+
+        </div>
+
+
+        <div class="form-row">
+
+            <div class="form-group">
+
+                <label for="editNik">
+                    NIK
+                </label>
+
+                <input
+                    type="text"
+                    id="editNik"
+                    maxlength="16"
+                    inputmode="numeric"
+                    placeholder="16 digit NIK"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="editPhone">
+                    Nomor HP
+                </label>
+
+                <input
+                    type="tel"
+                    id="editPhone"
+                    placeholder="08xxxxxxxxxx"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="form-row">
+
+            <div class="form-group">
+
+                <label for="editBirthPlace">
+                    Tempat Lahir
+                </label>
+
+                <input
+                    type="text"
+                    id="editBirthPlace"
+                    placeholder="Contoh: Klaten"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="editBirthDate">
+                    Tanggal Lahir
+                </label>
+
+                <input
+                    type="date"
+                    id="editBirthDate"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="editGender">
+                Jenis Kelamin
+            </label>
+
+            <select id="editGender">
+
+                <option value="L">
+                    Laki-laki
+                </option>
+
+                <option value="P">
+                    Perempuan
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="editFamilyStatus">
+                Status Dalam Keluarga
+            </label>
+
+            <select id="editFamilyStatus">
+
+                <option value="Kepala Keluarga">
+                    Kepala Keluarga
+                </option>
+
+                <option value="Istri">
+                    Istri
+                </option>
+
+                <option value="Anak">
+                    Anak
+                </option>
+
+                <option value="Orang Tua">
+                    Orang Tua
+                </option>
+
+                <option value="Saudara">
+                    Saudara
+                </option>
+
+                <option value="Anggota Keluarga">
+                    Anggota Keluarga
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="editAddress">
+                Alamat
+            </label>
+
+            <textarea
+                id="editAddress"
+                rows="3"
+                placeholder="Masukkan alamat lengkap"
+            ></textarea>
+
+        </div>
+
+
+        <div
+            id="editFormError"
+            class="form-error hidden"
+        >
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                class="btn-secondary"
+                onclick="tutupEditWarga()"
+            >
+                Batal
+            </button>
+
+
+            <button
+                type="button"
+                id="btnSimpanEdit"
+                class="btn-primary"
+                onclick="simpanEditWarga()"
+            >
+                Simpan Perubahan
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ==================================================
+     MODAL PINDAH KK
+=================================================== -->
+
+<div
+    id="moveResidentModal"
+    class="modal hidden"
+>
+
+    <div class="modal-content">
+
+
+        <button
+            type="button"
+            class="close-btn"
+            onclick="tutupPindahKK()"
+        >
+            ×
+        </button>
+
+
+        <div class="modal-header">
+
+            <span>
+                PERPINDAHAN KK
+            </span>
+
+            <h2>
+                Pindahkan Warga
+            </h2>
+
+            <p>
+                Pindahkan warga ke KK lain atau buat KK baru.
+            </p>
+
+        </div>
+
+
+        <input
+            type="hidden"
+            id="moveResidentId"
+        >
+
+
+        <div
+            id="moveResidentInfo"
+            class="selected-resident-box"
+        >
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Tujuan
+            </label>
+
+
+            <div class="move-options">
+
+                <label>
+
+                    <input
+                        type="radio"
+                        name="moveType"
+                        value="existing"
+                        checked
+                        onchange="ubahTujuanPindah('existing')"
+                    >
+
+                    <span>
+                        Pindah ke KK yang sudah ada
+                    </span>
+
+                </label>
+
+
+                <label>
+
+                    <input
+                        type="radio"
+                        name="moveType"
+                        value="new"
+                        onchange="ubahTujuanPindah('new')"
+                    >
+
+                    <span>
+                        Buat KK baru
+                    </span>
+
+                </label>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="moveExistingSection"
+            class="form-group"
+        >
+
+            <label for="moveKK">
+                Pilih KK
+            </label>
+
+            <select id="moveKK">
+
+                <option value="">
+                    Pilih KK tujuan
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div
+            id="moveNewSection"
+            class="form-group hidden"
+        >
+
+            <label for="moveNewKK">
+                Nomor KK Baru
+            </label>
+
+            <input
+                type="text"
+                id="moveNewKK"
+                maxlength="16"
+                inputmode="numeric"
+                placeholder="Masukkan nomor KK baru"
+            >
+
+            <small>
+                Warga yang dipindahkan akan menjadi Kepala Keluarga.
+            </small>
+
+        </div>
+
+
+        <div
+            id="moveFormError"
+            class="form-error hidden"
+        >
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                class="btn-secondary"
+                onclick="tutupPindahKK()"
+            >
+                Batal
+            </button>
+
+
+            <button
+                type="button"
+                id="btnSimpanPindah"
+                class="btn-primary"
+                onclick="simpanPindahKK()"
+            >
+                Pindahkan Warga
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ==================================================
+     MODAL QR JIMPITAN
+=================================================== -->
+
+<div
+    id="qrModal"
+    class="modal hidden"
+>
+
+    <div class="modal-content qr-modal">
+
+
+        <button
+            type="button"
+            class="close-btn"
+            onclick="tutupQR()"
+        >
+            ×
+        </button>
+
+
+        <div class="qr-header">
+
+            <span>
+                QR JIMPITAN
+            </span>
+
+            <h2 id="qrName">
+                -
+            </h2>
+
+            <p id="qrCode">
+                -
+            </p>
+
+        </div>
+
+
+        <div
+            id="qrcode"
+            class="qrcode"
+        >
+        </div>
+
+
+        <div class="qr-token-box">
+
+            <span>
+                QR Token
+            </span>
+
+            <strong id="qrToken">
+                -
+            </strong>
+
+        </div>
+
+
+        <div class="qr-actions">
+
+
+
+            <button
+                type="button"
+                class="btn-secondary"
+                onclick="salinToken()"
+            >
+                📋 Salin Token
+            </button>
+
+        </div>
+
+
+        <p class="qr-info">
+
+            QR ini digunakan petugas untuk
+            mencatat pengambilan jimpitan satu KK.
+
+        </p>
+
+    </div>
+
+</div>
+<!-- ==================================================
+     MODAL IMPORT DATA WARGA
+=================================================== -->
+
+<div
+    id="importWargaModal"
+    class="modal hidden"
+>
+
+    <div class="modal-content import-modal">
+
+        <!-- CLOSE -->
+
+        <button
+            type="button"
+            class="close-btn"
+            onclick="tutupImportWarga()"
+        >
+            ×
+        </button>
+
+
+        <!-- HEADER -->
+
+        <div class="modal-header">
+
+            <span>
+                DATA WARGA
+            </span>
+
+            <h2>
+                Import Data Warga
+            </h2>
+
+            <p>
+                Import data warga dari file CSV atau Excel hasil export SIDAT.
+            </p>
+
+        </div>
+
+
+        <!-- FILE -->
+
+        <div class="form-group">
+
+            <label for="importWargaFile">
+                Pilih File CSV atau Excel
+            </label>
+
+            <input
+    type="file"
+    id="importWargaFile"
+    accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+>
+            <small>
+                Gunakan file CSV atau Excel hasil Export SIDAT.
+            </small>
+
+        </div>
+
+
+        <!-- STATUS -->
+
+        <div
+            id="importStatus"
+            class="info-box hidden"
+        >
+        </div>
+
+
+        <!-- ERROR -->
+
+        <div
+            id="importError"
+            class="form-error hidden"
+        >
+        </div>
+
+
+        <!-- PREVIEW -->
+
+        <div
+            id="importPreviewSection"
+            class="import-preview-section hidden"
+        >
+
+            <div class="section-divider">
+
+                <span>
+                    PREVIEW DATA
+                </span>
+
+            </div>
+
+
+            <div class="import-summary">
+
+                <div>
+
+                    <strong
+                        id="importTotal"
+                    >
+                        0
+                    </strong>
+
+                    <small>
+                        Total Data
+                    </small>
+
+                </div>
+
+
+                <div>
+
+                    <strong
+                        id="importValid"
+                    >
+                        0
+                    </strong>
+
+                    <small>
+                        Valid
+                    </small>
+
+                </div>
+
+
+                <div>
+
+                    <strong
+                        id="importDuplicate"
+                    >
+                        0
+                    </strong>
+
+                    <small>
+                        Duplikat
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="importPreview"
+                class="import-preview"
+            >
+            </div>
+
+        </div>
+
+
+        <!-- ACTION -->
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                class="btn-secondary"
+                onclick="tutupImportWarga()"
+            >
+                Batal
+            </button>
+
+
+            <button
+                type="button"
+                id="btnProsesImport"
+                class="btn-primary"
+                onclick="prosesImportWarga()"
+                disabled
+            >
+                📥 Import & Simpan
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- ==========================================
+     MODAL UBAH PIN
+========================================== -->
+
+<div
+    id="ubahPinModal"
+    class="modal hidden"
+>
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h3>
+                🔑 Ubah PIN
+            </h3>
+
+            <button
+                type="button"
+                onclick="tutupModalUbahPin()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <p id="ubahPinNama">
+                Kepala Keluarga
+            </p>
+
+
+            <label for="pinBaru">
+                PIN Baru
+            </label>
+
+            <input
+                type="password"
+                id="pinBaru"
+                inputmode="numeric"
+                maxlength="6"
+                placeholder="4–6 digit"
+                autocomplete="new-password"
+            >
+
+
+            <label for="pinBaruKonfirmasi">
+                Konfirmasi PIN Baru
+            </label>
+
+            <input
+                type="password"
+                id="pinBaruKonfirmasi"
+                inputmode="numeric"
+                maxlength="6"
+                placeholder="Ulangi PIN"
+                autocomplete="new-password"
+            >
+
+
+            <div
+                id="ubahPinError"
+                class="hidden"
+            ></div>
+
+
+            <div
+                id="ubahPinStatus"
+                class="hidden"
+            ></div>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                type="button"
+                onclick="tutupModalUbahPin()"
+            >
+                Batal
+            </button>
+
+            <button
+                type="button"
+                id="btnSimpanPin"
+                onclick="simpanPinBaru()"
+            >
+                🔑 Simpan PIN
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==================================================
+     SUPABASE
+=================================================== -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+
+<script
+    src="../js/supabase-config.js"
+></script>
+
+
+
+<!-- ==================================================
+     QR CODE
+=================================================== -->
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
+></script>
+
+
+
+<!-- ==================================================
+     DATA WARGA JS
+=================================================== -->
+<script
+    src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"
+></script>
+
+<script
+    src="data-warga.js"
+></script>
+
+</body>
+
+</html>

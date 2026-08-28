@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Profil Warga - SIDAT</title>
+
+    <link
+        rel="stylesheet"
+        href="profil.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<!-- ==========================================
+     LOADING
+========================================== -->
+
+<div
+    id="loadingOverlay"
+    class="loading-overlay"
+>
+
+    <div class="loading-box">
+
+        <div class="spinner"></div>
+
+        <span>
+            Memuat profil...
+        </span>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================
+     HEADER
+========================================== -->
+
+<header class="top-header">
+
+    <button
+        class="btn-back"
+        onclick="kembaliDashboard()"
+        type="button"
+    >
+        ←
+    </button>
+
+
+    <div class="header-title">
+
+        <strong>
+            Profil Saya
+        </strong>
+
+        <span>
+            Data warga SIDAT
+        </span>
+
+    </div>
+
+</header>
+
+
+<!-- ==========================================
+     MAIN
+========================================== -->
+
+<main class="profile-container">
+
+
+    <!-- ======================================
+         PROFILE HEADER
+    ======================================= -->
+
+    <section class="profile-card profile-header-card">
+
+        <div class="profile-photo-wrapper">
+
+            <img
+                id="profilePhoto"
+                class="profile-photo"
+                src=""
+                alt="Foto Profil"
+            >
+
+
+            <button
+                id="photoEditButton"
+                class="photo-edit-button"
+                type="button"
+                onclick="bukaEditProfil()"
+                aria-label="Edit foto profil"
+            >
+                📷
+            </button>
+
+        </div>
+
+
+        <div class="profile-main-info">
+
+            <h1 id="namaWarga">
+                Memuat...
+            </h1>
+
+            <p id="kodeWarga">
+                -
+            </p>
+
+
+            <span
+                id="accountStatus"
+                class="account-status"
+            >
+                -
+            </span>
+
+        </div>
+
+    </section>
+
+
+    <!-- ======================================
+         TOMBOL EDIT
+    ======================================= -->
+
+    <button
+        id="editProfileButton"
+        class="btn-edit-profile"
+        type="button"
+        onclick="bukaEditProfil()"
+    >
+        ✏️ Edit Profil
+    </button>
+
+
+    <!-- ======================================
+         IDENTITAS
+    ======================================= -->
+
+    <section class="profile-card">
+
+        <div class="section-title">
+
+            <span class="section-icon">
+                🪪
+            </span>
+
+            <div>
+
+                <strong>
+                    Identitas Warga
+                </strong>
+
+                <small>
+                    Data identitas terdaftar
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="data-grid">
+
+
+            <div class="data-item">
+
+                <span>
+                    NIK
+                </span>
+
+                <strong id="nik">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="data-item">
+
+                <span>
+                    Nomor KK
+                </span>
+
+                <strong id="nomorKK">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="data-item">
+
+                <span>
+                    Nama Lengkap
+                </span>
+
+                <strong id="namaLengkap">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="data-item">
+
+                <span>
+                    Tempat Lahir
+                </span>
+
+                <strong id="tempatLahir">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="data-item">
+
+                <span>
+                    Tanggal Lahir
+                </span>
+
+                <strong id="tanggalLahir">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="data-item">
+
+                <span>
+                    Jenis Kelamin
+                </span>
+
+                <strong id="jenisKelamin">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="data-item">
+
+                <span>
+                    Status Keluarga
+                </span>
+
+                <strong id="statusKeluarga">
+                    -
+                </strong>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+    <!-- ======================================
+         ALAMAT
+    ======================================= -->
+
+    <section class="profile-card">
+
+        <div class="section-title">
+
+            <span class="section-icon">
+                🏠
+            </span>
+
+            <div>
+
+                <strong>
+                    Alamat
+                </strong>
+
+                <small>
+                    Alamat tempat tinggal
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="data-grid">
+
+
+            <div class="data-item full">
+
+                <span>
+                    Alamat
+                </span>
+
+                <strong id="alamat">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="data-item">
+
+                <span>
+                    Nomor Rumah
+                </span>
+
+                <strong id="nomorRumah">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="data-item">
+
+                <span>
+                    Nomor HP
+                </span>
+
+                <strong id="nomorHP">
+                    -
+                </strong>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+    <!-- ======================================
+         AKUN
+    ======================================= -->
+
+    <section class="profile-card">
+
+        <div class="section-title">
+
+            <span class="section-icon">
+                🔐
+            </span>
+
+            <div>
+
+                <strong>
+                    Akun
+                </strong>
+
+                <small>
+                    Informasi akun warga
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="data-grid">
+
+
+            <div class="data-item full">
+
+                <span>
+                    Email Login
+                </span>
+
+                <strong id="email">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="data-item">
+
+                <span>
+                    Status Akun
+                </span>
+
+                <strong id="statusAkun">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="data-item">
+
+                <span>
+                    Akun Dibuat
+                </span>
+
+                <strong id="akunDibuat">
+                    -
+                </strong>
+
+            </div>
+<!-- ======================================
+     GANTI PIN
+======================================= -->
+
+<div class="data-item full">
+
+    <button
+        type="button"
+        class="btn-change-pin"
+        onclick="bukaGantiPIN()"
+    >
+        🔐 Ganti PIN
+    </button>
+
+</div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ======================================
+         KETERANGAN
+    ======================================= -->
+
+    <div class="profile-note">
+
+        <span>
+            🔒
+        </span>
+
+        <p>
+            Data identitas seperti NIK, KK, nama,
+            dan tanggal lahir hanya dapat diubah
+            oleh admin.
+        </p>
+
+    </div>
+
+
+</main>
+
+
+<!-- ==========================================
+     MODAL EDIT PROFIL
+========================================== -->
+
+<div
+    id="editModal"
+    class="modal hidden"
+>
+
+
+    <div class="modal-overlay"
+         onclick="tutupEditProfil()">
+    </div>
+
+
+    <div class="modal-box">
+
+
+        <div class="modal-header">
+
+            <div>
+
+                <h2>
+                    Edit Profil
+                </h2>
+
+                <p>
+                    Ubah foto dan nomor HP Anda
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="tutupEditProfil()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <!-- ==================================
+             PREVIEW FOTO
+        =================================== -->
+
+        <div class="edit-photo-section">
+
+            <div class="edit-photo-wrapper">
+
+                <img
+                    id="editPhotoPreview"
+                    src=""
+                    alt="Preview Foto"
+                >
+
+            </div>
+
+
+            <label
+                class="btn-photo"
+                for="photoInput"
+            >
+
+                📷 Pilih Foto
+
+            </label>
+
+
+            <input
+                id="photoInput"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                hidden
+            >
+
+
+            <small id="photoInfo">
+                JPG, PNG atau WEBP maksimal 2 MB
+            </small>
+
+        </div>
+
+
+        <!-- ==================================
+             FORM
+        =================================== -->
+
+        <form
+            id="editProfileForm"
+            autocomplete="off"
+        >
+
+
+            <div class="form-group">
+
+                <label
+                    for="editPhone"
+                >
+                    Nomor HP
+                </label>
+
+                <input
+                    id="editPhone"
+                    type="tel"
+                    inputmode="numeric"
+                    maxlength="20"
+                    placeholder="Contoh: 081234567890"
+                >
+
+            </div>
+
+
+            <div
+                id="editError"
+                class="form-error hidden"
+            >
+            </div>
+
+
+            <div
+                id="editSuccess"
+                class="form-success hidden"
+            >
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="btn-cancel"
+                    onclick="tutupEditProfil()"
+                >
+                    Batal
+                </button>
+
+
+                <button
+                    id="saveProfileButton"
+                    type="submit"
+                    class="btn-save"
+                >
+                    💾 Simpan Perubahan
+                </button>
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+</div>
+
+<!-- ==========================================
+     MODAL GANTI PIN
+========================================== -->
+
+<div
+    id="pinModal"
+    class="modal hidden"
+>
+
+    <div
+        class="modal-overlay"
+        onclick="tutupGantiPIN()"
+    >
+    </div>
+
+
+    <div class="modal-box">
+
+
+        <div class="modal-header">
+
+            <div>
+
+                <h2>
+                    Ganti PIN
+                </h2>
+
+                <p>
+                    Gunakan PIN baru untuk login ke SIDAT
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="tutupGantiPIN()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form
+            id="changePinForm"
+            autocomplete="off"
+        >
+
+
+            <div class="form-group">
+
+                <label for="pinBaru">
+                    PIN Baru
+                </label>
+
+                <input
+                    id="pinBaru"
+                    type="password"
+                    inputmode="numeric"
+                    maxlength="6"
+                    minlength="4"
+                    pattern="[0-9]{4,6}"
+                    placeholder="Masukkan PIN 4-6 digit"
+                    autocomplete="new-password"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="pinKonfirmasi">
+                    Konfirmasi PIN Baru
+                </label>
+
+                <input
+                    id="pinKonfirmasi"
+                    type="password"
+                    inputmode="numeric"
+                    maxlength="6"
+                    minlength="4"
+                    pattern="[0-9]{4,6}"
+                    placeholder="Ulangi PIN baru"
+                    autocomplete="new-password"
+                >
+
+            </div>
+
+
+            <div
+                id="pinError"
+                class="form-error hidden"
+            >
+            </div>
+
+
+            <div
+                id="pinSuccess"
+                class="form-success hidden"
+            >
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="btn-cancel"
+                    onclick="tutupGantiPIN()"
+                >
+                    Batal
+                </button>
+
+
+                <button
+                    id="savePinButton"
+                    type="submit"
+                    class="btn-save"
+                >
+                    🔐 Simpan PIN
+                </button>
+
+            </div>
+
+
+        </form>
+
+    </div>
+
+</div>
+<!-- ==========================================
+     SUPABASE CONFIG
+========================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="../js/supabase-config.js"></script>
+
+<script src="profil.js"></script>
+
+</body>
+
+</html>
