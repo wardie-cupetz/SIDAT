@@ -894,6 +894,34 @@ async function simpanJimpitan() {
     scannerStatus.textContent =
         "Menyimpan jimpitan...";
 
+    if (!isOnline()) {
+
+    await saveOfflineTransaction({
+
+        qr_token: qrToken,
+
+        amount: amount,
+
+        notes: notes || null,
+
+        type: "create_jimpitan_transaction"
+
+    });
+
+    alert(
+        "Tidak ada koneksi internet.\nTransaksi disimpan di perangkat dan akan dikirim otomatis saat online."
+    );
+
+    scannerStatus.textContent =
+        "Transaksi disimpan secara offline.";
+
+    saveButton.disabled = false;
+
+    saveButton.textContent = "Simpan";
+
+    return;
+
+    }
 
     try {
 
