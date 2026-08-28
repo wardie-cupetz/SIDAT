@@ -864,6 +864,10 @@ async function checkAppVersion() {
             "/SIDAT/version.json?ts=" + Date.now()
         );
 
+        if (!response.ok) {
+            return;
+        }
+
         const data = await response.json();
 
         if (data.version !== SIDAT_APP_VERSION) {
