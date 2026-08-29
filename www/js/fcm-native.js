@@ -154,20 +154,26 @@
                     }
                 );
 
-            if (!response.ok) {
+           if (!response.ok) {
 
-                const errorText =
-                    await response.text();
+    const errorText =
+        await response.text();
 
-                console.error(
-                    "SIDAT FCM Native: gagal menyimpan FCM token:",
-                    response.status,
-                    errorText
-                );
+    alert(
+        "Gagal simpan FCM\n\nStatus: " +
+        response.status +
+        "\n\n" +
+        errorText
+    );
 
-                return false;
-            }
+    console.error(
+        "SIDAT FCM Native: gagal menyimpan FCM token:",
+        response.status,
+        errorText
+    );
 
+    return false;
+}
             console.log(
                 "SIDAT FCM Native: FCM token berhasil disimpan ke Supabase.",
                 {
@@ -176,6 +182,9 @@
                 }
             );
 
+alert(
+    "FCM token berhasil disimpan."
+);
             return true;
 
         } catch (error) {
