@@ -14,10 +14,8 @@
         console.warn(
             "SIDAT FCM Native: Capacitor tidak tersedia."
         );
-
         return;
     }
-
 
     // ==========================================
     // REGISTER PLUGIN
@@ -27,7 +25,6 @@
         window.Capacitor.registerPlugin(
             "PushNotifications"
         );
-
 
     // ==========================================
     // CEK PLUGIN
@@ -41,23 +38,164 @@
         console.warn(
             "SIDAT FCM Native: Plugin PushNotifications tidak tersedia."
         );
-
         return;
     }
-
 
     console.log(
         "SIDAT FCM Native: Plugin PushNotifications tersedia."
     );
 
+    // ==========================================
+    // SIMPAN TOKEN FCM KE SUPABASE
+    // ==========================================
+
+    async function simpanFCMToken() {
+
+        try {
+
+            const fcmToken =
+                localStorage.getItem(
+                    "sidat_fcm_native_token"
+                );
+
+            if (!fcmToken) {
+
+                console.warn(
+                    "SIDAT FCM Native: token FCM belum tersedia."
+                );
+
+                return false;
+            }
+
+            const accessToken =
+                localStorage.getItem(
+                    "sidat_access_token"
+                );
+
+            if (!accessToken) {
+
+                console.warn(
+                    "SIDAT FCM Native: access token belum tersedia."
+                );
+
+                return false;
+            }
+
+            let sidatUser = {};
+
+            try {
+
+                sidatUser =
+                    JSON.parse(
+                        localStorage.getItem(
+                            "sidat_user"
+                        ) || "{}"
+                    );
+
+            } catch (error) {
+
+                console.error(
+                    "SIDAT FCM Native: sidat_user tidak valid.",
+                    error
+                );
+
+                return false;
+            }
+
+            const residentId =
+                sidatUser.resident_id ||
+                sidatUser.residentId ||
+                sidatUser.id_resident ||
+                null;
+
+            if (!residentId) {
+
+                console.warn(
+                    "SIDAT FCM Native: resident_id belum tersedia."
+                );
+
+                return false;
+            }
+
+            console.log(
+                "SIDAT FCM Native: menyimpan token untuk resident:",
+                residentId
+            );
+
+            const response =
+                await fetch(
+                    `${SUPABASE_URL}/rest/v1/push_subscriptions?resident_id=eq.${encodeURIComponent(residentId)}`,
+                    {
+                        method: "PATCH",
+
+                        headers: {
+                            "apikey":
+                                SUPABASE_KEY,
+
+                            "Authorization":
+                                `Bearer ${accessToken}`,
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Prefer":
+                                "return=minimal"
+                        },
+
+                        body:
+                            JSON.stringify({
+                                fcm_token:
+                                    fcmToken,
+
+                                updated_at:
+                                    new Date()
+                                        .toISOString()
+                            })
+                    }
+                );
+
+            if (!response.ok) {
+
+                const errorText =
+                    await response.text();
+
+                console.error(
+                    "SIDAT FCM Native: gagal menyimpan FCM token:",
+                    response.status,
+                    errorText
+                );
+
+                return false;
+            }
+
+            console.log(
+                "SIDAT FCM Native: FCM token berhasil disimpan ke Supabase.",
+                {
+                    residentId:
+                        residentId
+                }
+            );
+
+            return true;
+
+        } catch (error) {
+
+            console.error(
+                "SIDAT FCM Native: error menyimpan token ke Supabase:",
+                error
+            );
+
+            return false;
+        }
+    }
 
     // ==========================================
-    // LISTENER: BERHASIL MENDAPATKAN TOKEN
+    // LISTENER REGISTRATION
     // ==========================================
 
     PushNotifications.addListener(
         "registration",
-        function (token) {
+        async function (token) {
 
             console.log(
                 "=========================================="
@@ -82,123 +220,38 @@
                 "=========================================="
             );
 
-            // Simpan sementara untuk debugging.
-            // Belum dikirim ke Supabase.
-           if (token.value) {
+            if (!token.value) {
 
-    localStorage.setItem(
-        "sidat_fcm_native_token",
-        token.value
-    );
+                console.warn(
+                    "SIDAT FCM Native: token kosong."
+                );
 
-    console.log(
-        "SIDAT FCM Native: token tersimpan di localStorage."
-    );
-
-    // ==========================================
-    // SIMPAN TOKEN FCM KE SUPABASE
-    // ==========================================
-
-    try {
-
-        const accessToken =
-            localStorage.getItem(
-                "sidat_access_token"
-            );
-
-        const sidatUser =
-            JSON.parse(
-                localStorage.getItem(
-                    "sidat_user"
-                ) || "{}"
-            );
-
-        const residentId =
-            sidatUser.resident_id ||
-            sidatUser.residentId ||
-            sidatUser.id_resident ||
-            null;
-
-        // Jika belum login, token tetap disimpan
-        // di localStorage dan akan bisa digunakan
-        // setelah login berikutnya.
-        if (!accessToken || !residentId) {
-
-            console.warn(
-                "SIDAT FCM Native: session warga belum tersedia."
-            );
-
-            return;
-        }
-
-        const response =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/push_subscriptions?resident_id=eq.${encodeURIComponent(residentId)}`,
-                {
-                    method: "PATCH",
-
-                    headers: {
-                        "apikey":
-                            SUPABASE_KEY,
-
-                        "Authorization":
-                            `Bearer ${accessToken}`,
-
-                        "Content-Type":
-                            "application/json",
-
-                        "Prefer":
-                            "return=minimal"
-                    },
-
-                    body:
-                        JSON.stringify({
-                            fcm_token:
-                                token.value,
-
-                            updated_at:
-                                new Date()
-                                    .toISOString()
-                        })
-                }
-            );
-
-        if (!response.ok) {
-
-            const errorText =
-                await response.text();
-
-            console.error(
-                "SIDAT FCM Native: gagal menyimpan FCM token:",
-                response.status,
-                errorText
-            );
-
-            return;
-        }
-
-        console.log(
-            "SIDAT FCM Native: FCM token berhasil disimpan ke Supabase.",
-            {
-                residentId:
-                    residentId
+                return;
             }
-        );
 
-    }
-    catch (error) {
+            // ==========================================
+            // SIMPAN TOKEN SEMENTARA
+            // ==========================================
 
-        console.error(
-            "SIDAT FCM Native: error menyimpan token ke Supabase:",
-            error
-        );
+            localStorage.setItem(
+                "sidat_fcm_native_token",
+                token.value
+            );
 
-    }
-}
+            console.log(
+                "SIDAT FCM Native: token tersimpan di localStorage."
+            );
 
+            // ==========================================
+            // COBA SIMPAN KE SUPABASE
+            // ==========================================
+
+            await simpanFCMToken();
+        }
+    );
 
     // ==========================================
-    // LISTENER: ERROR REGISTRASI
+    // LISTENER ERROR REGISTRASI
     // ==========================================
 
     PushNotifications.addListener(
@@ -209,13 +262,11 @@
                 "SIDAT FCM REGISTRATION ERROR:",
                 error
             );
-
         }
     );
 
-
     // ==========================================
-    // LISTENER: NOTIFIKASI MASUK
+    // NOTIFIKASI MASUK
     // ==========================================
 
     PushNotifications.addListener(
@@ -223,16 +274,14 @@
         function (notification) {
 
             console.log(
-                "SIDAT FCM NOTIFICATION RECEIVED:",
+                "SIDAT FCM Native: NOTIFICATION RECEIVED:",
                 notification
             );
-
         }
     );
 
-
     // ==========================================
-    // LISTENER: NOTIFIKASI DITEKAN
+    // NOTIFIKASI DITEKAN
     // ==========================================
 
     PushNotifications.addListener(
@@ -240,16 +289,14 @@
         function (notification) {
 
             console.log(
-                "SIDAT FCM NOTIFICATION ACTION:",
+                "SIDAT FCM Native: NOTIFICATION ACTION:",
                 notification
             );
-
         }
     );
 
-
     // ==========================================
-    // MINTA IZIN + REGISTER FCM
+    // REGISTER FCM
     // ==========================================
 
     async function registerFCM() {
@@ -260,20 +307,18 @@
                 "SIDAT FCM Native: meminta permission..."
             );
 
-
             const permission =
                 await PushNotifications
                     .requestPermissions();
-
 
             console.log(
                 "SIDAT FCM Native: permission:",
                 permission.receive
             );
 
-
             if (
-                permission.receive !== "granted"
+                permission.receive !==
+                "granted"
             ) {
 
                 console.warn(
@@ -281,35 +326,26 @@
                 );
 
                 return;
-
             }
-
 
             console.log(
                 "SIDAT FCM Native: melakukan register..."
             );
 
-
             await PushNotifications.register();
-
 
             console.log(
                 "SIDAT FCM Native: register() berhasil dipanggil."
             );
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "SIDAT FCM Native: gagal register:",
                 error
             );
-
         }
-
     }
-
 
     // ==========================================
     // EXPORT GLOBAL
@@ -321,6 +357,8 @@
     window.SIDATRegisterFCM =
         registerFCM;
 
+    window.SIDATSaveFCMToken =
+        simpanFCMToken;
 
     // ==========================================
     // JALANKAN OTOMATIS
