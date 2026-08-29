@@ -495,7 +495,13 @@ console.log(
                         result.user
                     )
                 );
+// ==========================================
+// SIMPAN FCM TOKEN SETELAH LOGIN
+// ==========================================
 
+if (window.SIDATSaveFCMToken) {
+    await window.SIDATSaveFCMToken();
+}
 
                 // ==================================
                 // CEK USER SESSION
