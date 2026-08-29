@@ -50,14 +50,17 @@
     // ==========================================
 
     async function simpanFCMToken() {
-
+alert("1. Masuk simpanFCMToken()");
         try {
 
             const fcmToken =
                 localStorage.getItem(
                     "sidat_fcm_native_token"
                 );
-
+alert(
+    "2. FCM Token:\n" +
+    (fcmToken || "NULL")
+);
             if (!fcmToken) {
 
                 console.warn(
@@ -71,7 +74,10 @@
                 localStorage.getItem(
                     "sidat_access_token"
                 );
-
+alert(
+    "3. Access Token:\n" +
+    (accessToken ? "ADA" : "NULL")
+);
             if (!accessToken) {
 
                 console.warn(
@@ -107,7 +113,10 @@
                 sidatUser.residentId ||
                 sidatUser.id_resident ||
                 null;
-
+alert(
+    "4. Resident ID:\n" +
+    (residentId || "NULL")
+);
             if (!residentId) {
 
                 console.warn(
@@ -121,7 +130,7 @@
                 "SIDAT FCM Native: menyimpan token untuk resident:",
                 residentId
             );
-
+alert("5. Mengirim PATCH ke Supabase...");
             const response =
                 await fetch(
                     `${SUPABASE_URL}/rest/v1/push_subscriptions?resident_id=eq.${encodeURIComponent(residentId)}`,
@@ -153,12 +162,19 @@
                             })
                     }
                 );
+            alert(
+    "6. HTTP Status: " +
+    response.status
+);
 
            if (!response.ok) {
 
     const errorText =
         await response.text();
-
+alert(
+    "7. ERROR:\n" +
+    errorText
+);
     alert(
         "Gagal simpan FCM\n\nStatus: " +
         response.status +
@@ -188,7 +204,10 @@ alert(
             return true;
 
         } catch (error) {
-
+alert(
+    "9. EXCEPTION:\n" +
+    (error.message || JSON.stringify(error))
+);
             console.error(
                 "SIDAT FCM Native: error menyimpan token ke Supabase:",
                 error
