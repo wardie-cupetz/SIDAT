@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "256436214603",
+    "project_id": "sidat-487dc",
+    "storage_bucket": "sidat-487dc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:256436214603:android:b0a68845f87477a63626ce",
+        "android_client_info": {
+          "package_name": "com.sidat.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpIsMmoxCM3y-97B5NauZrfHOHsOXl-uw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
