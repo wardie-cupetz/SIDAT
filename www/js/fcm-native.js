@@ -84,17 +84,117 @@
 
             // Simpan sementara untuk debugging.
             // Belum dikirim ke Supabase.
-            if (token.value) {
+           if (token.value) {
 
-                localStorage.setItem(
-                    "sidat_fcm_native_token",
-                    token.value
-                );
-
-            }
-
-        }
+    localStorage.setItem(
+        "sidat_fcm_native_token",
+        token.value
     );
+
+    console.log(
+        "SIDAT FCM Native: token tersimpan di localStorage."
+    );
+
+    // ==========================================
+    // SIMPAN TOKEN FCM KE SUPABASE
+    // ==========================================
+
+    try {
+
+        const accessToken =
+            localStorage.getItem(
+                "sidat_access_token"
+            );
+
+        const sidatUser =
+            JSON.parse(
+                localStorage.getItem(
+                    "sidat_user"
+                ) || "{}"
+            );
+
+        const residentId =
+            sidatUser.resident_id ||
+            sidatUser.residentId ||
+            sidatUser.id_resident ||
+            null;
+
+        // Jika belum login, token tetap disimpan
+        // di localStorage dan akan bisa digunakan
+        // setelah login berikutnya.
+        if (!accessToken || !residentId) {
+
+            console.warn(
+                "SIDAT FCM Native: session warga belum tersedia."
+            );
+
+            return;
+        }
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/push_subscriptions?resident_id=eq.${encodeURIComponent(residentId)}`,
+                {
+                    method: "PATCH",
+
+                    headers: {
+                        "apikey":
+                            SUPABASE_KEY,
+
+                        "Authorization":
+                            `Bearer ${accessToken}`,
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Prefer":
+                            "return=minimal"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            fcm_token:
+                                token.value,
+
+                            updated_at:
+                                new Date()
+                                    .toISOString()
+                        })
+                }
+            );
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            console.error(
+                "SIDAT FCM Native: gagal menyimpan FCM token:",
+                response.status,
+                errorText
+            );
+
+            return;
+        }
+
+        console.log(
+            "SIDAT FCM Native: FCM token berhasil disimpan ke Supabase.",
+            {
+                residentId:
+                    residentId
+            }
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "SIDAT FCM Native: error menyimpan token ke Supabase:",
+            error
+        );
+
+    }
+}
 
 
     // ==========================================
