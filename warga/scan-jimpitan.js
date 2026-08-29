@@ -147,74 +147,52 @@ function tampilkanKK(
 // START SCANNER
 // ==========================================
 
-// ==========================================
-// START SCANNER
-// ==========================================
-
 async function mulaiScanner() {
 
     if (!reader) {
-
-        console.error(
-            "Element #reader tidak ditemukan."
-        );
-
+        console.error("Element #reader tidak ditemukan.");
         return;
-
     }
-
-
-    // Jika scanner lama masih ada,
-    // jangan membuat scanner baru
 
     if (scanner) {
-
         return;
-
     }
-
 
     try {
 
-        scanner =
-            new Html5Qrcode(
-                "reader"
-            );
+        // Meminta izin kamera
+        await navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: "environment"
+            }
+        });
 
+        scanner = new Html5Qrcode("reader");
 
         await scanner.start(
-
             {
-                facingMode:
-                    "environment"
+                facingMode: "environment"
             },
-
             {
                 fps: 10,
-
                 qrbox: {
                     width: 220,
                     height: 220
                 }
-
             },
-
             qrCodeMessage => {
-
-                prosesQR(
-                    qrCodeMessage
-                );
-
+                prosesQR(qrCodeMessage);
             },
-
             errorMessage => {
-
-                // Error scanning sementara
-                // diabaikan
-
+                // abaikan
             }
-
         );
+
+    } catch (err) {
+        console.error("Izin kamera ditolak:", err);
+        alert("Aplikasi memerlukan izin kamera.");
+    }
+}
 
 
         // ======================================
