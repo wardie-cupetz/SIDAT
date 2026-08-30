@@ -82,17 +82,24 @@
     );
 
     PushNotifications.addListener(
-        "pushNotificationReceived",
-        function (notification) {
+    "pushNotificationActionPerformed",
+    function (event) {
 
-            console.log(
-                "Push diterima:",
-                notification
-            );
+        console.log("Push diklik:", event);
 
+        const data =
+            event.notification?.data || {};
+
+        if (data.url) {
+            window.location.href = data.url;
+            return;
         }
-    );
 
+        window.location.href =
+            "/warga/pengumuman.html";
+
+    }
+);
     PushNotifications.addListener(
         "pushNotificationActionPerformed",
         function (notification) {
