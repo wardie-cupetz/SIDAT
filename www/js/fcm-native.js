@@ -5,7 +5,17 @@
 // ==========================================
 
 alert("FCM-1");
+alert("Capacitor: " + typeof window.Capacitor);
 
+alert(
+    "registerPlugin: " +
+    typeof window.Capacitor?.registerPlugin
+);
+
+alert(
+    "isPluginAvailable: " +
+    typeof window.Capacitor?.isPluginAvailable
+);
 const PushNotifications =
     window.Capacitor.registerPlugin(
         "PushNotifications"
