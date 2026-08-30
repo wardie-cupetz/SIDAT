@@ -1,37 +1,45 @@
 (function () {
     "use strict";
+
     // ==========================================
-// REGISTER PLUGIN
-// ==========================================
+    // REGISTER PLUGIN
+    // ==========================================
 
-alert("FCM-1");
+    alert("FCM-1");
+
     alert(
-    "Plugins: " +
-    Object.keys(window.Capacitor.Plugins || {}).join(", ")
-);
-
-alert(
-    "PushNotifications: " +
-    typeof window.Capacitor.Plugins?.PushNotifications
-);
-alert("Capacitor: " + typeof window.Capacitor);
-
-alert(
-    "registerPlugin: " +
-    typeof window.Capacitor?.registerPlugin
-);
-
-alert(
-    "isPluginAvailable: " +
-    typeof window.Capacitor?.isPluginAvailable
-);
-const PushNotifications =
-    window.Capacitor.registerPlugin(
-        "PushNotifications"
+        "Plugins: " +
+        Object.keys(window.Capacitor.Plugins || {}).join(", ")
     );
 
-alert("FCM-1A");
+    alert(
+        "PushNotifications: " +
+        typeof window.Capacitor?.Plugins?.PushNotifications
+    );
 
+    alert("Capacitor: " + typeof window.Capacitor);
+
+    alert(
+        "registerPlugin: " +
+        typeof window.Capacitor?.registerPlugin
+    );
+
+    alert(
+        "isPluginAvailable: " +
+        typeof window.Capacitor?.isPluginAvailable
+    );
+
+    // ===== GANTI BAGIAN INI =====
+    const PushNotifications =
+        window.Capacitor.Plugins.PushNotifications;
+
+    if (!PushNotifications) {
+        alert("PushNotifications NULL");
+        return;
+    }
+    // ============================
+
+    alert("FCM-1A");
 // ==========================================
 // CEK PLUGIN
 // ==========================================
