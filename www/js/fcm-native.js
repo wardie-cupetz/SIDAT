@@ -5,6 +5,15 @@
 // ==========================================
 
 alert("FCM-1");
+    alert(
+    "Plugins: " +
+    Object.keys(window.Capacitor.Plugins || {}).join(", ")
+);
+
+alert(
+    "PushNotifications: " +
+    typeof window.Capacitor.Plugins?.PushNotifications
+);
 alert("Capacitor: " + typeof window.Capacitor);
 
 alert(
