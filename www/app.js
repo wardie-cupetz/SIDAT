@@ -495,7 +495,7 @@ console.log(
                         result.user
                     )
                 );
-                alert("APP.JS SUDAH SAMPAI SINI");
+                
 // ==========================================
 // SIMPAN FCM TOKEN SETELAH LOGIN
 // ==========================================
