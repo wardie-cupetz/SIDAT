@@ -1,6 +1,6 @@
 (function () {
     "use strict";
-
+alert("FCM-1: File dimulai");
     console.log("SIDAT FCM Native: memulai...");
 
     // ==========================================
@@ -374,7 +374,7 @@ alert(
             );
         }
     }
-
+alert("FCM-2: Akan export global");
     // ==========================================
     // EXPORT GLOBAL
     // ==========================================
@@ -387,6 +387,7 @@ alert(
 
     window.SIDATSaveFCMToken =
         simpanFCMToken;
+    alert("FCM-3: Export selesai");
 
     // ==========================================
     // JALANKAN OTOMATIS
