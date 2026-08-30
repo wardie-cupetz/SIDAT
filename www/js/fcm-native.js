@@ -408,6 +408,12 @@ alert("FCM-2: Akan export global");
 
     window.SIDATSaveFCMToken =
         simpanFCMToken;
+            alert(
+    "EXPORT TYPE = " +
+    typeof window.SIDATSaveFCMToken
+);
+
+window.__SIDAT_DEBUG__ = 12345;
     alert("FCM-3: Export selesai");
 
     // ==========================================
