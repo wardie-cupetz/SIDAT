@@ -288,9 +288,16 @@ alert(
             // COBA SIMPAN KE SUPABASE
             // ==========================================
 
-            await simpanFCMToken();
-        }
+           const accessToken =
+    localStorage.getItem("sidat_access_token");
+
+if (accessToken) {
+    await simpanFCMToken();
+} else {
+    console.log(
+        "SIDAT FCM Native: Access token belum ada, FCM token hanya disimpan sementara."
     );
+}
 
     // ==========================================
     // LISTENER ERROR REGISTRASI
