@@ -499,7 +499,10 @@ console.log(
 // ==========================================
 // SIMPAN FCM TOKEN SETELAH LOGIN
 // ==========================================
-
+alert(
+    "SIDATSaveFCMToken = " +
+    typeof window.SIDATSaveFCMToken
+);
 if (window.SIDATSaveFCMToken) {
     await window.SIDATSaveFCMToken();
 }
