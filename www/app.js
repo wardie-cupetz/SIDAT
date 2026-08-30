@@ -36,58 +36,83 @@ async function syncSidatSession() {
 
     try {
 
+        const accessToken =
+            localStorage.getItem(
+                "sidat_access_token"
+            );
+
+        const refreshToken =
+            localStorage.getItem(
+                "sidat_refresh_token"
+            );
+
+        if (!accessToken || !refreshToken) {
+            return;
+        }
+
         const {
             data,
             error
         } =
-            await supabaseClient
-                .auth
-                .getSession();
+            await supabaseClient.auth.setSession({
 
+                access_token:
+                    accessToken,
+
+                refresh_token:
+                    refreshToken
+
+            });
 
         if (error) {
+
             console.error(
-                "Gagal membaca session:",
+                "Restore session gagal:",
                 error
             );
-            return;
-        }
-
-
-        const session =
-            data?.session;
-
-
-        if (session?.access_token) {
-
-            localStorage.setItem(
-                "sidat_access_token",
-                session.access_token
-            );
-
-            console.log(
-                "SIDAT: access token tersinkron."
-            );
-
-        } else {
 
             localStorage.removeItem(
                 "sidat_access_token"
             );
 
+            localStorage.removeItem(
+                "sidat_refresh_token"
+            );
+
+            localStorage.removeItem(
+                "sidat_user"
+            );
+
+            return;
         }
 
-    } catch (error) {
+        console.log(
+            "Session berhasil dipulihkan."
+        );
+        const user =
+    JSON.parse(
+        localStorage.getItem(
+            "sidat_user"
+        ) || "{}"
+    );
+
+if (user.resident_id) {
+
+    window.location.href =
+        "warga/dashboard.html";
+
+}
+
+    } catch (err) {
 
         console.error(
-            "Session sync error:",
-            error
+            "syncSidatSession:",
+            err
         );
 
     }
 
 }
-
 
 // ==========================================
 // OTOMATIS UPDATE TOKEN
