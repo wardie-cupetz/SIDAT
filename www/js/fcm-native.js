@@ -7,16 +7,26 @@ alert("FCM-1: File dimulai");
     // CEK CAPACITOR
     // ==========================================
 
-    if (
-        !window.Capacitor ||
-        typeof window.Capacitor.registerPlugin !== "function"
-    ) {
-        console.warn(
-            "SIDAT FCM Native: Capacitor tidak tersedia."
-        );
-        return;
-    }
+    alert("FCM-1");
 
+alert("FCM-1A");
+const PushNotifications =
+    window.Capacitor.registerPlugin(
+        "PushNotifications"
+    );
+
+alert("FCM-1B");
+
+if (
+    !window.Capacitor.isPluginAvailable(
+        "PushNotifications"
+    )
+) {
+    alert("PLUGIN TIDAK TERSEDIA");
+    return;
+}
+
+alert("FCM-1C");
     // ==========================================
     // REGISTER PLUGIN
     // ==========================================
