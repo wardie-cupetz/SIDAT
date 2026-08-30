@@ -915,3 +915,77 @@ openOfflineDatabase()
         console.error(err);
 
     });
+async function updatePushSubscription() {
+
+    const token =
+        localStorage.getItem(
+            "sidat_fcm_native_token"
+        );
+
+    if (!token) {
+        return;
+    }
+
+    const accessToken =
+        localStorage.getItem(
+            "sidat_access_token"
+        );
+
+    if (!accessToken) {
+        return;
+    }
+
+    const user =
+        JSON.parse(
+            localStorage.getItem(
+                "sidat_user"
+            ) || "{}"
+        );
+
+    const residentId =
+        user.resident_id ||
+        user.residentId ||
+        user.id_resident;
+
+    if (!residentId) {
+        return;
+    }
+
+    const response =
+        await fetch(
+            `${SUPABASE_URL}/rest/v1/push_subscriptions?resident_id=eq.${residentId}`,
+            {
+                method: "PATCH",
+
+                headers: {
+                    apikey: SUPABASE_KEY,
+                    Authorization:
+                        `Bearer ${accessToken}`,
+                    "Content-Type":
+                        "application/json",
+                    Prefer: "return=minimal"
+                },
+
+                body: JSON.stringify({
+                    fcm_token: token,
+                    updated_at:
+                        new Date().toISOString()
+                })
+            }
+        );
+
+    if (!response.ok) {
+
+        console.error(
+            await response.text()
+        );
+
+    } else {
+
+        console.log(
+            "FCM token berhasil disimpan."
+        );
+
+    }
+
+}
