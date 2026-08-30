@@ -1,21 +1,21 @@
 (function () {
     "use strict";
-alert("FCM-1: File dimulai");
-    console.log("SIDAT FCM Native: memulai...");
-
     // ==========================================
-    // CEK CAPACITOR
-    // ==========================================
+// REGISTER PLUGIN
+// ==========================================
 
-    alert("FCM-1");
+alert("FCM-1");
 
-alert("FCM-1A");
 const PushNotifications =
     window.Capacitor.registerPlugin(
         "PushNotifications"
     );
 
-alert("FCM-1B");
+alert("FCM-1A");
+
+// ==========================================
+// CEK PLUGIN
+// ==========================================
 
 if (
     !window.Capacitor.isPluginAvailable(
@@ -26,30 +26,7 @@ if (
     return;
 }
 
-alert("FCM-1C");
-    // ==========================================
-    // REGISTER PLUGIN
-    // ==========================================
-
-    const PushNotifications =
-        window.Capacitor.registerPlugin(
-            "PushNotifications"
-        );
-
-    // ==========================================
-    // CEK PLUGIN
-    // ==========================================
-
-    if (
-        !window.Capacitor.isPluginAvailable(
-            "PushNotifications"
-        )
-    ) {
-        console.warn(
-            "SIDAT FCM Native: Plugin PushNotifications tidak tersedia."
-        );
-        return;
-    }
+alert("FCM-1B");
 
     console.log(
         "SIDAT FCM Native: Plugin PushNotifications tersedia."
