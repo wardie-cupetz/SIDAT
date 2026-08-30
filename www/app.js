@@ -500,10 +500,11 @@ console.log(
 // SIMPAN FCM TOKEN SETELAH LOGIN
 // ==========================================
 alert(
-    "SIDATSaveFCMToken = " +
+    "DEBUG = " + window.__SIDAT_DEBUG__ +
+    "\nSIDATSaveFCMToken = " +
     typeof window.SIDATSaveFCMToken
 );
-if (window.SIDATSaveFCMToken) {
+                if (window.SIDATSaveFCMToken) {
     await window.SIDATSaveFCMToken();
 }
 
