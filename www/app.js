@@ -24,7 +24,14 @@ const adminLogin =
 // ==========================================
 
 async function syncSidatSession() {
-
+alert(
+    "ADMIN USER:\n" +
+    localStorage.getItem("sidat_admin_user") +
+    "\n\nACCESS:\n" +
+    localStorage.getItem("sidat_access_token") +
+    "\n\nREFRESH:\n" +
+    localStorage.getItem("sidat_refresh_token")
+);
     try {
         
 
