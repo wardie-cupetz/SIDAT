@@ -132,7 +132,9 @@ supabaseClient.auth.onAuthStateChange(
 
 
 // Jalankan saat aplikasi dibuka
-syncSidatSession();
+setTimeout(() => {
+    syncSidatSession();
+}, 1000);
 
 // ==========================================
 // NAVIGASI LOGIN
