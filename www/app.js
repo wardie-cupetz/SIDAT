@@ -101,7 +101,8 @@ alert(
 );
 if (
     admin &&
-    admin.user_id
+    admin.id &&
+    !location.pathname.includes("/admin/")
 ) {
 
     window.location.replace(
@@ -111,6 +112,17 @@ if (
     return;
 
 }
+
+} catch (err) {
+
+    console.error(
+        "syncSidatSession:",
+        err
+    );
+
+}
+
+}       
 // ==========================================
 // OTOMATIS UPDATE TOKEN
 // ==========================================
