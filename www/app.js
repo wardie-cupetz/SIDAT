@@ -107,8 +107,8 @@ alert(
     JSON.stringify(admin, null, 2)
 );
 if (
-    admin?.id &&
-    !location.pathname.includes("/admin/")
+    admin &&
+    admin.user_id
 ) {
 
     window.location.replace(
@@ -118,7 +118,6 @@ if (
     return;
 
 }
-
 // ==========================================
 // OTOMATIS UPDATE TOKEN
 // ==========================================
