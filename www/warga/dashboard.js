@@ -10,31 +10,31 @@
 // SESSION
 // ==========================================
 
-const accessToken =
-    localStorage.getItem(
-        "sidat_access_token"
-    );
-
 const wargaData =
     localStorage.getItem(
         "sidat_user"
     );
 
+(async () => {
 
-// ==========================================
-// CEK LOGIN
-// ==========================================
+    const {
+        data: { session }
+    } = await supabaseClient.auth.getSession();
 
-if (
-    !accessToken ||
-    !wargaData
-) {
+    if (
+        !session ||
+        !wargaData
+    ) {
 
-    window.location.href =
-        "../index.html";
+        window.location.replace(
+            "../index.html"
+        );
 
-}
+        return;
 
+    }
+
+})();
 
 // ==========================================
 // DATA WARGA
