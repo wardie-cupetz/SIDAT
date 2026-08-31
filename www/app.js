@@ -103,7 +103,9 @@ if (
 // ==========================================
 // AUTO LOGIN ADMIN
 // ==========================================
-
+alert(
+    JSON.stringify(admin, null, 2)
+);
 if (
     admin?.id &&
     !location.pathname.includes("/admin/")
