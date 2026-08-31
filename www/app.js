@@ -75,21 +75,37 @@ async function syncSidatSession() {
         );
 
         const warga =
-    JSON.parse(
-        localStorage.getItem("sidat_user") || "{}"
-    );
+    localStorage.getItem("sidat_user");
 
 const admin =
-    JSON.parse(
-        localStorage.getItem("sidat_admin_user") || "{}"
-    );
+    localStorage.getItem("sidat_admin_user");
+
 alert(
-    JSON.stringify(
-        admin,
-        null,
-        2
-    )
+    "WARGA:\n" +
+    warga +
+    "\n\nADMIN:\n" +
+    admin
 );
+
+if (warga) {
+
+    window.location.replace(
+        "warga/dashboard.html"
+    );
+
+    return;
+
+}
+
+if (admin) {
+
+    window.location.replace(
+        "admin/dashboard.html"
+    );
+
+    return;
+
+}
 // ==========================================
 // AUTO LOGIN WARGA
 // ==========================================
