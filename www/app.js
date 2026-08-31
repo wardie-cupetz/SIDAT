@@ -688,6 +688,27 @@ document
                     );
 
                 }
+                // ==========================================
+// CEK APAKAH SESSION ADMIN TERSIMPAN
+// ==========================================
+
+const {
+    data: {
+        session: currentSession
+    }
+} =
+await supabaseClient
+    .auth
+    .getSession();
+
+alert(
+    "LOGIN ADMIN\n\n" +
+    (
+        currentSession
+            ? "SESSION TERSIMPAN"
+            : "SESSION TIDAK TERSIMPAN"
+    )
+);
                 // ==================================
 // SIMPAN ACCESS TOKEN ADMIN
 // ==================================
