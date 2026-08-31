@@ -87,16 +87,12 @@ supabaseClient.auth.onAuthStateChange(
 
         console.log(
             "SIDAT AUTH EVENT:",
-            event
+            event,
+            session
         );
 
-
-        console.log(
-    "SIDAT AUTH EVENT:",
-    event,
-    session
+    }
 );
-        }
 
 // Jalankan saat aplikasi dibuka
 syncSidatSession();
@@ -950,17 +946,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     App.addListener("backButton", ({ canGoBack }) => {
 
-    if (canGoBack) {
+        if (canGoBack) {
+            window.history.back();
+            return;
+        }
 
-        window.history.back();
-        return;
+        if (confirm("Keluar dari aplikasi SIDAT?")) {
+            App.exitApp();
+        }
 
-    }
-
-    if (confirm("Keluar dari aplikasi SIDAT?")) {
-
-        App.exitApp();
-
-    }
+    });
 
 });
