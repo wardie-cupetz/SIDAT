@@ -63,13 +63,7 @@ async function syncSidatSession() {
                 localStorage.getItem("sidat_user") || "{}"
             );
 
-        if (user?.resident_id) {
-
-            window.location.replace(
-                "warga/dashboard.html"
-            );
-
-        }
+        
 
     } catch (err) {
 
