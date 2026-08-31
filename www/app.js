@@ -1007,7 +1007,7 @@ async function updatePushSubscription() {
     }
 
 }
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
 
     const App = window.Capacitor?.Plugins?.App;
 
@@ -1015,19 +1015,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    App.addListener("backButton", ({ canGoBack }) => {
+    App.addListener("backButton", () => {
 
-        if (canGoBack) {
+        if (window.history.length > 1) {
+
             window.history.back();
             return;
+
         }
 
-        const keluar = confirm(
-            "Keluar dari aplikasi SIDAT?"
-        );
+        if (confirm("Keluar dari aplikasi SIDAT?")) {
 
-        if (keluar) {
             App.exitApp();
+
         }
 
     });
