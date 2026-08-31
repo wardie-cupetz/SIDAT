@@ -44,15 +44,14 @@ async function syncSidatSession() {
 
     try {
 
-        console.log(
-            "LOCAL ACCESS =",
-            localStorage.getItem("sidat_access_token")
-        );
-
-        console.log(
-            "LOCAL REFRESH =",
-            localStorage.getItem("sidat_refresh_token")
-        );
+        alert(
+    "ACCESS: " +
+    (localStorage.getItem("sidat_access_token") ? "ADA" : "KOSONG") +
+    "\n\nREFRESH: " +
+    (localStorage.getItem("sidat_refresh_token") ? "ADA" : "KOSONG") +
+    "\n\nSUPABASE SESSION: " +
+    (session ? "ADA" : "KOSONG")
+);
 
         const {
             data: { session },
