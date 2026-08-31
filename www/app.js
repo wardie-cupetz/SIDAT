@@ -511,18 +511,6 @@ localStorage.setItem(
         result.user
     )
 );
-
-                
-                // ==================================
-                // SIMPAN DATA SIDAT
-                // ==================================
-
-                localStorage.setItem(
-                    "sidat_user",
-                    JSON.stringify(
-                        result.user
-                    )
-                );
                 
 // ==========================================
 // SIMPAN FCM TOKEN SETELAH LOGIN
