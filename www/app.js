@@ -82,7 +82,13 @@ const admin =
     JSON.parse(
         localStorage.getItem("sidat_admin_user") || "{}"
     );
-
+alert(
+    JSON.stringify(
+        admin,
+        null,
+        2
+    )
+);
 // ==========================================
 // AUTO LOGIN WARGA
 // ==========================================
