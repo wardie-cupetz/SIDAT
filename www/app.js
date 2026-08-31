@@ -26,6 +26,7 @@ const adminLogin =
 async function syncSidatSession() {
 
     try {
+        alert("SYNC DIMULAI");
 
         const {
             data: { session },
