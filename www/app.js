@@ -883,12 +883,12 @@ localStorage.setItem(
                 // ==================================
                 // PINDAH DASHBOARD ADMIN
                 // ==================================
-
-                window.location.href =
-                    "admin/dashboard.html";
 alert(
     localStorage.getItem("sidat_admin_user")
 );
+                
+                window.location.href =
+                    "admin/dashboard.html";
 
             } catch (error) {
 
