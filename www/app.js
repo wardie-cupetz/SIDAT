@@ -44,10 +44,25 @@ async function syncSidatSession() {
 
     try {
 
+        console.log(
+            "LOCAL ACCESS =",
+            localStorage.getItem("sidat_access_token")
+        );
+
+        console.log(
+            "LOCAL REFRESH =",
+            localStorage.getItem("sidat_refresh_token")
+        );
+
         const {
             data: { session },
             error
         } = await supabaseClient.auth.getSession();
+
+        console.log(
+            "SUPABASE SESSION =",
+            session
+        );
 
         if (error) {
             console.error(error);
@@ -73,16 +88,12 @@ async function syncSidatSession() {
 
         const user =
             JSON.parse(
-                localStorage.getItem(
-                    "sidat_user"
-                ) || "{}"
+                localStorage.getItem("sidat_user") || "{}"
             );
 
         if (user?.resident_id) {
-
             window.location.href =
                 "warga/dashboard.html";
-
         }
 
     } catch (err) {
@@ -93,8 +104,8 @@ async function syncSidatSession() {
         );
 
     }
-
 }
+
 // ==========================================
 // OTOMATIS UPDATE TOKEN
 // ==========================================
