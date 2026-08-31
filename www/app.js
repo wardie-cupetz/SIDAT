@@ -44,10 +44,24 @@ async function syncSidatSession() {
 
     try {
 
+        alert(
+    "ACCESS: " +
+    (localStorage.getItem("sidat_access_token") ? "ADA" : "KOSONG") +
+    "\n\nREFRESH: " +
+    (localStorage.getItem("sidat_refresh_token") ? "ADA" : "KOSONG") +
+    "\n\nSUPABASE SESSION: " +
+    (session ? "ADA" : "KOSONG")
+);
+
         const {
             data: { session },
             error
         } = await supabaseClient.auth.getSession();
+
+        console.log(
+            "SUPABASE SESSION =",
+            session
+        );
 
         if (error) {
             console.error(error);
@@ -55,8 +69,21 @@ async function syncSidatSession() {
         }
 
         if (!session) {
+            console.log("Belum ada session.");
             return;
         }
+
+        console.log("Session berhasil dipulihkan.");
+
+        localStorage.setItem(
+            "sidat_access_token",
+            session.access_token
+        );
+
+        localStorage.setItem(
+            "sidat_refresh_token",
+            session.refresh_token
+        );
 
         const user =
             JSON.parse(
@@ -64,20 +91,20 @@ async function syncSidatSession() {
             );
 
         if (user?.resident_id) {
-
-            window.location.replace(
-                "warga/dashboard.html"
-            );
-
+            window.location.href =
+                "warga/dashboard.html";
         }
 
     } catch (err) {
 
-        console.error(err);
+        console.error(
+            "syncSidatSession:",
+            err
+        );
 
     }
-
 }
+
 // ==========================================
 // OTOMATIS UPDATE TOKEN
 // ==========================================
@@ -87,12 +114,30 @@ supabaseClient.auth.onAuthStateChange(
 
         console.log(
             "SIDAT AUTH EVENT:",
-            event,
-            session
+            event
         );
+
+
+        if (
+            session?.access_token
+        ) {
+
+            localStorage.setItem(
+                "sidat_access_token",
+                session.access_token
+            );
+
+        } else {
+
+            localStorage.removeItem(
+                "sidat_access_token"
+            );
+
+        }
 
     }
 );
+
 
 // Jalankan saat aplikasi dibuka
 syncSidatSession();
@@ -433,6 +478,17 @@ if (
 }
 
 
+localStorage.setItem(
+    "sidat_access_token",
+    session.access_token
+);
+
+
+localStorage.setItem(
+    "sidat_refresh_token",
+    session.refresh_token
+);
+
 
 // DEBUG
 console.log(
@@ -636,7 +692,16 @@ document
                     );
 
                 }
-                
+                // ==================================
+// SIMPAN ACCESS TOKEN ADMIN
+// ==================================
+
+localStorage.setItem(
+    "sidat_access_token",
+    data.session.access_token
+);
+
+
                 // ==================================
                 // LOG LOGIN
                 // ==================================
@@ -870,14 +935,11 @@ async function updatePushSubscription() {
         return;
     }
 
-   const {
-    data: { session }
-} = await supabaseClient.auth.getSession();
+    const accessToken =
+        localStorage.getItem(
+            "sidat_access_token"
+        );
 
-if (!session) return;
-
-const accessToken =
-    session.access_token;
     if (!accessToken) {
         return;
     }
@@ -906,55 +968,4 @@ const accessToken =
 
                 headers: {
                     apikey: SUPABASE_KEY,
-                    Authorization:
-                        `Bearer ${accessToken}`,
-                    "Content-Type":
-                        "application/json",
-                    Prefer: "return=minimal"
-                },
-
-                body: JSON.stringify({
-                    fcm_token: token,
-                    updated_at:
-                        new Date().toISOString()
-                })
-            }
-        );
-
-    if (!response.ok) {
-
-        console.error(
-            await response.text()
-        );
-
-    } else {
-
-        console.log(
-            "FCM token berhasil disimpan."
-        );
-
-    }
-
-}
-document.addEventListener("DOMContentLoaded", () => {
-
-    const App = window.Capacitor?.Plugins?.App;
-
-    if (!App) {
-        return;
-    }
-
-    App.addListener("backButton", ({ canGoBack }) => {
-
-        if (canGoBack) {
-            window.history.back();
-            return;
-        }
-
-        if (confirm("Keluar dari aplikasi SIDAT?")) {
-            App.exitApp();
-        }
-
-    });
-
-});
+                 
