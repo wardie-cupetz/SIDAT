@@ -26,8 +26,16 @@ const adminLogin =
 const supabaseClient =
     supabase.createClient(
         SUPABASE_URL,
-        SUPABASE_KEY
+        SUPABASE_KEY,
+        {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: false
+            }
+        }
     );
+
 // ==========================================
 // SIDAT SESSION SYNC
 // ==========================================
@@ -36,72 +44,46 @@ async function syncSidatSession() {
 
     try {
 
-        const accessToken =
-            localStorage.getItem(
-                "sidat_access_token"
-            );
-
-        const refreshToken =
-            localStorage.getItem(
-                "sidat_refresh_token"
-            );
-
-        if (!accessToken || !refreshToken) {
-            return;
-        }
-
         const {
-            data,
+            data: { session },
             error
-        } =
-            await supabaseClient.auth.setSession({
-
-                access_token:
-                    accessToken,
-
-                refresh_token:
-                    refreshToken
-
-            });
+        } = await supabaseClient.auth.getSession();
 
         if (error) {
-
-            console.error(
-                "Restore session gagal:",
-                error
-            );
-
-            localStorage.removeItem(
-                "sidat_access_token"
-            );
-
-            localStorage.removeItem(
-                "sidat_refresh_token"
-            );
-
-            localStorage.removeItem(
-                "sidat_user"
-            );
-
+            console.error(error);
             return;
         }
 
-        console.log(
-            "Session berhasil dipulihkan."
+        if (!session) {
+            console.log("Belum ada session.");
+            return;
+        }
+
+        console.log("Session berhasil dipulihkan.");
+
+        localStorage.setItem(
+            "sidat_access_token",
+            session.access_token
         );
+
+        localStorage.setItem(
+            "sidat_refresh_token",
+            session.refresh_token
+        );
+
         const user =
-    JSON.parse(
-        localStorage.getItem(
-            "sidat_user"
-        ) || "{}"
-    );
+            JSON.parse(
+                localStorage.getItem(
+                    "sidat_user"
+                ) || "{}"
+            );
 
-if (user.resident_id) {
+        if (user?.resident_id) {
 
-    window.location.href =
-        "warga/dashboard.html";
+            window.location.href =
+                "warga/dashboard.html";
 
-}
+        }
 
     } catch (err) {
 
@@ -113,7 +95,6 @@ if (user.resident_id) {
     }
 
 }
-
 // ==========================================
 // OTOMATIS UPDATE TOKEN
 // ==========================================
