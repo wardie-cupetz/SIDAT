@@ -26,7 +26,7 @@ const adminLogin =
 async function syncSidatSession() {
 
     try {
-        alert("SYNC DIMULAI");
+        
 
         const {
             data: { session },
@@ -41,14 +41,6 @@ async function syncSidatSession() {
             return;
         }
 
-        alert(
-            "ACCESS: " +
-            (localStorage.getItem("sidat_access_token") ? "ADA" : "KOSONG") +
-            "\n\nREFRESH: " +
-            (localStorage.getItem("sidat_refresh_token") ? "ADA" : "KOSONG") +
-            "\n\nSUPABASE SESSION: " +
-            (session ? "ADA" : "KOSONG")
-        );
 
         if (!session) {
 
@@ -75,37 +67,15 @@ async function syncSidatSession() {
         );
 
         const warga =
-    localStorage.getItem("sidat_user");
+    JSON.parse(
+        localStorage.getItem("sidat_user") || "null"
+    );
 
 const admin =
-    localStorage.getItem("sidat_admin_user");
-
-alert(
-    "WARGA:\n" +
-    warga +
-    "\n\nADMIN:\n" +
-    admin
-);
-
-if (warga) {
-
-    window.location.replace(
-        "warga/dashboard.html"
+    JSON.parse(
+        localStorage.getItem("sidat_admin_user") || "null"
     );
 
-    return;
-
-}
-
-if (admin) {
-
-    window.location.replace(
-        "admin/dashboard.html"
-    );
-
-    return;
-
-}
 // ==========================================
 // AUTO LOGIN WARGA
 // ==========================================
@@ -1086,3 +1056,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+    
