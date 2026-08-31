@@ -882,11 +882,14 @@ async function updatePushSubscription() {
         return;
     }
 
-    const accessToken =
-        localStorage.getItem(
-            "sidat_access_token"
-        );
+   const {
+    data: { session }
+} = await supabaseClient.auth.getSession();
 
+if (!session) return;
+
+const accessToken =
+    session.access_token;
     if (!accessToken) {
         return;
     }
