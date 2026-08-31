@@ -49,22 +49,14 @@ async function syncSidatSession() {
             error
         } = await supabaseClient.auth.getSession();
 
-        console.log(
-            "SUPABASE SESSION =",
-            session
-        );
-
         if (error) {
             console.error(error);
             return;
         }
 
         if (!session) {
-            console.log("Belum ada session.");
             return;
         }
-
-        console.log("Session berhasil dipulihkan.");
 
         const user =
             JSON.parse(
@@ -72,20 +64,20 @@ async function syncSidatSession() {
             );
 
         if (user?.resident_id) {
-            window.location.href =
-                "warga/dashboard.html";
+
+            window.location.replace(
+                "warga/dashboard.html"
+            );
+
         }
 
     } catch (err) {
 
-        console.error(
-            "syncSidatSession:",
-            err
-        );
+        console.error(err);
 
     }
-}
 
+}
 // ==========================================
 // OTOMATIS UPDATE TOKEN
 // ==========================================
@@ -956,21 +948,19 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    App.addListener("backButton", () => {
+    App.addListener("backButton", ({ canGoBack }) => {
 
-        if (window.history.length > 1) {
+    if (canGoBack) {
 
-            window.history.back();
-            return;
+        window.history.back();
+        return;
 
-        }
+    }
 
-        if (confirm("Keluar dari aplikasi SIDAT?")) {
+    if (confirm("Keluar dari aplikasi SIDAT?")) {
 
-            App.exitApp();
+        App.exitApp();
 
-        }
-
-    });
+    }
 
 });
