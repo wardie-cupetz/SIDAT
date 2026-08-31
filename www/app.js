@@ -968,4 +968,60 @@ async function updatePushSubscription() {
 
                 headers: {
                     apikey: SUPABASE_KEY,
-                 
+                    Authorization:
+                        `Bearer ${accessToken}`,
+                    "Content-Type":
+                        "application/json",
+                    Prefer: "return=minimal"
+                },
+
+                body: JSON.stringify({
+                    fcm_token: token,
+                    updated_at:
+                        new Date().toISOString()
+                })
+            }
+        );
+
+    if (!response.ok) {
+
+        console.error(
+            await response.text()
+        );
+
+    } else {
+
+        console.log(
+            "FCM token berhasil disimpan."
+        );
+
+    }
+
+}
+document.addEventListener("DOMContentLoaded", () => {
+
+    const App = window.Capacitor?.Plugins?.App;
+
+    if (!App) {
+        return;
+    }
+
+    App.addListener("backButton", () => {
+
+        if (window.history.length > 1) {
+
+            window.history.back();
+            return;
+
+        }
+
+        if (confirm("Keluar dari aplikasi SIDAT?")) {
+
+            App.exitApp();
+
+        }
+
+    });
+
+});
+
