@@ -96,19 +96,15 @@ if (
 // ==========================================
 // AUTO LOGIN ADMIN
 // ==========================================
-if (
-    admin?.role === "admin" &&
-    admin?.id &&
-    !location.pathname.includes("/admin/")
-) {
-
-    window.location.replace(
-        "admin/dashboard.html"
-    );
-    return;
-
-}
-} catch (err) {
+localStorage.setItem(
+    "sidat_admin_user",
+    JSON.stringify({
+        user_id: data.user.id,
+        email: data.user.email,
+        role: "admin"
+    })
+);
+    } catch (err) {
 
     console.error(
         "syncSidatSession:",
