@@ -96,12 +96,9 @@ if (
 // ==========================================
 // AUTO LOGIN ADMIN
 // ==========================================
-alert(
-    JSON.stringify(admin, null, 2)
-);
 if (
-    admin &&
-    admin.id &&
+    admin?.role === "admin" &&
+    admin?.id &&
     !location.pathname.includes("/admin/")
 ) {
 
@@ -112,7 +109,6 @@ if (
     return;
 
 }
-
 } catch (err) {
 
     console.error(
@@ -743,6 +739,10 @@ localStorage.setItem(
     "sidat_access_token",
     data.session.access_token
 );
+                localStorage.setItem(
+    "sidat_refresh_token",
+    data.session.refresh_token
+);
 
 
                 // ==================================
@@ -827,11 +827,13 @@ localStorage.setItem(
                 // ==================================
 
                 localStorage.setItem(
-                    "sidat_admin_user",
-                    JSON.stringify(
-                        data.user
-                    )
-                );
+    "sidat_admin_user",
+    JSON.stringify({
+        id: data.user.id,
+        email: data.user.email,
+        role: profile.role
+    })
+);
 
 
                 // ==================================
