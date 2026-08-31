@@ -105,7 +105,6 @@ if (
     window.location.replace(
         "admin/dashboard.html"
     );
-
     return;
 
 }
@@ -887,7 +886,9 @@ localStorage.setItem(
 
                 window.location.href =
                     "admin/dashboard.html";
-
+alert(
+    localStorage.getItem("sidat_admin_user")
+);
 
             } catch (error) {
 
