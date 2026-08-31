@@ -44,15 +44,6 @@ async function syncSidatSession() {
 
     try {
 
-        alert(
-    "ACCESS: " +
-    (localStorage.getItem("sidat_access_token") ? "ADA" : "KOSONG") +
-    "\n\nREFRESH: " +
-    (localStorage.getItem("sidat_refresh_token") ? "ADA" : "KOSONG") +
-    "\n\nSUPABASE SESSION: " +
-    (session ? "ADA" : "KOSONG")
-);
-
         const {
             data: { session },
             error
@@ -74,16 +65,6 @@ async function syncSidatSession() {
         }
 
         console.log("Session berhasil dipulihkan.");
-
-        localStorage.setItem(
-            "sidat_access_token",
-            session.access_token
-        );
-
-        localStorage.setItem(
-            "sidat_refresh_token",
-            session.refresh_token
-        );
 
         const user =
             JSON.parse(
@@ -118,26 +99,12 @@ supabaseClient.auth.onAuthStateChange(
         );
 
 
-        if (
-            session?.access_token
-        ) {
-
-            localStorage.setItem(
-                "sidat_access_token",
-                session.access_token
-            );
-
-        } else {
-
-            localStorage.removeItem(
-                "sidat_access_token"
-            );
-
-        }
-
-    }
+        console.log(
+    "SIDAT AUTH EVENT:",
+    event,
+    session
 );
-
+        }
 
 // Jalankan saat aplikasi dibuka
 syncSidatSession();
@@ -478,17 +445,6 @@ if (
 }
 
 
-localStorage.setItem(
-    "sidat_access_token",
-    session.access_token
-);
-
-
-localStorage.setItem(
-    "sidat_refresh_token",
-    session.refresh_token
-);
-
 
 // DEBUG
 console.log(
@@ -692,16 +648,7 @@ document
                     );
 
                 }
-                // ==================================
-// SIMPAN ACCESS TOKEN ADMIN
-// ==================================
-
-localStorage.setItem(
-    "sidat_access_token",
-    data.session.access_token
-);
-
-
+                
                 // ==================================
                 // LOG LOGIN
                 // ==================================
