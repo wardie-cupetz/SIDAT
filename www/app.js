@@ -447,7 +447,15 @@ if (sessionError) {
 
 const session =
     sessionData?.session;
+const {
+    data: { session }
+} = await supabaseClient.auth.getSession();
 
+alert(
+    session
+        ? "SESSION TERSIMPAN"
+        : "SESSION TIDAK TERSIMPAN"
+);
 
 if (
     !session ||
