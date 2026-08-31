@@ -1007,3 +1007,29 @@ async function updatePushSubscription() {
     }
 
 }
+document.addEventListener("DOMContentLoaded", async () => {
+
+    const App = window.Capacitor?.Plugins?.App;
+
+    if (!App) {
+        return;
+    }
+
+    App.addListener("backButton", ({ canGoBack }) => {
+
+        if (canGoBack) {
+            window.history.back();
+            return;
+        }
+
+        const keluar = confirm(
+            "Keluar dari aplikasi SIDAT?"
+        );
+
+        if (keluar) {
+            App.exitApp();
+        }
+
+    });
+
+});
