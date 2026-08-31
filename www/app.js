@@ -73,27 +73,47 @@ async function syncSidatSession() {
             session.refresh_token
         );
 
-        const user = JSON.parse(
-            localStorage.getItem(
-                "sidat_user"
-            ) || "{}"
-        );
+        const warga =
+    JSON.parse(
+        localStorage.getItem("sidat_user") || "{}"
+    );
 
-        if (user?.resident_id) {
+const admin =
+    JSON.parse(
+        localStorage.getItem("sidat_admin_user") || "{}"
+    );
 
-            window.location.href =
-                "warga/dashboard.html";
+// ==========================================
+// AUTO LOGIN WARGA
+// ==========================================
 
-        }
+if (
+    warga?.resident_id &&
+    !location.pathname.includes("/warga/")
+) {
 
-    } catch (err) {
+    window.location.replace(
+        "warga/dashboard.html"
+    );
 
-        console.error(
-            "syncSidatSession:",
-            err
-        );
+    return;
 
-    }
+}
+
+// ==========================================
+// AUTO LOGIN ADMIN
+// ==========================================
+
+if (
+    admin?.id &&
+    !location.pathname.includes("/admin/")
+) {
+
+    window.location.replace(
+        "admin/dashboard.html"
+    );
+
+    return;
 
 }
 
