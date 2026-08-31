@@ -23,40 +23,53 @@ const adminLogin =
 // SIDAT SESSION SYNC
 // ==========================================
 
+// ==========================================
+// SIDAT SESSION SYNC
+// ==========================================
+
+// ==========================================
+// SIDAT SESSION SYNC
+// ==========================================
+
 async function syncSidatSession() {
 
     try {
-
-        alert(
-    "ACCESS: " +
-    (localStorage.getItem("sidat_access_token") ? "ADA" : "KOSONG") +
-    "\n\nREFRESH: " +
-    (localStorage.getItem("sidat_refresh_token") ? "ADA" : "KOSONG") +
-    "\n\nSUPABASE SESSION: " +
-    (session ? "ADA" : "KOSONG")
-);
 
         const {
             data: { session },
             error
         } = await supabaseClient.auth.getSession();
 
-        console.log(
-            "SUPABASE SESSION =",
-            session
+        if (error) {
+            console.error(
+                "syncSidatSession:",
+                error
+            );
+            return;
+        }
+
+        alert(
+            "ACCESS: " +
+            (localStorage.getItem("sidat_access_token") ? "ADA" : "KOSONG") +
+            "\n\nREFRESH: " +
+            (localStorage.getItem("sidat_refresh_token") ? "ADA" : "KOSONG") +
+            "\n\nSUPABASE SESSION: " +
+            (session ? "ADA" : "KOSONG")
         );
 
-        if (error) {
-            console.error(error);
-            return;
-        }
-
         if (!session) {
-            console.log("Belum ada session.");
+
+            console.log(
+                "Belum ada session."
+            );
+
             return;
+
         }
 
-        console.log("Session berhasil dipulihkan.");
+        console.log(
+            "Session berhasil dipulihkan."
+        );
 
         localStorage.setItem(
             "sidat_access_token",
@@ -68,14 +81,17 @@ async function syncSidatSession() {
             session.refresh_token
         );
 
-        const user =
-            JSON.parse(
-                localStorage.getItem("sidat_user") || "{}"
-            );
+        const user = JSON.parse(
+            localStorage.getItem(
+                "sidat_user"
+            ) || "{}"
+        );
 
         if (user?.resident_id) {
+
             window.location.href =
                 "warga/dashboard.html";
+
         }
 
     } catch (err) {
@@ -86,6 +102,7 @@ async function syncSidatSession() {
         );
 
     }
+
 }
 
 // ==========================================
@@ -411,13 +428,11 @@ document
                     );
 
                 }
+// ==========================================
+// SET SESSION SUPABASE
+// ==========================================
 
-
-                // ==================================
-                // SET SESSION SUPABASE
-                // ==================================
-
-                const {
+const {
     data: sessionData,
     error: sessionError
 } =
@@ -433,33 +448,41 @@ document
 
         });
 
-
 if (sessionError) {
 
     throw sessionError;
 
 }
 
-
 // ==========================================
-// SIMPAN SESSION WARGA
+// CEK APAKAH SESSION TERSIMPAN
 // ==========================================
 
-const session =
-    sessionData?.session;
 const {
-    data: { session }
-} = await supabaseClient.auth.getSession();
+    data: {
+        session: currentSession
+    }
+} =
+    await supabaseClient
+        .auth
+        .getSession();
 
 alert(
-    session
-        ? "SESSION TERSIMPAN"
-        : "SESSION TIDAK TERSIMPAN"
+    "HASIL SET SESSION\n\n" +
+    (
+        currentSession
+            ? "SESSION TERSIMPAN"
+            : "SESSION TIDAK TERSIMPAN"
+    )
 );
 
+// ==========================================
+// VALIDASI SESSION
+// ==========================================
+
 if (
-    !session ||
-    !session.access_token
+    !currentSession ||
+    !currentSession.access_token
 ) {
 
     throw new Error(
@@ -468,30 +491,28 @@ if (
 
 }
 
-
-localStorage.setItem(
-    "sidat_access_token",
-    session.access_token
-);
-
-
-localStorage.setItem(
-    "sidat_refresh_token",
-    session.refresh_token
-);
-
-
-// DEBUG
 console.log(
     "SUPABASE SESSION WARGA:",
-    session
+    currentSession
 );
 
 console.log(
     "ACCESS TOKEN SIDAT:",
-    session.access_token
+    currentSession.access_token
 );
 
+// ==========================================
+// SIMPAN DATA SIDAT
+// ==========================================
+
+localStorage.setItem(
+    "sidat_user",
+    JSON.stringify(
+        result.user
+    )
+);
+
+                
                 // ==================================
                 // SIMPAN DATA SIDAT
                 // ==================================
