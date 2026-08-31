@@ -103,24 +103,33 @@ if (
 // ==========================================
 // AUTO LOGIN ADMIN
 // ==========================================
-localStorage.setItem(
-    "sidat_admin_user",
-    JSON.stringify({
-        user_id: data.user.id,
-        email: data.user.email,
-        role: "admin"
-    })
-);
-    } catch (err) {
+// ==========================================
+// AUTO LOGIN ADMIN
+// ==========================================
 
-    console.error(
-        "syncSidatSession:",
-        err
+const {
+    data: profile,
+    error: profileError
+} = await supabaseClient
+    .from("profiles")
+    .select("role")
+    .eq("user_id", session.user.id)
+    .single();
+
+if (
+    !profileError &&
+    profile?.role === "admin" &&
+    !location.pathname.includes("/admin/")
+) {
+
+    window.location.replace(
+        "admin/dashboard.html"
     );
+
+    return;
 
 }
 
-}       
 // ==========================================
 // OTOMATIS UPDATE TOKEN
 // ==========================================
