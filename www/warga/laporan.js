@@ -1922,56 +1922,45 @@ async function buatNotifikasiAdminLaporan(
 
 
         // ======================================
-        // AMBIL USER ID LOGIN
-        // ======================================
+// AMBIL USER ID DARI SUPABASE AUTH
+// ======================================
 
-        const authResponse =
-            await supabaseRequest(
+const authUser =
+    await supabaseRequest(
+        `${SUPABASE_URL}/auth/v1/user`,
+        {
+            method: "GET",
+            headers: {
+                "Authorization":
+                    `Bearer ${accessToken}`,
 
-                `${SUPABASE_URL}/auth/v1/user`,
-
-                {
-
-                    method:
-                        "GET",
-
-                    headers: {
-
-                        "Authorization":
-                            `Bearer ${accessToken}`,
-
-                        "apikey":
-                            SUPABASE_KEY
-
-                    }
-
-                }
-
-            );
-
-
-        const authUserId =
-            authResponse?.id ||
-            null;
-
-
-        if (!authUserId) {
-
-            console.error(
-                "SIDAT: User ID dari Supabase Auth tidak ditemukan."
-            );
-
-            return false;
-
+                "apikey":
+                    SUPABASE_KEY
+            }
         }
+    );
 
 
-        console.log(
-            "SIDAT: AUTH USER ID:",
-            authUserId
-        );
+const authUserId =
+    authUser?.id ||
+    null;
 
 
+console.log(
+    "SIDAT: AUTH USER ID:",
+    authUserId
+);
+
+
+if (!authUserId) {
+
+    console.error(
+        "SIDAT: Auth User ID tidak ditemukan."
+    );
+
+    return false;
+
+}
         // ======================================
         // PAYLOAD NOTIFIKASI ADMIN
         // ======================================
