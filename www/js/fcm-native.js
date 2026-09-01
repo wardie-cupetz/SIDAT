@@ -911,24 +911,33 @@
                         )
                         .insert({
 
-                            user_id:
-                                user.id,
+    user_id:
+        user.id,
 
-                            resident_id:
-                                null,
+    resident_id:
+        null,
 
-                            endpoint:
-                                `fcm-native:${user.id}`,
+    endpoint:
+        `fcm-native:${user.id}`,
 
-                            p256dh:
-                                null,
+    p256dh:
+        `fcm-native-${user.id}`,
 
-                            auth:
-                                null,
+    auth:
+        `fcm-native-${user.id}`,
 
-                            fcm_token:
-                                token,
+    fcm_token:
+        token,
 
+    created_at:
+        new Date()
+            .toISOString(),
+
+    updated_at:
+        new Date()
+            .toISOString()
+
+});
                             created_at:
                                 new Date()
                                     .toISOString(),
