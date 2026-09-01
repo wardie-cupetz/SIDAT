@@ -1688,11 +1688,6 @@ async function uploadFotoLaporan(
 // BUAT NOTIFIKASI ADMIN
 // LAPORAN BARU
 // ==========================================
-
-// ==========================================
-// NOTIFIKASI ADMIN LAPORAN BARU
-// ==========================================
-
 async function buatNotifikasiAdminLaporan(
     laporan
 ) {
@@ -1788,7 +1783,7 @@ async function buatNotifikasiAdminLaporan(
                     headers: {
 
                         "Prefer":
-                            "return=minimal"
+                            "return=representation"
 
                     },
 
@@ -1803,10 +1798,148 @@ async function buatNotifikasiAdminLaporan(
 
 
         console.log(
-            "SIDAT: Notifikasi admin berhasil dibuat.",
+            "SIDAT: Hasil INSERT notifikasi admin:",
             response
         );
 
+
+        // ======================================
+        // AMBIL NOTIFICATION ID
+        // ======================================
+
+        const notification =
+            Array.isArray(response)
+                ? response[0]
+                : response;
+
+
+        const notificationId =
+            notification &&
+            notification.id
+                ? notification.id
+                : null;
+
+
+        if (!notificationId) {
+
+            console.error(
+                "SIDAT: Notification ID tidak ditemukan setelah INSERT.",
+                response
+            );
+
+            return false;
+
+        }
+
+
+        console.log(
+            "SIDAT: Notification ID:",
+            notificationId
+        );
+
+
+        // ======================================
+        // AMBIL ACCESS TOKEN
+        // ======================================
+
+        const accessToken =
+            localStorage.getItem(
+                "sidat_access_token"
+            );
+
+
+        if (!accessToken) {
+
+            console.warn(
+                "SIDAT: Access token tidak ditemukan."
+            );
+
+            return true;
+
+        }
+
+
+        // ======================================
+        // PANGGIL EDGE FUNCTION
+        // SEND PUSH NOTIFICATION
+        // ======================================
+
+        console.log(
+            "SIDAT: Memanggil send-push-notification..."
+        );
+
+
+        const pushResponse =
+            await supabaseRequest(
+
+                `${SUPABASE_URL}/functions/v1/send-push-notification`,
+
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Authorization":
+                            `Bearer ${accessToken}`,
+
+                        "apikey":
+                            SUPABASE_KEY,
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            notification_id:
+                                notificationId
+
+                        })
+
+                }
+
+            );
+
+
+        console.log(
+            "SIDAT: Response send-push-notification:",
+            pushResponse
+        );
+
+
+        // ======================================
+        // HASIL PUSH
+        // ======================================
+
+        if (
+            pushResponse &&
+            pushResponse.success
+        ) {
+
+            console.log(
+                "SIDAT: Push notification admin berhasil diproses."
+            );
+
+        } else {
+
+            console.warn(
+                "SIDAT: Push notification admin tidak berhasil diproses.",
+                pushResponse
+            );
+
+        }
+
+
+        /*
+         * Notifikasi sudah berhasil dibuat.
+         *
+         * Jangan menggagalkan pengiriman laporan
+         * hanya karena proses push gagal.
+         */
 
         return true;
 
@@ -1831,8 +1964,7 @@ async function buatNotifikasiAdminLaporan(
 
     }
 
-}
-// ==========================================
+}// ==========================================
 // KIRIM LAPORAN
 // ==========================================
 
