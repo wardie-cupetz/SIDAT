@@ -15,7 +15,8 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Methods":
+    "POST, OPTIONS",
 };
 
 
@@ -283,7 +284,9 @@ async function createGoogleAccessToken(): Promise<string> {
   };
 
   const claimSet = {
-    iss: FIREBASE_CLIENT_EMAIL,
+
+    iss:
+      FIREBASE_CLIENT_EMAIL,
 
     scope:
       "https://www.googleapis.com/auth/firebase.messaging",
@@ -291,10 +294,12 @@ async function createGoogleAccessToken(): Promise<string> {
     aud:
       "https://oauth2.googleapis.com/token",
 
-    iat: now,
+    iat:
+      now,
 
     exp:
       now + 3600,
+
   };
 
 
@@ -316,14 +321,21 @@ async function createGoogleAccessToken(): Promise<string> {
   const privateKey =
     await crypto.subtle.importKey(
       "pkcs8",
+
       pemToArrayBuffer(
         FIREBASE_PRIVATE_KEY
       ),
+
       {
-        name: "RSASSA-PKCS1-v1_5",
-        hash: "SHA-256",
+        name:
+          "RSASSA-PKCS1-v1_5",
+
+        hash:
+          "SHA-256",
       },
+
       false,
+
       ["sign"],
     );
 
@@ -331,7 +343,9 @@ async function createGoogleAccessToken(): Promise<string> {
   const signature =
     await crypto.subtle.sign(
       "RSASSA-PKCS1-v1_5",
+
       privateKey,
+
       new TextEncoder().encode(
         unsignedToken
       ),
@@ -348,7 +362,8 @@ async function createGoogleAccessToken(): Promise<string> {
     await fetch(
       "https://oauth2.googleapis.com/token",
       {
-        method: "POST",
+        method:
+          "POST",
 
         headers: {
           "Content-Type":
@@ -434,31 +449,38 @@ async function sendFCM(
     await fetch(
       url,
       {
-        method: "POST",
+        method:
+          "POST",
 
         headers: {
+
           "Authorization":
             `Bearer ${accessToken}`,
 
           "Content-Type":
             "application/json",
+
         },
 
         body:
           JSON.stringify({
+
             message: {
 
               token,
 
               notification: {
+
                 title:
                   notification.title,
 
                 body:
                   notification.body,
+
               },
 
               data: {
+
                 notification_id:
                   notification.notification_id,
 
@@ -472,21 +494,28 @@ async function sendFCM(
 
                 url:
                   notification.url,
+
               },
 
               android: {
-                priority: "high",
+
+                priority:
+                  "high",
 
                 notification: {
+
                   channel_id:
                     "sidat_notification",
 
                   sound:
                     "default",
+
                 },
+
               },
 
             },
+
           }),
       }
     );
@@ -512,7 +541,8 @@ async function sendFCM(
 
   } catch {
 
-    responseData = null;
+    responseData =
+      null;
 
   }
 
@@ -523,7 +553,10 @@ async function sendFCM(
       String(
         (
           responseData?.error as
-            Record<string, unknown> |
+            Record<
+              string,
+              unknown
+            > |
             undefined
         )?.details
           ? JSON.stringify(
@@ -544,7 +577,10 @@ async function sendFCM(
       String(
         (
           responseData?.error as
-            Record<string, unknown> |
+            Record<
+              string,
+              unknown
+            > |
             undefined
         )?.message ||
         responseText ||
@@ -556,9 +592,16 @@ async function sendFCM(
       new Error(
         errorMessage
       ) as Error & {
-        statusCode?: number;
-        responseData?: unknown;
-        fcmErrorCode?: string;
+
+        statusCode?:
+          number;
+
+        responseData?:
+          unknown;
+
+        fcmErrorCode?:
+          string;
+
       };
 
 
@@ -599,10 +642,16 @@ async function authenticateAdmin(
   if (!authorization) {
 
     return {
-      user: null,
+
+      user:
+        null,
+
       error:
         "Authorization header wajib dikirim.",
-      status: 401,
+
+      status:
+        401,
+
     };
 
   }
@@ -615,10 +664,16 @@ async function authenticateAdmin(
   ) {
 
     return {
-      user: null,
+
+      user:
+        null,
+
       error:
         "Format Authorization tidak valid.",
-      status: 401,
+
+      status:
+        401,
+
     };
 
   }
@@ -633,10 +688,16 @@ async function authenticateAdmin(
   if (!token) {
 
     return {
-      user: null,
+
+      user:
+        null,
+
       error:
         "Token authorization kosong.",
-      status: 401,
+
+      status:
+        401,
+
     };
 
   }
@@ -646,11 +707,14 @@ async function authenticateAdmin(
     data: {
       user
     },
-    error: userError,
+    error:
+      userError,
   } =
     await supabaseAdmin
       .auth
-      .getUser(token);
+      .getUser(
+        token
+      );
 
 
   if (
@@ -669,21 +733,31 @@ async function authenticateAdmin(
 
 
     return {
-      user: null,
+
+      user:
+        null,
+
       error:
         "Token tidak valid atau sudah kedaluwarsa.",
-      status: 401,
+
+      status:
+        401,
+
     };
 
   }
 
 
   const {
-    data: profile,
-    error: profileError,
+    data:
+      profile,
+    error:
+      profileError,
   } =
     await supabaseAdmin
-      .from("profiles")
+      .from(
+        "profiles"
+      )
       .select(
         "id, user_id, role"
       )
@@ -709,10 +783,16 @@ async function authenticateAdmin(
 
 
     return {
-      user: null,
+
+      user:
+        null,
+
       error:
         "Gagal memverifikasi hak akses admin.",
-      status: 500,
+
+      status:
+        500,
+
     };
 
   }
@@ -738,19 +818,31 @@ async function authenticateAdmin(
 
 
     return {
-      user: null,
+
+      user:
+        null,
+
       error:
         "Akses hanya untuk admin.",
-      status: 403,
+
+      status:
+        403,
+
     };
 
   }
 
 
   return {
+
     user,
-    error: null,
-    status: 200,
+
+    error:
+      null,
+
+    status:
+      200,
+
   };
 
 }
@@ -775,7 +867,9 @@ Deno.serve(
       return new Response(
         null,
         {
-          status: 204,
+          status:
+            204,
+
           headers:
             corsHeaders,
         }
@@ -801,7 +895,8 @@ Deno.serve(
 
         return jsonResponse(
           {
-            success: false,
+            success:
+              false,
 
             message:
               "Method harus POST.",
@@ -832,7 +927,8 @@ Deno.serve(
 
         return jsonResponse(
           {
-            success: false,
+            success:
+              false,
 
             message:
               authResult.error,
@@ -888,7 +984,8 @@ Deno.serve(
 
           return jsonResponse(
             {
-              success: false,
+              success:
+                false,
 
               message:
                 "Body JSON harus berupa object.",
@@ -914,7 +1011,8 @@ Deno.serve(
 
         return jsonResponse(
           {
-            success: false,
+            success:
+              false,
 
             message:
               "Body JSON tidak valid.",
@@ -946,7 +1044,8 @@ Deno.serve(
 
         return jsonResponse(
           {
-            success: false,
+            success:
+              false,
 
             message:
               "notification_id wajib dikirim.",
@@ -1012,7 +1111,8 @@ Deno.serve(
 
         return jsonResponse(
           {
-            success: false,
+            success:
+              false,
 
             message:
               "Gagal mengambil notifikasi.",
@@ -1033,7 +1133,8 @@ Deno.serve(
 
         return jsonResponse(
           {
-            success: false,
+            success:
+              false,
 
             message:
               "Notifikasi tidak ditemukan.",
@@ -1061,6 +1162,7 @@ Deno.serve(
             `
               id,
               resident_id,
+              user_id,
               fcm_token
             `
           )
@@ -1070,6 +1172,10 @@ Deno.serve(
             null
           );
 
+
+      /* ===================================================
+         TARGET: ALL
+         =================================================== */
 
       if (
         notification.target_type ===
@@ -1085,7 +1191,14 @@ Deno.serve(
           }
         );
 
-      } else if (
+      }
+
+
+      /* ===================================================
+         TARGET: RESIDENT
+         =================================================== */
+
+      else if (
         notification.target_type ===
         "resident"
       ) {
@@ -1096,7 +1209,8 @@ Deno.serve(
 
           return jsonResponse(
             {
-              success: false,
+              success:
+                false,
 
               message:
                 "target_resident_id tidak tersedia.",
@@ -1114,6 +1228,7 @@ Deno.serve(
         query =
           query.eq(
             "resident_id",
+
             notification
               .target_resident_id
           );
@@ -1132,12 +1247,182 @@ Deno.serve(
           }
         );
 
+      }
 
-      } else {
+
+      /* ===================================================
+         TARGET: ADMIN
+         =================================================== */
+
+      else if (
+        notification.target_type ===
+        "admin"
+      ) {
+
+        /*
+         * Notifikasi Admin tidak menggunakan
+         * resident_id.
+         *
+         * Cari subscription berdasarkan
+         * user_id yang memiliki profile
+         * dengan role = admin.
+         */
+
+        const {
+          data:
+            adminProfiles,
+          error:
+            adminProfileError,
+        } =
+          await supabaseAdmin
+            .from(
+              "profiles"
+            )
+            .select(
+              "user_id"
+            )
+            .eq(
+              "role",
+              "admin"
+            );
+
+
+        if (
+          adminProfileError
+        ) {
+
+          logError(
+            "admin_profiles_lookup_failed",
+            {
+              requestId,
+
+              notificationId,
+
+              error:
+                adminProfileError.message,
+            }
+          );
+
+
+          return jsonResponse(
+            {
+              success:
+                false,
+
+              message:
+                "Gagal mengambil akun admin.",
+
+              request_id:
+                requestId,
+            },
+
+            500
+          );
+
+        }
+
+
+        const adminUserIds =
+          (
+            adminProfiles ||
+            []
+          )
+            .map(
+              (
+                profile
+              ) =>
+                profile.user_id
+            )
+            .filter(
+              Boolean
+            );
+
+
+        logInfo(
+          "admin_profiles_loaded",
+          {
+            requestId,
+
+            notificationId,
+
+            totalAdmins:
+              adminUserIds.length,
+          }
+        );
+
+
+        if (
+          adminUserIds.length ===
+          0
+        ) {
+
+          return jsonResponse(
+            {
+              success:
+                true,
+
+              message:
+                "Tidak ada akun admin.",
+
+              notification_id:
+                notification.id,
+
+              target_type:
+                notification
+                  .target_type,
+
+              total:
+                0,
+
+              sent:
+                0,
+
+              failed:
+                0,
+
+              removed:
+                0,
+
+              request_id:
+                requestId,
+            }
+          );
+
+        }
+
+
+        query =
+          query.in(
+            "user_id",
+            adminUserIds
+          );
+
+
+        logInfo(
+          "target_admin",
+          {
+            requestId,
+
+            notificationId,
+
+            adminUserIds:
+              adminUserIds.length,
+          }
+        );
+
+      }
+
+
+      /* ===================================================
+         TARGET TIDAK DIDUKUNG
+         =================================================== */
+
+      else {
 
         return jsonResponse(
           {
-            success: false,
+            success:
+              false,
 
             message:
               "target_type tidak didukung.",
@@ -1180,6 +1465,10 @@ Deno.serve(
 
             notificationId,
 
+            targetType:
+              notification
+                .target_type,
+
             error:
               subscriptionError.message,
           }
@@ -1188,7 +1477,8 @@ Deno.serve(
 
         return jsonResponse(
           {
-            success: false,
+            success:
+              false,
 
             message:
               "Gagal mengambil FCM token.",
@@ -1222,11 +1512,19 @@ Deno.serve(
 
           notificationId,
 
+          targetType:
+            notification
+              .target_type,
+
           total:
             daftar.length,
         }
       );
 
+
+      /* ===================================================
+         NO TOKEN
+         =================================================== */
 
       if (
         daftar.length ===
@@ -1235,7 +1533,8 @@ Deno.serve(
 
         return jsonResponse(
           {
-            success: true,
+            success:
+              true,
 
             message:
               "Tidak ada FCM token yang terdaftar.",
@@ -1247,13 +1546,17 @@ Deno.serve(
               notification
                 .target_type,
 
-            total: 0,
+            total:
+              0,
 
-            sent: 0,
+            sent:
+              0,
 
-            failed: 0,
+            failed:
+              0,
 
-            removed: 0,
+            removed:
+              0,
 
             request_id:
               requestId,
@@ -1324,20 +1627,45 @@ Deno.serve(
             : null,
 
         url:
-          "/warga/pengumuman.html",
+          notification.target_type ===
+          "admin"
+
+            ? "/admin/notifikasi-admin.html"
+
+            : "/warga/pengumuman.html",
 
       };
+
+
+      logInfo(
+        "notification_payload_ready",
+        {
+          requestId,
+
+          notificationId:
+            notification.id,
+
+          targetType:
+            notification.target_type,
+
+          url:
+            notificationPayload.url,
+        }
+      );
 
 
       /* ===================================================
          SEND
          =================================================== */
 
-      let sent = 0;
+      let sent =
+        0;
 
-      let failed = 0;
+      let failed =
+        0;
 
-      let removed = 0;
+      let removed =
+        0;
 
 
       for (
@@ -1386,6 +1714,10 @@ Deno.serve(
 
               subscriptionId:
                 subscription.id,
+
+              userId:
+                subscription
+                  .user_id,
 
               residentId:
                 subscription
@@ -1484,6 +1816,10 @@ Deno.serve(
                   subscriptionId:
                     subscription.id,
 
+                  userId:
+                    subscription
+                      .user_id,
+
                   residentId:
                     subscription
                       .resident_id,
@@ -1523,6 +1859,10 @@ Deno.serve(
               subscriptionId:
                 subscription.id,
 
+              userId:
+                subscription
+                  .user_id,
+
               residentId:
                 subscription
                   .resident_id,
@@ -1534,7 +1874,9 @@ Deno.serve(
               error:
                 pushError instanceof
                 Error
+
                   ? pushError.message
+
                   : String(
                       pushError
                     ),
@@ -1579,7 +1921,8 @@ Deno.serve(
 
       return jsonResponse(
         {
-          success: true,
+          success:
+            true,
 
           message:
             "Firebase FCM notification selesai.",
@@ -1618,7 +1961,9 @@ Deno.serve(
           error:
             error instanceof
             Error
+
               ? error.message
+
               : "Unknown error",
         }
       );
@@ -1626,7 +1971,8 @@ Deno.serve(
 
       return jsonResponse(
         {
-          success: false,
+          success:
+            false,
 
           message:
             "Gagal memproses Firebase FCM notification.",
