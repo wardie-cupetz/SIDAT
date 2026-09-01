@@ -1123,104 +1123,389 @@ openOfflineDatabase()
         console.error(err);
 
     });
+// ==========================================
+// UPDATE FCM TOKEN - WARGA + ADMIN
+// ==========================================
+
 async function updatePushSubscription() {
 
-    const token =
-        localStorage.getItem(
-            "sidat_fcm_native_token"
-        );
+    try {
 
-    if (!token) {
-        return;
-    }
+        // ======================================
+        // AMBIL FCM TOKEN
+        // ======================================
 
-    const accessToken =
-        localStorage.getItem(
-            "sidat_access_token"
-        );
-
-    if (!accessToken) {
-        return;
-    }
-
-    const user =
-        JSON.parse(
+        const token =
             localStorage.getItem(
-                "sidat_user"
-            ) || "{}"
-        );
+                "sidat_fcm_native_token"
+            );
 
-    const residentId =
-        user.resident_id ||
-        user.residentId ||
-        user.id_resident;
+        if (!token) {
 
-    if (!residentId) {
-        return;
-    }
+            console.log(
+                "SIDAT FCM: Token belum tersedia."
+            );
 
-    const response =
-        await fetch(
-            `${SUPABASE_URL}/rest/v1/push_subscriptions?resident_id=eq.${residentId}`,
-            {
-                method: "PATCH",
+            return;
+        }
 
-                headers: {
-                    apikey: SUPABASE_KEY,
-                    Authorization:
-                        `Bearer ${accessToken}`,
-                    "Content-Type":
-                        "application/json",
-                    Prefer: "return=minimal"
-                },
 
-                body: JSON.stringify({
-                    fcm_token: token,
-                    updated_at:
-                        new Date().toISOString()
-                })
-            }
-        );
+        // ======================================
+        // AMBIL SESSION ACCESS TOKEN
+        // ======================================
 
-    if (!response.ok) {
+        const accessToken =
+            localStorage.getItem(
+                "sidat_access_token"
+            );
 
-        console.error(
-            await response.text()
-        );
+        if (!accessToken) {
 
-    } else {
+            console.log(
+                "SIDAT FCM: Access token belum tersedia."
+            );
+
+            return;
+        }
+
+
+        // ======================================
+        // AMBIL USER WARGA
+        // ======================================
+
+        const wargaUser =
+            JSON.parse(
+                localStorage.getItem(
+                    "sidat_user"
+                ) || "null"
+            );
+
+
+        // ======================================
+        // AMBIL USER ADMIN
+        // ======================================
+
+        const adminUser =
+            JSON.parse(
+                localStorage.getItem(
+                    "sidat_admin_user"
+                ) || "null"
+            );
+
+
+        // ======================================
+        // TENTUKAN USER AKTIF
+        // ======================================
+
+        const user =
+            adminUser ||
+            wargaUser;
+
+
+        if (!user) {
+
+            console.log(
+                "SIDAT FCM: User belum tersedia."
+            );
+
+            return;
+        }
+
+
+        // ======================================
+        // USER ID SUPABASE AUTH
+        // ======================================
+
+        const userId =
+            user.id ||
+            user.user_id;
+
+
+        if (!userId) {
+
+            console.error(
+                "SIDAT FCM: user_id tidak ditemukan."
+            );
+
+            return;
+        }
+
+
+        // ======================================
+        // CEK RESIDENT ID
+        // ======================================
+
+        const residentId =
+            user.resident_id ||
+            user.residentId ||
+            user.id_resident ||
+            null;
+
+
+        // ======================================
+        // CEK ROLE
+        // ======================================
+
+        const role =
+            user.role ||
+            (
+                adminUser
+                    ? "admin"
+                    : "warga"
+            );
+
 
         console.log(
-            "FCM token berhasil disimpan."
+            "SIDAT FCM: Sinkronisasi token."
+        );
+
+        console.log(
+            "ROLE:",
+            role
+        );
+
+        console.log(
+            "USER ID:",
+            userId
+        );
+
+        console.log(
+            "RESIDENT ID:",
+            residentId
+        );
+
+
+        // ======================================
+        // CARI SUBSCRIPTION
+        // ======================================
+
+        let queryUrl =
+            `${SUPABASE_URL}/rest/v1/push_subscriptions` +
+            `?user_id=eq.${encodeURIComponent(userId)}`;
+
+
+        const response =
+            await fetch(
+                queryUrl,
+                {
+                    method: "GET",
+
+                    headers: {
+                        apikey:
+                            SUPABASE_KEY,
+
+                        Authorization:
+                            `Bearer ${accessToken}`,
+
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            console.error(
+                "SIDAT FCM: Gagal mencari subscription:",
+                errorText
+            );
+
+            return;
+        }
+
+
+        const subscriptions =
+            await response.json();
+
+
+        // ======================================
+        // DATA YANG DISIMPAN
+        // ======================================
+
+        const payload = {
+
+            fcm_token:
+                token,
+
+            updated_at:
+                new Date().toISOString()
+
+        };
+
+
+        // WARGA
+        if (
+            role === "warga" &&
+            residentId
+        ) {
+
+            payload.resident_id =
+                residentId;
+
+        }
+
+
+        // ADMIN
+        if (
+            role === "admin"
+        ) {
+
+            payload.resident_id =
+                null;
+
+        }
+
+
+        // ======================================
+        // UPDATE DATA YANG SUDAH ADA
+        // ======================================
+
+        if (
+            Array.isArray(
+                subscriptions
+            ) &&
+            subscriptions.length > 0
+        ) {
+
+            const subscription =
+                subscriptions[0];
+
+
+            const updateResponse =
+                await fetch(
+                    `${SUPABASE_URL}/rest/v1/push_subscriptions` +
+                    `?id=eq.${encodeURIComponent(subscription.id)}`,
+                    {
+                        method: "PATCH",
+
+                        headers: {
+                            apikey:
+                                SUPABASE_KEY,
+
+                            Authorization:
+                                `Bearer ${accessToken}`,
+
+                            "Content-Type":
+                                "application/json",
+
+                            Prefer:
+                                "return=minimal"
+                        },
+
+                        body:
+                            JSON.stringify(
+                                payload
+                            )
+                    }
+                );
+
+
+            if (!updateResponse.ok) {
+
+                console.error(
+                    "SIDAT FCM: Gagal update token:",
+                    await updateResponse.text()
+                );
+
+                return;
+            }
+
+
+            console.log(
+                "SIDAT FCM: Token berhasil diperbarui."
+            );
+
+            return;
+        }
+
+
+        // ======================================
+        // BELUM ADA → INSERT BARU
+        // ======================================
+
+        payload.user_id =
+            userId;
+
+
+        if (
+            role === "warga" &&
+            residentId
+        ) {
+
+            payload.resident_id =
+                residentId;
+
+        } else {
+
+            payload.resident_id =
+                null;
+
+        }
+
+
+        const insertResponse =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/push_subscriptions`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        apikey:
+                            SUPABASE_KEY,
+
+                        Authorization:
+                            `Bearer ${accessToken}`,
+
+                        "Content-Type":
+                            "application/json",
+
+                        Prefer:
+                            "return=minimal"
+                    },
+
+                    body:
+                        JSON.stringify(
+                            payload
+                        )
+                }
+            );
+
+
+        if (!insertResponse.ok) {
+
+            console.error(
+                "SIDAT FCM: Gagal membuat subscription:",
+                await insertResponse.text()
+            );
+
+            return;
+        }
+
+
+        console.log(
+            "SIDAT FCM: FCM token berhasil disimpan."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "SIDAT FCM: Error updatePushSubscription:",
+            error
         );
 
     }
 
 }
-document.addEventListener("DOMContentLoaded", () => {
 
-    const App = window.Capacitor?.Plugins?.App;
 
-    if (!App) {
-        return;
-    }
+// ==========================================
+// EXPORT AGAR FCM NATIVE DAPAT MEMANGGILNYA
+// ==========================================
 
-    App.addListener("backButton", () => {
-
-        if (window.history.length > 1) {
-
-            window.history.back();
-            return;
-
-        }
-
-        if (confirm("Keluar dari aplikasi SIDAT?")) {
-
-            App.exitApp();
-
-        }
-
-    });
-
-});
-
+window.updatePushSubscription =
+    updatePushSubscription;
