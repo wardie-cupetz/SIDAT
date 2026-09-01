@@ -1033,6 +1033,23 @@ localStorage.setItem(
                     );
 
                 }
+                // ==================================
+// SINKRONISASI FCM ADMIN
+// ==================================
+
+if (
+    typeof window.SIDATSinkronkanFCM ===
+    "function"
+) {
+
+    console.log(
+        "SIDAT: Menyinkronkan token FCM Admin..."
+    );
+
+    await window.SIDATSinkronkanFCM();
+
+}
+                
 // ==========================================
 // SINKRONISASI FCM TOKEN ADMIN
 // ==========================================
