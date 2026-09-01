@@ -1033,7 +1033,82 @@ localStorage.setItem(
                     );
 
                 }
+// ==========================================
+// SINKRONISASI FCM TOKEN ADMIN
+// ==========================================
 
+try {
+
+    const fcmToken =
+        localStorage.getItem(
+            "sidat_fcm_native_token"
+        );
+
+    if (fcmToken) {
+
+        console.log(
+            "SIDAT ADMIN: FCM token ditemukan."
+        );
+
+        const adminUserId =
+            data.user.id;
+
+        const {
+            error: fcmError
+        } =
+            await supabaseClient
+                .from("push_subscriptions")
+                .upsert(
+                    {
+                        user_id:
+                            adminUserId,
+
+                        resident_id:
+                            null,
+
+                        fcm_token:
+                            fcmToken,
+
+                        updated_at:
+                            new Date().toISOString()
+                    },
+                    {
+                        onConflict:
+                            "user_id"
+                    }
+                );
+
+        if (fcmError) {
+
+            console.error(
+                "SIDAT ADMIN: Gagal menyimpan FCM token:",
+                fcmError
+            );
+
+        } else {
+
+            console.log(
+                "SIDAT ADMIN: FCM token berhasil disimpan."
+            );
+
+        }
+
+    } else {
+
+        console.warn(
+            "SIDAT ADMIN: FCM token belum tersedia."
+        );
+
+    }
+
+} catch (error) {
+
+    console.error(
+        "SIDAT ADMIN: Sinkronisasi FCM gagal:",
+        error
+    );
+
+}
 
                 // ==================================
                 // PINDAH DASHBOARD ADMIN
