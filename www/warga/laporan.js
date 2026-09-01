@@ -1882,6 +1882,227 @@ async function buatNotifikasiAdminLaporan(
                     headers: {
 
                         "Authorization":
+
+                            async function buatNotifikasiAdminLaporan(
+    laporan
+) {
+
+    if (!laporan) {
+
+        console.error(
+            "SIDAT: Data laporan untuk notifikasi kosong."
+        );
+
+        return false;
+
+    }
+
+
+    try {
+
+        // ======================================
+        // AMBIL REPORT ID
+        // ======================================
+
+        const reportId =
+            laporan.report_id ||
+            laporan.id ||
+            null;
+
+
+        if (!reportId) {
+
+            console.error(
+                "SIDAT: Report ID untuk notifikasi tidak ditemukan."
+            );
+
+            return false;
+
+        }
+
+
+        // ======================================
+        // AMBIL USER ID LOGIN
+        // ======================================
+
+        const authResponse =
+            await supabaseRequest(
+
+                `${SUPABASE_URL}/auth/v1/user`,
+
+                {
+
+                    method:
+                        "GET",
+
+                    headers: {
+
+                        "Authorization":
+                            `Bearer ${accessToken}`,
+
+                        "apikey":
+                            SUPABASE_KEY
+
+                    }
+
+                }
+
+            );
+
+
+        const authUserId =
+            authResponse?.id ||
+            null;
+
+
+        if (!authUserId) {
+
+            console.error(
+                "SIDAT: User ID dari Supabase Auth tidak ditemukan."
+            );
+
+            return false;
+
+        }
+
+
+        console.log(
+            "SIDAT: AUTH USER ID:",
+            authUserId
+        );
+
+
+        // ======================================
+        // PAYLOAD NOTIFIKASI ADMIN
+        // ======================================
+
+        const notificationPayload = {
+
+            title:
+                "📢 Laporan Baru",
+
+            message:
+                `Warga mengirim laporan baru: "${laporan.title}".`,
+
+            target_type:
+                "admin",
+
+            target_resident_id:
+                null,
+
+            is_read:
+                false,
+
+            created_by:
+                authUserId,
+
+            created_at:
+                new Date().toISOString(),
+
+            report_id:
+                reportId
+
+        };
+
+
+        console.log(
+            "SIDAT: Membuat notifikasi admin:",
+            notificationPayload
+        );
+
+
+        // ======================================
+        // INSERT NOTIFIKASI
+        // ======================================
+
+        const response =
+            await supabaseRequest(
+
+                `${SUPABASE_URL}/rest/v1/notifications`,
+
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Prefer":
+                            "return=representation"
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            notificationPayload
+                        )
+
+                }
+
+            );
+
+
+        console.log(
+            "SIDAT: Hasil INSERT notifikasi admin:",
+            response
+        );
+
+
+        // ======================================
+        // AMBIL NOTIFICATION ID
+        // ======================================
+
+        const notification =
+            Array.isArray(response)
+                ? response[0]
+                : response;
+
+
+        const notificationId =
+            notification?.id ||
+            null;
+
+
+        if (!notificationId) {
+
+            console.error(
+                "SIDAT: Notification ID tidak ditemukan.",
+                response
+            );
+
+            return false;
+
+        }
+
+
+        console.log(
+            "SIDAT: Notification ID:",
+            notificationId
+        );
+
+
+        // ======================================
+        // PANGGIL EDGE FUNCTION
+        // ======================================
+
+        console.log(
+            "SIDAT: Memanggil send-push-notification..."
+        );
+
+
+        const pushResponse =
+            await supabaseRequest(
+
+                `${SUPABASE_URL}/functions/v1/send-push-notification`,
+
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Authorization":
                             `Bearer ${accessToken}`,
 
                         "apikey":
@@ -1911,10 +2132,6 @@ async function buatNotifikasiAdminLaporan(
         );
 
 
-        // ======================================
-        // HASIL PUSH
-        // ======================================
-
         if (
             pushResponse &&
             pushResponse.success
@@ -1936,9 +2153,8 @@ async function buatNotifikasiAdminLaporan(
 
         /*
          * Notifikasi sudah berhasil dibuat.
-         *
          * Jangan menggagalkan pengiriman laporan
-         * hanya karena proses push gagal.
+         * hanya karena push gagal.
          */
 
         return true;
@@ -1950,21 +2166,18 @@ async function buatNotifikasiAdminLaporan(
     ) {
 
         console.error(
-            "SIDAT: Gagal membuat notifikasi admin:",
+            "SIDAT: Gagal membuat/mengirim notifikasi admin:",
             error
         );
-
-
-        /*
-         * Jangan menggagalkan pengiriman laporan
-         * hanya karena notifikasi gagal.
-         */
 
         return false;
 
     }
 
-}// ==========================================
+}
+                            
+
+// ==========================================
 // KIRIM LAPORAN
 // ==========================================
 
