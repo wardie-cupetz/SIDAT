@@ -20,6 +20,23 @@ const adminLogin =
 
 
 // ==========================================
+// SUPABASE CLIENT
+// ==========================================
+
+const supabaseClient =
+    supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY,
+        {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: false
+            }
+        }
+    );
+
+// ==========================================
 // SIDAT SESSION SYNC
 // ==========================================
 
@@ -447,15 +464,7 @@ if (sessionError) {
 
 const session =
     sessionData?.session;
-const {
-    data: { session }
-} = await supabaseClient.auth.getSession();
 
-alert(
-    session
-        ? "SESSION TERSIMPAN"
-        : "SESSION TIDAK TERSIMPAN"
-);
 
 if (
     !session ||
@@ -966,7 +975,7 @@ async function updatePushSubscription() {
                     Prefer: "return=minimal"
                 },
 
-              body: JSON.stringify({
+                body: JSON.stringify({
                     fcm_token: token,
                     updated_at:
                         new Date().toISOString()
