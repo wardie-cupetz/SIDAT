@@ -1,48 +1,161 @@
+// ==========================================
+// SIDAT
+// FCM NATIVE - ANDROID APK
+// Capacitor + Firebase Cloud Messaging
+// ==========================================
+
 (function () {
+
     "use strict";
+
+    console.log(
+        "SIDAT FCM: Modul FCM Native dimuat."
+    );
+
+
+    // ======================================
+    // CEK CAPACITOR
+    // ======================================
 
     if (
         !window.Capacitor ||
         !window.Capacitor.Plugins ||
         !window.Capacitor.Plugins.PushNotifications
     ) {
-        console.log("SIDAT FCM: PushNotifications tidak tersedia.");
+
+        console.log(
+            "SIDAT FCM: PushNotifications tidak tersedia."
+        );
+
         return;
     }
 
+
     const PushNotifications =
         window.Capacitor.Plugins.PushNotifications;
+
+
+    // ======================================
+    // STORAGE KEY
+    // ======================================
+
+    const FCM_STORAGE_KEY =
+        "sidat_fcm_native_token";
+
+
+    // ======================================
+    // SIMPAN TOKEN
+    // ======================================
+
+    function simpanTokenFCM(token) {
+
+        if (!token) {
+
+            console.warn(
+                "SIDAT FCM: Token kosong."
+            );
+
+            return;
+        }
+
+
+        localStorage.setItem(
+            FCM_STORAGE_KEY,
+            token
+        );
+
+
+        console.log(
+            "SIDAT FCM: Token disimpan ke localStorage."
+        );
+
+    }
+
+
+    // ======================================
+    // AMBIL TOKEN
+    // ======================================
+
+    function ambilTokenFCM() {
+
+        return localStorage.getItem(
+            FCM_STORAGE_KEY
+        );
+
+    }
+
+
+    // ======================================
+    // REQUEST IZIN + REGISTER FCM
+    // ======================================
 
     async function registerFCM() {
 
         try {
 
+            console.log(
+                "SIDAT FCM: Meminta izin notifikasi..."
+            );
+
+
             const permission =
-                await PushNotifications.requestPermissions();
+                await PushNotifications
+                    .requestPermissions();
+
+
+            console.log(
+                "SIDAT FCM: Status izin:",
+                permission
+            );
+
 
             if (
-                permission.receive !== "granted"
+                permission.receive !==
+                "granted"
             ) {
 
-                console.log(
-                    "SIDAT FCM: izin notifikasi ditolak."
+                console.warn(
+                    "SIDAT FCM: Izin notifikasi ditolak."
                 );
 
-                return;
+                return false;
             }
+
+
+            console.log(
+                "SIDAT FCM: Mendaftarkan perangkat ke FCM..."
+            );
+
 
             await PushNotifications.register();
 
-        } catch (error) {
+
+            console.log(
+                "SIDAT FCM: Register FCM berhasil dipanggil."
+            );
+
+
+            return true;
+
+        }
+
+        catch (error) {
 
             console.error(
-                "SIDAT FCM: register gagal",
+                "SIDAT FCM: Register gagal:",
                 error
             );
+
+            return false;
 
         }
 
     }
+
+
+    // ======================================
+    // EVENT: REGISTRATION
+    // ======================================
 
     PushNotifications.addListener(
         "registration",
@@ -50,24 +163,76 @@
 
             console.log(
                 "SIDAT FCM TOKEN:",
-                token.value
+                token
             );
 
-            if (!token.value) {
+
+            const fcmToken =
+                token?.value;
+
+
+            if (!fcmToken) {
+
+                console.error(
+                    "SIDAT FCM: Firebase tidak memberikan token."
+                );
+
                 return;
             }
 
-            localStorage.setItem(
-                "sidat_fcm_native_token",
-                token.value
+
+            // ----------------------------------
+            // SIMPAN TOKEN
+            // ----------------------------------
+
+            simpanTokenFCM(
+                fcmToken
+            );
+
+
+            console.log(
+                "SIDAT FCM: Token berhasil diterima:"
             );
 
             console.log(
-                "SIDAT FCM: token disimpan ke localStorage."
+                fcmToken
             );
+
+
+            // ----------------------------------
+            // JIKA FUNGSI UPDATE SUDAH TERSEDIA
+            // MAKA LANGSUNG SINKRONKAN
+            // ----------------------------------
+
+            if (
+                typeof window.updatePushSubscription ===
+                "function"
+            ) {
+
+                console.log(
+                    "SIDAT FCM: Mencoba sinkronisasi token ke Supabase..."
+                );
+
+
+                window.updatePushSubscription()
+                    .catch(function (error) {
+
+                        console.error(
+                            "SIDAT FCM: Sinkronisasi gagal:",
+                            error
+                        );
+
+                    });
+
+            }
 
         }
     );
+
+
+    // ======================================
+    // EVENT: REGISTRATION ERROR
+    // ======================================
 
     PushNotifications.addListener(
         "registrationError",
@@ -81,40 +246,76 @@
         }
     );
 
+
+    // ======================================
+    // EVENT: NOTIFIKASI DITERIMA
+    // ======================================
+
     PushNotifications.addListener(
-    "pushNotificationActionPerformed",
-    function (event) {
-
-        console.log("Push diklik:", event);
-
-        const data =
-            event.notification?.data || {};
-
-        if (data.url) {
-            window.location.href = data.url;
-            return;
-        }
-
-        window.location.href =
-            "/warga/pengumuman.html";
-
-    }
-);
-    PushNotifications.addListener(
-        "pushNotificationActionPerformed",
+        "pushNotificationReceived",
         function (notification) {
 
             console.log(
-                "Push diklik:",
+                "SIDAT FCM: Notifikasi diterima:",
                 notification
             );
 
         }
     );
 
+
+    // ======================================
+    // EVENT: NOTIFIKASI DIKLIK
+    // ======================================
+
+    PushNotifications.addListener(
+        "pushNotificationActionPerformed",
+        function (event) {
+
+            console.log(
+                "SIDAT FCM: Notifikasi diklik:",
+                event
+            );
+
+
+            const data =
+                event?.notification?.data ||
+                {};
+
+
+            if (data.url) {
+
+                window.location.href =
+                    data.url;
+
+                return;
+            }
+
+
+            window.location.href =
+                "/warga/pengumuman.html";
+
+        }
+    );
+
+
+    // ======================================
+    // EXPORT GLOBAL
+    // ======================================
+
     window.SIDATRegisterFCM =
         registerFCM;
 
+
+    window.SIDATGetFCMToken =
+        ambilTokenFCM;
+
+
+    // ======================================
+    // REGISTER OTOMATIS
+    // ======================================
+
     registerFCM();
+
 
 })();
