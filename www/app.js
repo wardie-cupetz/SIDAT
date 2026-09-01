@@ -44,66 +44,238 @@ async function syncSidatSession() {
 
     try {
 
-        alert(
-    "ACCESS: " +
-    (localStorage.getItem("sidat_access_token") ? "ADA" : "KOSONG") +
-    "\n\nREFRESH: " +
-    (localStorage.getItem("sidat_refresh_token") ? "ADA" : "KOSONG") +
-    "\n\nSUPABASE SESSION: " +
-    (session ? "ADA" : "KOSONG")
-);
+        console.log("SIDAT: memeriksa session...");
 
         const {
             data: { session },
             error
         } = await supabaseClient.auth.getSession();
 
-        console.log(
-            "SUPABASE SESSION =",
-            session
-        );
+
+        // ======================================
+        // ERROR SESSION
+        // ======================================
 
         if (error) {
-            console.error(error);
+
+            console.error(
+                "SIDAT: gagal membaca session:",
+                error
+            );
+
             return;
         }
+
+
+        // ======================================
+        // TIDAK ADA SESSION
+        // ======================================
 
         if (!session) {
-            console.log("Belum ada session.");
+
+            console.log(
+                "SIDAT: tidak ada session aktif."
+            );
+
             return;
         }
 
-        console.log("Session berhasil dipulihkan.");
 
-        localStorage.setItem(
-            "sidat_access_token",
-            session.access_token
+        // ======================================
+        // SESSION MASIH AKTIF
+        // ======================================
+
+        console.log(
+            "SIDAT: session berhasil dipulihkan."
         );
 
-        localStorage.setItem(
-            "sidat_refresh_token",
-            session.refresh_token
-        );
+
+        // ======================================
+        // SIMPAN ACCESS TOKEN
+        // Tetap dipertahankan karena
+        // dipakai sistem FCM/push notification
+        // ======================================
+
+        if (session.access_token) {
+
+            localStorage.setItem(
+                "sidat_access_token",
+                session.access_token
+            );
+
+        }
+
+
+        // ======================================
+        // SIMPAN REFRESH TOKEN
+        // Dipertahankan untuk kompatibilitas
+        // sistem SIDAT yang sudah ada
+        // ======================================
+
+        if (session.refresh_token) {
+
+            localStorage.setItem(
+                "sidat_refresh_token",
+                session.refresh_token
+            );
+
+        }
+
+
+        // ======================================
+        // IDENTITAS USER
+        // ======================================
 
         const user =
             JSON.parse(
-                localStorage.getItem("sidat_user") || "{}"
+                localStorage.getItem(
+                    "sidat_user"
+                ) || "{}"
             );
 
-        if (user?.resident_id) {
-            window.location.href =
-                "warga/dashboard.html";
+
+        const adminUser =
+            JSON.parse(
+                localStorage.getItem(
+                    "sidat_admin_user"
+                ) || "{}"
+            );
+
+
+        // ======================================
+        // CEK PROFILE / ROLE ADMIN
+        // ======================================
+
+        try {
+
+            const {
+                data: profile,
+                error: profileError
+            } = await supabaseClient
+                .from("profiles")
+                .select("role")
+                .eq(
+                    "user_id",
+                    session.user.id
+                )
+                .maybeSingle();
+
+
+            if (
+                !profileError &&
+                profile?.role === "admin"
+            ) {
+
+                console.log(
+                    "SIDAT: session ADMIN dipulihkan."
+                );
+
+
+                // Pastikan data admin tetap ada
+                localStorage.setItem(
+                    "sidat_admin_user",
+                    JSON.stringify(
+                        session.user
+                    )
+                );
+
+
+                // ==================================
+                // PASTIKAN PUSH/FCM TETAP TERUPDATE
+                // ==================================
+
+                await updatePushSubscription();
+
+
+                // ==================================
+                // LANGSUNG KE DASHBOARD ADMIN
+                // ==================================
+
+                if (
+                    !window.location.pathname.includes(
+                        "/admin/dashboard.html"
+                    )
+                ) {
+
+                    window.location.href =
+                        "admin/dashboard.html";
+
+                }
+
+                return;
+            }
+
+        } catch (profileCheckError) {
+
+            console.warn(
+                "SIDAT: gagal mengecek profile admin:",
+                profileCheckError
+            );
+
         }
+
+
+        // ======================================
+        // CEK USER WARGA
+        // ======================================
+
+        if (
+            user?.resident_id ||
+            user?.residentId ||
+            user?.id_resident
+        ) {
+
+            console.log(
+                "SIDAT: session WARGA dipulihkan."
+            );
+
+
+            // ==================================
+            // PASTIKAN PUSH/FCM TETAP TERUPDATE
+            // ==================================
+
+            await updatePushSubscription();
+
+
+            // ==================================
+            // LANGSUNG KE DASHBOARD WARGA
+            // ==================================
+
+            if (
+                !window.location.pathname.includes(
+                    "/warga/dashboard.html"
+                )
+            ) {
+
+                window.location.href =
+                    "warga/dashboard.html";
+
+            }
+
+            return;
+        }
+
+
+        // ======================================
+        // SESSION ADA TAPI IDENTITAS SIDAT
+        // TIDAK DIKENALI
+        // ======================================
+
+        console.warn(
+            "SIDAT: session ada, tetapi identitas SIDAT tidak ditemukan."
+        );
 
     } catch (err) {
 
         console.error(
-            "syncSidatSession:",
+            "SIDAT syncSidatSession error:",
             err
         );
 
     }
+
 }
+
 
 // ==========================================
 // OTOMATIS UPDATE TOKEN
@@ -118,6 +290,10 @@ supabaseClient.auth.onAuthStateChange(
         );
 
 
+        // ======================================
+        // SESSION AKTIF
+        // ======================================
+
         if (
             session?.access_token
         ) {
@@ -127,10 +303,31 @@ supabaseClient.auth.onAuthStateChange(
                 session.access_token
             );
 
-        } else {
+
+            if (session.refresh_token) {
+
+                localStorage.setItem(
+                    "sidat_refresh_token",
+                    session.refresh_token
+                );
+
+            }
+
+        }
+
+
+        // ======================================
+        // LOGOUT / SESSION HILANG
+        // ======================================
+
+        else {
 
             localStorage.removeItem(
                 "sidat_access_token"
+            );
+
+            localStorage.removeItem(
+                "sidat_refresh_token"
             );
 
         }
@@ -139,9 +336,11 @@ supabaseClient.auth.onAuthStateChange(
 );
 
 
-// Jalankan saat aplikasi dibuka
-syncSidatSession();
+// ==========================================
+// JALANKAN SAAT APLIKASI DIBUKA
+// ==========================================
 
+syncSidatSession();
 // ==========================================
 // NAVIGASI LOGIN
 // ==========================================
