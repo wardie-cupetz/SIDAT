@@ -103,22 +103,9 @@ if (
 // ==========================================
 // AUTO LOGIN ADMIN
 // ==========================================
-// ==========================================
-// AUTO LOGIN ADMIN
-// ==========================================
-
-const {
-    data: profile,
-    error: profileError
-} = await supabaseClient
-    .from("profiles")
-    .select("role")
-    .eq("user_id", session.user.id)
-    .single();
-
 if (
-    !profileError &&
-    profile?.role === "admin" &&
+    admin &&
+    admin.role === "admin" &&
     !location.pathname.includes("/admin/")
 ) {
 
@@ -129,7 +116,6 @@ if (
     return;
 
 }
-
 // ==========================================
 // OTOMATIS UPDATE TOKEN
 // ==========================================
