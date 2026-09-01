@@ -24,44 +24,39 @@ const adminLogin =
 // ==========================================
 
 async function syncSidatSession() {
-alert(
-    "ADMIN USER:\n" +
-    localStorage.getItem("sidat_admin_user") +
-    "\n\nACCESS:\n" +
-    localStorage.getItem("sidat_access_token") +
-    "\n\nREFRESH:\n" +
-    localStorage.getItem("sidat_refresh_token")
-);
+
     try {
-        
+
+        alert(
+    "ACCESS: " +
+    (localStorage.getItem("sidat_access_token") ? "ADA" : "KOSONG") +
+    "\n\nREFRESH: " +
+    (localStorage.getItem("sidat_refresh_token") ? "ADA" : "KOSONG") +
+    "\n\nSUPABASE SESSION: " +
+    (session ? "ADA" : "KOSONG")
+);
 
         const {
             data: { session },
             error
         } = await supabaseClient.auth.getSession();
 
+        console.log(
+            "SUPABASE SESSION =",
+            session
+        );
+
         if (error) {
-            console.error(
-                "syncSidatSession:",
-                error
-            );
+            console.error(error);
             return;
         }
-
 
         if (!session) {
-
-            console.log(
-                "Belum ada session."
-            );
-
+            console.log("Belum ada session.");
             return;
-
         }
 
-        console.log(
-            "Session berhasil dipulihkan."
-        );
+        console.log("Session berhasil dipulihkan.");
 
         localStorage.setItem(
             "sidat_access_token",
@@ -73,61 +68,24 @@ alert(
             session.refresh_token
         );
 
-        const warga =
-    JSON.parse(
-        localStorage.getItem("sidat_user") || "null"
-    );
+        const user =
+            JSON.parse(
+                localStorage.getItem("sidat_user") || "{}"
+            );
 
-const admin =
-    JSON.parse(
-        localStorage.getItem("sidat_admin_user") || "null"
-    );
+        if (user?.resident_id) {
+            window.location.href =
+                "warga/dashboard.html";
+        }
 
-// ==========================================
-// AUTO LOGIN WARGA
-// ==========================================
+    } catch (err) {
 
-if (
-    warga?.resident_id &&
-    !location.pathname.includes("/warga/")
-) {
+        console.error(
+            "syncSidatSession:",
+            err
+        );
 
-    window.location.replace(
-        "warga/dashboard.html"
-    );
-
-    return;
-
-}
-
-// ==========================================
-// AUTO LOGIN ADMIN
-// ==========================================
-// ==========================================
-// AUTO LOGIN ADMIN
-// ==========================================
-
-const {
-    data: profile,
-    error: profileError
-} = await supabaseClient
-    .from("profiles")
-    .select("role")
-    .eq("user_id", session.user.id)
-    .single();
-
-if (
-    !profileError &&
-    profile?.role === "admin" &&
-    !location.pathname.includes("/admin/")
-) {
-
-    window.location.replace(
-        "admin/dashboard.html"
-    );
-
-    return;
-
+    }
 }
 
 // ==========================================
@@ -165,9 +123,7 @@ supabaseClient.auth.onAuthStateChange(
 
 
 // Jalankan saat aplikasi dibuka
-setTimeout(() => {
-    syncSidatSession();
-}, 1000);
+syncSidatSession();
 
 // ==========================================
 // NAVIGASI LOGIN
@@ -455,23 +411,28 @@ document
                     );
 
                 }
-// ==========================================
-// SET SESSION SUPABASE
-// ==========================================
 
-const {
+
+                // ==================================
+                // SET SESSION SUPABASE
+                // ==================================
+
+                const {
     data: sessionData,
     error: sessionError
 } =
-await supabaseClient.auth.setSession({
+    await supabaseClient
+        .auth
+        .setSession({
 
-    access_token:
-        result.session.access_token,
+            access_token:
+                result.session.access_token,
 
-    refresh_token:
-        result.session.refresh_token
+            refresh_token:
+                result.session.refresh_token
 
-});
+        });
+
 
 if (sessionError) {
 
@@ -479,67 +440,68 @@ if (sessionError) {
 
 }
 
+
 // ==========================================
-// CEK APAKAH SESSION TERSIMPAN
+// SIMPAN SESSION WARGA
 // ==========================================
 
+const session =
+    sessionData?.session;
 const {
-    data: {
-        session: currentSession
-    }
-} =
-await supabaseClient.auth.getSession();
+    data: { session }
+} = await supabaseClient.auth.getSession();
 
 alert(
-    "HASIL SET SESSION\n\n" +
-    "SUPABASE : " +
-    (currentSession ? "ADA" : "KOSONG")
+    session
+        ? "SESSION TERSIMPAN"
+        : "SESSION TIDAK TERSIMPAN"
 );
 
-if (!currentSession) {
+if (
+    !session ||
+    !session.access_token
+) {
 
     throw new Error(
-        "Session Supabase tidak berhasil dibuat."
+        "Session Supabase warga tidak berhasil dibuat."
     );
 
 }
 
-// ==========================================
-// SIMPAN TOKEN KE LOCALSTORAGE
-// ==========================================
 
 localStorage.setItem(
     "sidat_access_token",
-    currentSession.access_token
+    session.access_token
 );
+
 
 localStorage.setItem(
     "sidat_refresh_token",
-    currentSession.refresh_token
+    session.refresh_token
 );
 
-// ==========================================
-// SIMPAN DATA USER
-// ==========================================
 
-localStorage.setItem(
-    "sidat_user",
-    JSON.stringify(result.user)
-);
-
-// ==========================================
 // DEBUG
-// ==========================================
-
 console.log(
     "SUPABASE SESSION WARGA:",
-    currentSession
+    session
 );
 
 console.log(
-    "ACCESS TOKEN:",
-    currentSession.access_token
+    "ACCESS TOKEN SIDAT:",
+    session.access_token
 );
+
+                // ==================================
+                // SIMPAN DATA SIDAT
+                // ==================================
+
+                localStorage.setItem(
+                    "sidat_user",
+                    JSON.stringify(
+                        result.user
+                    )
+                );
                 
 // ==========================================
 // SIMPAN FCM TOKEN SETELAH LOGIN
@@ -721,27 +683,6 @@ document
                     );
 
                 }
-                // ==========================================
-// CEK APAKAH SESSION ADMIN TERSIMPAN
-// ==========================================
-
-const {
-    data: {
-        session: currentSession
-    }
-} =
-await supabaseClient
-    .auth
-    .getSession();
-
-alert(
-    "LOGIN ADMIN\n\n" +
-    (
-        currentSession
-            ? "SESSION TERSIMPAN"
-            : "SESSION TIDAK TERSIMPAN"
-    )
-);
                 // ==================================
 // SIMPAN ACCESS TOKEN ADMIN
 // ==================================
@@ -749,10 +690,6 @@ alert(
 localStorage.setItem(
     "sidat_access_token",
     data.session.access_token
-);
-                localStorage.setItem(
-    "sidat_refresh_token",
-    data.session.refresh_token
 );
 
 
@@ -838,13 +775,11 @@ localStorage.setItem(
                 // ==================================
 
                 localStorage.setItem(
-    "sidat_admin_user",
-    JSON.stringify({
-        id: data.user.id,
-        email: data.user.email,
-        role: profile.role
-    })
-);
+                    "sidat_admin_user",
+                    JSON.stringify(
+                        data.user
+                    )
+                );
 
 
                 // ==================================
@@ -895,12 +830,10 @@ localStorage.setItem(
                 // ==================================
                 // PINDAH DASHBOARD ADMIN
                 // ==================================
-alert(
-    localStorage.getItem("sidat_admin_user")
-);
-                
+
                 window.location.href =
                     "admin/dashboard.html";
+
 
             } catch (error) {
 
@@ -970,7 +903,7 @@ checkAppVersion();
 
 
 openOfflineDatabase()
-      .then(() => {
+    .then(() => {
 
         console.log(
             "SIDAT Offline DB siap."
@@ -1033,7 +966,7 @@ async function updatePushSubscription() {
                     Prefer: "return=minimal"
                 },
 
-                body: JSON.stringify({
+              body: JSON.stringify({
                     fcm_token: token,
                     updated_at:
                         new Date().toISOString()
@@ -1083,5 +1016,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-
-    
