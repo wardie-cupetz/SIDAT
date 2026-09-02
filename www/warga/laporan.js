@@ -1856,7 +1856,10 @@ async function buatNotifikasiAdminLaporan(
     "SIDAT DEBUG FINAL BODY:",
     JSON.stringify(notificationPayload)
 );
-    
+    alert(
+    "DEBUG NOTIF ADMIN\n\n" +
+    JSON.stringify(notificationPayload, null, 2)
+);
 
         const response =
             await supabaseRequest(
