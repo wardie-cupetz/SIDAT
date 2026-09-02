@@ -11,7 +11,7 @@
 // ==========================================
 
 const CACHE_NAME =
-    "sidat-pwa-v4";
+    "sidat-pwa-v5";
 
 
 // ==========================================
@@ -132,7 +132,9 @@ self.addEventListener(
             event.request;
 
 
-        // Hanya menangani GET
+        // ======================================
+        // HANYA GET
+        // ======================================
 
         if (
             request.method !==
@@ -144,10 +146,9 @@ self.addEventListener(
         }
 
 
-        /*
-         * Jangan mengambil alih
-         * koneksi Supabase.
-         */
+        // ======================================
+        // JANGAN GANGGU SUPABASE
+        // ======================================
 
         if (
             request.url.includes(
@@ -160,18 +161,56 @@ self.addEventListener(
         }
 
 
+        // ======================================
+        // FILE YANG HARUS SELALU
+        // MENGAMBIL VERSI TERBARU
+        // ======================================
+
+        const url =
+            new URL(
+                request.url
+            );
+
+
+        const pathname =
+            url.pathname
+                .toLowerCase();
+
+
+        const isAppFile =
+            pathname.endsWith(
+                ".html"
+            ) ||
+            pathname.endsWith(
+                ".js"
+            ) ||
+            pathname.endsWith(
+                ".css"
+            );
+
+
+        // ======================================
+        // NETWORK FIRST
+        // ======================================
+
         event.respondWith(
 
             fetch(
-                request
+                request,
+                isAppFile
+                    ? {
+                        cache:
+                            "no-store"
+                    }
+                    : {}
             )
+
             .then(
                 response => {
 
-                    /*
-                     * Simpan response valid
-                     * ke cache.
-                     */
+                    // ==================================
+                    // SIMPAN RESPONSE VALID
+                    // ==================================
 
                     if (
                         response &&
@@ -185,18 +224,22 @@ self.addEventListener(
                             response.clone();
 
 
-                        caches.open(
-                            CACHE_NAME
-                        )
-                        .then(
-                            cache => {
+                        event.waitUntil(
 
-                                cache.put(
-                                    request,
-                                    responseClone
-                                );
+                            caches.open(
+                                CACHE_NAME
+                            )
+                            .then(
+                                cache => {
 
-                            }
+                                    return cache.put(
+                                        request,
+                                        responseClone
+                                    );
+
+                                }
+                            )
+
                         );
 
                     }
@@ -206,13 +249,13 @@ self.addEventListener(
 
                 }
             )
+
             .catch(
                 () => {
 
-                    /*
-                     * Jika internet tidak tersedia,
-                     * gunakan cache.
-                     */
+                    // ==================================
+                    // OFFLINE → GUNAKAN CACHE
+                    // ==================================
 
                     return caches.match(
                         request
@@ -225,7 +268,6 @@ self.addEventListener(
 
     }
 );
-
 // ==========================================
 // SIDAT - PUSH NOTIFICATION
 // ==========================================
