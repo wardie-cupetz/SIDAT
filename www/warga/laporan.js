@@ -5,6 +5,69 @@
 // Dibuat oleh Suwardi
 // ==========================================
 
+/* ==========================================
+   SIDAT DEBUG LAPORAN
+========================================== */
+
+function sidatDebugLaporan(pesan, data = null) {
+
+    console.log(
+        "[SIDAT DEBUG LAPORAN]",
+        pesan,
+        data || ""
+    );
+
+    let panel =
+        document.getElementById("sidat-debug-laporan");
+
+    if (!panel) {
+
+        panel =
+            document.createElement("div");
+
+        panel.id =
+            "sidat-debug-laporan";
+
+        panel.style.cssText = `
+            position:fixed;
+            left:10px;
+            right:10px;
+            bottom:10px;
+            max-height:45vh;
+            overflow:auto;
+            z-index:999999;
+            background:#111;
+            color:#00ff66;
+            padding:12px;
+            border-radius:12px;
+            font-family:monospace;
+            font-size:12px;
+            line-height:1.5;
+            box-shadow:0 5px 25px rgba(0,0,0,.5);
+        `;
+
+        document.body.appendChild(panel);
+    }
+
+    const waktu =
+        new Date().toLocaleTimeString();
+
+    const baris =
+        document.createElement("div");
+
+    baris.textContent =
+        `[${waktu}] ${pesan}` +
+        (
+            data !== null
+                ? ` | ${JSON.stringify(data)}`
+                : ""
+        );
+
+    panel.appendChild(baris);
+
+    panel.scrollTop =
+        panel.scrollHeight;
+}
 
 // ==========================================
 // SESSION
