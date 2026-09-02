@@ -5,7 +5,12 @@
 // Dibuat oleh Suwardi
 // ==========================================
 
+// ==========================================
+// SIDAT
+// LAPORAN WARGA
+// ==========================================
 
+console.log("SIDAT LAPORAN JS VERSION: DEBUG-ADMIN-NOTIF-001");
 // ==========================================
 // SESSION
 // ==========================================
@@ -1684,10 +1689,6 @@ async function uploadFotoLaporan(
 
 }
 
-// ==========================================
-// BUAT NOTIFIKASI ADMIN
-// LAPORAN BARU
-// ==========================================
 async function buatNotifikasiAdminLaporan(
     laporan
 ) {
@@ -1986,6 +1987,7 @@ async function buatNotifikasiAdminLaporan(
     }
 
 }
+
 // ==========================================
 // KIRIM LAPORAN
 // ==========================================
