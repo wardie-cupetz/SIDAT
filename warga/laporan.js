@@ -1245,47 +1245,66 @@ async function buatNotifikasiAdminLaporan(
 
 
         // ======================================
-        // AMBIL AUTH USER DARI SESSION LOGIN
-        // ======================================
-        //
-        // app.js menyimpan result.user ke
-        // localStorage dengan key sidat_user.
-        //
-        // result.user.id adalah UUID Auth Supabase.
-        //
+// AMBIL AUTH ID DARI DATA WARGA
+// ======================================
 
-        let authUserId = null;
+let authUserId = null;
 
-        try {
+try {
 
-            const savedUser =
-                localStorage.getItem(
-                    "sidat_user"
-                );
+    const residentId =
+        laporan.resident_id ||
+        null;
 
-            if (savedUser) {
+    if (!residentId) {
 
-                const parsedUser =
-                    JSON.parse(savedUser);
-
-                authUserId =
-                    parsedUser?.id ||
-                    null;
-            }
-
-        } catch (authError) {
-
-            console.error(
-                "SIDAT: Gagal membaca sidat_user:",
-                authError
-            );
-        }
-
-
-        console.log(
-            "SIDAT: AUTH USER ID UNTUK NOTIF ADMIN:",
-            authUserId
+        console.error(
+            "SIDAT: Resident ID laporan tidak ditemukan."
         );
+
+        return false;
+    }
+
+    const residentResponse =
+        await supabaseRequest(
+
+            `${SUPABASE_URL}/rest/v1/residents?id=eq.${encodeURIComponent(residentId)}&select=auth_id`,
+
+            {
+                method: "GET"
+            }
+        );
+
+    const resident =
+        Array.isArray(residentResponse)
+            ? residentResponse[0]
+            : residentResponse;
+
+    authUserId =
+        resident?.auth_id ||
+        null;
+
+} catch (authError) {
+
+    console.error(
+        "SIDAT: Gagal mengambil auth_id warga:",
+        authError
+    );
+}
+
+console.log(
+    "SIDAT: AUTH USER ID UNTUK NOTIF ADMIN:",
+    authUserId
+);
+
+if (!authUserId) {
+
+    console.error(
+        "SIDAT: auth_id warga tidak ditemukan."
+    );
+
+    return false;
+}
 
 
         // ======================================
