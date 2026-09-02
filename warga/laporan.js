@@ -1245,52 +1245,64 @@ async function buatNotifikasiAdminLaporan(
 
 
         // ======================================
-        // AMBIL AUTH USER LANGSUNG DARI SUPABASE
+        // AMBIL AUTH USER DARI SESSION LOGIN
         // ======================================
         //
-        // Jangan menggunakan warga.id untuk
-        // created_by.
+        // app.js menyimpan result.user ke
+        // localStorage dengan key sidat_user.
         //
-        // Kita ambil langsung dari Supabase Auth
-        // berdasarkan access token yang sedang aktif.
+        // result.user.id adalah UUID Auth Supabase.
         //
-
-        // ======================================
-        // AMBIL USER AUTH YANG SEDANG LOGIN
-        // ======================================
 
         let authUserId = null;
 
         try {
 
-            const authResult =
-                await supabase.auth.getUser();
+            const savedUser =
+                localStorage.getItem(
+                    "sidat_user"
+                );
 
-            if (
-                authResult &&
-                authResult.data &&
-                authResult.data.user
-            ) {
+            if (savedUser) {
+
+                const parsedUser =
+                    JSON.parse(savedUser);
+
                 authUserId =
-                    authResult.data.user.id;
+                    parsedUser?.id ||
+                    null;
             }
 
         } catch (authError) {
 
             console.error(
-                "SIDAT: Gagal mengambil user Auth:",
+                "SIDAT: Gagal membaca sidat_user:",
                 authError
             );
         }
+
 
         console.log(
             "SIDAT: AUTH USER ID UNTUK NOTIF ADMIN:",
             authUserId
         );
 
-        
+
+        // ======================================
+        // VALIDASI AUTH USER
+        // ======================================
+
+        if (!authUserId) {
+
+            console.error(
+                "SIDAT: UUID Auth warga tidak ditemukan."
+            );
+
+            return false;
+        }
 
 
+        // ======================================
         // PAYLOAD NOTIFIKASI ADMIN
         // ======================================
 
@@ -1314,13 +1326,11 @@ async function buatNotifikasiAdminLaporan(
             created_by:
                 authUserId,
 
-
             created_at:
                 new Date().toISOString(),
 
             report_id:
                 reportId
-
         };
 
 
@@ -1512,8 +1522,6 @@ async function buatNotifikasiAdminLaporan(
         return false;
     }
 }
-
-
 // ==========================================
 // KIRIM LAPORAN
 // ==========================================
