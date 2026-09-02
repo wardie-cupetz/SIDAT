@@ -1773,6 +1773,11 @@ async function buatNotifikasiAdminLaporan(
         // ======================================
         // PAYLOAD NOTIFIKASI ADMIN
         // ======================================
+        console.log(
+    "SIDAT DEBUG: AUTH USER ID SEBELUM NOTIF ADMIN:",
+    authUserId,
+    typeof authUserId
+);
 
         const notificationPayload = {
 
@@ -1801,6 +1806,10 @@ async function buatNotifikasiAdminLaporan(
                 reportId
 
         };
+        console.log(
+    "SIDAT DEBUG: CREATED_BY PAYLOAD:",
+    notificationPayload.created_by
+);
 
 
         console.log(
