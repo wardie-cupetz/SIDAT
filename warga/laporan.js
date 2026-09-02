@@ -1255,71 +1255,40 @@ async function buatNotifikasiAdminLaporan(
         // berdasarkan access token yang sedang aktif.
         //
 
-        const authUser =
-            await supabaseRequest(
-
-                `${SUPABASE_URL}/auth/v1/user`,
-
-                {
-                    method: "GET",
-
-                    headers: {
-
-                        "Authorization":
-                            `Bearer ${accessToken}`,
-
-                        "apikey":
-                            SUPABASE_KEY
-
-                    }
-                }
-            );
-
-        const authUserId =
-            authUser?.id ||
-            null;
-
-
-        console.log(
-            "SIDAT DEBUG: AUTH USER ID:",
-            authUserId
-        );
-
-
-        if (!authUserId) {
-
-            console.error(
-                "SIDAT: Auth User ID tidak ditemukan."
-            );
-
-            return false;
-        }
-
-
-        // ======================================
         // ======================================
         // AMBIL USER AUTH YANG SEDANG LOGIN
         // ======================================
 
-        const authUser =
-            await supabaseRequest(
-                `${SUPABASE_URL}/auth/v1/user`,
-                {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${accessToken}`,
-                        "apikey": SUPABASE_KEY
-                    }
-                }
-            );
+        let authUserId = null;
 
-        const authUserId =
-            authUser?.id || null;
+        try {
+
+            const authResult =
+                await supabase.auth.getUser();
+
+            if (
+                authResult &&
+                authResult.data &&
+                authResult.data.user
+            ) {
+                authUserId =
+                    authResult.data.user.id;
+            }
+
+        } catch (authError) {
+
+            console.error(
+                "SIDAT: Gagal mengambil user Auth:",
+                authError
+            );
+        }
 
         console.log(
             "SIDAT: AUTH USER ID UNTUK NOTIF ADMIN:",
             authUserId
         );
+
+        
 
 
         // PAYLOAD NOTIFIKASI ADMIN
