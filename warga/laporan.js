@@ -1297,6 +1297,31 @@ async function buatNotifikasiAdminLaporan(
 
 
         // ======================================
+        // ======================================
+        // AMBIL USER AUTH YANG SEDANG LOGIN
+        // ======================================
+
+        const authUser =
+            await supabaseRequest(
+                `${SUPABASE_URL}/auth/v1/user`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${accessToken}`,
+                        "apikey": SUPABASE_KEY
+                    }
+                }
+            );
+
+        const authUserId =
+            authUser?.id || null;
+
+        console.log(
+            "SIDAT: AUTH USER ID UNTUK NOTIF ADMIN:",
+            authUserId
+        );
+
+
         // PAYLOAD NOTIFIKASI ADMIN
         // ======================================
 
@@ -1319,6 +1344,7 @@ async function buatNotifikasiAdminLaporan(
 
             created_by:
                 authUserId,
+
 
             created_at:
                 new Date().toISOString(),
