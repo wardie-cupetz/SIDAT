@@ -1477,6 +1477,14 @@ async function buatNotifikasiAdminLaporan(
             pushResponse.status,
             pushData
         );
+        alert(
+    "PUSH DEBUG\n\n" +
+    "Status: " +
+    pushResponse.status +
+    "\n\n" +
+    "Response:\n" +
+    JSON.stringify(pushData, null, 2)
+);
 
 
         // ======================================
