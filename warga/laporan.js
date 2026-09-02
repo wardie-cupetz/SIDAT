@@ -1501,7 +1501,14 @@ if (!authUserId) {
             pushResponse.status,
             pushData
         );
-
+alert(
+    "PUSH DEBUG\n\n" +
+    "Status: " +
+    pushResponse.status +
+    "\n\n" +
+    "Response:\n" +
+    JSON.stringify(pushData, null, 2)
+);
 
         // ======================================
         // PUSH GAGAL
