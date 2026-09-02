@@ -753,6 +753,402 @@ function kembaliDashboardAdmin() {
         "dashboard.html";
 
 }
+// ==========================================
+// POPUP NOTIFIKASI ADMIN
+// ==========================================
+
+let notifikasiAdminTerakhir = null;
+let popupNotifikasiAdminAktif = false;
+
+
+// ------------------------------------------
+// BUAT POPUP
+// ------------------------------------------
+
+function tampilkanPopupNotifikasiAdmin(
+    notification
+) {
+
+    if (!notification) {
+        return;
+    }
+
+    // Jangan tampilkan popup yang sama
+    if (
+        popupNotifikasiAdminAktif
+    ) {
+        return;
+    }
+
+    popupNotifikasiAdminAktif = true;
+
+
+    let popup =
+        document.getElementById(
+            "sidatAdminNotificationPopup"
+        );
+
+
+    if (!popup) {
+
+        popup =
+            document.createElement(
+                "div"
+            );
+
+        popup.id =
+            "sidatAdminNotificationPopup";
+
+        popup.innerHTML = `
+
+            <div
+                style="
+                    position:fixed;
+                    top:20px;
+                    left:20px;
+                    right:20px;
+                    z-index:99999;
+                    background:#ffffff;
+                    border-radius:16px;
+                    box-shadow:0 8px 30px rgba(0,0,0,.25);
+                    padding:18px;
+                    border-left:5px solid #198754;
+                    font-family:Arial,sans-serif;
+                "
+            >
+
+                <div
+                    style="
+                        display:flex;
+                        align-items:flex-start;
+                        gap:12px;
+                    "
+                >
+
+                    <div
+                        style="
+                            font-size:30px;
+                            line-height:1;
+                        "
+                    >
+                        🔔
+                    </div>
+
+                    <div
+                        style="
+                            flex:1;
+                        "
+                    >
+
+                        <div
+                            style="
+                                font-size:16px;
+                                font-weight:700;
+                                margin-bottom:6px;
+                            "
+                        >
+                            Laporan Baru
+                        </div>
+
+                        <div
+                            id="sidatAdminPopupTitle"
+                            style="
+                                font-size:15px;
+                                font-weight:600;
+                                margin-bottom:4px;
+                            "
+                        ></div>
+
+                        <div
+                            id="sidatAdminPopupMessage"
+                            style="
+                                font-size:14px;
+                                color:#555;
+                            "
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    style="
+                        display:flex;
+                        gap:8px;
+                        margin-top:15px;
+                    "
+                >
+
+                    <button
+                        type="button"
+                        id="sidatAdminPopupLihat"
+                        style="
+                            flex:1;
+                            border:0;
+                            border-radius:10px;
+                            padding:11px;
+                            background:#198754;
+                            color:white;
+                            font-weight:600;
+                        "
+                    >
+                        👁 Lihat Laporan
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="sidatAdminPopupTutup"
+                        style="
+                            border:1px solid #ddd;
+                            border-radius:10px;
+                            padding:11px 15px;
+                            background:#fff;
+                        "
+                    >
+                        Tutup
+                    </button>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        document.body.appendChild(
+            popup
+        );
+
+
+        document
+            .getElementById(
+                "sidatAdminPopupTutup"
+            )
+            .onclick =
+            function () {
+
+                popup.remove();
+
+                popupNotifikasiAdminAktif =
+                    false;
+
+            };
+
+
+        document
+            .getElementById(
+                "sidatAdminPopupLihat"
+            )
+            .onclick =
+            function () {
+
+                const reportId =
+                    notification.report_id;
+
+                popup.remove();
+
+                popupNotifikasiAdminAktif =
+                    false;
+
+                bukaLaporanAdmin(
+                    reportId
+                );
+
+            };
+
+    }
+
+
+    document
+        .getElementById(
+            "sidatAdminPopupTitle"
+        )
+        .textContent =
+        notification.title ||
+        "Ada laporan baru";
+
+
+    document
+        .getElementById(
+            "sidatAdminPopupMessage"
+        )
+        .textContent =
+        notification.message ||
+        "Warga mengirim laporan baru.";
+
+}
+
+
+// ==========================================
+// CEK NOTIFIKASI BARU
+// ==========================================
+
+async function cekNotifikasiBaruAdmin() {
+
+    try {
+
+        const {
+            data: {
+                session
+            }
+        } =
+            await supabaseClient.auth.getSession();
+
+
+        if (!session) {
+            return;
+        }
+
+
+        const token =
+            session.access_token;
+
+
+        const response =
+            await fetch(
+
+                `${SUPABASE_URL}` +
+                `/rest/v1/notifications` +
+                `?select=*` +
+                `&target_type=eq.admin` +
+                `&is_read=eq.false` +
+                `&order=created_at.desc` +
+                `&limit=1`,
+
+                {
+
+                    method:
+                        "GET",
+
+                    headers: {
+
+                        "apikey":
+                            SUPABASE_KEY,
+
+                        "Authorization":
+                            `Bearer ${token}`,
+
+                        "Accept":
+                            "application/json"
+
+                    }
+
+                }
+
+            );
+
+
+        if (!response.ok) {
+            return;
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !Array.isArray(data) ||
+            data.length === 0
+        ) {
+            return;
+        }
+
+
+        const terbaru =
+            data[0];
+
+
+        // Pertama kali halaman dibuka:
+        // jangan munculkan popup untuk
+        // notifikasi lama.
+        if (
+            notifikasiAdminTerakhir === null
+        ) {
+
+            notifikasiAdminTerakhir =
+                terbaru.id;
+
+            return;
+
+        }
+
+
+        // Tidak ada notifikasi baru
+        if (
+            terbaru.id ===
+            notifikasiAdminTerakhir
+        ) {
+            return;
+        }
+
+
+        // Ada notifikasi baru
+        notifikasiAdminTerakhir =
+            terbaru.id;
+
+
+        console.log(
+            "SIDAT: NOTIFIKASI ADMIN BARU:",
+            terbaru
+        );
+
+
+        tampilkanPopupNotifikasiAdmin(
+            terbaru
+        );
+
+
+        // Perbarui daftar notifikasi
+        await loadNotifikasiAdmin();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "SIDAT: Gagal mengecek notifikasi baru:",
+            error
+        );
+
+    }
+
+}
+
+
+// ==========================================
+// MULAI PEMANTAUAN POPUP
+// ==========================================
+
+let intervalNotifikasiAdmin =
+    null;
+
+
+function mulaiPemantauanNotifikasiAdmin() {
+
+    if (
+        intervalNotifikasiAdmin
+    ) {
+        clearInterval(
+            intervalNotifikasiAdmin
+        );
+    }
+
+
+    // Cek setiap 5 detik
+    intervalNotifikasiAdmin =
+        setInterval(
+            cekNotifikasiBaruAdmin,
+            5000
+        );
+
+
+    // Cek awal
+    cekNotifikasiBaruAdmin();
+
+            }
 
 
 // ==========================================
@@ -770,9 +1166,10 @@ document.addEventListener(
 
         loadNotifikasiAdmin();
 
+        mulaiPemantauanNotifikasiAdmin();
+
     }
 );
-
 
 // ==========================================
 // EXPORT
