@@ -207,18 +207,40 @@ async function loadNotifikasiAdmin() {
         "SIDAT: Memuat notifikasi admin..."
     );
 
-
     if (!notificationList) {
-
         return;
-
     }
 
+    const {
+        data: {
+            session
+        },
+        error: sessionError
+    } = await supabaseClient.auth.getSession();
+
+    if (sessionError || !session) {
+
+        console.error(
+            "SIDAT: Session admin tidak ditemukan.",
+            sessionError
+        );
+
+        tampilkanPesanAdmin(
+            "Session admin tidak ditemukan."
+        );
+
+        return;
+    }
 
     const token =
-        getAdminToken();
+        session.access_token;
 
+    localStorage.setItem(
+        "sidat_access_token",
+        token
+    );
 
+    // lanjutkan kode lama di bawah sini...
     if (!token) {
 
         console.error(
