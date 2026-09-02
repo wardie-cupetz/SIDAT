@@ -1852,6 +1852,11 @@ async function buatNotifikasiAdminLaporan(
         // ======================================
         // INSERT NOTIFIKASI ADMIN
         // ======================================
+        console.log(
+    "SIDAT DEBUG FINAL BODY:",
+    JSON.stringify(notificationPayload)
+);
+    
 
         const response =
             await supabaseRequest(
