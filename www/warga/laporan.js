@@ -1692,6 +1692,21 @@ async function buatNotifikasiAdminLaporan(
     laporan
 ) {
 
+    console.log(
+        "SIDAT DEBUG: fungsi buatNotifikasiAdminLaporan TERPANGGIL"
+    );
+
+    console.log(
+        "SIDAT DEBUG: accessToken:",
+        !!accessToken
+    );
+
+    console.log(
+        "SIDAT DEBUG: laporan:",
+        laporan
+    );
+
+
     if (!laporan) {
 
         console.error(
@@ -1715,10 +1730,16 @@ async function buatNotifikasiAdminLaporan(
             null;
 
 
+        console.log(
+            "SIDAT DEBUG: reportId:",
+            reportId
+        );
+
+
         if (!reportId) {
 
             console.error(
-                "SIDAT: Report ID untuk notifikasi tidak ditemukan."
+                "SIDAT: Report ID tidak ditemukan."
             );
 
             return false;
@@ -1727,70 +1748,33 @@ async function buatNotifikasiAdminLaporan(
 
 
         // ======================================
-        // PAYLOAD NOTIFIKASI ADMIN
+        // AMBIL USER DARI SUPABASE AUTH
         // ======================================
 
-        const notificationPayload = {
-
-            title:
-                "📢 Laporan Baru",
-
-            message:
-                `Warga mengirim laporan baru: "${laporan.title}".`,
-
-            target_type:
-                "admin",
-
-            target_resident_id:
-                null,
-
-            is_read:
-                false,
-
-            created_by:
-                laporan.created_by ||
-                null,
-
-            created_at:
-                new Date().toISOString(),
-
-            report_id:
-                reportId
-
-        };
-
-
         console.log(
-            "SIDAT: Membuat notifikasi admin:",
-            notificationPayload
+            "SIDAT DEBUG: Mengambil user dari Auth..."
         );
 
 
-        // ======================================
-        // INSERT NOTIFIKASI
-        // ======================================
-
-        const response =
+        const authUser =
             await supabaseRequest(
 
-                `${SUPABASE_URL}/rest/v1/notifications`,
+                `${SUPABASE_URL}/auth/v1/user`,
 
                 {
 
                     method:
-                        "POST",
+                        "GET",
 
                     headers: {
 
-                        "Prefer":
-                            "return=representation"
+                        "Authorization":
+                            `Bearer ${accessToken}`,
 
-                    },
+                        "apikey":
+                            SUPABASE_KEY
 
-                    body:
-                        JSON.stringify(
-                            notificationPayload
-                        )
+                    }
 
                 }
 
@@ -1798,122 +1782,20 @@ async function buatNotifikasiAdminLaporan(
 
 
         console.log(
-            "SIDAT: Hasil INSERT notifikasi admin:",
-            response
+            "SIDAT DEBUG: AUTH USER:",
+            authUser
         );
 
 
-        // ======================================
-        // AMBIL NOTIFICATION ID
-        // ======================================
-
-        const notification =
-            Array.isArray(response)
-                ? response[0]
-                : response;
-
-
-        const notificationId =
-            notification &&
-            notification.id
-                ? notification.id
-                : null;
-
-
-        if (!notificationId) {
-
-            console.error(
-                "SIDAT: Notification ID tidak ditemukan setelah INSERT.",
-                response
-            );
-
-            return false;
-
-        }
-
-
-        console.log(
-            "SIDAT: Notification ID:",
-            notificationId
-        );
-
-
-        // ======================================
-        // AMBIL ACCESS TOKEN
-        // ======================================
-
-        const accessToken =
-            localStorage.getItem(
-                "sidat_access_token"
-            );
-
-
-        if (!accessToken) {
-
-            console.warn(
-                "SIDAT: Access token tidak ditemukan."
-            );
-
-            return true;
-
-        }
-
-
-        // ======================================
-        // PANGGIL EDGE FUNCTION
-        // SEND PUSH NOTIFICATION
-        // ======================================
-
-        console.log(
-            "SIDAT: Memanggil send-push-notification..."
-        );
-
-
-        const pushResponse =
-            await supabaseRequest(
-
-                `${SUPABASE_URL}/functions/v1/send-push-notification`,
-
-                {
-
-                    method:
-                        "POST",
-
-                    headers: {
-
-                        "Authorization":
-
-                            async function buatNotifikasiAdminLaporan(
-    laporan
-) {
-
-    if (!laporan) {
-
-        console.error(
-            "SIDAT: Data laporan untuk notifikasi kosong."
-        );
-
-        return false;
-
-    }
-
-
-    try {
-
-        // ======================================
-        // AMBIL REPORT ID
-        // ======================================
-
-        const reportId =
-            laporan.report_id ||
-            laporan.id ||
+        const authUserId =
+            authUser?.id ||
             null;
 
 
-        if (!reportId) {
+        if (!authUserId) {
 
             console.error(
-                "SIDAT: Report ID untuk notifikasi tidak ditemukan."
+                "SIDAT: Auth User ID tidak ditemukan."
             );
 
             return false;
@@ -1921,48 +1803,14 @@ async function buatNotifikasiAdminLaporan(
         }
 
 
+        console.log(
+            "SIDAT: AUTH USER ID:",
+            authUserId
+        );
+
+
         // ======================================
-// AMBIL USER ID DARI SUPABASE AUTH
-// ======================================
-
-const authUser =
-    await supabaseRequest(
-        `${SUPABASE_URL}/auth/v1/user`,
-        {
-            method: "GET",
-            headers: {
-                "Authorization":
-                    `Bearer ${accessToken}`,
-
-                "apikey":
-                    SUPABASE_KEY
-            }
-        }
-    );
-
-
-const authUserId =
-    authUser?.id ||
-    null;
-
-
-console.log(
-    "SIDAT: AUTH USER ID:",
-    authUserId
-);
-
-
-if (!authUserId) {
-
-    console.error(
-        "SIDAT: Auth User ID tidak ditemukan."
-    );
-
-    return false;
-
-}
-        // ======================================
-        // PAYLOAD NOTIFIKASI ADMIN
+        // PAYLOAD
         // ======================================
 
         const notificationPayload = {
@@ -1995,13 +1843,13 @@ if (!authUserId) {
 
 
         console.log(
-            "SIDAT: Membuat notifikasi admin:",
+            "SIDAT: PAYLOAD NOTIFIKASI ADMIN:",
             notificationPayload
         );
 
 
         // ======================================
-        // INSERT NOTIFIKASI
+        // INSERT NOTIFIKASI ADMIN
         // ======================================
 
         const response =
@@ -2032,7 +1880,7 @@ if (!authUserId) {
 
 
         console.log(
-            "SIDAT: Hasil INSERT notifikasi admin:",
+            "SIDAT: HASIL INSERT NOTIFIKASI ADMIN:",
             response
         );
 
@@ -2055,8 +1903,7 @@ if (!authUserId) {
         if (!notificationId) {
 
             console.error(
-                "SIDAT: Notification ID tidak ditemukan.",
-                response
+                "SIDAT: Notification ID tidak ditemukan."
             );
 
             return false;
@@ -2065,7 +1912,7 @@ if (!authUserId) {
 
 
         console.log(
-            "SIDAT: Notification ID:",
+            "SIDAT: NOTIFICATION ID:",
             notificationId
         );
 
@@ -2075,7 +1922,7 @@ if (!authUserId) {
         // ======================================
 
         console.log(
-            "SIDAT: Memanggil send-push-notification..."
+            "SIDAT: MEMANGGIL SEND-PUSH-NOTIFICATION..."
         );
 
 
@@ -2116,35 +1963,10 @@ if (!authUserId) {
 
 
         console.log(
-            "SIDAT: Response send-push-notification:",
+            "SIDAT: RESPONSE SEND-PUSH-NOTIFICATION:",
             pushResponse
         );
 
-
-        if (
-            pushResponse &&
-            pushResponse.success
-        ) {
-
-            console.log(
-                "SIDAT: Push notification admin berhasil diproses."
-            );
-
-        } else {
-
-            console.warn(
-                "SIDAT: Push notification admin tidak berhasil diproses.",
-                pushResponse
-            );
-
-        }
-
-
-        /*
-         * Notifikasi sudah berhasil dibuat.
-         * Jangan menggagalkan pengiriman laporan
-         * hanya karena push gagal.
-         */
 
         return true;
 
@@ -2155,7 +1977,7 @@ if (!authUserId) {
     ) {
 
         console.error(
-            "SIDAT: Gagal membuat/mengirim notifikasi admin:",
+            "SIDAT: GAGAL NOTIFIKASI ADMIN:",
             error
         );
 
@@ -2164,8 +1986,6 @@ if (!authUserId) {
     }
 
 }
-                            
-
 // ==========================================
 // KIRIM LAPORAN
 // ==========================================
