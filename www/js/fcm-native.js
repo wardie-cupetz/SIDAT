@@ -363,6 +363,11 @@
 
     const FCM_STORAGE_KEY =
         "sidat_fcm_native_token";
+    const FCM_CHANNEL_ID = "sidat_notification";
+const FCM_RETRY_COUNT = 5;
+const FCM_RETRY_DELAY = 2000;
+
+let sinkronisasiBerjalan = false;
 
 
     // ======================================
