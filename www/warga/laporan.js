@@ -1363,35 +1363,39 @@ async function buatNotifikasiAdminLaporan(
         // PAYLOAD NOTIFIKASI ADMIN
         // ======================================
 
-        const notificationPayload = {
+        const notificationId =
+    crypto.randomUUID();
 
-            title:
-                "📢 Laporan Baru",
+const notificationPayload = {
 
-            message:
-                `Warga mengirim laporan baru: "${laporan.title}".`,
+    id:
+        notificationId,
 
-            target_type:
-                "admin",
+    title:
+        "📢 Laporan Baru",
 
-            target_resident_id:
-                null,
+    message:
+        `Warga mengirim laporan baru: "${laporan.title}".`,
 
-            is_read:
-                false,
+    target_type:
+        "admin",
 
-            created_by:
-                authUserId,
+    target_resident_id:
+        null,
 
-            created_at:
-                new Date().toISOString(),
+    is_read:
+        false,
 
-            report_id:
-                reportId
+    created_by:
+        authUserId,
 
-        };
+    created_at:
+        new Date().toISOString(),
 
-
+    report_id:
+        reportId
+};
+       
         console.log(
             "SIDAT DEBUG: NOTIF ADMIN PAYLOAD:",
             notificationPayload
@@ -1419,7 +1423,7 @@ async function buatNotifikasiAdminLaporan(
                     headers: {
 
                         "Prefer":
-                            "return=representation"
+                            "return=minimal"
 
                     },
 
