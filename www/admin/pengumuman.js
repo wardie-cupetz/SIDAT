@@ -598,197 +598,273 @@ function buatItemPengumuman(
 }
 
 
-// ==========================================
+
+       // ==========================================
 // KIRIM PENGUMUMAN
 // ==========================================
 
-async function kirimPengumuman(
-    event
-) {
+async function kirimPengumuman(event) {
 
     event.preventDefault();
 
+    const title = judul.value.trim();
+    const content = isi.value.trim();
+    const type = jenis.value;
+    const target = targetType.value;
+    const targetUser = targetWarga.value || null;
 
-    const title =
-        judul.value.trim();
-
-    const content =
-        isi.value.trim();
-
-    const type =
-        jenis.value;
-
-    const target =
-        targetType.value;
-
-    const targetUser =
-        targetWarga.value || null;
-
+    // ======================================
+    // VALIDASI
+    // ======================================
 
     if (!title) {
-
         tampilkanPesan(
             "Judul pengumuman wajib diisi.",
             "error"
         );
 
         judul.focus();
-
         return;
-
     }
 
-
     if (!content) {
-
         tampilkanPesan(
             "Isi pengumuman wajib diisi.",
             "error"
         );
 
         isi.focus();
-
         return;
-
     }
 
-
     if (
-        target ===
-        "selected" &&
+        target === "selected" &&
         !targetUser
     ) {
-
         tampilkanPesan(
             "Silakan pilih warga terlebih dahulu.",
             "error"
         );
 
         targetWarga.focus();
-
         return;
-
     }
 
-
-    btnKirim.disabled =
-        true;
-
-    btnKirim.textContent =
-        "⏳ Mengirim...";
-
+    btnKirim.disabled = true;
+    btnKirim.textContent = "⏳ Mengirim...";
 
     try {
+
+        // ==================================
+        // CEK USER LOGIN
+        // ==================================
 
         const {
             data: userData,
             error: userError
-        } =
-            await supabaseClient.auth
-                .getUser();
-
+        } = await supabaseClient.auth.getUser();
 
         if (userError) {
             throw userError;
         }
 
-
         if (
             !userData ||
             !userData.user
         ) {
-
             throw new Error(
                 "Sesi login tidak ditemukan. Silakan login kembali."
             );
-
         }
 
+        const userId =
+            userData.user.id;
 
-       const {
-    data: announcement,
-    error
-} = await supabaseClient
-    .from("announcements")
-    .insert({
-        title: title,
-        content: content,
-        type: type,
-        target_type: target,
-        target_user_id:
-            target === "selected"
-                ? targetUser
-                : null,
-        is_active: true,
-        created_by: userData.user.id
-    })
-    .select()
-    .single();
+        // ==================================
+        // 1. SIMPAN PENGUMUMAN
+        // ==================================
 
-
-
-
-console.log("INSERT RESULT:", announcement, error);
-        if (error) {
-            throw error;
-        }
-console.log("LEWAT SETELAH INSERT");
-await new Promise(resolve => setTimeout(resolve, 500));
-
-const {
-    data: notification,
-    error: notificationError
-} = await supabaseClient
-    .from("notifications")
-    .select("id")
-    .eq("created_by", userData.user.id)
-    .eq("title", title)
-    .order("created_at", {
-        ascending: false
-    })
-    .limit(1)
-    .single();
-
-console.log("notification =", notification);
-console.log("notificationError =", notificationError);
-
-
-if (notification) {
-
-    const {
-        data: sessionData
-    } = await supabaseClient.auth.getSession();
-
-    const accessToken =
-        sessionData.session?.access_token;
-
-    console.log("Memanggil Edge Function", notification.id);
-    const response = await fetch(
-        `${SUPABASE_URL}/functions/v1/send-push-notification`,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${accessToken}`,
-                "apikey": SUPABASE_KEY
-            },
-            body: JSON.stringify({
-                notification_id: notification.id
+        const {
+            data: announcement,
+            error: announcementError
+        } = await supabaseClient
+            .from("announcements")
+            .insert({
+                title: title,
+                content: content,
+                type: type,
+                target_type: target,
+                target_user_id:
+                    target === "selected"
+                        ? targetUser
+                        : null,
+                is_active: true,
+                created_by: userId
             })
+            .select()
+            .single();
+
+        if (announcementError) {
+            throw announcementError;
         }
-    );
 
-    console.log(
-        "Push Result:",
-        await response.json()
-    );
-}
+        if (!announcement) {
+            throw new Error(
+                "Data pengumuman tidak berhasil dibuat."
+            );
+        }
 
-        tampilkanPesan(
-            "Pengumuman berhasil dikirim kepada warga.",
-            "success"
+        console.log(
+            "SIDAT: Pengumuman berhasil dibuat:",
+            announcement.id
         );
 
+        // ==================================
+        // 2. BUAT NOTIFICATION
+        // ==================================
+
+        const notificationId =
+            crypto.randomUUID();
+
+        const notificationTarget =
+            target === "selected"
+                ? "resident"
+                : "all";
+
+        const notificationPayload = {
+            id: notificationId,
+
+            title:
+                type === "important"
+                    ? "🚨 " + title
+                    : "📢 " + title,
+
+            message: content,
+
+            target_type:
+                notificationTarget,
+
+            target_resident_id:
+                target === "selected"
+                    ? targetUser
+                    : null,
+
+            is_read: false,
+
+            created_by: userId,
+
+            created_at:
+                new Date().toISOString(),
+
+            report_id: null
+        };
+
+        const {
+            data: notification,
+            error: notificationError
+        } = await supabaseClient
+            .from("notifications")
+            .insert(notificationPayload)
+            .select()
+            .single();
+
+        if (notificationError) {
+            throw notificationError;
+        }
+
+        if (!notification) {
+            throw new Error(
+                "Notification berhasil dibuat tetapi datanya tidak ditemukan."
+            );
+        }
+
+        console.log(
+            "SIDAT: Notification dibuat:",
+            notification.id
+        );
+
+        // ==================================
+        // 3. AMBIL ACCESS TOKEN
+        // ==================================
+
+        const {
+            data: sessionData,
+            error: sessionError
+        } = await supabaseClient.auth.getSession();
+
+        if (sessionError) {
+            throw sessionError;
+        }
+
+        const accessToken =
+            sessionData?.session?.access_token;
+
+        if (!accessToken) {
+            throw new Error(
+                "Access token tidak ditemukan."
+            );
+        }
+
+        // ==================================
+        // 4. KIRIM PUSH
+        // ==================================
+
+        const pushResponse =
+            await fetch(
+                `${SUPABASE_URL}/functions/v1/send-push-notification`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            `Bearer ${accessToken}`,
+
+                        "apikey":
+                            SUPABASE_KEY
+                    },
+
+                    body: JSON.stringify({
+                        notification_id:
+                            notification.id
+                    })
+                }
+            );
+
+        let pushResult = null;
+
+        try {
+            pushResult =
+                await pushResponse.json();
+        } catch {
+            pushResult = null;
+        }
+
+        console.log(
+            "SIDAT: Push result:",
+            pushResult
+        );
+
+        if (!pushResponse.ok) {
+
+            throw new Error(
+                pushResult?.message ||
+                "Pengumuman tersimpan tetapi push notification gagal dikirim."
+            );
+        }
+
+        // ==================================
+        // 5. SUKSES
+        // ==================================
+
+        tampilkanPesan(
+            target === "selected"
+                ? "Pengumuman berhasil dikirim kepada warga terpilih."
+                : "Pengumuman berhasil dikirim kepada semua warga.",
+            "success"
+        );
 
         formPengumuman.reset();
 
@@ -796,39 +872,32 @@ if (notification) {
             "hidden"
         );
 
-        charCount.textContent =
-            "0";
-
+        charCount.textContent = "0";
 
         await loadPengumuman();
-
 
     } catch (error) {
 
         console.error(
-            "Gagal mengirim pengumuman:",
+            "SIDAT: Gagal mengirim pengumuman:",
             error
         );
 
-
         tampilkanPesan(
             "Gagal mengirim: " +
-            error.message,
+            (error?.message ||
+                "Terjadi kesalahan."),
             "error"
         );
 
     } finally {
 
-        btnKirim.disabled =
-            false;
+        btnKirim.disabled = false;
 
         btnKirim.textContent =
             "📢 Kirim Pengumuman";
-
     }
-
 }
-
 
 // ==========================================
 // TOGGLE STATUS
