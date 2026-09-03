@@ -1442,26 +1442,6 @@ const notificationPayload = {
         );
 
 
-        const notification =
-            Array.isArray(response)
-                ? response[0]
-                : response;
-
-
-        const notificationId =
-            notification?.id ||
-            null;
-
-
-        if (!notificationId) {
-
-            console.error(
-                "SIDAT: Notification ID tidak ditemukan."
-            );
-
-            return false;
-        }
-
 
         console.log(
             "SIDAT: NOTIFICATION ID:",
