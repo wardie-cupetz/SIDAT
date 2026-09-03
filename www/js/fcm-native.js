@@ -1013,234 +1013,270 @@ let sinkronisasiBerjalan = false;
             // WARGA
             // ==================================
 
-            if (
-                profile.role ===
-                "warga"
-            ) {
+            if (profile.role === "warga") {
+  const residentId = profile.resident_id;
 
-                debug(
-                    "Akun WARGA terdeteksi."
-                );
+  if (!residentId) {
+    throw new Error(
+      "resident_id pada profile warga kosong."
+    );
+  }
 
+  const { data: existing, error: findError } =
+    await client
+      .from("push_subscriptions")
+      .select("id")
+      .eq("resident_id", residentId)
+      .maybeSingle();
 
-                const residentId =
-                    profile.resident_id;
+  if (findError) {
+    throw new Error(
+      "Gagal mencari subscription warga: " +
+      findError.message
+    );
+  }
 
+  const now = new Date().toISOString();
 
-                if (!residentId) {
+  const payload = {
+    user_id: userId,
+    resident_id: residentId,
+    endpoint: `fcm-native:${userId}`,
+    p256dh: `fcm-native-${userId}`,
+    auth: `fcm-native-${userId}`,
+    fcm_token: tokenFCM,
+    updated_at: now
+  };
 
-                    debug(
-                        "resident_id warga tidak ditemukan.",
-                        "error"
-                    );
+  if (existing?.id) {
 
-                    return false;
+    // UPDATE TOKEN WARGA
+    const { error } = await client
+      .from("push_subscriptions")
+      .update(payload)
+      .eq("id", existing.id);
 
-                }
-
-
-                const {
-                    data: existing,
-                    error: existingError
-                } =
-                    await client
-                        .from(
-                            "push_subscriptions"
-                        )
-                        .select(
-                            "id, resident_id, user_id, fcm_token"
-                        )
-                        .eq(
-                            "resident_id",
-                            residentId
-                        )
-                        .maybeSingle();
-
-
-                if (existingError) {
-
-                    debug(
-                        "Gagal mencari subscription warga: " +
-                        existingError.message,
-                        "error"
-                    );
-
-                    return false;
-
-                }
-
-
-                if (
-                    existing?.id
-                ) {
-
-                    const {
-                        error
-                    } =
-                        await client
-                            .from(
-                                "push_subscriptions"
-                            )
-                            .update({
-
-                                fcm_token:
-                                    token,
-
-                                user_id:
-                                    user.id,
-
-                                updated_at:
-                                    new Date()
-                                        .toISOString()
-
-                            })
-                            .eq(
-                                "id",
-                                existing.id
-                            );
-
-
-                    if (error) {
-
-                        debug(
-                            "Gagal update token warga: " +
-                            error.message,
-                            "error"
-                        );
-
-                        return false;
-
-                    }
-
-
-                    debug(
-                        "TOKEN FCM WARGA BERHASIL DIPERBARUI.",
-                        "success"
-                    );
-
-
-                    return true;
-
-                }
-
-
-                debug(
-                    "Subscription warga belum ditemukan.",
-                    "warning"
-                );
-
-
-                return false;
-
-            }
-
-
-            debug(
-                "Role tidak dikenali: " +
-                profile.role,
-                "error"
-            );
-
-
-            return false;
-
-        }
-
-        catch (error) {
-
-            tampilkanError(
-                error
-            );
-
-            return false;
-
-        }
-
+    if (error) {
+      throw new Error(
+        "Gagal update token FCM warga: " +
+        error.message
+      );
     }
 
+    debug(
+      "Token FCM warga berhasil diperbarui."
+    );
 
+  } else {
+
+    // INSERT TOKEN WARGA BARU
+    const { error } = await client
+      .from("push_subscriptions")
+      .insert({
+        ...payload,
+        created_at: now
+      });
+
+    if (error) {
+      throw new Error(
+        "Gagal INSERT token FCM warga: " +
+        error.message
+      );
+    }
+
+    debug(
+      "Token FCM warga baru berhasil dibuat."
+    );
+  }
+
+  return true;
+}
+
+            async function sinkronkanDenganRetry(
+  jumlahPercobaan = 5,
+  jedaMs = 2000
+) {
+  for (
+    let percobaan = 1;
+    percobaan <= jumlahPercobaan;
+    percobaan++
+  ) {
+    debug(
+      `Sinkronisasi FCM ${percobaan}/${jumlahPercobaan}`
+    );
+
+    const berhasil =
+      await sinkronkanTokenFCM();
+
+    if (berhasil) {
+      debug(
+        "Sinkronisasi FCM berhasil."
+      );
+      return true;
+    }
+
+    if (percobaan < jumlahPercobaan) {
+      await new Promise(resolve =>
+        setTimeout(resolve, jedaMs)
+      );
+    }
+  }
+
+  debug(
+    "Sinkronisasi FCM gagal setelah semua percobaan."
+  );
+
+  return false;
+        }
+            
     // ======================================
     // REGISTER FCM
     // ======================================
 
     async function registerFCM() {
 
-        debug(
-            "Memulai proses register FCM..."
-        );
+    debug(
+        "Memulai proses register FCM..."
+    );
 
 
-        try {
+    try {
 
-            debug(
-                "Meminta izin notifikasi..."
-            );
+        // =====================================================
+        // CEK PLUGIN PUSH NOTIFICATIONS
+        // =====================================================
 
-
-            const permission =
-                await PushNotifications
-                    .requestPermissions();
-
-
-            debug(
-                "Status izin: " +
-                JSON.stringify(
-                    permission
-                )
-            );
-
-
-            if (
-                permission.receive !==
-                "granted"
-            ) {
-
-                debug(
-                    "Izin notifikasi TIDAK diberikan.",
-                    "error"
-                );
-
-                return false;
-
-            }
-
+        if (
+            !window.Capacitor ||
+            !window.Capacitor.Plugins ||
+            !window.Capacitor.Plugins.PushNotifications
+        ) {
 
             debug(
-                "Izin notifikasi diberikan.",
-                "success"
-            );
-
-
-            debug(
-                "Memanggil PushNotifications.register()..."
-            );
-
-
-            await PushNotifications
-                .register();
-
-
-            debug(
-                "Register FCM dipanggil. Menunggu token Firebase...",
-                "success"
-            );
-
-
-            return true;
-
-        }
-
-        catch (error) {
-
-            tampilkanError(
-                error
+                "Plugin PushNotifications tidak tersedia.",
+                "error"
             );
 
             return false;
 
         }
 
-    }
+
+        // Gunakan plugin yang sudah tersedia
+        const PushNotifications =
+            window.Capacitor.Plugins.PushNotifications;
+
+
+        debug(
+            "Plugin PushNotifications tersedia.",
+            "success"
+        );
+
+
+        // =====================================================
+        // MEMINTA IZIN NOTIFIKASI
+        // =====================================================
+
+        debug(
+            "Meminta izin notifikasi..."
+        );
+
+
+        const permission =
+            await PushNotifications
+                .requestPermissions();
+
+
+        debug(
+            "Status izin: " +
+            JSON.stringify(
+                permission
+            )
+        );
+
+
+        // =====================================================
+        // CEK IZIN
+        // =====================================================
+
+        if (
+            permission.receive !==
+            "granted"
+        ) {
+
+            debug(
+                "Izin notifikasi TIDAK diberikan.",
+                "error"
+            );
+
+            return false;
+
+        }
+
+
+        debug(
+            "Izin notifikasi diberikan.",
+            "success"
+        );
+
+
+        // =====================================================
+        // BUAT NOTIFICATION CHANNEL ANDROID
+        // =====================================================
+
+        try {
+
+            if (
+                typeof PushNotifications.createChannel ===
+                "function"
+            ) {
+
+                await PushNotifications.createChannel({
+
+                    id: "sidat_notification",
+
+                    name: "Notifikasi SIDAT",
+
+                    description:
+                        "Notifikasi laporan dan informasi SIDAT.",
+
+                    importance: 5,
+
+                    visibility: 1,
+
+                    sound: "default",
+
+                    vibration: true,
+
+                    lights: true
+
+                });
+
+
+                debug(
+                    "Notification channel sidat_notification berhasil dibuat.",
+                    "success"
+                );
+
+            }
+
+            else {
+
+                debug(
+                    "createChannel() tidak tersedia. Channel dilewati."
+                );
+
+            }
+
+        }
+
+        catch (channelError) {
+
+            // Jangan sampai kegagalan channel
+            // menghentikan proses FCM
+
+            debug(
+                "Notification
 
 
     // ======================================
