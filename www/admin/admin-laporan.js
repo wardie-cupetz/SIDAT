@@ -2444,7 +2444,57 @@ try {
     }
 
 
+// ==========================================
+// NOTIFIKASI LAPORAN DIPERBARUI
+// SEMUA WARGA
+// ==========================================
+
+try {
+
+    const statusText = {
+
+        pending:
+            "Menunggu",
+
+        processing:
+            "Diproses",
+
+        completed:
+            "Selesai"
+
+    };
+
+    const namaStatus =
+        statusText[status] ||
+        status;
+
+    const judulLaporan =
+        laporanTerpilih.title ||
+        "Laporan warga";
+
+    let pesan =
+        `Laporan "${judulLaporan}" ` +
+        `telah diperbarui menjadi ` +
+        `"${namaStatus}".`;
+
+    if (adminNote) {
+
+        pesan +=
+            ` Tanggapan admin: ${adminNote}`;
+
+    }
+
+    // ======================================
+    // BUAT ID NOTIFICATION SENDIRI
+    // ======================================
+
+    const notificationId =
+        crypto.randomUUID();
+
     const notificationPayload = {
+
+        id:
+            notificationId,
 
         title:
             "📢 Laporan Diperbarui",
@@ -2453,10 +2503,10 @@ try {
             pesan,
 
         target_type:
-            "resident",
+            "all",
 
         target_resident_id:
-            laporanTerpilih.resident_id,
+            null,
 
         is_read:
             false,
@@ -2466,60 +2516,190 @@ try {
             null,
 
         created_at:
-            new Date().toISOString()
+            new Date().toISOString(),
+
+        report_id:
+            laporanTerpilih.id
 
     };
 
 
     console.log(
-        "SIDAT: Membuat notifikasi:",
+        "SIDAT: Membuat notifikasi update laporan:",
         notificationPayload
     );
 
 
-    await supabaseRequestAdmin(
+    // ======================================
+    // INSERT NOTIFICATION
+    // ======================================
 
-        `${SUPABASE_URL}/rest/v1/notifications`,
+    const notificationResponse =
+        await supabaseRequestAdmin(
 
-        {
+            `${SUPABASE_URL}/rest/v1/notifications`,
 
-            method:
-                "POST",
+            {
 
-            headers: {
+                method:
+                    "POST",
 
-                "Content-Type":
-                    "application/json",
+                headers: {
 
-                "Prefer":
-                    "return=minimal"
+                    "Content-Type":
+                        "application/json",
 
-            },
+                    "Prefer":
+                        "return=representation"
 
-            body:
-                JSON.stringify(
-                    notificationPayload
-                )
+                },
 
-        }
+                body:
+                    JSON.stringify(
+                        notificationPayload
+                    )
 
-    );
+            }
+
+        );
 
 
     console.log(
-        "SIDAT: Notifikasi berhasil dibuat."
+        "SIDAT: Notification berhasil dibuat:",
+        notificationResponse
     );
 
-}
 
+    // ======================================
+    // AMBIL ACCESS TOKEN
+    // ======================================
+
+    const {
+        data: sessionData,
+        error: sessionError
+    } =
+        await supabaseClient.auth.getSession();
+
+
+    if (sessionError) {
+        throw sessionError;
+    }
+
+
+    const accessToken =
+        sessionData?.session?.access_token;
+
+
+    if (!accessToken) {
+
+        throw new Error(
+            "Access token tidak ditemukan."
+        );
+
+    }
+
+
+    // ======================================
+    // KIRIM PUSH KE EDGE FUNCTION
+    // ======================================
+
+    console.log(
+        "SIDAT: Memanggil Edge Function untuk update laporan:",
+        notificationId
+    );
+
+
+    const pushResponse =
+        await fetch(
+
+            `${SUPABASE_URL}/functions/v1/send-push-notification`,
+
+            {
+
+                method:
+                    "POST",
+
+                headers: {
+
+                    "Content-Type":
+                        "application/json",
+
+                    "Authorization":
+                        `Bearer ${accessToken}`,
+
+                    "apikey":
+                        SUPABASE_KEY
+
+                },
+
+                body:
+                    JSON.stringify({
+
+                        notification_id:
+                            notificationId
+
+                    })
+
+            }
+
+        );
+
+
+    let pushResult = null;
+
+
+    try {
+
+        pushResult =
+            await pushResponse.json();
+
+    }
+    catch {
+
+        pushResult = null;
+
+    }
+
+
+    console.log(
+        "SIDAT: Hasil push update laporan:",
+        pushResult
+    );
+
+
+    if (!pushResponse.ok) {
+
+        throw new Error(
+
+            pushResult?.message ||
+
+            "Push notification update laporan gagal dikirim."
+
+        );
+
+    }
+
+
+    console.log(
+        "SIDAT: Notifikasi update laporan berhasil dikirim ke semua warga."
+    );
+
+
+}
 catch (
     notificationError
 ) {
 
     console.error(
-        "SIDAT: Gagal membuat notifikasi:",
+        "SIDAT: Gagal mengirim notifikasi update laporan:",
         notificationError
     );
+
+    // ======================================
+    // PENTING:
+    // UPDATE LAPORAN TETAP DIANGGAP BERHASIL
+    // MESKIPUN PUSH GAGAL
+    // ======================================
 
 }
 
