@@ -2,40 +2,20 @@
 // SIDAT
 // SERVICE WORKER
 // PWA - SISTEM INFORMASI DATA WARGA
-// Dibuat oleh Suwardi
-// ==========================================
-
-
-// ==========================================
-// VERSI CACHE
 // ==========================================
 
 const CACHE_NAME =
-    "sidat-pwa-v4";
-
-
-// ==========================================
-// FILE DASAR SIDAT
-// ==========================================
+    "sidat-pwa-v5";
 
 const STATIC_FILES = [
-
     "./",
-
     "./index.html",
-
     "./manifest.json",
-
     "./style.css",
-
     "./install-pwa.css",
-
     "./install-pwa.js",
-
     "./icons/icon-192.png",
-
     "./icons/icon-512.png"
-
 ];
 
 
@@ -53,18 +33,23 @@ self.addEventListener(
 
         event.waitUntil(
 
-            caches.open(
-                CACHE_NAME
-            )
-            .then(
-                cache => {
+            caches
+                .open(CACHE_NAME)
+                .then(cache => {
 
                     return cache.addAll(
                         STATIC_FILES
                     );
 
-                }
-            )
+                })
+                .catch(error => {
+
+                    console.error(
+                        "SIDAT PWA: Cache gagal:",
+                        error
+                    );
+
+                })
 
         );
 
@@ -88,33 +73,36 @@ self.addEventListener(
 
         event.waitUntil(
 
-            caches.keys()
-                .then(
-                    cacheNames => {
+            caches
+                .keys()
+                .then(cacheNames => {
 
-                        return Promise.all(
+                    return Promise.all(
 
-                            cacheNames
-                                .filter(
-                                    cacheName =>
-                                        cacheName !==
-                                        CACHE_NAME
-                                )
-                                .map(
-                                    cacheName =>
-                                        caches.delete(
-                                            cacheName
-                                        )
-                                )
+                        cacheNames
 
-                        );
+                            .filter(
+                                cacheName =>
+                                    cacheName !==
+                                    CACHE_NAME
+                            )
 
-                    }
+                            .map(
+                                cacheName =>
+                                    caches.delete(
+                                        cacheName
+                                    )
+                            )
+
+                    );
+
+                })
+
+                .then(() =>
+                    self.clients.claim()
                 )
 
         );
-
-        self.clients.claim();
 
     }
 );
@@ -131,126 +119,105 @@ self.addEventListener(
         const request =
             event.request;
 
-
-        // Hanya menangani GET
-
         if (
             request.method !==
             "GET"
         ) {
-
             return;
-
         }
 
-
-        /*
-         * Jangan mengambil alih
-         * koneksi Supabase.
-         */
-
+        // Jangan intercept Supabase
         if (
             request.url.includes(
                 "supabase.co"
             )
         ) {
-
             return;
-
         }
-
 
         event.respondWith(
 
-            fetch(
-                request
-            )
-            .then(
-                response => {
+            fetch(request)
 
-                    /*
-                     * Simpan response valid
-                     * ke cache.
-                     */
+                .then(response => {
 
                     if (
                         response &&
-                        response.status ===
-                        200 &&
-                        response.type ===
-                        "basic"
+                        response.status === 200 &&
+                        response.type === "basic"
                     ) {
 
-                        const responseClone =
+                        const clone =
                             response.clone();
 
-
-                        caches.open(
-                            CACHE_NAME
-                        )
-                        .then(
-                            cache => {
+                        caches
+                            .open(CACHE_NAME)
+                            .then(cache => {
 
                                 cache.put(
                                     request,
-                                    responseClone
+                                    clone
                                 );
 
-                            }
-                        );
+                            })
+                            .catch(() => {});
 
                     }
 
-
                     return response;
 
-                }
-            )
-            .catch(
-                () => {
+                })
 
-                    /*
-                     * Jika internet tidak tersedia,
-                     * gunakan cache.
-                     */
+                .catch(() => {
 
                     return caches.match(
                         request
                     );
 
-                }
-            )
+                })
 
         );
 
     }
 );
 
+
 // ==========================================
-// SIDAT - PUSH NOTIFICATION
+// PUSH NOTIFICATION
 // ==========================================
 
 self.addEventListener(
     "push",
     event => {
 
+        console.log(
+            "SIDAT: PUSH diterima."
+        );
+
         let data = {};
 
         try {
 
-            data =
-                event.data
-                    ? event.data.json()
-                    : {};
+            if (event.data) {
+
+                data =
+                    event.data.json();
+
+            }
 
         } catch (error) {
+
+            console.warn(
+                "SIDAT: Payload push bukan JSON.",
+                error
+            );
 
             data = {
 
                 title:
                     "📢 SIDAT",
 
-                message:
+                body:
                     event.data
                         ? event.data.text()
                         : "Ada notifikasi baru dari SIDAT."
@@ -259,39 +226,66 @@ self.addEventListener(
 
         }
 
-
         const title =
             data.title ||
             "📢 SIDAT";
 
+        const body =
+            data.body ||
+            data.message ||
+            "Ada notifikasi baru dari SIDAT.";
+
+        const notificationId =
+            data.notification_id ||
+            "";
+
+        const url =
+            data.url ||
+            "/warga/pengumuman.html";
+
+        const icon =
+            new URL(
+                "./icons/icon-192.png",
+                self.registration.scope
+            ).href;
+
+        const badge =
+            new URL(
+                "./icons/icon-192.png",
+                self.registration.scope
+            ).href;
 
         const options = {
 
-            body:
-                data.message ||
-                "Ada notifikasi baru dari SIDAT.",
+            body: body,
 
-            icon:
-                "/icons/icon-192.png",
+            icon: icon,
 
-            badge:
-                "/icons/icon-192.png",
+            badge: badge,
 
             tag:
-                data.notification_id
-                    ? `sidat-${data.notification_id}`
+                notificationId
+                    ? `sidat-${notificationId}`
                     : "sidat-notification",
+
+            renotify: true,
 
             data: {
 
-                url:
-                    data.url ||
-                    "/warga/pengumuman.html"
+                url: url,
+
+                notification_id:
+                    notificationId,
+
+                report_id:
+                    data.report_id || "",
+
+                created_at:
+                    data.created_at || ""
 
             }
 
         };
-
 
         event.waitUntil(
 
@@ -308,7 +302,7 @@ self.addEventListener(
 
 
 // ==========================================
-// KLIK NOTIFIKASI
+// NOTIFICATION CLICK
 // ==========================================
 
 self.addEventListener(
@@ -317,11 +311,11 @@ self.addEventListener(
 
         event.notification.close();
 
-
         const url =
-            event.notification?.data?.url ||
+            event.notification
+                ?.data
+                ?.url ||
             "/warga/pengumuman.html";
-
 
         event.waitUntil(
 
@@ -330,41 +324,43 @@ self.addEventListener(
                     type: "window",
                     includeUncontrolled: true
                 })
-                .then(
-                    clientList => {
 
-                        for (
-                            const client
-                            of clientList
-                        ) {
+                .then(clientList => {
 
-                            if (
-                                "focus" in client
-                            ) {
-
-                                client.navigate(
-                                    url
-                                );
-
-                                return client.focus();
-
-                            }
-
-                        }
-
+                    for (
+                        const client
+                        of clientList
+                    ) {
 
                         if (
-                            clients.openWindow
+                            "navigate"
+                            in client
                         ) {
 
-                            return clients.openWindow(
-                                url
-                            );
+                            return client
+                                .navigate(url)
+                                .then(
+                                    () =>
+                                        client
+                                            .focus()
+                                );
 
                         }
 
                     }
-                )
+
+                    if (
+                        clients.openWindow
+                    ) {
+
+                        return clients
+                            .openWindow(
+                                url
+                            );
+
+                    }
+
+                })
 
         );
 
