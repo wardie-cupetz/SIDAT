@@ -23,10 +23,6 @@ public class MainActivity extends BridgeActivity {
 
     private void requestNotificationPermission() {
 
-        /*
-         * Android 13 (API 33) dan lebih baru
-         * membutuhkan permission POST_NOTIFICATIONS.
-         */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
 
             if (ContextCompat.checkSelfPermission(
