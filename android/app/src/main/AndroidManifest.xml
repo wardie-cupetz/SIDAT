@@ -30,11 +30,17 @@
         android:theme="@style/AppTheme">
 
         <!-- Default FCM notification channel SIDAT -->
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="sidat_notification" />
+<meta-data
+    android:name="com.google.firebase.messaging.default_notification_channel_id"
+    android:value="sidat_notification" />
 
-        <!-- Native Firebase Messaging Service SIDAT -->
+<meta-data
+    android:name="com.google.firebase.messaging.default_notification_icon"
+    android:resource="@mipmap/ic_launcher" />
+
+<meta-data
+    android:name="com.google.firebase.messaging.default_notification_color"
+    android:resource="@android:color/holo_green_dark" />        <!-- Native Firebase Messaging Service SIDAT -->
         <service
             android:name=".SidatFirebaseMessagingService"
             android:exported="false">
