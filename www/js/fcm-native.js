@@ -1351,7 +1351,7 @@ PushNotifications.addListener(
             notification
         );
 
-        // Hanya tampilkan popup untuk akun ADMIN
+        // Tampilkan popup untuk ADMIN maupun WARGA
         const adminUser =
             JSON.parse(
                 localStorage.getItem(
@@ -1359,7 +1359,18 @@ PushNotifications.addListener(
                 ) || "null"
             );
 
-        if (!adminUser) {
+        const wargaUser =
+            JSON.parse(
+                localStorage.getItem(
+                    "sidat_warga_user"
+                ) || "null"
+            );
+
+        if (!adminUser && !wargaUser) {
+            debug(
+                "Tidak ditemukan sesi ADMIN/WARGA lokal.",
+                "warn"
+            );
             return;
         }
 
