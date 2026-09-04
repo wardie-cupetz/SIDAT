@@ -1666,22 +1666,28 @@
 
         try {
 
-            const adminUser =
-                JSON.parse(
-                    localStorage.getItem(
-                        "sidat_admin_user"
-                    ) || "null"
-                );
+            // Tampilkan popup untuk ADMIN maupun WARGA
+const adminUser =
+    JSON.parse(
+        localStorage.getItem(
+            "sidat_admin_user"
+        ) || "null"
+    );
 
-            if (
-                adminUser
-            ) {
+const wargaUser =
+    JSON.parse(
+        localStorage.getItem(
+            "sidat_warga_user"
+        ) || "null"
+    );
 
-                return "admin";
-
-            }
-
-        }
+if (!adminUser && !wargaUser) {
+    debug(
+        "Tidak ditemukan sesi ADMIN/WARGA lokal.",
+        "warn"
+    );
+    return;
+}
 
         catch {
 
