@@ -2115,6 +2115,7 @@ function tutupDetail() {
         null;
 
 }
+
 // ==========================================
 // SIMPAN PERUBAHAN LAPORAN
 // ==========================================
@@ -2133,7 +2134,7 @@ async function simpanPerubahanLaporan() {
 
 
     // ======================================
-    // AMBIL INPUT DARI HTML
+    // ELEMENT
     // ======================================
 
     const statusInput =
@@ -2141,12 +2142,10 @@ async function simpanPerubahanLaporan() {
             "detailStatus"
         );
 
-
     const noteInput =
         document.getElementById(
             "detailAdminNote"
         );
-
 
     const saveButton =
         document.getElementById(
@@ -2154,15 +2153,7 @@ async function simpanPerubahanLaporan() {
         );
 
 
-    // ======================================
-    // CEK ELEMENT
-    // ======================================
-
     if (!statusInput) {
-
-        console.error(
-            "SIDAT: #detailStatus tidak ditemukan."
-        );
 
         tampilkanNotifikasi(
             "Elemen status laporan tidak ditemukan.",
@@ -2176,10 +2167,6 @@ async function simpanPerubahanLaporan() {
 
     if (!noteInput) {
 
-        console.error(
-            "SIDAT: #detailAdminNote tidak ditemukan."
-        );
-
         tampilkanNotifikasi(
             "Elemen tanggapan admin tidak ditemukan.",
             "error"
@@ -2191,42 +2178,21 @@ async function simpanPerubahanLaporan() {
 
 
     // ======================================
-    // AMBIL NILAI
+    // NILAI
     // ======================================
 
     const status =
         statusInput.value ||
         "pending";
 
-
     const adminNote =
-        noteInput.value.trim() ||
-        "";
+        noteInput.value.trim();
 
-
-    console.log(
-        "SIDAT: Menyimpan perubahan:",
-        {
-            id:
-                laporanTerpilih.id,
-
-            status:
-                status,
-
-            admin_note:
-                adminNote
-        }
-    );
-
-
-    // ======================================
-    // VALIDASI STATUS
-    // ======================================
 
     const statusValid = [
         "pending",
         "processing",
-        "completed",
+        "completed"
     ];
 
 
@@ -2238,6 +2204,52 @@ async function simpanPerubahanLaporan() {
 
         tampilkanNotifikasi(
             "Status laporan tidak valid.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    // ======================================
+    // SIMPAN DATA LAMA
+    // ======================================
+
+    const laporanId =
+        laporanTerpilih.id;
+
+    const residentId =
+        laporanTerpilih.resident_id;
+
+    const judulLaporan =
+        laporanTerpilih.title ||
+        "Laporan warga";
+
+
+    console.log(
+        "SIDAT: UPDATE LAPORAN",
+        {
+            laporanId,
+            residentId,
+            status,
+            adminNote
+        }
+    );
+
+
+    // ======================================
+    // VALIDASI RESIDENT
+    // ======================================
+
+    if (!residentId) {
+
+        console.error(
+            "SIDAT: resident_id laporan kosong."
+        );
+
+        tampilkanNotifikasi(
+            "Laporan tidak memiliki data warga.",
             "error"
         );
 
@@ -2264,15 +2276,19 @@ async function simpanPerubahanLaporan() {
 
 
         // ==================================
-        // UPDATE SUPABASE
+        // UPDATE REPORT
         // ==================================
+
+        const updatedAt =
+            new Date().toISOString();
+
 
         const hasil =
             await supabaseRequestAdmin(
 
                 `${SUPABASE_URL}/rest/v1/reports` +
                 `?id=eq.${encodeURIComponent(
-                    laporanTerpilih.id
+                    laporanId
                 )}`,
 
                 {
@@ -2300,8 +2316,7 @@ async function simpanPerubahanLaporan() {
                                 adminNote,
 
                             updated_at:
-                                new Date()
-                                    .toISOString()
+                                updatedAt
 
                         })
 
@@ -2311,217 +2326,9 @@ async function simpanPerubahanLaporan() {
 
 
         console.log(
-            "SIDAT: Perubahan laporan berhasil:",
+            "SIDAT: UPDATE REPORT BERHASIL:",
             hasil
         );
-        // ==========================================
-// NOTIFIKASI LAPORAN BARU
-// SEMUA WARGA + ADMIN
-// ==========================================
-
-try {
-
-    const notificationPayload = {
-
-        title:
-            "📢 Laporan Baru",
-
-        message:
-            `Warga mengirim laporan baru: "${title}".`,
-
-        target_type:
-            "all",
-
-        target_resident_id:
-            null,
-
-        is_read:
-            false,
-
-        created_by:
-            null,
-
-        created_at:
-            new Date().toISOString()
-
-    };
-
-
-    console.log(
-        "SIDAT: Membuat notifikasi laporan baru:",
-        notificationPayload
-    );
-
-
-    const notificationResponse =
-        await supabaseRequest(
-
-            `${SUPABASE_URL}/rest/v1/notifications`,
-
-            {
-
-                method:
-                    "POST",
-
-                headers: {
-
-                    "Prefer":
-                        "return=minimal"
-
-                },
-
-                body:
-                    JSON.stringify(
-                        notificationPayload
-                    )
-
-            }
-
-        );
-
-
-    console.log(
-        "SIDAT: Notifikasi laporan baru berhasil dibuat:",
-        notificationResponse
-    );
-
-
-}
-catch (
-    notificationError
-) {
-
-    console.error(
-        "SIDAT: Gagal membuat notifikasi laporan baru:",
-        notificationError
-    );
-
-}
-
-// ==========================================
-// BUAT NOTIFIKASI UNTUK WARGA
-// ==========================================
-
-try {
-
-    const statusText = {
-
-    pending:
-        "Menunggu",
-
-    processing:
-        "Diproses",
-
-    completed:
-        "Selesai"
-
-};
-
-
-    const namaStatus =
-        statusText[status] ||
-        status;
-
-
-    const judulLaporan =
-        laporanTerpilih.title ||
-        "Laporan warga";
-
-
-    let pesan =
-        `Laporan "${judulLaporan}" ` +
-        `telah diperbarui menjadi ` +
-        `"${namaStatus}".`;
-
-
-    if (
-        adminNote
-    ) {
-
-        pesan +=
-            ` Tanggapan admin: ${adminNote}`;
-
-    }
-
-
-    const notificationPayload = {
-
-        title:
-            "📢 Laporan Diperbarui",
-
-        message:
-            pesan,
-
-        target_type:
-            "resident",
-
-        target_resident_id:
-            laporanTerpilih.resident_id,
-
-        is_read:
-            false,
-
-        created_by:
-            window.currentUser?.id ||
-            null,
-
-        created_at:
-            new Date().toISOString()
-
-    };
-
-
-    console.log(
-        "SIDAT: Membuat notifikasi:",
-        notificationPayload
-    );
-
-
-    await supabaseRequestAdmin(
-
-        `${SUPABASE_URL}/rest/v1/notifications`,
-
-        {
-
-            method:
-                "POST",
-
-            headers: {
-
-                "Content-Type":
-                    "application/json",
-
-                "Prefer":
-                    "return=minimal"
-
-            },
-
-            body:
-                JSON.stringify(
-                    notificationPayload
-                )
-
-        }
-
-    );
-
-
-    console.log(
-        "SIDAT: Notifikasi berhasil dibuat."
-    );
-
-}
-
-catch (
-    notificationError
-) {
-
-    console.error(
-        "SIDAT: Gagal membuat notifikasi:",
-        notificationError
-    );
-
-}
 
 
         // ==================================
@@ -2535,7 +2342,7 @@ catch (
                         item.id
                     ) ===
                     String(
-                        laporanTerpilih.id
+                        laporanId
                     )
             );
 
@@ -2555,8 +2362,7 @@ catch (
                     adminNote,
 
                 updated_at:
-                    new Date()
-                        .toISOString()
+                    updatedAt
 
             };
 
@@ -2568,27 +2374,349 @@ catch (
 
 
         // ==================================
-        // UPDATE STATISTIK
+        // UPDATE UI
         // ==================================
 
         updateStatistik();
-
-
-        // ==================================
-        // UPDATE LIST
-        // ==================================
 
         filterLaporan();
 
 
         // ==================================
-        // PESAN BERHASIL
+        // NOTIFIKASI KE WARGA
         // ==================================
 
-        tampilkanNotifikasi(
-            "Perubahan laporan berhasil disimpan.",
-            "success"
-        );
+        let pushBerhasil =
+            false;
+
+
+        try {
+
+            console.log(
+                "SIDAT: Memulai push update laporan..."
+            );
+
+
+            // ==================================
+            // AMBIL SESSION SUPABASE
+            // ==================================
+
+            let accessToken =
+                localStorage.getItem(
+                    "sidat_access_token"
+                );
+
+
+            if (
+                window.supabaseClient?.auth
+            ) {
+
+                const {
+                    data:
+                        sessionData
+                } =
+                    await window.supabaseClient
+                        .auth
+                        .getSession();
+
+
+                const session =
+                    sessionData?.session;
+
+
+                if (
+                    session?.access_token
+                ) {
+
+                    accessToken =
+                        session.access_token;
+
+                }
+
+            }
+
+
+            if (!accessToken) {
+
+                throw new Error(
+                    "Session admin tidak ditemukan."
+                );
+
+            }
+
+
+            // ==================================
+            // BUAT NOTIFICATION
+            // ==================================
+
+            const notificationId =
+                crypto.randomUUID();
+
+
+            const statusText = {
+
+                pending:
+                    "Menunggu",
+
+                processing:
+                    "Diproses",
+
+                completed:
+                    "Selesai"
+
+            };
+
+
+            const namaStatus =
+                statusText[status] ||
+                status;
+
+
+            let pesan =
+                `Laporan "${judulLaporan}" ` +
+                `telah diperbarui menjadi ` +
+                `"${namaStatus}".`;
+
+
+            if (
+                adminNote
+            ) {
+
+                pesan +=
+                    ` Tanggapan admin: ${adminNote}`;
+
+            }
+
+
+            const notificationPayload = {
+
+                id:
+                    notificationId,
+
+                title:
+                    "📢 Laporan Diperbarui",
+
+                message:
+                    pesan,
+
+                target_type:
+                    "resident",
+
+                target_resident_id:
+                    residentId,
+
+                is_read:
+                    false,
+
+                created_by:
+                    null,
+
+                created_at:
+                    new Date().toISOString(),
+
+                report_id:
+                    laporanId
+
+            };
+
+
+            // ==================================
+            // INSERT NOTIFICATION
+            // ==================================
+
+            const notificationResponse =
+                await fetch(
+
+                    `${SUPABASE_URL}/rest/v1/notifications`,
+
+                    {
+
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            "apikey":
+                                SUPABASE_KEY,
+
+                            "Authorization":
+                                `Bearer ${accessToken}`,
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Accept":
+                                "application/json",
+
+                            "Prefer":
+                                "return=representation"
+
+                        },
+
+                        body:
+                            JSON.stringify(
+                                notificationPayload
+                            )
+
+                    }
+
+                );
+
+
+            const notificationText =
+                await notificationResponse.text();
+
+
+            if (
+                !notificationResponse.ok
+            ) {
+
+                throw new Error(
+                    notificationText ||
+                    `Gagal membuat notification (${notificationResponse.status})`
+                );
+
+            }
+
+
+            console.log(
+                "SIDAT: Notification berhasil dibuat:",
+                notificationText
+            );
+
+
+            // ==================================
+            // PANGGIL EDGE FUNCTION PUSH
+            // ==================================
+
+            const pushResponse =
+                await fetch(
+
+                    `${SUPABASE_URL}/functions/v1/send-push-notification`,
+
+                    {
+
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            "Authorization":
+                                `Bearer ${accessToken}`,
+
+                            "apikey":
+                                SUPABASE_KEY,
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                notification_id:
+                                    notificationId
+
+                            })
+
+                    }
+
+                );
+
+
+            const pushText =
+                await pushResponse.text();
+
+
+            let pushResult =
+                null;
+
+
+            try {
+
+                pushResult =
+                    pushText
+                        ? JSON.parse(
+                            pushText
+                        )
+                        : null;
+
+            } catch (
+                error
+            ) {
+
+                pushResult =
+                    pushText;
+
+            }
+
+
+            console.log(
+                "SIDAT: HASIL SEND PUSH:",
+                pushResult
+            );
+
+
+            if (
+                !pushResponse.ok ||
+                !pushResult?.success
+            ) {
+
+                throw new Error(
+                    pushResult?.message ||
+                    `Edge Function push gagal (${pushResponse.status})`
+                );
+
+            }
+
+
+            pushBerhasil =
+                true;
+
+
+            console.log(
+                "SIDAT: PUSH UPDATE LAPORAN BERHASIL."
+            );
+
+
+        } catch (
+            pushError
+        ) {
+
+            // ==================================
+            // PUSH GAGAL TAPI UPDATE TETAP BERHASIL
+            // ==================================
+
+            console.error(
+                "SIDAT: PUSH UPDATE LAPORAN GAGAL:",
+                pushError
+            );
+
+        }
+
+
+        // ==================================
+        // PESAN KE ADMIN
+        // ==================================
+
+        if (
+            pushBerhasil
+        ) {
+
+            tampilkanNotifikasi(
+                "Laporan berhasil diperbarui dan notifikasi telah dikirim ke warga.",
+                "success"
+            );
+
+        } else {
+
+            tampilkanNotifikasi(
+                "Laporan berhasil diperbarui, tetapi notifikasi ke warga gagal dikirim.",
+                "warning"
+            );
+
+        }
 
 
         // ==================================
@@ -2598,9 +2726,7 @@ catch (
         tutupDetail();
 
 
-    }
-
-    catch (
+    } catch (
         error
     ) {
 
@@ -2615,13 +2741,11 @@ catch (
             "error"
         );
 
-    }
+    } finally {
 
-    finally {
-
-        // ================================
+        // ==================================
         // KEMBALIKAN TOMBOL
-        // ================================
+        // ==================================
 
         if (saveButton) {
 
@@ -3157,4 +3281,4 @@ window.initAdminLaporan =
 
 console.log(
     "SIDAT: ADMIN LAPORAN SIAP."
-);
+); 
