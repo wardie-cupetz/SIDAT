@@ -712,8 +712,38 @@ console.log(
                 );
                 
 // ==========================================
-// SIMPAN FCM TOKEN SETELAH LOGIN
+// REGISTER FCM SETELAH LOGIN WARGA
 // ==========================================
+// Saat aplikasi pertama dibuka, session Warga
+// mungkin belum tersedia sehingga register FCM
+// sebelumnya belum bisa menyimpan token.
+// Setelah login berhasil, register ulang FCM.
+// ==========================================
+
+if (
+    typeof window.SIDATRegisterFCM ===
+    "function"
+) {
+
+    console.log(
+        "SIDAT FCM WARGA: Memulai register FCM setelah login..."
+    );
+
+    await window.SIDATRegisterFCM();
+
+} else {
+
+    console.warn(
+        "SIDAT FCM WARGA: SIDATRegisterFCM belum tersedia."
+    );
+
+}
+
+
+// ==========================================
+// SINKRONKAN TOKEN FCM SETELAH LOGIN
+// ==========================================
+
 await updatePushSubscription();
 
                 // ==================================
