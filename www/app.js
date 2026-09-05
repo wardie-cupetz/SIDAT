@@ -731,6 +731,15 @@ if (
 
     await window.SIDATRegisterFCM();
 
+    if (
+        typeof window.SIDATSinkronkanFCMRetry ===
+        "function"
+    ) {
+
+        await window.SIDATSinkronkanFCMRetry();
+
+    }
+
 } else {
 
     console.warn(

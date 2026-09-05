@@ -1231,6 +1231,90 @@
 
 
     // ======================================
+    // RETRY SINKRONISASI FCM
+    // ======================================
+
+    async function sinkronkanFCMRetry(
+        jumlahPercobaan = 6,
+        jeda = 2000
+    ) {
+
+        debug(
+            "Memulai retry sinkronisasi FCM..."
+        );
+
+        for (
+            let percobaan = 1;
+            percobaan <= jumlahPercobaan;
+            percobaan++
+        ) {
+
+            const token =
+                ambilTokenFCM();
+
+            if (token) {
+
+                debug(
+                    "Token FCM ditemukan pada percobaan " +
+                    percobaan + ".",
+                    "success"
+                );
+
+                const berhasil =
+                    await sinkronkanTokenFCM();
+
+                if (berhasil) {
+
+                    debug(
+                        "🎉 Retry FCM berhasil. Token sudah tersimpan ke Supabase.",
+                        "success"
+                    );
+
+                    return true;
+
+                }
+
+            } else {
+
+                debug(
+                    "Token FCM belum tersedia. Percobaan " +
+                    percobaan +
+                    "/" +
+                    jumlahPercobaan,
+                    "warning"
+                );
+
+            }
+
+            if (
+                percobaan <
+                jumlahPercobaan
+            ) {
+
+                await new Promise(
+                    function (resolve) {
+                        setTimeout(
+                            resolve,
+                            jeda
+                        );
+                    }
+                );
+
+            }
+
+        }
+
+        debug(
+            "Retry sinkronisasi FCM selesai tetapi belum berhasil.",
+            "error"
+        );
+
+        return false;
+
+    }
+
+
+    // ======================================
     // REGISTER FCM
     // ======================================
 
@@ -1462,6 +1546,9 @@
 
     window.SIDATSinkronkanFCM =
         sinkronkanTokenFCM;
+
+    window.SIDATSinkronkanFCMRetry =
+        sinkronkanFCMRetry;
 
 
     // ======================================
