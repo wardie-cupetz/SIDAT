@@ -35,6 +35,8 @@ const supabaseClient =
             }
         }
     );
+window.supabaseClient = supabaseClient;
+
 
 // ==========================================
 // SIDAT SESSION SYNC
