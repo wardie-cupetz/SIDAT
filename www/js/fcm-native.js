@@ -1069,6 +1069,13 @@
                     existing?.id
                 ) {
 
+                    debug(
+                        "Subscription Warga ditemukan: " +
+                        existing.id,
+                        "success"
+                    );
+
+
                     const {
                         error
                     } =
@@ -1083,6 +1090,18 @@
 
                                 user_id:
                                     user.id,
+
+                                resident_id:
+                                    residentId,
+
+                                endpoint:
+                                    `fcm-native:${user.id}`,
+
+                                p256dh:
+                                    `fcm-native-${user.id}`,
+
+                                auth:
+                                    `fcm-native-${user.id}`,
 
                                 updated_at:
                                     new Date()
@@ -1120,12 +1139,69 @@
 
 
                 debug(
-                    "Subscription warga belum ditemukan.",
+                    "Subscription Warga belum ditemukan. Membuat record baru...",
                     "warning"
                 );
 
 
-                return false;
+                const {
+                    error: insertError
+                } =
+                    await client
+                        .from(
+                            "push_subscriptions"
+                        )
+                        .insert({
+
+                            user_id:
+                                user.id,
+
+                            resident_id:
+                                residentId,
+
+                            endpoint:
+                                `fcm-native:${user.id}`,
+
+                            p256dh:
+                                `fcm-native-${user.id}`,
+
+                            auth:
+                                `fcm-native-${user.id}`,
+
+                            fcm_token:
+                                token,
+
+                            created_at:
+                                new Date()
+                                    .toISOString(),
+
+                            updated_at:
+                                new Date()
+                                    .toISOString()
+
+                        });
+
+
+                if (insertError) {
+
+                    debug(
+                        "GAGAL INSERT TOKEN WARGA: " +
+                        insertError.message,
+                        "error"
+                    );
+
+                    return false;
+
+                }
+
+
+                debug(
+                    "TOKEN FCM WARGA BERHASIL DISIMPAN.",
+                    "success"
+                );
+
+
+                return true;
 
             }
 
