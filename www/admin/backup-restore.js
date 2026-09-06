@@ -925,6 +925,8 @@ simpanInfoBackupTerakhir({
 
 });
 
+        tampilkanBackupTerakhir();
+
         URL.revokeObjectURL(
             url
         );
