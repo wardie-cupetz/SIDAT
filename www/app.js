@@ -714,6 +714,54 @@ console.log(
                 );
                 
 // ==========================================
+// DEBUG FCM WARGA
+// ==========================================
+
+function debugFCMWarga(pesan, status = "INFO") {
+
+    const waktu = new Date().toLocaleTimeString();
+
+    const baris =
+        "[" + waktu + "] [" + status + "] " + pesan;
+
+    console.log(
+        "SIDAT FCM WARGA:",
+        baris
+    );
+
+    const key = "sidat_fcm_warga_debug";
+
+    let log = [];
+
+    try {
+
+        log = JSON.parse(
+            localStorage.getItem(key) || "[]"
+        );
+
+    } catch (e) {
+
+        log = [];
+
+    }
+
+    log.push(baris);
+
+    if (log.length > 50) {
+
+        log = log.slice(-50);
+
+    }
+
+    localStorage.setItem(
+        key,
+        JSON.stringify(log)
+    );
+}
+
+
+// ==========================================
+// ==========================================
 // REGISTER FCM SETELAH LOGIN WARGA
 // ==========================================
 // Saat aplikasi pertama dibuka, session Warga
@@ -727,18 +775,90 @@ if (
     "function"
 ) {
 
-    console.log(
-        "SIDAT FCM WARGA: Memulai register FCM setelah login..."
+    debugFCMWarga(
+        "SIDATRegisterFCM ditemukan.",
+        "OK"
     );
 
-    await window.SIDATRegisterFCM();
+    debugFCMWarga(
+        "Memanggil SIDATRegisterFCM()...",
+        "INFO"
+    );
+
+    try {
+
+        const hasilRegister =
+            await window.SIDATRegisterFCM();
+
+        debugFCMWarga(
+            "SIDATRegisterFCM selesai. Hasil: " +
+            hasilRegister,
+            hasilRegister ? "OK" : "ERROR"
+        );
+
+    } catch (error) {
+
+        debugFCMWarga(
+            "SIDATRegisterFCM ERROR: " +
+            (error?.message || error),
+            "ERROR"
+        );
+
+    }
+
+    const tokenSetelahRegister =
+        localStorage.getItem(
+            "sidat_fcm_native_token"
+        );
+
+    if (tokenSetelahRegister) {
+
+        debugFCMWarga(
+            "TOKEN FCM DITEMUKAN: " +
+            tokenSetelahRegister.substring(0, 8) +
+            "...",
+            "OK"
+        );
+
+    } else {
+
+        debugFCMWarga(
+            "TOKEN FCM BELUM ADA setelah registerFCM().",
+            "WARNING"
+        );
+
+    }
 
     if (
         typeof window.SIDATSinkronkanFCMRetry ===
         "function"
     ) {
 
-        await window.SIDATSinkronkanFCMRetry();
+        debugFCMWarga(
+            "Memulai sinkronisasi FCM ke Supabase...",
+            "INFO"
+        );
+
+        try {
+
+            const hasilSync =
+                await window.SIDATSinkronkanFCMRetry();
+
+            debugFCMWarga(
+                "Sinkronisasi FCM selesai. Hasil: " +
+                hasilSync,
+                hasilSync ? "OK" : "ERROR"
+            );
+
+        } catch (error) {
+
+            debugFCMWarga(
+                "SYNC FCM ERROR: " +
+                (error?.message || error),
+                "ERROR"
+            );
+
+        }
 
     }
 

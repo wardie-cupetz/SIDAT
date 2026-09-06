@@ -122,6 +122,34 @@
             message
         );
 
+        // Simpan log ke localStorage agar bisa dicek dari APK
+        try {
+
+            const key = "sidat_fcm_debug";
+
+            let log = JSON.parse(
+                localStorage.getItem(key) || "[]"
+            );
+
+            log.push({
+                waktu: new Date().toLocaleTimeString("id-ID"),
+                tipe: type,
+                pesan: message
+            });
+
+            if (log.length > 100) {
+
+                log = log.slice(-100);
+
+            }
+
+            localStorage.setItem(
+                key,
+                JSON.stringify(log)
+            );
+
+        } catch (_) {}
+
 
         const status =
             document.getElementById(
