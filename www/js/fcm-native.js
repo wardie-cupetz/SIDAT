@@ -1564,9 +1564,42 @@
      */
 
     setTimeout(
-        function () {
+        async function () {
 
-            registerFCM();
+            try {
+
+                const session =
+                    await ambilSessionSupabase();
+
+                if (
+                    session?.user
+                ) {
+
+                    debug(
+                        "Session ditemukan. Menjalankan auto-register FCM...",
+                        "success"
+                    );
+
+                    await registerFCM();
+
+                } else {
+
+                    debug(
+                        "Belum ada session login. Auto-register FCM dilewati.",
+                        "warning"
+                    );
+
+                }
+
+            } catch (error) {
+
+                debug(
+                    "Auto-register FCM gagal: " +
+                    (error?.message || error),
+                    "error"
+                );
+
+            }
 
         },
         1500
