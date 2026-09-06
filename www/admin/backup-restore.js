@@ -839,28 +839,6 @@ async function buatBackup() {
             );
 
 
-        const blob =
-            new Blob(
-                [json],
-                {
-                    type:
-                        "application/json"
-                }
-            );
-
-
-        const url =
-            URL.createObjectURL(
-                blob
-            );
-
-
-        const link =
-            document.createElement(
-                "a"
-            );
-
-
         const sekarang =
             new Date();
 
@@ -887,23 +865,86 @@ async function buatBackup() {
                 );
 
 
-        link.href =
-            url;
-
-
-        link.download =
+        const namaFile =
             `SIDAT-backup-${tanggal}-${waktu}.json`;
 
 
-        document.body.appendChild(
-            link
+        // ==================================
+        // SIMPAN FILE SECARA NATIVE ANDROID
+        // ==================================
+
+        const Filesystem =
+            window.Capacitor &&
+            window.Capacitor.Plugins &&
+            window.Capacitor.Plugins.Filesystem;
+
+
+        if (
+            !Filesystem ||
+            typeof Filesystem.writeFile !== "function"
+        ) {
+
+            throw new Error(
+                "Plugin Filesystem Capacitor tidak tersedia."
+            );
+
+        }
+
+
+        // ==================================
+        // CEK / MINTA IZIN PENYIMPANAN
+        // ==================================
+
+        if (
+            typeof Filesystem.checkPermissions === "function" &&
+            typeof Filesystem.requestPermissions === "function"
+        ) {
+
+            const permission =
+                await Filesystem.checkPermissions();
+
+
+            if (
+                permission.publicStorage !== "granted"
+            ) {
+
+                await Filesystem.requestPermissions();
+
+            }
+
+        }
+
+
+        // ==================================
+        // SIMPAN KE PUBLIC DOCUMENTS ANDROID
+        // ==================================
+
+        const hasilSimpan =
+            await Filesystem.writeFile({
+
+                path:
+                    namaFile,
+
+                data:
+                    json,
+
+                directory:
+                    "DOCUMENTS",
+
+                encoding:
+                    "utf8",
+
+                recursive:
+                    true
+
+            });
+
+
+        console.log(
+            "SIDAT: File backup tersimpan:",
+            hasilSimpan
         );
 
-
-        link.click();
-
-
-        link.remove();
 
 // ==================================
 // SIMPAN INFO BACKUP TERAKHIR
@@ -918,18 +959,21 @@ simpanInfoBackupTerakhir({
         totalData,
 
     file_size:
-        blob.size,
+        new Blob(
+            [json],
+            {
+                type:
+                    "application/json"
+            }
+        ).size,
 
     file_name:
-        link.download
+        namaFile
 
 });
 
-        tampilkanBackupTerakhir();
 
-        URL.revokeObjectURL(
-            url
-        );
+        tampilkanBackupTerakhir();
 
 
         console.log(
