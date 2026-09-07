@@ -13,3 +13,8 @@ vapid-public-baru.pem
 vapid-public-key.txt
 vapid-public.der
 node_modules/
+
+# SIDAT release signing files
+*.jks
+*.keystore
+android/key.properties
