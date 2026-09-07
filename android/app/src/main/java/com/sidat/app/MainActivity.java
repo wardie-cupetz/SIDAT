@@ -1,10 +1,12 @@
 package com.sidat.app;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -20,6 +22,7 @@ public class MainActivity extends BridgeActivity {
         super.onCreate(savedInstanceState);
 
         requestNotificationPermission();
+        setupBackButton();
     }
 
     private void requestNotificationPermission() {
@@ -40,5 +43,28 @@ public class MainActivity extends BridgeActivity {
                 );
             }
         }
+    }
+
+    private void setupBackButton() {
+
+        getOnBackPressedDispatcher().addCallback(
+                this,
+                new OnBackPressedCallback(true) {
+
+                    @Override
+                    public void handleOnBackPressed() {
+
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setTitle("Keluar dari SIDAT?")
+                                .setMessage("Apakah Anda yakin ingin keluar dari aplikasi?")
+                                .setNegativeButton("Batal", null)
+                                .setPositiveButton(
+                                        "Keluar",
+                                        (dialog, which) -> finishAndRemoveTask()
+                                )
+                                .show();
+                    }
+                }
+        );
     }
 }
