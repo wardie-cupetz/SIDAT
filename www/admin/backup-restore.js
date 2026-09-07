@@ -870,85 +870,97 @@ async function buatBackup() {
 
 
         // ==================================
-        // SIMPAN FILE SECARA NATIVE ANDROID
+        // SIMPAN FILE
+        // ANDROID APK -> NATIVE STORAGE
+        // WEB/PWA -> DOWNLOAD BROWSER
         // ==================================
 
-        const Filesystem =
+        const BackupBridge =
             window.Capacitor &&
             window.Capacitor.Plugins &&
-            window.Capacitor.Plugins.Filesystem;
+            window.Capacitor.Plugins.BackupBridge;
 
 
         if (
-            !Filesystem ||
-            typeof Filesystem.writeFile !== "function"
+            BackupBridge &&
+            typeof BackupBridge.saveBackup === "function"
         ) {
 
-            throw new Error(
-                "Plugin Filesystem Capacitor tidak tersedia."
+            // ==================================
+            // ANDROID NATIVE
+            // ==================================
+
+            const hasilSimpan =
+                await BackupBridge.saveBackup({
+
+                    filename:
+                        namaFile,
+
+                    data:
+                        json
+
+                });
+
+
+            console.log(
+                "SIDAT: File backup tersimpan:",
+                hasilSimpan
+            );
+
+        } else {
+
+            // ==================================
+            // WEB / PWA FALLBACK
+            // ==================================
+
+            const blob =
+                new Blob(
+                    [json],
+                    {
+                        type:
+                            "application/json"
+                    }
+                );
+
+
+            const url =
+                URL.createObjectURL(blob);
+
+
+            const link =
+                document.createElement("a");
+
+
+            link.href =
+                url;
+
+
+            link.download =
+                namaFile;
+
+
+            document.body.appendChild(
+                link
+            );
+
+
+            link.click();
+
+
+            link.remove();
+
+
+            setTimeout(
+                () => URL.revokeObjectURL(url),
+                1000
             );
 
         }
 
 
         // ==================================
-        // CEK / MINTA IZIN PENYIMPANAN
+        // SIMPAN INFO BACKUP TERAKHIR
         // ==================================
-
-        if (
-            typeof Filesystem.checkPermissions === "function" &&
-            typeof Filesystem.requestPermissions === "function"
-        ) {
-
-            const permission =
-                await Filesystem.checkPermissions();
-
-
-            if (
-                permission.publicStorage !== "granted"
-            ) {
-
-                await Filesystem.requestPermissions();
-
-            }
-
-        }
-
-
-        // ==================================
-        // SIMPAN KE PUBLIC DOCUMENTS ANDROID
-        // ==================================
-
-        const hasilSimpan =
-            await Filesystem.writeFile({
-
-                path:
-                    namaFile,
-
-                data:
-                    json,
-
-                directory:
-                    "DOCUMENTS",
-
-                encoding:
-                    "utf8",
-
-                recursive:
-                    true
-
-            });
-
-
-        console.log(
-            "SIDAT: File backup tersimpan:",
-            hasilSimpan
-        );
-
-
-// ==================================
-// SIMPAN INFO BACKUP TERAKHIR
-// ==================================
 
 simpanInfoBackupTerakhir({
 
