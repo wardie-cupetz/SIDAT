@@ -66,15 +66,17 @@ jobs:
 
       - name: Prepare APK files
         run: |
+          VERSION_NAME=$(grep 'versionName' android/app/build.gradle | sed 's/.*versionName "\([^"]*\)".*/\1/')
           cp android/app/build/outputs/apk/release/app-release.apk SIDAT.apk
-          cp android/app/build/outputs/apk/release/app-release.apk SIDAT-v1.0.apk
+          cp android/app/build/outputs/apk/release/app-release.apk "SIDAT-v${VERSION_NAME}.apk"
 
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v1.0 \
+          VERSION_NAME=$(grep 'versionName' android/app/build.gradle | sed 's/.*versionName "\([^"]*\)".*/\1/')
+          gh release create "v${VERSION_NAME}" \
             SIDAT.apk \
-            SIDAT-v1.0.apk \
-            --title "SIDAT v1.0" \
+            "SIDAT-v${VERSION_NAME}.apk" \
+            --title "SIDAT v${VERSION_NAME}" \
             --generate-notes
