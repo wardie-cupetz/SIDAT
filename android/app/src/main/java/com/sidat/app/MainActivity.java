@@ -58,14 +58,16 @@ public class MainActivity extends BridgeActivity {
                                 .getWebView()
                                 .getUrl();
 
-                        boolean isHomePage =
+                        boolean isExitPage =
                                 currentUrl != null
                                 && (
                                     currentUrl.endsWith("/index.html")
                                     || currentUrl.endsWith("/")
+                                    || currentUrl.endsWith("/admin/dashboard.html")
+                                    || currentUrl.endsWith("/warga/dashboard.html")
                                 );
 
-                        if (isHomePage) {
+                        if (isExitPage) {
 
                             new AlertDialog.Builder(MainActivity.this)
                                     .setTitle("Keluar dari SIDAT?")
