@@ -54,15 +54,35 @@ public class MainActivity extends BridgeActivity {
                     @Override
                     public void handleOnBackPressed() {
 
-                        new AlertDialog.Builder(MainActivity.this)
-                                .setTitle("Keluar dari SIDAT?")
-                                .setMessage("Apakah Anda yakin ingin keluar dari aplikasi?")
-                                .setNegativeButton("Batal", null)
-                                .setPositiveButton(
-                                        "Keluar",
-                                        (dialog, which) -> finishAndRemoveTask()
-                                )
-                                .show();
+                        String currentUrl = getBridge()
+                                .getWebView()
+                                .getUrl();
+
+                        boolean isHomePage =
+                                currentUrl != null
+                                && (
+                                    currentUrl.endsWith("/index.html")
+                                    || currentUrl.endsWith("/")
+                                );
+
+                        if (isHomePage) {
+
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setTitle("Keluar dari SIDAT?")
+                                    .setMessage("Apakah Anda yakin ingin keluar dari aplikasi?")
+                                    .setNegativeButton("Batal", null)
+                                    .setPositiveButton(
+                                            "Keluar",
+                                            (dialog, which) -> finishAndRemoveTask()
+                                    )
+                                    .show();
+
+                        } else {
+
+                            getBridge()
+                                    .getWebView()
+                                    .goBack();
+                        }
                     }
                 }
         );
