@@ -46,10 +46,17 @@ jobs:
 
           cat > android/key.properties <<EOF2
           storeFile=/tmp/sidat-release.jks
+          storeType=PKCS12
           storePassword=$SIDAT_KEYSTORE_PASSWORD
           keyAlias=$SIDAT_KEY_ALIAS
           keyPassword=$SIDAT_KEY_PASSWORD
           EOF2
+
+          keytool -list \
+            -keystore /tmp/sidat-release.jks \
+            -storetype PKCS12 \
+            -alias "$SIDAT_KEY_ALIAS" \
+            -storepass "$SIDAT_KEYSTORE_PASSWORD"
 
       - name: Build Release APK
         working-directory: android
