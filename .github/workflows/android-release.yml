@@ -1,0 +1,73 @@
+name: Release Android APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Prepare release keystore
+        env:
+          SIDAT_KEYSTORE_BASE64: ${{ secrets.SIDAT_KEYSTORE_BASE64 }}
+          SIDAT_KEYSTORE_PASSWORD: ${{ secrets.SIDAT_KEYSTORE_PASSWORD }}
+          SIDAT_KEY_ALIAS: ${{ secrets.SIDAT_KEY_ALIAS }}
+          SIDAT_KEY_PASSWORD: ${{ secrets.SIDAT_KEY_PASSWORD }}
+        run: |
+          echo "$SIDAT_KEYSTORE_BASE64" | base64 --decode > /tmp/sidat-release.jks
+
+          cat > android/key.properties <<EOF2
+          storeFile=/tmp/sidat-release.jks
+          storePassword=$SIDAT_KEYSTORE_PASSWORD
+          keyAlias=$SIDAT_KEY_ALIAS
+          keyPassword=$SIDAT_KEY_PASSWORD
+          EOF2
+
+      - name: Build Release APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: Prepare APK files
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk SIDAT.apk
+          cp android/app/build/outputs/apk/release/app-release.apk SIDAT-v1.0.apk
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v1.0 \
+            SIDAT.apk \
+            SIDAT-v1.0.apk \
+            --title "SIDAT v1.0" \
+            --generate-notes
