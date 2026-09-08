@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#198754">
+  <meta name="description" content="Download aplikasi SIDAT - Sistem Informasi Data Warga RT.">
+  <title>Download SIDAT</title>
+  <link rel="stylesheet" href="./download.css">
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="app-icon" aria-hidden="true">S</div>
+      <div>
+        <p class="eyebrow">APLIKASI RESMI</p>
+        <h1>SIDAT</h1>
+        <p class="subtitle">Sistem Informasi Data Warga RT</p>
+      </div>
+    </section>
+
+    <section class="card download-card">
+      <div class="status-row">
+        <span class="status-dot"></span>
+        <span>Versi terbaru</span>
+        <span id="releaseDate" class="muted">Memeriksa...</span>
+      </div>
+
+      <h2 id="releaseName">SIDAT Android</h2>
+      <p id="releaseInfo" class="description">
+        Aplikasi resmi SIDAT untuk mempermudah pelayanan dan administrasi warga.
+      </p>
+
+      <div class="meta-grid">
+        <div class="meta">
+          <span class="meta-label">Versi</span>
+          <strong id="version">Memuat...</strong>
+        </div>
+        <div class="meta">
+          <span class="meta-label">Ukuran APK</span>
+          <strong id="fileSize">Memuat...</strong>
+        </div>
+        <div class="meta">
+          <span class="meta-label">Platform</span>
+          <strong>Android</strong>
+        </div>
+        <div class="meta">
+          <span class="meta-label">File</span>
+          <strong>SIDAT.apk</strong>
+        </div>
+      </div>
+
+      <a id="downloadButton"
+         class="download-button disabled"
+         href="#"
+         aria-disabled="true">
+        <span class="download-icon">↓</span>
+        <span>DOWNLOAD SIDAT</span>
+      </a>
+
+      <p id="errorMessage" class="error-message" hidden></p>
+
+      <p class="security-note">
+        Pastikan file diunduh dari halaman resmi SIDAT.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>📱 Cara Instalasi</h2>
+      <ol class="steps">
+        <li>Tekan tombol <strong>DOWNLOAD SIDAT</strong>.</li>
+        <li>Tunggu sampai file <strong>SIDAT.apk</strong> selesai diunduh.</li>
+        <li>Buka file APK dari notifikasi download atau folder Download.</li>
+        <li>Jika Android meminta izin, izinkan pemasangan aplikasi dari sumber tersebut.</li>
+        <li>Tekan <strong>Instal</strong>, lalu buka aplikasi SIDAT.</li>
+      </ol>
+      <div class="notice">
+        <strong>Catatan:</strong> Android dapat menampilkan peringatan saat memasang APK di luar Google Play. Pastikan file berasal dari halaman resmi SIDAT.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>✨ Fitur SIDAT</h2>
+      <div class="features">
+        <div class="feature"><span>👥</span><div><strong>Data Warga</strong><small>Data warga dan KK lebih rapi.</small></div></div>
+        <div class="feature"><span>📷</span><div><strong>QR Code</strong><small>Identifikasi warga lebih cepat.</small></div></div>
+        <div class="feature"><span>💰</span><div><strong>Jimpitan</strong><small>Pencatatan dan riwayat jimpitan.</small></div></div>
+        <div class="feature"><span>💵</span><div><strong>Kas RT</strong><small>Pemasukan dan pengeluaran lebih tertata.</small></div></div>
+        <div class="feature"><span>🔔</span><div><strong>Notifikasi</strong><small>Informasi penting dari pengurus.</small></div></div>
+        <div class="feature"><span>📊</span><div><strong>Laporan</strong><small>Rekap administrasi lebih mudah.</small></div></div>
+      </div>
+    </section>
+
+    <section class="card release-card">
+      <h2>📝 Perubahan Versi</h2>
+      <div id="changelog" class="changelog">
+        <p class="muted">Memuat informasi release...</p>
+      </div>
+      <a id="releasePage" class="secondary-button" href="#" target="_blank" rel="noopener">
+        Lihat halaman release GitHub
+      </a>
+    </section>
+
+    <footer>
+      <strong>SIDAT</strong>
+      <span>Administrasi RT yang lebih mudah, cepat, transparan, dan tertata.</span>
+    </footer>
+  </main>
+
+  <script src="./download.js"></script>
+</body>
+</html>
