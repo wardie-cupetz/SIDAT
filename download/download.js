@@ -6,28 +6,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const downloadButton = document.getElementById("downloadButton");
     const versionElement = document.getElementById("version");
-    const sizeElement = document.getElementById("size");
+    const sizeElement = document.getElementById("fileSize");
     const releaseDateElement = document.getElementById("releaseDate");
     const releaseNameElement = document.getElementById("releaseName");
     const releaseInfoElement = document.getElementById("releaseInfo");
     const errorMessageElement = document.getElementById("errorMessage");
 
     // ======================================================
-    // KONFIGURASI APK
+    // KONFIGURASI APK SIDAT
     // ======================================================
 
     const APK_CONFIG = {
         version: "1.0.2",
         fileName: "SIDAT.apk",
-        url: "../apk/SIDAT.apk"
+        url: "../apk/SIDAT.apk",
+        size: "7,9 MB"
     };
 
     // ======================================================
-    // TAMPILKAN VERSI
+    // INFORMASI VERSI
     // ======================================================
 
     if (versionElement) {
         versionElement.textContent = APK_CONFIG.version;
+    }
+
+    // ======================================================
+    // INFORMASI UKURAN APK
+    // ======================================================
+
+    if (sizeElement) {
+        sizeElement.textContent = APK_CONFIG.size;
     }
 
     // ======================================================
@@ -48,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ======================================================
-    // CEK APK
+    // CEK KETERSEDIAAN APK
     // ======================================================
 
     async function cekAPK() {
@@ -64,99 +73,39 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
             if (!response.ok) {
-                throw new Error("APK tidak ditemukan");
+                throw new Error("APK tidak ditemukan.");
             }
 
-            // Aktifkan tombol
             if (downloadButton) {
-
                 downloadButton.href = APK_CONFIG.url;
                 downloadButton.classList.remove("disabled");
                 downloadButton.removeAttribute("aria-disabled");
             }
 
-            // Ukuran file
-            const contentLength =
-                response.headers.get("content-length");
-
-            if (sizeElement && contentLength) {
-
-                const sizeMB =
-                    parseInt(contentLength, 10) /
-                    (1024 * 1024);
-
-                sizeElement.textContent =
-                    `${sizeMB.toFixed(1)} MB`;
-
-            } else if (sizeElement) {
-
-                sizeElement.textContent =
-                    "±7,9 MB";
+            if (errorMessageElement) {
+                errorMessageElement.hidden = true;
             }
 
         } catch (error) {
 
             console.error(
-                "APK SIDAT tidak dapat diperiksa:",
+                "Gagal mengecek APK SIDAT:",
                 error
             );
 
+            // Tombol tetap diarahkan ke APK.
+            // Download langsung tetap bisa dilakukan.
             if (downloadButton) {
-
-                downloadButton.href =
-                    APK_CONFIG.url;
-
-                downloadButton.classList.remove(
-                    "disabled"
-                );
-
-                downloadButton.removeAttribute(
-                    "aria-disabled"
-                );
+                downloadButton.href = APK_CONFIG.url;
+                downloadButton.classList.remove("disabled");
+                downloadButton.removeAttribute("aria-disabled");
             }
 
-            if (sizeElement) {
-                sizeElement.textContent =
-                    "±7,9 MB";
-            }
-
-            if (errorMessageElement) {
-
-                errorMessageElement.hidden = false;
-
-                errorMessageElement.textContent =
-                    "Jika tombol tidak merespons, tekan kembali untuk mengunduh APK.";
-            }
         }
     }
 
     // ======================================================
-    // TOMBOL DOWNLOAD
-    // ======================================================
-
-    if (downloadButton) {
-
-        downloadButton.addEventListener(
-            "click",
-            () => {
-
-                // Jangan menggunakan fetch/blob.
-                // Biarkan browser Android menangani
-                // file APK secara langsung.
-
-                downloadButton.href =
-                    APK_CONFIG.url;
-
-                downloadButton.removeAttribute(
-                    "aria-disabled"
-                );
-
-            }
-        );
-    }
-
-    // ======================================================
-    // MULAI
+    // CEK APK
     // ======================================================
 
     cekAPK();
