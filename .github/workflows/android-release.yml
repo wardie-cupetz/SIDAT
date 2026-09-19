@@ -119,13 +119,23 @@ jobs:
       # GITHUB RELEASE
       # =========================================================
 
-      - name: Create GitHub Release
+            - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION_NAME=$(grep 'versionName' android/app/build.gradle | sed 's/.*versionName "\([^"]*\)".*/\1/')
+          TAG="v${VERSION_NAME}"
 
-          gh release create "v${VERSION_NAME}" \
+          echo "Release tag: $TAG"
+
+          # Hapus release lama jika sudah ada.
+          gh release delete "$TAG" \
+            --yes \
+            --cleanup-tag \
+            || true
+
+          # Buat release baru dengan APK terbaru.
+          gh release create "$TAG" \
             SIDAT.apk \
             "SIDAT-v${VERSION_NAME}.apk" \
             --title "SIDAT v${VERSION_NAME}" \
