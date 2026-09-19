@@ -839,6 +839,28 @@ async function buatBackup() {
             );
 
 
+        const blob =
+            new Blob(
+                [json],
+                {
+                    type:
+                        "application/json"
+                }
+            );
+
+
+        const url =
+            URL.createObjectURL(
+                blob
+            );
+
+
+        const link =
+            document.createElement(
+                "a"
+            );
+
+
         const sekarang =
             new Date();
 
@@ -865,102 +887,27 @@ async function buatBackup() {
                 );
 
 
-        const namaFile =
+        link.href =
+            url;
+
+
+        link.download =
             `SIDAT-backup-${tanggal}-${waktu}.json`;
 
 
-        // ==================================
-        // SIMPAN FILE
-        // ANDROID APK -> NATIVE STORAGE
-        // WEB/PWA -> DOWNLOAD BROWSER
-        // ==================================
-
-        const BackupBridge =
-            window.Capacitor &&
-            window.Capacitor.Plugins &&
-            window.Capacitor.Plugins.BackupBridge;
+        document.body.appendChild(
+            link
+        );
 
 
-        if (
-            BackupBridge &&
-            typeof BackupBridge.saveBackup === "function"
-        ) {
-
-            // ==================================
-            // ANDROID NATIVE
-            // ==================================
-
-            const hasilSimpan =
-                await BackupBridge.saveBackup({
-
-                    filename:
-                        namaFile,
-
-                    data:
-                        json
-
-                });
+        link.click();
 
 
-            console.log(
-                "SIDAT: File backup tersimpan:",
-                hasilSimpan
-            );
+        link.remove();
 
-        } else {
-
-            // ==================================
-            // WEB / PWA FALLBACK
-            // ==================================
-
-            const blob =
-                new Blob(
-                    [json],
-                    {
-                        type:
-                            "application/json"
-                    }
-                );
-
-
-            const url =
-                URL.createObjectURL(blob);
-
-
-            const link =
-                document.createElement("a");
-
-
-            link.href =
-                url;
-
-
-            link.download =
-                namaFile;
-
-
-            document.body.appendChild(
-                link
-            );
-
-
-            link.click();
-
-
-            link.remove();
-
-
-            setTimeout(
-                () => URL.revokeObjectURL(url),
-                1000
-            );
-
-        }
-
-
-        // ==================================
-        // SIMPAN INFO BACKUP TERAKHIR
-        // ==================================
+// ==================================
+// SIMPAN INFO BACKUP TERAKHIR
+// ==================================
 
 simpanInfoBackupTerakhir({
 
@@ -971,21 +918,16 @@ simpanInfoBackupTerakhir({
         totalData,
 
     file_size:
-        new Blob(
-            [json],
-            {
-                type:
-                    "application/json"
-            }
-        ).size,
+        blob.size,
 
     file_name:
-        namaFile
+        link.download
 
 });
 
-
-        tampilkanBackupTerakhir();
+        URL.revokeObjectURL(
+            url
+        );
 
 
         console.log(

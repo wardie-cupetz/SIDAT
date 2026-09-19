@@ -1,0 +1,994 @@
+/* ==================================================
+   SIDAT - AGENDA WARGA
+   Mobile / Android APK
+================================================== */
+
+:root {
+    --sidat-green: #15803d;
+    --sidat-green-dark: #166534;
+    --sidat-green-soft: #dcfce7;
+
+    --text-main: #17201a;
+    --text-secondary: #647067;
+    --text-muted: #8a948d;
+
+    --border: #e5e9e6;
+    --background: #f5f7f5;
+    --white: #ffffff;
+
+    --danger: #dc2626;
+    --danger-soft: #fee2e2;
+
+    --warning: #b45309;
+    --warning-soft: #fef3c7;
+
+    --shadow:
+        0 6px 18px rgba(15, 23, 42, 0.07);
+
+    --radius-lg: 18px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
+}
+
+
+/* ==================================================
+   RESET
+================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+
+body {
+    background: var(--background);
+    color: var(--text-main);
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+
+    -webkit-font-smoothing: antialiased;
+}
+
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+
+button {
+    -webkit-tap-highlight-color: transparent;
+}
+
+
+/* ==================================================
+   APP
+================================================== */
+
+.app {
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding-bottom: 130px;
+}
+
+
+/* ==================================================
+   HEADER
+================================================== */
+
+.page-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+
+    min-height: 76px;
+
+    padding:
+        calc(12px + env(safe-area-inset-top))
+        16px
+        12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #15803d 0%,
+            #166534 100%
+        );
+
+    color: #ffffff;
+
+    box-shadow:
+        0 4px 14px rgba(0, 0, 0, 0.12);
+
+    overflow: hidden;
+}
+
+
+/* Bubble header */
+
+.page-header::before {
+    content: "";
+
+    position: absolute;
+
+    width: 145px;
+    height: 145px;
+
+    right: -55px;
+    top: -82px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255, 255, 255, 0.09);
+
+    pointer-events: none;
+}
+
+
+.page-header::after {
+    content: "";
+
+    position: absolute;
+
+    width: 76px;
+    height: 76px;
+
+    right: 54px;
+    bottom: -45px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255, 255, 255, 0.07);
+
+    pointer-events: none;
+}
+
+
+.header-left {
+    position: relative;
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+}
+
+
+.back-button {
+    width: 42px;
+    height: 42px;
+
+    flex: 0 0 42px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 0;
+    border-radius: 13px;
+
+    background:
+        rgba(255, 255, 255, 0.13);
+
+    color: #ffffff;
+
+    cursor: pointer;
+}
+
+
+.back-button:active {
+    transform: scale(0.95);
+}
+
+
+.back-button svg {
+    width: 23px;
+    height: 23px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+.header-title-wrap {
+    min-width: 0;
+}
+
+
+.header-title-wrap h1 {
+    margin: 0;
+
+    font-size: 20px;
+    line-height: 1.2;
+    font-weight: 750;
+}
+
+
+.header-title-wrap p {
+    margin: 4px 0 0;
+
+    font-size: 12px;
+    line-height: 1.4;
+
+    color:
+        rgba(255, 255, 255, 0.84);
+}
+
+
+/* ==================================================
+   CONTENT
+================================================== */
+
+.content {
+    width: 100%;
+    max-width: 760px;
+
+    margin: 0 auto;
+
+    padding:
+        18px
+        16px
+        30px;
+}
+
+
+/* ==================================================
+   PAGE MESSAGE
+================================================== */
+
+.page-message {
+    margin-bottom: 16px;
+
+    padding: 12px 14px;
+
+    border-radius: 12px;
+
+    font-size: 13px;
+    line-height: 1.5;
+
+    background: var(--sidat-green-soft);
+    color: var(--sidat-green-dark);
+}
+
+
+.page-message.error {
+    background: var(--danger-soft);
+    color: var(--danger);
+}
+
+
+.page-message.hidden {
+    display: none;
+}
+
+
+/* ==================================================
+   SECTION
+================================================== */
+
+.section {
+    margin-bottom: 28px;
+}
+
+
+.section-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 14px;
+
+    margin-bottom: 14px;
+}
+
+
+.section-label {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: var(--sidat-green);
+
+    font-size: 10px;
+    line-height: 1.3;
+    font-weight: 800;
+
+    letter-spacing: 0.08em;
+}
+
+
+.section-header h2 {
+    margin: 0;
+
+    font-size: 20px;
+    line-height: 1.25;
+
+    font-weight: 750;
+}
+
+
+.section-header p {
+    margin: 5px 0 0;
+
+    color: var(--text-secondary);
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+/* ==================================================
+   LOADING
+================================================== */
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 9px;
+
+    min-height: 90px;
+
+    color: var(--text-secondary);
+
+    font-size: 13px;
+}
+
+
+.loading.hidden {
+    display: none;
+}
+
+
+.loading-spinner {
+    width: 17px;
+    height: 17px;
+
+    border: 2px solid #d1d5d2;
+    border-top-color: var(--sidat-green);
+
+    border-radius: 50%;
+
+    animation:
+        sidatAgendaSpin
+        0.8s linear infinite;
+}
+
+
+@keyframes sidatAgendaSpin {
+
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* ==================================================
+   EMPTY
+================================================== */
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 190px;
+
+    padding: 28px 20px;
+
+    border:
+        1px dashed
+        #d8ded9;
+
+    border-radius: var(--radius-lg);
+
+    background: var(--white);
+
+    text-align: center;
+}
+
+
+.empty-state.hidden {
+    display: none;
+}
+
+
+.empty-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 12px;
+
+    border-radius: 15px;
+
+    background: var(--sidat-green-soft);
+
+    color: var(--sidat-green);
+}
+
+
+.empty-icon svg {
+    width: 25px;
+    height: 25px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+.empty-state strong {
+    margin-bottom: 5px;
+
+    font-size: 15px;
+}
+
+
+.empty-state span {
+    max-width: 280px;
+
+    color: var(--text-secondary);
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+/* ==================================================
+   AGENDA LIST
+================================================== */
+
+.agenda-list {
+    display: flex;
+    flex-direction: column;
+
+    gap: 13px;
+}
+
+
+/* ==================================================
+   AGENDA CARD
+================================================== */
+
+.agenda-card {
+    padding: 16px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: var(--radius-lg);
+
+    background: var(--white);
+
+    box-shadow: var(--shadow);
+
+    overflow: hidden;
+}
+
+
+.agenda-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 15px;
+}
+
+
+.agenda-heading {
+    min-width: 0;
+}
+
+
+.agenda-type {
+    display: inline-flex;
+
+    margin-bottom: 6px;
+
+    padding: 5px 8px;
+
+    border-radius: 8px;
+
+    background: var(--sidat-green-soft);
+
+    color: var(--sidat-green-dark);
+
+    font-size: 10px;
+    font-weight: 750;
+}
+
+
+.agenda-heading h3 {
+    margin: 0;
+
+    font-size: 17px;
+    line-height: 1.35;
+
+    font-weight: 750;
+
+    overflow-wrap: anywhere;
+}
+
+
+.status-badge {
+    flex: 0 0 auto;
+
+    display: inline-flex;
+    align-items: center;
+
+    padding: 6px 8px;
+
+    border-radius: 8px;
+
+    font-size: 9px;
+    line-height: 1.2;
+
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+
+.status-scheduled {
+    background: var(--sidat-green-soft);
+    color: var(--sidat-green-dark);
+}
+
+
+.status-completed {
+    background: #e5e7eb;
+    color: #4b5563;
+}
+
+
+.status-cancelled {
+    background: var(--danger-soft);
+    color: var(--danger);
+}
+
+
+.agenda-info {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    padding: 12px;
+
+    border-radius: 13px;
+
+    background: #f8faf8;
+}
+
+
+.info-row {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 10px;
+}
+
+
+.info-icon {
+    width: 30px;
+    height: 30px;
+
+    flex: 0 0 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: #ffffff;
+
+    color: var(--sidat-green);
+}
+
+
+.info-icon svg {
+    width: 16px;
+    height: 16px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+.info-row > div {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.info-row strong {
+    color: var(--text-muted);
+
+    font-size: 10px;
+    line-height: 1.3;
+
+    font-weight: 700;
+}
+
+
+.info-row span:not(.info-icon) {
+    color: var(--text-main);
+
+    font-size: 12px;
+    line-height: 1.4;
+
+    overflow-wrap: anywhere;
+}
+
+
+.agenda-description {
+    margin-top: 12px;
+
+    padding: 12px;
+
+    border-left:
+        3px solid
+        var(--sidat-green);
+
+    border-radius: 8px;
+
+    background: #f8faf8;
+
+    color: var(--text-secondary);
+
+    font-size: 12px;
+    line-height: 1.6;
+
+    white-space: pre-line;
+
+    overflow-wrap: anywhere;
+}
+
+
+.agenda-cancelled {
+    opacity: 0.78;
+}
+
+
+/* ==================================================
+   RONDA
+================================================== */
+
+.ronda-section {
+    margin-top: 6px;
+}
+
+
+.ronda-list {
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+}
+
+
+.ronda-day-card {
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: var(--radius-lg);
+
+    background: var(--white);
+
+    box-shadow: var(--shadow);
+
+    overflow: hidden;
+}
+
+
+.ronda-day-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 13px 15px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f0fdf4,
+            #f7faf7
+        );
+
+    border-bottom:
+        1px solid
+        var(--border);
+}
+
+
+.ronda-day-header strong {
+    color: var(--sidat-green-dark);
+
+    font-size: 15px;
+
+    font-weight: 800;
+}
+
+
+.ronda-day-header span {
+    color: var(--text-secondary);
+
+    font-size: 10px;
+}
+
+
+.ronda-day-body {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.ronda-row {
+    padding: 13px 14px;
+
+    border-bottom:
+        1px solid
+        #eef1ef;
+}
+
+
+.ronda-row:last-child {
+    border-bottom: 0;
+}
+
+
+.ronda-row-mine {
+    background:
+        linear-gradient(
+            90deg,
+            #f0fdf4 0%,
+            #ffffff 100%
+        );
+}
+
+
+.ronda-person {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    min-width: 0;
+}
+
+
+.ronda-person-icon {
+    width: 36px;
+    height: 36px;
+
+    flex: 0 0 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 11px;
+
+    background: #f0fdf4;
+
+    color: var(--sidat-green);
+}
+
+
+.ronda-person-icon svg {
+    width: 18px;
+    height: 18px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+.ronda-person > div:not(.ronda-person-icon) {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.ronda-person strong {
+    font-size: 13px;
+    line-height: 1.35;
+
+    overflow-wrap: anywhere;
+}
+
+
+.ronda-person span {
+    color: var(--text-secondary);
+
+    font-size: 10px;
+}
+
+
+.mine-badge {
+    margin-left: auto;
+
+    flex: 0 0 auto;
+
+    padding: 5px 7px;
+
+    border-radius: 7px;
+
+    background: var(--sidat-green);
+
+    color: #ffffff !important;
+
+    font-size: 9px !important;
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+
+.ronda-time {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    margin-top: 9px;
+    margin-left: 46px;
+
+    color: var(--text-secondary);
+
+    font-size: 11px;
+}
+
+
+.ronda-time .info-icon {
+    width: 24px;
+    height: 24px;
+
+    flex-basis: 24px;
+
+    background: #f5f7f5;
+}
+
+
+.ronda-time .info-icon svg {
+    width: 13px;
+    height: 13px;
+}
+
+
+/* ==================================================
+   WARGA NAVBAR SPACE
+================================================== */
+
+.sidat-warga-bottom-nav {
+    z-index: 100;
+}
+
+
+.sidat-warga-footer {
+    z-index: 90;
+}
+
+
+/* ==================================================
+   MOBILE
+================================================== */
+
+@media (max-width: 480px) {
+
+    .content {
+        padding-left: 13px;
+        padding-right: 13px;
+    }
+
+
+    .agenda-card {
+        padding: 14px;
+    }
+
+
+    .agenda-card-top {
+        gap: 8px;
+    }
+
+
+    .agenda-heading h3 {
+        font-size: 16px;
+    }
+
+
+    .status-badge {
+        font-size: 8px;
+        padding: 5px 7px;
+    }
+
+
+    .ronda-row {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+}
+
+
+/* ==================================================
+   SAFE AREA
+================================================== */
+
+@supports (padding: max(0px)) {
+
+    .content {
+        padding-bottom:
+            max(
+                30px,
+                env(safe-area-inset-bottom)
+            );
+    }
+
+}
+
+
+/* ==================================================
+   REDUCED MOTION
+================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .loading-spinner {
+        animation: none;
+    }
+
+}

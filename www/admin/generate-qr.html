@@ -16,12 +16,17 @@
     >
 
     <title>
-        SIDAT - Generate QR KK
+        SIDAT - Generate QR
     </title>
 
     <link
         rel="stylesheet"
         href="generate-qr.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="admin-menu.css"
     >
 
 </head>
@@ -39,20 +44,81 @@
 
     <header class="top-header">
 
+        <div class="header-bubble bubble-one"></div>
+        <div class="header-bubble bubble-two"></div>
+        <div class="header-bubble bubble-three"></div>
+        <div class="header-bubble bubble-four"></div>
+
         <button
             type="button"
             class="back-button"
             onclick="kembaliDashboard()"
+            aria-label="Kembali ke dashboard"
         >
-            ←
+
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+                <path d="M15 18l-6-6 6-6"></path>
+            </svg>
+
         </button>
 
 
         <div class="header-title">
 
-            <div class="header-icon">
-                📱
+            <div
+                class="header-icon"
+                aria-hidden="true"
+            >
+
+                <svg viewBox="0 0 24 24">
+
+                    <rect
+                        x="3"
+                        y="3"
+                        width="7"
+                        height="7"
+                        rx="1"
+                    ></rect>
+
+                    <rect
+                        x="14"
+                        y="3"
+                        width="7"
+                        height="7"
+                        rx="1"
+                    ></rect>
+
+                    <rect
+                        x="3"
+                        y="14"
+                        width="7"
+                        height="7"
+                        rx="1"
+                    ></rect>
+
+                    <path
+                        d="M14 14h3v3h-3z"
+                    ></path>
+
+                    <path
+                        d="M18 18h3v3h-3z"
+                    ></path>
+
+                    <path
+                        d="M18 14h3"
+                    ></path>
+
+                    <path
+                        d="M14 18v3"
+                    ></path>
+
+                </svg>
+
             </div>
+
 
             <div>
 
@@ -61,7 +127,7 @@
                 </h1>
 
                 <span>
-                    QR KK untuk jimpitan
+                    QR Jimpitan berdasarkan ID Warga
                 </span>
 
             </div>
@@ -77,9 +143,35 @@
 
     <section class="info-card">
 
-        <div class="info-icon">
-            ℹ️
+        <div
+            class="info-icon"
+            aria-hidden="true"
+        >
+
+            <svg viewBox="0 0 24 24">
+
+                <circle
+                    cx="12"
+                    cy="12"
+                    r="9"
+                ></circle>
+
+                <path
+                    d="M12 10v6"
+                ></path>
+
+                <circle
+                    cx="12"
+                    cy="7"
+                    r=".7"
+                    fill="currentColor"
+                    stroke="none"
+                ></circle>
+
+            </svg>
+
         </div>
+
 
         <div>
 
@@ -88,9 +180,9 @@
             </strong>
 
             <p>
-                QR dibuat berdasarkan kode QR
-                kepala keluarga yang sudah
-                tersimpan di sistem SIDAT.
+                QR dibuat berdasarkan ID Warga
+                yang tersimpan di sistem SIDAT.
+                Contoh isi QR: RT001.
             </p>
 
         </div>
@@ -106,9 +198,27 @@
 
         <div class="section-title">
 
-            <div class="section-icon">
-                🔎
+            <div
+                class="section-icon"
+                aria-hidden="true"
+            >
+
+                <svg viewBox="0 0 24 24">
+
+                    <circle
+                        cx="10.8"
+                        cy="10.8"
+                        r="6.3"
+                    ></circle>
+
+                    <path
+                        d="M16 16l5 5"
+                    ></path>
+
+                </svg>
+
             </div>
+
 
             <div>
 
@@ -127,9 +237,26 @@
 
         <div class="search-box">
 
-            <span>
-                🔎
+            <span
+                aria-hidden="true"
+            >
+
+                <svg viewBox="0 0 24 24">
+
+                    <circle
+                        cx="10.8"
+                        cy="10.8"
+                        r="6.3"
+                    ></circle>
+
+                    <path
+                        d="M16 16l5 5"
+                    ></path>
+
+                </svg>
+
             </span>
+
 
             <input
                 type="search"
@@ -138,13 +265,22 @@
                 autocomplete="off"
             >
 
+
             <button
                 type="button"
                 id="clearSearch"
                 class="clear-search hidden"
                 onclick="bersihkanPencarian()"
+                aria-label="Bersihkan pencarian"
             >
-                ×
+
+                <svg viewBox="0 0 24 24">
+
+                    <path d="M6 6l12 12"></path>
+                    <path d="M18 6L6 18"></path>
+
+                </svg>
+
             </button>
 
         </div>
@@ -209,9 +345,33 @@
         class="error-state hidden"
     >
 
-        <div class="error-icon">
-            ⚠️
+        <div
+            class="error-icon"
+            aria-hidden="true"
+        >
+
+            <svg viewBox="0 0 24 24">
+
+                <path
+                    d="M12 3l9 17H3L12 3z"
+                ></path>
+
+                <path
+                    d="M12 9v5"
+                ></path>
+
+                <circle
+                    cx="12"
+                    cy="17"
+                    r=".7"
+                    fill="currentColor"
+                    stroke="none"
+                ></circle>
+
+            </svg>
+
         </div>
+
 
         <strong>
             Gagal memuat data
@@ -240,9 +400,35 @@
         class="empty-state hidden"
     >
 
-        <div class="empty-icon">
-            👥
+        <div
+            class="empty-icon"
+            aria-hidden="true"
+        >
+
+            <svg viewBox="0 0 24 24">
+
+                <circle
+                    cx="9"
+                    cy="8"
+                    r="3"
+                ></circle>
+
+                <path
+                    d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"
+                ></path>
+
+                <path
+                    d="M16 11c2.8.2 5 2.5 5 5.3"
+                ></path>
+
+                <path
+                    d="M16 5.5a3 3 0 010 5"
+                ></path>
+
+            </svg>
+
         </div>
+
 
         <strong>
             Data tidak ditemukan
@@ -291,31 +477,40 @@
             onclick="cetakQR()"
             disabled
         >
-            🖨️ Cetak QR
+
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+
+                <path
+                    d="M6 9V3h12v6"
+                ></path>
+
+                <path
+                    d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"
+                ></path>
+
+                <rect
+                    x="6"
+                    y="14"
+                    width="12"
+                    height="7"
+                ></rect>
+
+                <path
+                    d="M18 12h.01"
+                ></path>
+
+            </svg>
+
+            <span>
+                Cetak QR
+            </span>
+
         </button>
 
     </div>
-
-
-    <!-- =====================================
-         FOOTER
-    ====================================== -->
-
-    <footer>
-
-        <strong>
-            SIDAT
-        </strong>
-
-        <span>
-            Sistem Data Warga
-        </span>
-
-        <small>
-            Dibuat oleh Suwardi
-        </small>
-
-    </footer>
 
 
 </div>
@@ -338,6 +533,281 @@
     src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
 ></script>
 
+
+<!-- =====================================================
+     MENU ROLE-AWARE
+     =====================================================
+
+     ADMIN:
+         admin-menu.js
+
+     KETUA RT:
+         ketua-rt-menu.js
+
+     Tidak memanggil keduanya sekaligus.
+     ===================================================== -->
+
+<script>
+(function () {
+
+    "use strict";
+
+    console.log(
+        "[SIDAT] Role menu loader dimulai..."
+    );
+
+
+    const ACCESS_TOKEN =
+        localStorage.getItem(
+            "sidat_access_token"
+        );
+
+
+    if (!ACCESS_TOKEN) {
+
+        console.error(
+            "[SIDAT] Access token tidak ditemukan."
+        );
+
+        return;
+    }
+
+
+    async function getCurrentUser() {
+
+        const response =
+            await fetch(
+                SUPABASE_URL +
+                "/auth/v1/user",
+                {
+                    method: "GET",
+
+                    headers: {
+                        "apikey":
+                            SUPABASE_KEY,
+
+                        "Authorization":
+                            "Bearer " +
+                            ACCESS_TOKEN,
+
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            throw new Error(
+                "Gagal mengambil user aktif: " +
+                errorText
+            );
+        }
+
+
+        return await response.json();
+
+    }
+
+
+    async function getUserRole(userId) {
+
+        const response =
+            await fetch(
+                SUPABASE_URL +
+                "/rest/v1/profiles" +
+                "?select=role" +
+                "&user_id=eq." +
+                encodeURIComponent(userId) +
+                "&limit=1",
+                {
+                    method: "GET",
+
+                    headers: {
+                        "apikey":
+                            SUPABASE_KEY,
+
+                        "Authorization":
+                            "Bearer " +
+                            ACCESS_TOKEN,
+
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            throw new Error(
+                "Gagal mengambil role profile: " +
+                errorText
+            );
+        }
+
+
+        const profiles =
+            await response.json();
+
+
+        if (
+            !Array.isArray(profiles) ||
+            profiles.length === 0
+        ) {
+
+            throw new Error(
+                "Profile pengguna tidak ditemukan."
+            );
+        }
+
+
+        return String(
+            profiles[0].role || ""
+        )
+        .trim()
+        .toLowerCase();
+
+    }
+
+
+    function loadScript(src) {
+
+        return new Promise(
+            function (resolve, reject) {
+
+                const script =
+                    document.createElement(
+                        "script"
+                    );
+
+
+                script.src = src;
+
+                script.dataset.sidatRoleMenu =
+                    "true";
+
+
+                script.onload =
+                    function () {
+
+                        console.log(
+                            "[SIDAT] Menu berhasil dimuat:",
+                            src
+                        );
+
+                        resolve();
+
+                    };
+
+
+                script.onerror =
+                    function () {
+
+                        reject(
+                            new Error(
+                                "Gagal memuat script: " +
+                                src
+                            )
+                        );
+
+                    };
+
+
+                document.body.appendChild(
+                    script
+                );
+
+            }
+        );
+
+    }
+
+
+    async function initRoleMenu() {
+
+        try {
+
+            const user =
+                await getCurrentUser();
+
+
+            if (!user?.id) {
+
+                throw new Error(
+                    "ID user aktif tidak ditemukan."
+                );
+
+            }
+
+
+            console.log(
+                "[SIDAT] User aktif:",
+                user.id
+            );
+
+
+            const role =
+                await getUserRole(
+                    user.id
+                );
+
+
+            console.log(
+                "[SIDAT] Role aktif:",
+                role
+            );
+
+
+            if (role === "admin") {
+
+                await loadScript(
+                    "admin-menu.js"
+                );
+
+                return;
+            }
+
+
+            if (role === "ketua_rt") {
+
+                await loadScript(
+                    "../ketua-rt/ketua-rt-menu.js"
+                );
+
+                return;
+            }
+
+
+            console.warn(
+                "[SIDAT] Role",
+                role,
+                "tidak menggunakan menu Data Warga."
+            );
+
+        } catch (error) {
+
+            console.error(
+                "[SIDAT] Gagal menentukan menu role:",
+                error
+            );
+
+        }
+
+    }
+
+
+    initRoleMenu();
+
+})();
+</script>
 
 <!-- ==========================================
      JAVASCRIPT

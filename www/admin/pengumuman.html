@@ -1,286 +1,652 @@
-<!DOCTYPE html>
-<html lang="id">
+<!DOCTYPE html><html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Pengumuman - SIDAT</title>
 
-    <title>Pengumuman - SIDAT</title>
+<link rel="stylesheet" href="pengumuman.css">
+<link rel="stylesheet" href="admin-menu.css">
 
-    <link rel="stylesheet" href="pengumuman.css">
-</head>
+</head><body><div class="app"><!-- HEADER -->
+<header class="page-header">
 
-<body>
+    <div class="header-bubbles" aria-hidden="true">
+        <span class="bubble bubble-1"></span>
+        <span class="bubble bubble-2"></span>
+        <span class="bubble bubble-3"></span>
+        <span class="bubble bubble-4"></span>
+    </div>
 
-<div class="app">
+    <button
+        type="button"
+        class="btn-back"
+        onclick="kembaliDashboard()"
+        aria-label="Kembali ke Dashboard"
+    >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15 18l-6-6 6-6"></path>
+        </svg>
+    </button>
 
-    <!-- HEADER -->
-    <header class="page-header">
+    <div class="header-content">
+        <h1>Pengumuman</h1>
+        <p>Pengumuman & notifikasi warga</p>
+    </div>
 
-        <button
-            type="button"
-            class="btn-back"
-            onclick="kembaliDashboard()"
-        >
-            ‹
-        </button>
+</header>
 
-        <div>
-            <h1>Pengumuman</h1>
-            <p>Pengumuman & notifikasi warga</p>
+
+<!-- MAIN -->
+<main class="container">
+
+    <!-- FORM PENGUMUMAN -->
+    <section class="card">
+
+        <div class="section-title">
+
+            <div class="section-heading">
+
+                <div class="section-icon section-icon-announcement" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M4 10v4"></path>
+                        <path d="M7 9l10-4v14L7 15z"></path>
+                        <path d="M7 15v4a2 2 0 0 0 2 2h1"></path>
+                        <path d="M20 9.5a3 3 0 0 1 0 5"></path>
+                    </svg>
+                </div>
+
+                <div>
+                    <h2>Buat Pengumuman</h2>
+                    <p>Kirim informasi kepada warga</p>
+                </div>
+
+            </div>
+
         </div>
 
-    </header>
 
+        <form id="formPengumuman">
 
-    <!-- MAIN -->
-    <main class="container">
+            <!-- JUDUL -->
+            <div class="form-group">
 
+                <label for="judul">
+                    Judul Pengumuman
+                </label>
 
-        <!-- FORM PENGUMUMAN -->
-        <section class="card">
-
-            <div class="section-title">
-
-                <div>
-                    <h2>📢 Buat Pengumuman</h2>
-                    <p>
-                        Kirim informasi kepada warga
-                    </p>
-                </div>
+                <input
+                    type="text"
+                    id="judul"
+                    maxlength="150"
+                    placeholder="Contoh: Kerja Bakti Minggu Ini"
+                    required
+                >
 
             </div>
 
 
-            <form id="formPengumuman">
+            <!-- JENIS -->
+            <div class="form-group">
 
+                <label for="jenis">
+                    Jenis Pengumuman
+                </label>
 
-                <!-- JUDUL -->
-                <div class="form-group">
-
-                    <label for="judul">
-                        Judul Pengumuman
-                    </label>
-
-                    <input
-                        type="text"
-                        id="judul"
-                        maxlength="150"
-                        placeholder="Contoh: Kerja Bakti Minggu Ini"
-                        required
-                    >
-
-                </div>
-
-
-                <!-- JENIS -->
-                <div class="form-group">
-
-                    <label for="jenis">
-                        Jenis Pengumuman
-                    </label>
-
-                    <select
-                        id="jenis"
-                        required
-                    >
-
-                        <option value="general">
-                            📢 Umum
-                        </option>
-
-                        <option value="important">
-                            🚨 Penting
-                        </option>
-
-                        <option value="activity">
-                            📅 Kegiatan
-                        </option>
-
-                        <option value="finance">
-                            💰 Keuangan
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- TARGET -->
-                <div class="form-group">
-
-                    <label for="targetType">
-                        Target Pengumuman
-                    </label>
-
-                    <select
-                        id="targetType"
-                        required
-                    >
-
-                        <option value="all">
-                            👥 Semua Warga
-                        </option>
-
-                        <option value="selected">
-                            👤 Warga Tertentu
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- WARGA TERTENTU -->
-                <div
-                    class="form-group hidden"
-                    id="targetWargaGroup"
+                <select
+                    id="jenis"
+                    required
                 >
 
-                    <label for="targetWarga">
-                        Pilih Warga
-                    </label>
+                    <option value="general">
+                        Umum
+                    </option>
 
-                    <select
-                        id="targetWarga"
-                    >
+                    <option value="important">
+                        Penting
+                    </option>
 
-                        <option value="">
-                            Memuat data warga...
-                        </option>
+                    <option value="activity">
+                        Kegiatan
+                    </option>
 
-                    </select>
+                    <option value="finance">
+                        Keuangan
+                    </option>
 
-                </div>
-
-
-                <!-- ISI -->
-                <div class="form-group">
-
-                    <label for="isi">
-                        Isi Pengumuman
-                    </label>
-
-                    <textarea
-                        id="isi"
-                        rows="7"
-                        maxlength="5000"
-                        placeholder="Tuliskan isi pengumuman..."
-                        required
-                    ></textarea>
-
-                    <div class="char-count">
-                        <span id="charCount">0</span>
-                        / 5000
-                    </div>
-
-                </div>
-
-
-                <!-- BUTTON -->
-                <button
-                    type="submit"
-                    id="btnKirim"
-                    class="btn-primary"
-                >
-                    📢 Kirim Pengumuman
-                </button>
-
-
-                <div
-                    id="formMessage"
-                    class="form-message"
-                ></div>
-
-            </form>
-
-        </section>
-
-
-
-        <!-- RIWAYAT -->
-        <section class="card">
-
-            <div class="section-title">
-
-                <div>
-
-                    <h2>📋 Riwayat Pengumuman</h2>
-
-                    <p>
-                        Pengumuman yang telah dibuat
-                    </p>
-
-                </div>
-
-
-                <button
-                    type="button"
-                    id="btnRefresh"
-                    class="btn-refresh"
-                >
-                    ↻ Refresh
-                </button>
+                </select>
 
             </div>
 
 
+            <!-- TARGET -->
+            <div class="form-group">
+
+                <label for="targetType">
+                    Target Pengumuman
+                </label>
+
+                <select
+                    id="targetType"
+                    required
+                >
+
+                    <option value="all">
+                        Semua Warga
+                    </option>
+
+                    <option value="selected">
+                        Warga Tertentu
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- WARGA TERTENTU -->
             <div
-                id="loading"
-                class="loading"
+                class="form-group hidden"
+                id="targetWargaGroup"
             >
-                Memuat pengumuman...
+
+                <label for="targetWarga">
+                    Pilih Warga
+                </label>
+
+                <select
+                    id="targetWarga"
+                >
+
+                    <option value="">
+                        Memuat data warga...
+                    </option>
+
+                </select>
+
             </div>
 
 
-            <div
-                id="emptyState"
-                class="empty-state hidden"
-            >
-                <div class="empty-icon">
-                    📢
+            <!-- ISI -->
+            <div class="form-group">
+
+                <label for="isi">
+                    Isi Pengumuman
+                </label>
+
+                <textarea
+                    id="isi"
+                    rows="7"
+                    maxlength="5000"
+                    placeholder="Tuliskan isi pengumuman..."
+                    required
+                ></textarea>
+
+                <div class="char-count">
+                    <span id="charCount">0</span>
+                    / 5000
                 </div>
 
-                <h3>
-                    Belum ada pengumuman
-                </h3>
-
-                <p>
-                    Pengumuman yang dibuat akan muncul di sini.
-                </p>
             </div>
 
 
+            <!-- BUTTON -->
+            <button
+                type="submit"
+                id="btnKirim"
+                class="btn-primary"
+            >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 4l16 8-16 8 3-8z"></path>
+                    <path d="M7 12h10"></path>
+                </svg>
+
+                <span>Kirim Pengumuman</span>
+            </button>
+
+
             <div
-                id="listPengumuman"
-                class="announcement-list"
+                id="formMessage"
+                class="form-message"
             ></div>
 
-        </section>
+        </form>
 
-    </main>
-
-
-    <!-- FOOTER -->
-    <footer>
-
-        <strong>SIDAT</strong>
-
-        <span>
-            Dibuat oleh Suwardi
-        </span>
-
-    </footer>
-
-</div>
+    </section>
 
 
-<!-- SUPABASE -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- RIWAYAT -->
+    <section class="card">
 
-<!-- KONFIGURASI SIDAT -->
-<script src="../js/supabase-config.js"></script>
-<!-- SCRIPT -->
-<script src="pengumuman.js"></script>
+        <div class="section-title">
 
-</body>
+            <div class="section-heading">
+
+                <div class="section-icon section-icon-history" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M4 5v5h5"></path>
+                        <path d="M5.5 10A8 8 0 1 1 7 17"></path>
+                        <path d="M12 7v5l3 2"></path>
+                    </svg>
+                </div>
+
+                <div>
+                    <h2>Riwayat Pengumuman</h2>
+                    <p>Pengumuman yang telah dibuat</p>
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="btnRefresh"
+                class="btn-refresh"
+                aria-label="Refresh pengumuman"
+            >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M20 11a8 8 0 0 0-14.8-4L3 10"></path>
+                    <path d="M3 5v5h5"></path>
+                    <path d="M4 13a8 8 0 0 0 14.8 4L21 14"></path>
+                    <path d="M21 19v-5h-5"></path>
+                </svg>
+
+                <span>Refresh</span>
+            </button>
+
+        </div>
+
+
+        <div
+            id="loading"
+            class="loading"
+        >
+            Memuat pengumuman...
+        </div>
+
+
+        <div
+            id="emptyState"
+            class="empty-state hidden"
+        >
+
+            <div class="empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                    <path d="M4 10v4"></path>
+                    <path d="M7 9l10-4v14L7 15z"></path>
+                    <path d="M7 15v4a2 2 0 0 0 2 2h1"></path>
+                    <path d="M20 9.5a3 3 0 0 1 0 5"></path>
+                </svg>
+            </div>
+
+            <h3>
+                Belum ada pengumuman
+            </h3>
+
+            <p>
+                Pengumuman yang dibuat akan muncul di sini.
+            </p>
+
+        </div>
+
+
+        <div
+            id="listPengumuman"
+            class="announcement-list"
+        ></div>
+
+    </section>
+
+</main>
+
+</div><!-- SUPABASE -->
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><!-- KONFIGURASI SIDAT --><script src="../js/supabase-config.js"></script>
+  
+  <!-- =====================================================
+     MENU ROLE-AWARE
+     =====================================================
+
+     ADMIN:
+         admin-menu.js
+
+     KETUA RT:
+         ../ketua-rt/ketua-rt-menu.js
+
+     NOTULA:
+         notula-menu.js
+
+     BENDAHARA / KOPERASI:
+         menggunakan menu masing-masing
+
+     Tidak memanggil lebih dari satu role menu.
+     ===================================================== -->
+
+<script>
+(function () {
+
+    "use strict";
+
+
+    console.log(
+        "[SIDAT] Role menu loader dimulai..."
+    );
+
+
+    const ACCESS_TOKEN =
+        localStorage.getItem(
+            "sidat_access_token"
+        );
+
+
+    if (!ACCESS_TOKEN) {
+
+        console.error(
+            "[SIDAT] Access token tidak ditemukan."
+        );
+
+        return;
+    }
+
+
+    /* =====================================================
+       AMBIL USER AKTIF
+       ===================================================== */
+
+    async function getCurrentUser() {
+
+        const response =
+            await fetch(
+                SUPABASE_URL +
+                "/auth/v1/user",
+                {
+                    method: "GET",
+
+                    headers: {
+                        "apikey":
+                            SUPABASE_KEY,
+
+                        "Authorization":
+                            "Bearer " +
+                            ACCESS_TOKEN,
+
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            throw new Error(
+                "Gagal mengambil user aktif: " +
+                errorText
+            );
+        }
+
+
+        return await response.json();
+
+    }
+
+
+    /* =====================================================
+       AMBIL ROLE PROFILE
+       ===================================================== */
+
+    async function getUserRole(
+        userId
+    ) {
+
+        const response =
+            await fetch(
+                SUPABASE_URL +
+                "/rest/v1/profiles" +
+                "?select=role" +
+                "&user_id=eq." +
+                encodeURIComponent(
+                    userId
+                ) +
+                "&limit=1",
+                {
+                    method: "GET",
+
+                    headers: {
+                        "apikey":
+                            SUPABASE_KEY,
+
+                        "Authorization":
+                            "Bearer " +
+                            ACCESS_TOKEN,
+
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            throw new Error(
+                "Gagal mengambil role profile: " +
+                errorText
+            );
+        }
+
+
+        const profiles =
+            await response.json();
+
+
+        if (
+            !Array.isArray(profiles) ||
+            profiles.length === 0
+        ) {
+
+            throw new Error(
+                "Profile pengguna tidak ditemukan."
+            );
+        }
+
+
+        return String(
+            profiles[0].role || ""
+        )
+        .trim()
+        .toLowerCase();
+
+    }
+
+
+    /* =====================================================
+       LOAD SCRIPT
+       ===================================================== */
+
+    function loadScript(
+        src
+    ) {
+
+        return new Promise(
+            function (
+                resolve,
+                reject
+            ) {
+
+                const script =
+                    document.createElement(
+                        "script"
+                    );
+
+
+                script.src = src;
+
+
+                script.dataset.sidatRoleMenu =
+                    "true";
+
+
+                script.onload =
+                    function () {
+
+                        console.log(
+                            "[SIDAT] Menu berhasil dimuat:",
+                            src
+                        );
+
+                        resolve();
+
+                    };
+
+
+                script.onerror =
+                    function () {
+
+                        reject(
+                            new Error(
+                                "Gagal memuat script: " +
+                                src
+                            )
+                        );
+
+                    };
+
+
+                document.body.appendChild(
+                    script
+                );
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       ROLE MENU
+       ===================================================== */
+
+    async function initRoleMenu() {
+
+        try {
+
+            const user =
+                await getCurrentUser();
+
+
+            if (!user?.id) {
+
+                throw new Error(
+                    "ID user aktif tidak ditemukan."
+                );
+
+            }
+
+
+            console.log(
+                "[SIDAT] User aktif:",
+                user.id
+            );
+
+
+            const role =
+                await getUserRole(
+                    user.id
+                );
+
+
+            console.log(
+                "[SIDAT] Role aktif:",
+                role
+            );
+
+
+            /* =================================================
+               ADMIN
+               ================================================= */
+
+            if (
+                role === "admin"
+            ) {
+
+                await loadScript(
+                    "admin-menu.js"
+                );
+
+                return;
+            }
+
+
+            /* =================================================
+               KETUA RT
+               ================================================= */
+
+            if (
+                role === "ketua_rt"
+            ) {
+
+                await loadScript(
+                    "../ketua-rt/ketua-rt-menu.js"
+                );
+
+                return;
+            }
+
+
+            /* =================================================
+               NOTULA
+               ================================================= */
+
+            if (
+                role === "notula"
+            ) {
+
+                await loadScript(
+                    "../notula/notula-menu.js"
+                );
+
+                return;
+            }
+
+
+            /* =================================================
+               ROLE LAIN
+               ================================================= */
+
+            console.warn(
+                "[SIDAT] Role",
+                role,
+                "tidak menggunakan role menu ini."
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "[SIDAT] Gagal menentukan menu role:",
+                error
+            );
+
+        }
+
+    }
+
+
+    /* =====================================================
+       START
+       ===================================================== */
+
+    initRoleMenu();
+
+})();
+</script>
+
+  <!-- SCRIPT PENGUMUMAN -->
+  
+  <script src="pengumuman.js"></script></body>
 </html>

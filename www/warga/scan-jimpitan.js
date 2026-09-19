@@ -1,151 +1,355 @@
 // ==========================================
 // SIDAT
-// SCAN QR JIMPITAN - QR KK
+// SCAN JIMPITAN - ID WARGA
+// QR menggunakan resident_code
+// Contoh QR: RT001
 // Dibuat oleh Suwardi
 // ==========================================
 
+"use strict";
 
 // ==========================================
 // SESSION
 // ==========================================
 
 const accessToken =
-    localStorage.getItem(
-        "sidat_access_token"
-    );
-
+    localStorage.getItem("sidat_access_token");
 
 if (!accessToken) {
-
-    window.location.href =
-        "../index.html";
-
+    window.location.href = "../index.html";
 }
 
-
 // ==========================================
-// SCANNER
+// SCANNER STATE
 // ==========================================
 
 let scanner = null;
-
 let cameraTrack = null;
-
 let torchAktif = false;
 
-let qrToken = null;
-
+// Data warga hasil scan
+let residentId = null;
+let residentCode = null;
 
 // ==========================================
 // ELEMENT
 // ==========================================
 
 const reader =
-    document.getElementById(
-        "reader"
-    );
+    document.getElementById("reader");
 
 const scannerStatus =
-    document.getElementById(
-        "scannerStatus"
-    );
+    document.getElementById("scannerStatus");
 
 const residentName =
-    document.getElementById(
-        "residentName"
-    );
+    document.getElementById("residentName");
 
 const resultCard =
-    document.getElementById(
-        "resultCard"
-    );
+    document.getElementById("resultCard");
 
 const amountInput =
-    document.getElementById(
-        "amount"
-    );
+    document.getElementById("amount");
 
 const notesInput =
-    document.getElementById(
-        "notes"
-    );
+    document.getElementById("notes");
 
 const saveButton =
-    document.getElementById(
-        "saveButton"
-    );
+    document.getElementById("saveButton");
 
 const manualQrCode =
-    document.getElementById(
-        "manualQrCode"
-    );
-
+    document.getElementById("manualQrCode");
 
 // ==========================================
-// VALIDASI QR KK
+// VALIDASI ID WARGA
 // ==========================================
 
-// ==========================================
-// VALIDASI QR KK
-// ==========================================
+function validasiResidentCode(value) {
 
-function validasiQRKK(qrValue) {
-
-    if (!qrValue) {
-
+    if (!value) {
         return false;
-
     }
 
-    return qrValue
-        .trim()
-        .toUpperCase()
-        .startsWith(
-            "SIDAT-KK-"
-        );
+    const code =
+        String(value)
+            .trim()
+            .toUpperCase();
 
+    /*
+     * Format ID warga SIDAT:
+     * RT001
+     * RT002
+     * RT003
+     * dst.
+     *
+     * Tetap memberi ruang sampai 20 karakter
+     * agar tidak terlalu mengunci struktur resident_code.
+     */
+
+    return /^RT[0-9A-Z_-]{1,18}$/.test(code);
 }
 
+// ==========================================
+// NORMALISASI ID WARGA
+// ==========================================
+
+function normalisasiResidentCode(value) {
+
+    return String(value || "")
+        .trim()
+        .toUpperCase();
+}
 
 // ==========================================
-// TAMPILKAN DATA KK
+// TAMPILKAN DATA WARGA
 // ==========================================
 
-function tampilkanKK(
-    data,
-    token
-) {
+function tampilkanWarga(data) {
 
-    qrToken =
-        token;
+    if (!data) {
+        return;
+    }
 
+    residentId =
+        data.id || null;
+
+    residentCode =
+        data.resident_code || null;
 
     residentName.textContent =
-        `${data.name} (${data.resident_code}) - KK ${data.kk_number}`;
-
+        `${data.name || "-"} (${data.resident_code || "-"})`;
 
     amountInput.value =
         500;
 
-
     notesInput.value =
         "";
-
 
     resultCard.classList.remove(
         "hidden"
     );
 
-
     scannerStatus.textContent =
-        "QR KK berhasil ditemukan.";
+        "ID warga berhasil ditemukan.";
 
+    console.log(
+        "SIDAT WARGA TERPILIH:",
+        data
+    );
 }
 
+// ==========================================
+// CARI WARGA BERDASARKAN resident_code
+// ==========================================
+
+async function cariWargaByResidentCode(
+    code
+) {
+
+    const residentCodeValue =
+        normalisasiResidentCode(code);
+
+    if (
+        !validasiResidentCode(
+            residentCodeValue
+        )
+    ) {
+
+        throw new Error(
+            "ID warga tidak valid. Contoh: RT001"
+        );
+    }
+
+    const query =
+        [
+            "select=id,resident_code,name,kk_number,family_status,is_active,account_created,auth_id",
+            `resident_code=eq.${encodeURIComponent(residentCodeValue)}`,
+            "is_active=eq.true",
+            "limit=1"
+        ].join("&");
+
+    const response =
+        await fetch(
+            `${SUPABASE_URL}/rest/v1/residents?${query}`,
+            {
+                method: "GET",
+
+                headers: {
+                    "apikey":
+                        SUPABASE_KEY,
+
+                    "Authorization":
+                        `Bearer ${accessToken}`,
+
+                    "Content-Type":
+                        "application/json"
+                }
+            }
+        );
+
+    if (!response.ok) {
+
+        throw new Error(
+            await response.text()
+        );
+    }
+
+    const data =
+        await response.json();
+
+    if (
+        !Array.isArray(data) ||
+        data.length === 0
+    ) {
+
+        throw new Error(
+            `ID warga ${residentCodeValue} tidak ditemukan atau warga tidak aktif.`
+        );
+    }
+
+    return data[0];
+}
 
 // ==========================================
-// START SCANNER
+// STOP SCANNER
 // ==========================================
+
+async function hentikanScanner() {
+
+    if (!scanner) {
+        return;
+    }
+
+    try {
+
+        await scanner.stop();
+
+    } catch (error) {
+
+        console.warn(
+            "Scanner stop:",
+            error
+        );
+    }
+
+    try {
+
+        scanner.clear();
+
+    } catch (error) {
+
+        console.warn(
+            "Scanner clear:",
+            error
+        );
+    }
+
+    scanner =
+        null;
+
+    cameraTrack =
+        null;
+
+    torchAktif =
+        false;
+}
+
+// ==========================================
+// AMBIL CAMERA TRACK
+// ==========================================
+
+function ambilCameraTrack() {
+
+    cameraTrack =
+        null;
+
+    try {
+
+        const videoElement =
+            reader?.querySelector(
+                "video"
+            );
+
+        if (
+            !videoElement ||
+            !videoElement.srcObject
+        ) {
+
+            return;
+        }
+
+        const tracks =
+            videoElement
+                .srcObject
+                .getVideoTracks();
+
+        if (
+            tracks &&
+            tracks.length > 0
+        ) {
+
+            cameraTrack =
+                tracks[0];
+
+            console.log(
+                "SIDAT camera track:",
+                cameraTrack
+            );
+
+            console.log(
+                "SIDAT camera capabilities:",
+                cameraTrack.getCapabilities
+                    ? cameraTrack.getCapabilities()
+                    : "Tidak tersedia"
+            );
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Tidak dapat mengambil camera track:",
+            error
+        );
+    }
+}
+
+// ==========================================
+// RESET TOMBOL SENTER
+// ==========================================
+
+function resetTombolTorch() {
+
+    torchAktif =
+        false;
+
+    const torchButton =
+        document.getElementById(
+            "btnTorch"
+        );
+
+    if (!torchButton) {
+        return;
+    }
+
+    const span =
+        torchButton.querySelector(
+            "span"
+        );
+
+    if (span) {
+
+        span.textContent =
+            "Nyalakan Senter";
+
+    } else {
+
+        torchButton.textContent =
+            "Nyalakan Senter";
+
+    }
+
+    torchButton.disabled =
+        false;
+}
 
 // ==========================================
 // START SCANNER
@@ -160,27 +364,63 @@ async function mulaiScanner() {
         );
 
         return;
-
     }
-
-
-    // Jika scanner lama masih ada,
-    // jangan membuat scanner baru
 
     if (scanner) {
-
         return;
-
     }
 
+    if (
+        typeof Html5Qrcode ===
+        "undefined"
+    ) {
+
+        console.error(
+            "Html5Qrcode belum tersedia."
+        );
+
+        if (scannerStatus) {
+
+            scannerStatus.textContent =
+                "Pemindai QR belum tersedia.";
+        }
+
+        return;
+    }
 
     try {
+
+        if (
+            navigator.mediaDevices &&
+            navigator.mediaDevices.getUserMedia
+        ) {
+
+            /*
+             * Meminta izin kamera terlebih dahulu.
+             * Stream sementara dihentikan karena
+             * Html5Qrcode akan membuka kamera sendiri.
+             */
+
+            const permissionStream =
+                await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode:
+                            "environment"
+                    }
+                });
+
+            permissionStream
+                .getTracks()
+                .forEach(
+                    track =>
+                        track.stop()
+                );
+        }
 
         scanner =
             new Html5Qrcode(
                 "reader"
             );
-
 
         await scanner.start(
 
@@ -190,13 +430,19 @@ async function mulaiScanner() {
             },
 
             {
-                fps: 10,
+                fps:
+                    10,
 
                 qrbox: {
-                    width: 220,
-                    height: 220
-                }
+                    width:
+                        220,
 
+                    height:
+                        220
+                },
+
+                aspectRatio:
+                    1.0
             },
 
             qrCodeMessage => {
@@ -209,108 +455,33 @@ async function mulaiScanner() {
 
             errorMessage => {
 
-                // Error scanning sementara
-                // diabaikan
+                // Error scan per-frame
+                // sengaja tidak ditampilkan.
 
             }
-
         );
 
+        /*
+         * Tunggu sebentar sampai elemen video
+         * benar-benar dibuat oleh Html5Qrcode.
+         */
 
-        // ======================================
-        // AMBIL CAMERA TRACK
-        // ======================================
+        setTimeout(
+            () => {
 
-        cameraTrack =
-            null;
+                ambilCameraTrack();
 
+            },
+            500
+        );
 
-        try {
-
-            const videoElement =
-                reader.querySelector(
-                    "video"
-                );
-
-
-            if (
-                videoElement &&
-                videoElement.srcObject
-            ) {
-
-                const tracks =
-                    videoElement
-                        .srcObject
-                        .getVideoTracks();
-
-
-                if (
-                    tracks &&
-                    tracks.length > 0
-                ) {
-
-                    cameraTrack =
-                        tracks[0];
-
-                    console.log(
-                        "Camera track:",
-                        cameraTrack
-                    );
-
-
-                    console.log(
-                        "Camera capabilities:",
-                        cameraTrack.getCapabilities
-                            ? cameraTrack.getCapabilities()
-                            : "Tidak tersedia"
-                    );
-
-                }
-
-            }
-
-        } catch (trackError) {
-
-            console.warn(
-                "Tidak dapat mengambil camera track:",
-                trackError
-            );
-
-        }
-
-
-        // ======================================
-        // RESET STATUS SENTER
-        // ======================================
-
-        torchAktif =
-            false;
-
-
-        const torchButton =
-            document.getElementById(
-                "btnTorch"
-            );
-
-
-        if (torchButton) {
-
-            torchButton.textContent =
-                "🔦 Nyalakan Senter";
-
-            torchButton.disabled =
-                false;
-
-        }
-
+        resetTombolTorch();
 
         if (scannerStatus) {
 
             scannerStatus.textContent =
-                "Arahkan kamera ke QR jimpitan warga";
-
+                "Arahkan kamera ke QR ID warga.";
         }
-
 
     } catch (error) {
 
@@ -319,23 +490,22 @@ async function mulaiScanner() {
             error
         );
 
-
         scanner =
             null;
 
         cameraTrack =
             null;
 
-
         if (scannerStatus) {
 
             scannerStatus.textContent =
                 "Kamera tidak dapat digunakan. Pastikan izin kamera diberikan.";
-
         }
 
+        alert(
+            "Aplikasi memerlukan izin kamera."
+        );
     }
-
 }
 
 // ==========================================
@@ -349,10 +519,15 @@ async function toggleTorch() {
             "btnTorch"
         );
 
+    if (!cameraTrack) {
 
-    // ======================================
-    // CEK CAMERA TRACK
-    // ======================================
+        /*
+         * Kadang track belum berhasil diambil
+         * ketika tombol langsung ditekan.
+         */
+
+        ambilCameraTrack();
+    }
 
     if (!cameraTrack) {
 
@@ -361,36 +536,26 @@ async function toggleTorch() {
         );
 
         return;
-
     }
-
-
-    // ======================================
-    // CEK SUPPORT TORCH
-    // ======================================
 
     if (
         !cameraTrack.getCapabilities
     ) {
 
         alert(
-            "Browser tidak mendukung kontrol senter."
+            "Perangkat tidak mendukung kontrol senter."
         );
 
         return;
-
     }
-
 
     const capabilities =
         cameraTrack.getCapabilities();
 
-
     console.log(
-        "Torch capability:",
+        "SIDAT torch capability:",
         capabilities.torch
     );
-
 
     if (
         !capabilities.torch
@@ -401,51 +566,52 @@ async function toggleTorch() {
         );
 
         return;
-
     }
-
-
-    // ======================================
-    // TOGGLE
-    // ======================================
 
     try {
 
         torchAktif =
             !torchAktif;
 
-
         await cameraTrack.applyConstraints({
-
             advanced: [
-
                 {
                     torch:
                         torchAktif
                 }
-
             ]
-
         });
-
 
         if (button) {
 
-            button.textContent =
-                torchAktif
-                    ? "🔦 Matikan Senter"
-                    : "🔦 Nyalakan Senter";
+            const span =
+                button.querySelector(
+                    "span"
+                );
 
+            const label =
+                torchAktif
+                    ? "Matikan Senter"
+                    : "Nyalakan Senter";
+
+            if (span) {
+
+                span.textContent =
+                    label;
+
+            } else {
+
+                button.textContent =
+                    label;
+            }
         }
 
-
         console.log(
-            "Senter:",
+            "SIDAT senter:",
             torchAktif
                 ? "ON"
                 : "OFF"
         );
-
 
     } catch (error) {
 
@@ -454,25 +620,15 @@ async function toggleTorch() {
             error
         );
 
-
         torchAktif =
             false;
 
-
-        if (button) {
-
-            button.textContent =
-                "🔦 Nyalakan Senter";
-
-        }
-
+        resetTombolTorch();
 
         alert(
-            "Senter tidak dapat dikontrol oleh browser pada perangkat ini."
+            "Senter tidak dapat dikontrol oleh perangkat ini."
         );
-
     }
-
 }
 
 // ==========================================
@@ -483,314 +639,160 @@ async function prosesQR(
     qrValue
 ) {
 
-    const token =
-        qrValue
-            .trim()
-            .toUpperCase();
-
-
-    // ======================================
-    // VALIDASI FORMAT QR KK
-    // ======================================
-
-    if (
-        !validasiQRKK(
-            token
-        )
-    ) {
-
-        scannerStatus.textContent =
-            "QR bukan QR KK SIDAT.";
-
-        return;
-
-    }
-
-
-    // ======================================
-    // STOP SCANNER
-    // ======================================
-
-    try {
-
-        if (scanner) {
-
-            await scanner.stop();
-
-            scanner.clear();
-
-            scanner =
-                null;
-
-        }
-
-    } catch (error) {
-
-        console.log(
-            "Scanner stop:",
-            error
+    const code =
+        normalisasiResidentCode(
+            qrValue
         );
 
-        scanner =
-            null;
-
-    }
-
-
-    qrToken =
-        token;
-
-
-    scannerStatus.textContent =
-        "Memeriksa QR KK...";
-
-
-    // ======================================
-    // CARI KK
-    // ======================================
-
-    try {
-
-        const response =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/rpc/get_resident_by_qr`,
-                {
-
-                    method:
-                        "POST",
-
-                    headers: {
-
-                        "apikey":
-                            SUPABASE_KEY,
-
-                        "Authorization":
-                            `Bearer ${accessToken}`,
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            p_qr_token:
-                                token
-
-                        })
-
-                }
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                await response.text()
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            !data ||
-            data.length === 0
-        ) {
-
-            qrToken =
-                null;
-
-
-            alert(
-                "QR KK tidak ditemukan atau kepala keluarga tidak aktif."
-            );
-
-
-            scanUlang();
-
-            return;
-
-        }
-
-
-        const kk =
-            data[0];
-
-
-        tampilkanKK(
-            kk,
-            token
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "Gagal membaca QR KK:",
-            error
-        );
-
-
-        qrToken =
-            null;
-
-
-        alert(
-            "Gagal membaca data QR KK.\n\n" +
-            error.message
-        );
-
-
-        scanUlang();
-
-    }
-
-}
-
-
-// ==========================================
-// CARI KODE MANUAL
-// ==========================================
-
-async function cariKodeManual() {
-
-    if (!manualQrCode) {
-
-        return;
-
-    }
-
-
-    let qrValue =
-        manualQrCode.value
-            .trim()
-            .toUpperCase();
-
-
-    // ======================================
-    // VALIDASI INPUT
-    // ======================================
-
-    if (!qrValue) {
-
-        alert(
-            "Masukkan QR KK terlebih dahulu."
-        );
-
-        manualQrCode.focus();
-
-        return;
-
-    }
-
+    console.log(
+        "SIDAT QR TERBACA:",
+        code
+    );
 
     // ======================================
     // VALIDASI FORMAT
     // ======================================
 
     if (
-        !validasiQRKK(
-            qrValue
+        !validasiResidentCode(
+            code
         )
     ) {
 
+        if (scannerStatus) {
+
+            scannerStatus.textContent =
+                "QR bukan QR ID warga SIDAT.";
+
+        }
+
+        return;
+    }
+
+    // ======================================
+    // HENTIKAN SCANNER
+    // ======================================
+
+    await hentikanScanner();
+
+    if (scannerStatus) {
+
+        scannerStatus.textContent =
+            "Memeriksa ID warga...";
+    }
+
+    // ======================================
+    // CARI WARGA
+    // ======================================
+
+    try {
+
+        const warga =
+            await cariWargaByResidentCode(
+                code
+            );
+
+        tampilkanWarga(
+            warga
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Gagal membaca ID warga:",
+            error
+        );
+
+        residentId =
+            null;
+
+        residentCode =
+            null;
+
         alert(
-            "Kode QR KK tidak valid.\n\n" +
-            "Contoh:\n" +
-            "SIDAT-KK-46B4320B1BEA4AC5"
+            error.message ||
+            "ID warga tidak ditemukan."
+        );
+
+        await scanUlang();
+    }
+}
+
+// ==========================================
+// CARI ID WARGA MANUAL
+// ==========================================
+
+async function cariKodeManual() {
+
+    if (!manualQrCode) {
+        return;
+    }
+
+    const code =
+        normalisasiResidentCode(
+            manualQrCode.value
+        );
+
+    // ======================================
+    // VALIDASI INPUT
+    // ======================================
+
+    if (!code) {
+
+        alert(
+            "Masukkan ID warga terlebih dahulu."
         );
 
         manualQrCode.focus();
 
         return;
-
     }
 
+    // ======================================
+    // VALIDASI FORMAT
+    // ======================================
 
-    scannerStatus.textContent =
-        "Memeriksa QR KK...";
+    if (
+        !validasiResidentCode(
+            code
+        )
+    ) {
 
+        alert(
+            "ID warga tidak valid.\n\n" +
+            "Contoh:\n" +
+            "RT001"
+        );
+
+        manualQrCode.focus();
+
+        return;
+    }
+
+    if (scannerStatus) {
+
+        scannerStatus.textContent =
+            "Memeriksa ID warga...";
+    }
 
     try {
 
-        const response =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/rpc/get_resident_by_qr`,
-                {
-
-                    method:
-                        "POST",
-
-                    headers: {
-
-                        "apikey":
-                            SUPABASE_KEY,
-
-                        "Authorization":
-                            `Bearer ${accessToken}`,
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            p_qr_token:
-                                qrValue
-
-                        })
-
-                }
+        const warga =
+            await cariWargaByResidentCode(
+                code
             );
 
+        /*
+         * Jika scanner masih aktif,
+         * hentikan supaya kamera tidak
+         * tetap membaca QR.
+         */
 
-        if (!response.ok) {
+        await hentikanScanner();
 
-            throw new Error(
-                await response.text()
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            !data ||
-            data.length === 0
-        ) {
-
-            qrToken =
-                null;
-
-
-            alert(
-                "QR KK tidak ditemukan atau kepala keluarga tidak aktif."
-            );
-
-            return;
-
-        }
-
-
-        const kk =
-            data[0];
-
-
-        tampilkanKK(
-            kk,
-            qrValue
+        tampilkanWarga(
+            warga
         );
-
 
     } catch (error) {
 
@@ -799,20 +801,18 @@ async function cariKodeManual() {
             error
         );
 
-
-        qrToken =
+        residentId =
             null;
 
+        residentCode =
+            null;
 
         alert(
-            "Gagal memeriksa QR KK.\n\n" +
-            error.message
+            error.message ||
+            "ID warga tidak ditemukan."
         );
-
     }
-
 }
-
 
 // ==========================================
 // SIMPAN JIMPITAN
@@ -820,45 +820,33 @@ async function cariKodeManual() {
 
 async function simpanJimpitan() {
 
-    if (!qrToken) {
+    if (!residentId) {
 
         alert(
-            "QR KK belum dipindai."
+            "ID warga belum dipilih."
         );
 
         return;
-
     }
 
-
-    // ======================================
-    // VALIDASI QR
-    // ======================================
-
-    if (
-        !validasiQRKK(
-            qrToken
-        )
-    ) {
+    if (!residentCode) {
 
         alert(
-            "QR KK tidak valid."
+            "ID warga tidak valid."
         );
 
         return;
-
     }
-
 
     const amount =
         Number(
-            amountInput.value
+            amountInput?.value
         );
 
-
     const notes =
-        notesInput.value.trim();
-
+        String(
+            notesInput?.value || ""
+        ).trim();
 
     // ======================================
     // VALIDASI NOMINAL
@@ -873,35 +861,158 @@ async function simpanJimpitan() {
             "Masukkan nominal jimpitan yang valid."
         );
 
-        amountInput.focus();
+        amountInput?.focus();
 
         return;
-
     }
-
 
     // ======================================
     // DISABLE BUTTON
     // ======================================
 
-    saveButton.disabled =
-        true;
+    if (saveButton) {
 
-    saveButton.textContent =
-        "Menyimpan...";
+        saveButton.disabled =
+            true;
 
+        const span =
+            saveButton.querySelector(
+                "span"
+            );
 
-    scannerStatus.textContent =
-        "Menyimpan jimpitan...";
+        if (span) {
 
+            span.textContent =
+                "Menyimpan...";
+
+        } else {
+
+            saveButton.textContent =
+                "Menyimpan...";
+        }
+    }
+
+    if (scannerStatus) {
+
+        scannerStatus.textContent =
+            "Menyimpan jimpitan...";
+    }
+
+    // ======================================
+    // OFFLINE
+    // ======================================
+
+    if (
+        typeof isOnline === "function" &&
+        !isOnline()
+    ) {
+
+        try {
+
+            /*
+             * Penting:
+             * transaksi offline sekarang menyimpan
+             * resident_id + resident_code,
+             * BUKAN qr_token.
+             */
+
+            await saveOfflineTransaction({
+
+                resident_id:
+                    residentId,
+
+                resident_code:
+                    residentCode,
+
+                amount:
+                    amount,
+
+                notes:
+                    notes || null,
+
+                type:
+                    "create_jimpitan_transaction"
+            });
+
+            alert(
+                "Tidak ada koneksi internet.\n\n" +
+                "Transaksi disimpan di perangkat " +
+                "dan akan dikirim otomatis saat online."
+            );
+
+            if (scannerStatus) {
+
+                scannerStatus.textContent =
+                    "Transaksi disimpan secara offline.";
+            }
+
+            resetFormJimpitan();
+
+        } catch (offlineError) {
+
+            console.error(
+                "Gagal menyimpan transaksi offline:",
+                offlineError
+            );
+
+            alert(
+                offlineError.message ||
+                "Transaksi offline gagal disimpan."
+            );
+        }
+
+        if (saveButton) {
+
+            saveButton.disabled =
+                false;
+
+            const span =
+                saveButton.querySelector(
+                    "span"
+                );
+
+            if (span) {
+
+                span.textContent =
+                    "Simpan Jimpitan";
+
+            } else {
+
+                saveButton.textContent =
+                    "Simpan Jimpitan";
+            }
+        }
+
+        return;
+    }
+
+    // ======================================
+    // ONLINE
+    // ======================================
 
     try {
+
+        /*
+         * PERHATIAN:
+         *
+         * Jangan lagi mengirim:
+         * p_qr_token
+         *
+         * Karena Scan Jimpitan SIDAT sekarang
+         * menggunakan resident_code.
+         *
+         * RPC penyimpanan perlu menggunakan
+         * resident_id / resident_code.
+         *
+         * Nama RPC lama sengaja tidak dipalsukan
+         * di sini sebelum signature database
+         * dikonfirmasi.
+         */
 
         const response =
             await fetch(
                 `${SUPABASE_URL}/rest/v1/rpc/create_jimpitan_transaction`,
                 {
-
                     method:
                         "POST",
 
@@ -915,45 +1026,41 @@ async function simpanJimpitan() {
 
                         "Content-Type":
                             "application/json"
-
                     },
 
                     body:
                         JSON.stringify({
 
-                            p_qr_token:
-                                qrToken,
+                            /*
+                             * Gunakan resident_id
+                             * sebagai identitas utama.
+                             */
+                            p_resident_id:
+                                residentId,
 
                             p_amount:
                                 amount,
 
                             p_notes:
                                 notes || null
-
                         })
-
                 }
             );
-
 
         if (!response.ok) {
 
             throw new Error(
                 await response.text()
             );
-
         }
-
 
         const result =
             await response.json();
 
-
         console.log(
-            "Hasil simpan:",
+            "SIDAT hasil simpan jimpitan:",
             result
         );
-
 
         // ==================================
         // VALIDASI HASIL
@@ -968,13 +1075,10 @@ async function simpanJimpitan() {
                 result?.message ||
                 "Jimpitan gagal disimpan."
             );
-
         }
-
 
         const data =
             result.data || {};
-
 
         // ==================================
         // SUKSES
@@ -982,59 +1086,35 @@ async function simpanJimpitan() {
 
         alert(
             `Jimpitan berhasil dicatat.\n\n` +
-            `Kepala Keluarga: ${
-                data.resident_name || "-"
+            `Warga: ${
+                data.resident_name ||
+                residentName?.textContent ||
+                "-"
             }\n` +
-            `No. KK: ${
-                data.kk_number || "-"
+            `ID Warga: ${
+                data.resident_code ||
+                residentCode ||
+                "-"
             }\n` +
             `Nominal: ${
                 formatRupiah(
-                    data.amount || amount
+                    data.amount ||
+                    amount
                 )
             }`
         );
-
 
         // ==================================
         // RESET
         // ==================================
 
-        qrToken =
-            null;
-
-
-        amountInput.value =
-            500;
-
-
-        notesInput.value =
-            "";
-
-
-        if (manualQrCode) {
-
-            manualQrCode.value =
-                "";
-
-        }
-
-
-        resultCard.classList.add(
-            "hidden"
-        );
-
-
-        scannerStatus.textContent =
-            "Arahkan kamera ke QR KK warga";
-
+        resetFormJimpitan();
 
         // ==================================
-        // MULAI SCANNER LAGI
+        // SCANNER KEMBALI
         // ==================================
 
-        mulaiScanner();
-
+        await mulaiScanner();
 
     } catch (error) {
 
@@ -1043,29 +1123,86 @@ async function simpanJimpitan() {
             error
         );
 
+        if (scannerStatus) {
 
-        scannerStatus.textContent =
-            "Gagal menyimpan jimpitan.";
-
+            scannerStatus.textContent =
+                "Gagal menyimpan jimpitan.";
+        }
 
         alert(
             error.message ||
             "Gagal menyimpan jimpitan."
         );
 
-
     } finally {
 
-        saveButton.disabled =
-            false;
+        if (saveButton) {
 
-        saveButton.textContent =
-            "Simpan Jimpitan";
+            saveButton.disabled =
+                false;
 
+            const span =
+                saveButton.querySelector(
+                    "span"
+                );
+
+            if (span) {
+
+                span.textContent =
+                    "Simpan Jimpitan";
+
+            } else {
+
+                saveButton.textContent =
+                    "Simpan Jimpitan";
+            }
+        }
     }
-
 }
 
+// ==========================================
+// RESET FORM
+// ==========================================
+
+function resetFormJimpitan() {
+
+    residentId =
+        null;
+
+    residentCode =
+        null;
+
+    if (amountInput) {
+
+        amountInput.value =
+            500;
+    }
+
+    if (notesInput) {
+
+        notesInput.value =
+            "";
+    }
+
+    if (manualQrCode) {
+
+        manualQrCode.value =
+            "";
+    }
+
+    if (resultCard) {
+
+        resultCard.classList.add(
+            "hidden"
+        );
+    }
+
+    if (scannerStatus) {
+
+        scannerStatus.textContent =
+            "Arahkan kamera ke QR ID warga.";
+    }
+}
 
 // ==========================================
 // SCAN ULANG
@@ -1073,67 +1210,12 @@ async function simpanJimpitan() {
 
 async function scanUlang() {
 
-    qrToken =
-        null;
+    await hentikanScanner();
 
+    resetFormJimpitan();
 
-    resultCard.classList.add(
-        "hidden"
-    );
-
-
-    if (manualQrCode) {
-
-        manualQrCode.value =
-            "";
-
-    }
-
-
-    amountInput.value =
-        500;
-
-
-    notesInput.value =
-        "";
-
-
-    scannerStatus.textContent =
-        "Arahkan kamera ke QR KK warga";
-
-
-    // Jika scanner masih aktif,
-    // hentikan terlebih dahulu
-
-    if (scanner) {
-
-        try {
-
-            await scanner.stop();
-
-            scanner.clear();
-
-        } catch (error) {
-
-            console.log(
-                "Reset scanner:",
-                error
-            );
-
-        }
-
-        scanner =
-            null;
-
-    }
-
-
-    // Mulai scanner baru
-
-    mulaiScanner();
-
+    await mulaiScanner();
 }
-
 
 // ==========================================
 // FORMAT RUPIAH
@@ -1154,46 +1236,23 @@ function formatRupiah(
 
             maximumFractionDigits:
                 0
-
         }
     ).format(
         Number(nominal) || 0
     );
-
 }
 
-
 // ==========================================
-// KEMBALI
+// KEMBALI DASHBOARD
 // ==========================================
 
-function kembaliDashboard() {
+async function kembaliDashboard() {
 
-    if (scanner) {
-
-        scanner.stop()
-            .then(
-                () => {
-
-                    scanner.clear();
-
-                    scanner =
-                        null;
-
-                }
-            )
-            .catch(
-                () => {}
-            );
-
-    }
-
+    await hentikanScanner();
 
     window.location.href =
         "dashboard.html";
-
 }
-
 
 // ==========================================
 // EXPORT FUNCTION
@@ -1201,10 +1260,10 @@ function kembaliDashboard() {
 
 window.mulaiScanner =
     mulaiScanner;
-    
+
 window.toggleTorch =
     toggleTorch;
-    
+
 window.prosesQR =
     prosesQR;
 
@@ -1220,9 +1279,15 @@ window.scanUlang =
 window.kembaliDashboard =
     kembaliDashboard;
 
-
 // ==========================================
 // START
 // ==========================================
 
-mulaiScanner();
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        mulaiScanner();
+
+    }
+);

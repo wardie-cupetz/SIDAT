@@ -7,7 +7,7 @@
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     >
 
     <meta
@@ -15,13 +15,20 @@
         content="#15803d"
     >
 
-    <title>
-        SIDAT - Pengumuman
-    </title>
+    <title>SIDAT - Pengumuman</title>
 
+
+    <!-- CSS PENGUMUMAN -->
     <link
         rel="stylesheet"
         href="pengumuman.css"
+    >
+
+
+    <!-- CSS BOTTOM NAVBAR WARGA -->
+    <link
+        rel="stylesheet"
+        href="warga-menu.css"
     >
 
 </head>
@@ -38,15 +45,29 @@
 
     <header class="header">
 
+
+        <!-- TOMBOL KEMBALI -->
+
         <button
             type="button"
             class="back-btn"
             onclick="kembaliDashboard()"
-            aria-label="Kembali ke dashboard"
+            aria-label="Kembali"
         >
-            ‹
+
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+
+                <path d="M15 18l-6-6 6-6"></path>
+
+            </svg>
+
         </button>
 
+
+        <!-- JUDUL HEADER -->
 
         <div class="header-title">
 
@@ -61,9 +82,27 @@
         </div>
 
 
-        <div class="header-icon">
-            📢
+        <!-- BUBBLE IKON HEADER -->
+
+        <div
+            class="header-icon"
+            aria-hidden="true"
+        >
+
+            <svg
+                viewBox="0 0 24 24"
+            >
+
+                <path d="M3 10v4h4l5 4V6l-5 4H3Z"></path>
+
+                <path d="M16 9.5a4 4 0 0 1 0 5"></path>
+
+                <path d="M18.5 7a7.5 7.5 0 0 1 0 10"></path>
+
+            </svg>
+
         </div>
+
 
     </header>
 
@@ -77,22 +116,37 @@
 
 
         <!-- ==================================
-             JUDUL
+             PAGE TITLE
         =================================== -->
 
         <section class="page-title">
 
-            <div class="page-icon">
-                📢
+
+            <div
+                class="page-icon"
+                aria-hidden="true"
+            >
+
+                <svg
+                    viewBox="0 0 24 24"
+                >
+
+                    <path d="M3 10v4h4l5 4V6l-5 4H3Z"></path>
+
+                    <path d="M16 9.5a4 4 0 0 1 0 5"></path>
+
+                    <path d="M18.5 7a7.5 7.5 0 0 1 0 10"></path>
+
+                </svg>
+
             </div>
 
 
-            <div>
+            <div class="page-title-content">
 
                 <h2>
                     Pengumuman RT
                 </h2>
-
 
                 <p>
                     Informasi terbaru dan resmi
@@ -100,6 +154,7 @@
                 </p>
 
             </div>
+
 
         </section>
 
@@ -114,7 +169,11 @@
             class="loading"
         >
 
-            Memuat pengumuman...
+            <div class="loading-spinner"></div>
+
+            <span>
+                Memuat pengumuman...
+            </span>
 
         </div>
 
@@ -127,12 +186,14 @@
         <section
             id="announcementList"
             class="announcement-list"
-        ></section>
+            aria-live="polite"
+        >
+        </section>
 
 
 
         <!-- ==================================
-             EMPTY
+             EMPTY STATE
         =================================== -->
 
         <div
@@ -140,8 +201,21 @@
             class="empty-state hidden"
         >
 
-            <div class="empty-icon">
-                📢
+            <div
+                class="empty-icon"
+                aria-hidden="true"
+            >
+
+                <svg
+                    viewBox="0 0 24 24"
+                >
+
+                    <path d="M3 10v4h4l5 4V6l-5 4H3Z"></path>
+
+                    <path d="M16 9.5a4 4 0 0 1 0 5"></path>
+
+                </svg>
+
             </div>
 
 
@@ -155,21 +229,38 @@
                 dari Admin RT.
             </span>
 
+
         </div>
 
 
 
         <!-- ==================================
-             ERROR
+             ERROR STATE
         =================================== -->
 
         <div
             id="errorState"
-            class="empty-state hidden"
+            class="empty-state error-state hidden"
         >
 
-            <div class="empty-icon">
-                ⚠️
+
+            <div
+                class="empty-icon error-icon"
+                aria-hidden="true"
+            >
+
+                <svg
+                    viewBox="0 0 24 24"
+                >
+
+                    <path d="M10.3 3.6 2.4 17a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0Z"></path>
+
+                    <path d="M12 9v4"></path>
+
+                    <path d="M12 17h.01"></path>
+
+                </svg>
+
             </div>
 
 
@@ -178,9 +269,19 @@
             </strong>
 
 
-            <span>
+            <span id="errorMessage">
                 Silakan coba lagi beberapa saat.
             </span>
+
+
+            <button
+                type="button"
+                class="retry-button"
+                onclick="tampilkanPengumuman()"
+            >
+                Coba Lagi
+            </button>
+
 
         </div>
 
@@ -188,43 +289,41 @@
     </main>
 
 
-
-    <!-- ======================================
-         FOOTER
-    ======================================= -->
-
-    <footer>
-
-        <strong>
-            SIDAT
-        </strong>
-
-        <span>
-            Dibuat oleh Suwardi
-        </span>
-
-    </footer>
-
-
 </div>
 
 
 
 <!-- ==========================================
-     SUPABASE CONFIG
+     SUPABASE
 =========================================== -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
 
 <script
     src="../js/supabase-config.js"
 ></script>
 
 
+
 <!-- ==========================================
-     JAVASCRIPT
+     MENU WARGA
 =========================================== -->
 
 <script
-    src="pengumuman.js"
+    src="./warga-menu.js"
+></script>
+
+
+
+<!-- ==========================================
+     PENGUMUMAN
+=========================================== -->
+
+<script
+    src="./pengumuman.js"
 ></script>
 
 

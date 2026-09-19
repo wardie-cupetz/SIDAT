@@ -7,7 +7,7 @@
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     >
 
     <meta
@@ -24,16 +24,20 @@
         href="data-warga.css"
     >
 
+    <link
+        rel="stylesheet"
+        href="warga-menu.css"
+    >
+
 </head>
 
 <body>
 
 <div class="page-container">
 
-
-    <!-- =====================================
+    <!-- =====================================================
          HEADER
-    ====================================== -->
+         ===================================================== -->
 
     <header class="top-header">
 
@@ -43,15 +47,48 @@
             onclick="kembaliDashboard()"
             aria-label="Kembali"
         >
-            ←
+
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+                <path d="M15 18 9 12l6-6"></path>
+            </svg>
+
         </button>
 
 
         <div class="header-title">
 
-            <div class="header-icon">
-                👥
+            <div
+                class="header-icon"
+                aria-hidden="true"
+            >
+
+                <svg viewBox="0 0 24 24">
+
+                    <path
+                        d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+                    ></path>
+
+                    <circle
+                        cx="9"
+                        cy="7"
+                        r="4"
+                    ></circle>
+
+                    <path
+                        d="M22 21v-2a4 4 0 0 0-3-3.87"
+                    ></path>
+
+                    <path
+                        d="M16 3.13a4 4 0 0 1 0 7.75"
+                    ></path>
+
+                </svg>
+
             </div>
+
 
             <div>
 
@@ -70,25 +107,101 @@
     </header>
 
 
-    <!-- =====================================
-         INFO CARD
-    ====================================== -->
+    <!-- =====================================================
+         PROFIL AKUN
+         ===================================================== -->
+
+    <section
+        class="profile-card"
+        aria-label="Profil akun warga"
+    >
+
+        <div
+            id="profilePhoto"
+            class="profile-photo"
+        >
+
+            <span
+                id="profileInitial"
+            >
+                W
+            </span>
+
+        </div>
+
+
+        <div class="profile-content">
+
+            <span class="profile-label">
+                Akun WARGA
+            </span>
+
+            <strong
+                id="profileName"
+            >
+                Memuat...
+            </strong>
+
+            <span
+                id="profileCode"
+                class="profile-code"
+            >
+                -
+            </span>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         INFO
+         ===================================================== -->
 
     <section class="info-card">
 
-        <div class="info-icon">
-            👨‍👩‍👧‍👦
+        <div
+            class="info-icon"
+            aria-hidden="true"
+        >
+
+            <svg viewBox="0 0 24 24">
+
+                <path
+                    d="M3 7h18"
+                ></path>
+
+                <path
+                    d="M5 7v13h14V7"
+                ></path>
+
+                <path
+                    d="M8 7V4h8v3"
+                ></path>
+
+                <path
+                    d="M8 11h8"
+                ></path>
+
+                <path
+                    d="M8 15h5"
+                ></path>
+
+            </svg>
+
         </div>
+
 
         <div class="info-content">
 
             <strong>
-                Informasi Warga
+                Informasi Keluarga
             </strong>
 
             <p>
-                Lihat nama dan nomor HP warga
-                beserta anggota keluarganya.
+                Lihat anggota keluarga dalam
+                satu Kartu Keluarga dan hubungi
+                melalui WhatsApp.
             </p>
 
         </div>
@@ -96,15 +209,41 @@
     </section>
 
 
-    <!-- =====================================
+    <!-- =====================================================
          STATISTIK
-    ====================================== -->
+         ===================================================== -->
 
     <section class="summary-card">
 
-        <div class="summary-icon">
-            👥
+        <div
+            class="summary-icon"
+            aria-hidden="true"
+        >
+
+            <svg viewBox="0 0 24 24">
+
+                <path
+                    d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+                ></path>
+
+                <circle
+                    cx="9"
+                    cy="7"
+                    r="4"
+                ></circle>
+
+                <path
+                    d="M22 21v-2a4 4 0 0 0-3-3.87"
+                ></path>
+
+                <path
+                    d="M16 3.13a4 4 0 0 1 0 7.75"
+                ></path>
+
+            </svg>
+
         </div>
+
 
         <div class="summary-content">
 
@@ -121,9 +260,9 @@
     </section>
 
 
-    <!-- =====================================
+    <!-- =====================================================
          PENCARIAN
-    ====================================== -->
+         ===================================================== -->
 
     <section class="search-card">
 
@@ -134,9 +273,27 @@
 
         <div class="search-box">
 
-            <span class="search-icon">
-                🔎
+            <span
+                class="search-icon"
+                aria-hidden="true"
+            >
+
+                <svg viewBox="0 0 24 24">
+
+                    <circle
+                        cx="11"
+                        cy="11"
+                        r="7"
+                    ></circle>
+
+                    <path
+                        d="m20 20-4-4"
+                    ></path>
+
+                </svg>
+
             </span>
+
 
             <input
                 type="search"
@@ -144,6 +301,7 @@
                 placeholder="Cari berdasarkan nama..."
                 autocomplete="off"
             >
+
 
             <button
                 type="button"
@@ -160,9 +318,9 @@
     </section>
 
 
-    <!-- =====================================
+    <!-- =====================================================
          STATUS
-    ====================================== -->
+         ===================================================== -->
 
     <div
         id="loading"
@@ -178,9 +336,9 @@
     </div>
 
 
-    <!-- =====================================
+    <!-- =====================================================
          DAFTAR WARGA
-    ====================================== -->
+         ===================================================== -->
 
     <main
         id="residentList"
@@ -188,18 +346,36 @@
     ></main>
 
 
-    <!-- =====================================
-         EMPTY STATE
-    ====================================== -->
+    <!-- =====================================================
+         EMPTY
+         ===================================================== -->
 
     <section
         id="emptyState"
         class="empty-state hidden"
     >
 
-        <div class="empty-icon">
-            🔍
+        <div
+            class="empty-icon"
+            aria-hidden="true"
+        >
+
+            <svg viewBox="0 0 24 24">
+
+                <circle
+                    cx="11"
+                    cy="11"
+                    r="7"
+                ></circle>
+
+                <path
+                    d="m20 20-4-4"
+                ></path>
+
+            </svg>
+
         </div>
+
 
         <strong>
             Data tidak ditemukan
@@ -213,18 +389,38 @@
     </section>
 
 
-    <!-- =====================================
-         ERROR STATE
-    ====================================== -->
+    <!-- =====================================================
+         ERROR
+         ===================================================== -->
 
     <section
         id="errorState"
         class="error-state hidden"
     >
 
-        <div class="error-icon">
-            ⚠️
+        <div
+            class="error-icon"
+            aria-hidden="true"
+        >
+
+            <svg viewBox="0 0 24 24">
+
+                <path
+                    d="M10.3 3.6 2.4 17a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0Z"
+                ></path>
+
+                <path
+                    d="M12 9v4"
+                ></path>
+
+                <path
+                    d="M12 17h.01"
+                ></path>
+
+            </svg>
+
         </div>
+
 
         <strong>
             Gagal memuat data
@@ -234,6 +430,7 @@
             Terjadi kesalahan saat mengambil
             data warga.
         </p>
+
 
         <button
             type="button"
@@ -245,43 +442,38 @@
 
     </section>
 
-
-    <!-- =====================================
-         FOOTER
-    ====================================== -->
-
-    <footer class="page-footer">
-
-        <strong>
-            SIDAT
-        </strong>
-
-        <span>
-            Sistem Data Warga
-        </span>
-
-        <small>
-            Dibuat oleh Suwardi
-        </small>
-
-    </footer>
-
-
 </div>
 
 
-<!-- =====================================
-     SUPABASE CONFIG
-====================================== -->
+<!-- =========================================================
+     SUPABASE
+     ========================================================= -->
 
-<script src="../js/supabase-config.js"></script>
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+<script
+    src="../js/supabase-config.js"
+></script>
 
 
-<!-- =====================================
+<!-- =========================================================
+     MENU WARGA TERPUSAT
+     ========================================================= -->
+
+<script
+    src="./warga-menu.js"
+></script>
+
+
+<!-- =========================================================
      DATA WARGA
-====================================== -->
+     ========================================================= -->
 
-<script src="data-warga.js"></script>
+<script
+    src="./data-warga.js"
+></script>
 
 </body>
 

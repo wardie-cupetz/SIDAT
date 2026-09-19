@@ -9,17 +9,33 @@
 }
 
 
+:root {
+    --sidat-green: #15803d;
+    --sidat-green-dark: #166534;
+    --sidat-green-light: #dcfce7;
+    --page-bg: #f3f4f6;
+    --text: #1f2937;
+}
+
+
+html {
+    min-height: 100%;
+}
+
+
 body {
     margin: 0;
+
+    min-height: 100vh;
 
     font-family:
         Arial,
         Helvetica,
         sans-serif;
 
-    background: #f3f4f6;
+    background: var(--page-bg);
 
-    color: #1f2937;
+    color: var(--text);
 }
 
 
@@ -37,11 +53,18 @@ body {
 ========================================== */
 
 .header {
-    background: #15803d;
+    position: sticky;
 
-    color: white;
+    top: 0;
 
-    padding: 14px 16px;
+    z-index: 10;
+
+    overflow: hidden;
+
+    min-height: 76px;
+
+    padding:
+        14px 16px;
 
     display: flex;
 
@@ -49,11 +72,14 @@ body {
 
     gap: 12px;
 
-    position: sticky;
+    color: white;
 
-    top: 0;
-
-    z-index: 10;
+    background:
+        linear-gradient(
+            135deg,
+            #15803d 0%,
+            #166534 100%
+        );
 
     box-shadow:
         0 2px 8px
@@ -61,34 +87,102 @@ body {
 }
 
 
-.back-button {
-    width: 42px;
+.header-bubble {
+    position: absolute;
 
+    border-radius: 50%;
+
+    pointer-events: none;
+
+    background:
+        rgba(255, 255, 255, 0.08);
+}
+
+
+.bubble-one {
+    width: 105px;
+    height: 105px;
+
+    right: -35px;
+    top: -55px;
+}
+
+
+.bubble-two {
+    width: 72px;
+    height: 72px;
+
+    right: 58px;
+    bottom: -48px;
+}
+
+
+.bubble-three {
+    width: 42px;
     height: 42px;
+
+    left: 38%;
+
+    top: -25px;
+
+    background:
+        rgba(255, 255, 255, 0.06);
+}
+
+
+.back-button {
+    position: relative;
+
+    z-index: 2;
+
+    width: 42px;
+    height: 42px;
+
+    flex-shrink: 0;
 
     border: none;
 
-    background: rgba(
-        255,
-        255,
-        255,
-        0.15
-    );
+    background:
+        rgba(255, 255, 255, 0.15);
 
     color: white;
 
     border-radius: 12px;
 
-    font-size: 30px;
+    display: flex;
 
-    line-height: 1;
+    align-items: center;
+
+    justify-content: center;
 
     cursor: pointer;
 }
 
 
+.back-button svg {
+    width: 23px;
+    height: 23px;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 2;
+
+    stroke-linecap: round;
+
+    stroke-linejoin: round;
+}
+
+
 .header-title {
+    position: relative;
+
+    z-index: 2;
+
     flex: 1;
+
+    min-width: 0;
 }
 
 
@@ -96,6 +190,8 @@ body {
     margin: 0;
 
     font-size: 19px;
+
+    line-height: 1.2;
 }
 
 
@@ -111,7 +207,41 @@ body {
 
 
 .header-icon {
-    font-size: 27px;
+    position: relative;
+
+    z-index: 2;
+
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 13px;
+
+    background:
+        rgba(255, 255, 255, 0.12);
+}
+
+
+.header-icon svg {
+    width: 25px;
+    height: 25px;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 1.8;
+
+    stroke-linecap: round;
+
+    stroke-linejoin: round;
 }
 
 
@@ -126,7 +256,8 @@ body {
 
     margin: 0 auto;
 
-    padding: 18px 14px 30px;
+    padding:
+        18px 14px 115px;
 
     flex: 1;
 }
@@ -159,12 +290,13 @@ body {
 
 .summary-icon {
     width: 54px;
-
     height: 54px;
 
     border-radius: 16px;
 
-    background: #dcfce7;
+    background: var(--sidat-green-light);
+
+    color: var(--sidat-green);
 
     display: flex;
 
@@ -172,7 +304,23 @@ body {
 
     justify-content: center;
 
-    font-size: 27px;
+    flex-shrink: 0;
+}
+
+
+.summary-icon svg {
+    width: 27px;
+    height: 27px;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 1.8;
+
+    stroke-linecap: round;
+
+    stroke-linejoin: round;
 }
 
 
@@ -195,7 +343,7 @@ body {
 .summary-info strong {
     font-size: 25px;
 
-    color: #15803d;
+    color: var(--sidat-green);
 }
 
 
@@ -229,8 +377,33 @@ body {
 }
 
 
-.info-box span {
-    font-size: 18px;
+.info-icon {
+    width: 20px;
+    height: 20px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+}
+
+
+.info-icon svg {
+    width: 18px;
+    height: 18px;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 1.8;
+
+    stroke-linecap: round;
+
+    stroke-linejoin: round;
 }
 
 
@@ -356,7 +529,6 @@ body {
 
 .transaction-checkbox {
     width: 21px;
-
     height: 21px;
 
     accent-color: #15803d;
@@ -414,20 +586,10 @@ body {
 
 
 /* ==========================================
-   LOADING
+   LOADING / EMPTY
 ========================================== */
 
-.loading {
-    text-align: center;
-
-    padding: 25px 10px;
-
-    color: #9ca3af;
-
-    font-size: 13px;
-}
-
-
+.loading,
 .empty {
     text-align: center;
 
@@ -439,6 +601,11 @@ body {
 }
 
 
+.loading {
+    color: #9ca3af;
+}
+
+
 /* ==========================================
    SELECTED TOTAL
 ========================================== */
@@ -446,7 +613,7 @@ body {
 .selected-card {
     margin-top: 14px;
 
-    background: #166534;
+    background: var(--sidat-green-dark);
 
     color: white;
 
@@ -483,12 +650,8 @@ body {
 .selected-count {
     white-space: nowrap;
 
-    background: rgba(
-        255,
-        255,
-        255,
-        0.12
-    );
+    background:
+        rgba(255, 255, 255, 0.12);
 
     padding: 7px 10px;
 
@@ -511,7 +674,7 @@ body {
 
     margin-top: 14px;
 
-    background: #15803d;
+    background: var(--sidat-green);
 
     color: white;
 
@@ -524,6 +687,32 @@ body {
     box-shadow:
         0 4px 10px
         rgba(21, 128, 61, 0.25);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 9px;
+}
+
+
+.transfer-button svg {
+    width: 20px;
+    height: 20px;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 1.8;
+
+    stroke-linecap: round;
+
+    stroke-linejoin: round;
+
+    flex-shrink: 0;
 }
 
 
@@ -579,42 +768,20 @@ body {
 
 
 /* ==========================================
-   FOOTER
-========================================== */
-
-footer {
-    padding: 20px 10px 25px;
-
-    text-align: center;
-
-    color: #9ca3af;
-
-    font-size: 11px;
-}
-
-
-footer strong {
-    display: block;
-
-    color: #15803d;
-
-    font-size: 13px;
-
-    margin-bottom: 3px;
-}
-
-
-/* ==========================================
    MOBILE
 ========================================== */
 
-@media (
-    max-width: 480px
-) {
+@media (max-width: 480px) {
 
     .content {
         padding:
-            14px 10px 25px;
+            14px 10px 115px;
+    }
+
+
+    .header {
+        padding:
+            12px 13px;
     }
 
 
@@ -652,4 +819,99 @@ footer strong {
         font-size: 14px;
     }
 
+}
+.empty-success-icon {
+    width: 24px !important;
+    height: 24px !important;
+
+    min-width: 24px !important;
+    min-height: 24px !important;
+
+    max-width: 24px !important;
+    max-height: 24px !important;
+
+    display: inline-flex !important;
+
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 24px;
+
+    overflow: hidden;
+}
+
+
+.empty-success-icon svg {
+    width: 20px !important;
+    height: 20px !important;
+
+    min-width: 20px !important;
+    min-height: 20px !important;
+
+    max-width: 20px !important;
+    max-height: 20px !important;
+
+    display: block !important;
+
+    flex: 0 0 20px;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 2;
+
+    stroke-linecap: round;
+
+    stroke-linejoin: round;
+}
+.empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 28px 16px;
+    text-align: center;
+}
+/* ==========================================
+   ICON TRANSAKSI
+   JIMPITAN BELUM DITRANSFER
+========================================== */
+
+.transaction-item svg {
+    width: 18px;
+    height: 18px;
+
+    max-width: 18px;
+    max-height: 18px;
+
+    flex-shrink: 0;
+
+    display: block;
+}
+.transfer-success-icon {
+    display: inline-flex !important;
+
+    width: 24px !important;
+    height: 24px !important;
+
+    align-items: center;
+    justify-content: center;
+
+    vertical-align: middle;
+
+    overflow: hidden;
+}
+.transfer-success-icon svg {
+    width: 24px !important;
+    height: 24px !important;
+
+    min-width: 24px !important;
+    min-height: 24px !important;
+
+    max-width: 24px !important;
+    max-height: 24px !important;
+
+    display: block !important;
 }

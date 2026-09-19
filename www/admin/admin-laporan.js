@@ -74,6 +74,146 @@ const closeDetailButton =
         "closeDetailButton"
     );
 
+
+// ==========================================
+// SVG
+// ==========================================
+
+const SVG_USER = `
+<svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+    style="
+        width:14px;
+        height:14px;
+        min-width:14px;
+        min-height:14px;
+        max-width:14px;
+        max-height:14px;
+        flex:0 0 14px;
+        display:block;
+    "
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+>
+    <circle
+        cx="12"
+        cy="8"
+        r="3"
+    ></circle>
+    <path
+        d="M5 20a7 7 0 0 1 14 0"
+    ></path>
+</svg>
+`;
+
+const SVG_EYE = `
+<svg
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+>
+    <path
+        d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"
+    ></path>
+    <circle
+        cx="12"
+        cy="12"
+        r="2.5"
+    ></circle>
+</svg>
+`;
+
+
+const SVG_CAMERA = `
+<svg
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+>
+    <path
+        d="M4 7h3l1.5-2h7L17 7h3v12H4z"
+    ></path>
+    <circle
+        cx="12"
+        cy="13"
+        r="3.5"
+    ></circle>
+</svg>
+`;
+
+
+const SVG_COMMENT = `
+<svg
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+>
+    <path
+        d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v9a2.5 2.5 0 0 1-2.5 2.5H11l-5 4v-4h-.5A2.5 2.5 0 0 1 3 14.5v-9"
+    ></path>
+</svg>
+`;
+
+
+const SVG_SAVE = `
+<svg
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+>
+    <path
+        d="M5 4h12l2 2v14H5z"
+    ></path>
+    <path
+        d="M8 4v6h8V4"
+    ></path>
+    <path
+        d="M8 16h8"
+    ></path>
+</svg>
+`;
+
+
+const SVG_RELOAD = `
+<svg
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+>
+    <path d="M20 11a8 8 0 0 0-14.9-4"></path>
+    <path d="M5 3v4h4"></path>
+    <path d="M4 13a8 8 0 0 0 14.9 4"></path>
+    <path d="M19 21v-4h-4"></path>
+</svg>
+`;
+
+
+const SVG_WARNING = `
+<svg
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+>
+    <path
+        d="M12 3 2.8 20h18.4L12 3Z"
+    ></path>
+    <path d="M12 9v5"></path>
+    <path d="M12 17.5v.1"></path>
+</svg>
+`;
+
+
+const SVG_INBOX = `
+<svg
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+>
+    <path d="M4 5h16v14H4z"></path>
+    <path d="M4 14h4l1.5 2h5L16 14h4"></path>
+</svg>
+`;
+
+
 // ==========================================
 // EVENT FILTER
 // ==========================================
@@ -105,13 +245,12 @@ if (categoryFilter) {
 
 }
 
+
 // ==========================================
 // CEK SESSION
 // ==========================================
 
-if (
-    !adminAccessToken
-) {
+if (!adminAccessToken) {
 
     console.warn(
         "SIDAT: Session admin tidak ditemukan."
@@ -124,38 +263,16 @@ if (
 // ESCAPE HTML
 // ==========================================
 
-function escapeHTML(
-    value
-) {
+function escapeHTML(value) {
 
     return String(
         value ?? ""
     )
-
-    .replaceAll(
-        "&",
-        "&amp;"
-    )
-
-    .replaceAll(
-        "<",
-        "&lt;"
-    )
-
-    .replaceAll(
-        ">",
-        "&gt;"
-    )
-
-    .replaceAll(
-        '"',
-        "&quot;"
-    )
-
-    .replaceAll(
-        "'",
-        "&#039;"
-    );
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 
 }
 
@@ -164,55 +281,31 @@ function escapeHTML(
 // FORMAT TANGGAL
 // ==========================================
 
-function formatTanggal(
-    tanggal
-) {
+function formatTanggal(tanggal) {
 
-    if (
-        !tanggal
-    ) {
-
+    if (!tanggal) {
         return "-";
-
     }
 
-
     const date =
-        new Date(
-            tanggal
-        );
-
+        new Date(tanggal);
 
     if (
         Number.isNaN(
             date.getTime()
         )
     ) {
-
         return "-";
-
     }
-
 
     return date.toLocaleDateString(
         "id-ID",
         {
-
-            day:
-                "2-digit",
-
-            month:
-                "short",
-
-            year:
-                "numeric",
-
-            hour:
-                "2-digit",
-
-            minute:
-                "2-digit"
-
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
         }
     );
 
@@ -223,55 +316,34 @@ function formatTanggal(
 // STATUS LABEL
 // ==========================================
 
-function statusLabel(
-    status
-) {
+function statusLabel(status) {
 
     const value =
         String(
             status || ""
-        )
-        .toLowerCase();
+        ).toLowerCase();
 
-
-    if (
-        value ===
-        "pending"
-    ) {
-
+    if (value === "pending") {
         return "Menunggu";
-
     }
 
-
     if (
-        value ===
-        "diproses" ||
-        value ===
-        "proses"
+        value === "diproses" ||
+        value === "proses" ||
+        value === "processing"
     ) {
-
         return "Diproses";
-
     }
-
 
     if (
-        value ===
-        "selesai" ||
-        value ===
-        "completed"
+        value === "selesai" ||
+        value === "completed" ||
+        value === "resolved"
     ) {
-
         return "Selesai";
-
     }
 
-
-
-
-    return status ||
-        "Menunggu";
+    return status || "Menunggu";
 
 }
 
@@ -280,50 +352,32 @@ function statusLabel(
 // STATUS CLASS
 // ==========================================
 
-function statusClass(
-    status
-) {
+function statusClass(status) {
 
     const value =
         String(
             status || ""
-        )
-        .toLowerCase();
+        ).toLowerCase();
 
-
-    if (
-        value ===
-        "pending"
-    ) {
-
+    if (value === "pending") {
         return "status-pending";
-
     }
 
-
     if (
-        value ===
-        "diproses" ||
-        value ===
-        "proses"
+        value === "diproses" ||
+        value === "proses" ||
+        value === "processing"
     ) {
-
         return "status-diproses";
-
     }
-
 
     if (
-        value ===
-        "selesai" ||
-        value ===
-        "completed"
+        value === "selesai" ||
+        value === "completed" ||
+        value === "resolved"
     ) {
-
         return "status-selesai";
-
     }
-
 
     return "status-pending";
 
@@ -331,7 +385,7 @@ function statusClass(
 
 
 // ==========================================
-// SUPABASE REQUEST
+// SUPABASE REQUEST ADMIN
 // ==========================================
 
 async function supabaseRequestAdmin(
@@ -356,9 +410,7 @@ async function supabaseRequestAdmin(
     };
 
 
-    if (
-        options.headers
-    ) {
+    if (options.headers) {
 
         Object.assign(
             headers,
@@ -372,12 +424,8 @@ async function supabaseRequestAdmin(
         await fetch(
             url,
             {
-
                 ...options,
-
-                headers:
-                    headers
-
+                headers
             }
         );
 
@@ -386,16 +434,13 @@ async function supabaseRequestAdmin(
         await response.text();
 
 
-    if (
-        !response.ok
-    ) {
+    if (!response.ok) {
 
         console.error(
             "SIDAT SUPABASE ERROR:",
             response.status,
             responseText
         );
-
 
         throw new Error(
             responseText ||
@@ -405,12 +450,8 @@ async function supabaseRequestAdmin(
     }
 
 
-    if (
-        !responseText
-    ) {
-
+    if (!responseText) {
         return null;
-
     }
 
 
@@ -420,9 +461,7 @@ async function supabaseRequestAdmin(
             responseText
         );
 
-    } catch (
-        error
-    ) {
+    } catch (error) {
 
         return responseText;
 
@@ -432,28 +471,14 @@ async function supabaseRequestAdmin(
 
 
 // ==========================================
-// LOAD SEMUA LAPORAN
+// LOAD LAPORAN
 // ==========================================
 
 async function loadLaporan() {
 
-    console.log(
-        "SIDAT: Mulai mengambil laporan..."
-    );
-
-
     tampilkanLoading();
 
-
     try {
-
-        /*
-         * Ambil semua data laporan.
-         *
-         * Tidak menggunakan nested relation
-         * agar tidak tergantung konfigurasi
-         * foreign key Supabase.
-         */
 
         const reports =
             await supabaseRequestAdmin(
@@ -463,12 +488,6 @@ async function loadLaporan() {
                 `&order=created_at.desc`
 
             );
-
-
-        console.log(
-            "SIDAT: Data reports:",
-            reports
-        );
 
 
         if (
@@ -484,15 +503,9 @@ async function loadLaporan() {
         }
 
 
-        /*
-         * Ambil seluruh resident_id
-         * yang terdapat dalam laporan.
-         */
-
         const residentIds =
             [
                 ...new Set(
-
                     reports
                         .map(
                             laporan =>
@@ -502,17 +515,12 @@ async function loadLaporan() {
                             id =>
                                 id
                         )
-
                 )
             ];
 
 
         let residents = [];
 
-
-        // ======================================
-        // LOAD DATA RESIDENTS
-        // ======================================
 
         if (
             residentIds.length > 0
@@ -524,9 +532,7 @@ async function loadLaporan() {
                         id =>
                             `"${id}"`
                     )
-                    .join(
-                        ","
-                    );
+                    .join(",");
 
 
             residents =
@@ -538,18 +544,8 @@ async function loadLaporan() {
 
                 );
 
-
-            console.log(
-                "SIDAT: Data residents:",
-                residents
-            );
-
         }
 
-
-        // ======================================
-        // GABUNGKAN DATA
-        // ======================================
 
         semuaLaporan =
             reports.map(
@@ -585,42 +581,19 @@ async function loadLaporan() {
             );
 
 
-        console.log(
-            "SIDAT: Semua laporan:",
-            semuaLaporan
-        );
-
-
-        // ======================================
-        // UPDATE FILTER
-        // ======================================
-
         isiFilterKategori();
 
-
-        // ======================================
-        // UPDATE STATISTIK
-        // ======================================
-
         updateStatistik();
-
-
-        // ======================================
-        // TAMPILKAN
-        // ======================================
 
         filterLaporan();
 
 
-    } catch (
-        error
-    ) {
+    } catch (error) {
 
         console.error(
             "SIDAT: Gagal memuat laporan:",
             error
         );
-
 
         tampilkanErrorLoad(
             error
@@ -637,31 +610,31 @@ async function loadLaporan() {
 
 function tampilkanLoading() {
 
-    if (
-        loadingState
-    ) {
+    if (loadingState) {
 
         loadingState.classList.remove(
             "hidden"
         );
 
+        loadingState.style.display =
+            "block";
+
     }
 
 
-    if (
-        emptyState
-    ) {
+    if (emptyState) {
 
         emptyState.classList.add(
             "hidden"
         );
 
+        emptyState.style.display =
+            "none";
+
     }
 
 
-    if (
-        laporanContainer
-    ) {
+    if (laporanContainer) {
 
         laporanContainer.innerHTML =
             "";
@@ -675,35 +648,28 @@ function tampilkanLoading() {
 // ERROR LOAD
 // ==========================================
 
-function tampilkanErrorLoad(
-    error
-) {
+function tampilkanErrorLoad(error) {
 
-    if (
-        loadingState
-    ) {
+    if (loadingState) {
 
         loadingState.classList.add(
             "hidden"
         );
 
+        loadingState.style.display =
+            "none";
+
     }
 
 
-    if (
-        laporanContainer
-    ) {
+    if (laporanContainer) {
 
         laporanContainer.innerHTML = `
 
-            <div
-                class="laporan-error"
-            >
+            <div class="laporan-error">
 
-                <div
-                    class="laporan-error-icon"
-                >
-                    ⚠️
+                <div class="laporan-error-icon">
+                    ${SVG_WARNING}
                 </div>
 
                 <strong>
@@ -719,7 +685,8 @@ function tampilkanErrorLoad(
                     class="btn-reload"
                     onclick="loadLaporan()"
                 >
-                    🔄 Coba Lagi
+                    ${SVG_RELOAD}
+                    Coba Lagi
                 </button>
 
             </div>
@@ -742,43 +709,22 @@ function tampilkanErrorLoad(
 // UPDATE STATISTIK
 // ==========================================
 
-// ==========================================
-// UPDATE STATISTIK
-// ==========================================
-
 function updateStatistik() {
 
     const total =
         semuaLaporan.length;
 
 
-    // ======================================
-    // MENUNGGU
-    // ======================================
-
     const menunggu =
         semuaLaporan.filter(
-            laporan => {
-
-                const status =
-                    String(
-                        laporan.status ||
-                        ""
-                    )
-                    .toLowerCase();
-
-                return (
-                    status ===
-                    "pending"
-                );
-
-            }
+            laporan =>
+                String(
+                    laporan.status ||
+                    ""
+                ).toLowerCase() ===
+                "pending"
         ).length;
 
-
-    // ======================================
-    // DIPROSES
-    // ======================================
 
     const diproses =
         semuaLaporan.filter(
@@ -788,25 +734,17 @@ function updateStatistik() {
                     String(
                         laporan.status ||
                         ""
-                    )
-                    .toLowerCase();
+                    ).toLowerCase();
 
                 return (
-                    status ===
-                    "processing" ||
-                    status ===
-                    "diproses" ||
-                    status ===
-                    "proses"
+                    status === "processing" ||
+                    status === "diproses" ||
+                    status === "proses"
                 );
 
             }
         ).length;
 
-
-    // ======================================
-    // SELESAI
-    // ======================================
 
     const selesai =
         semuaLaporan.filter(
@@ -816,55 +754,36 @@ function updateStatistik() {
                     String(
                         laporan.status ||
                         ""
-                    )
-                    .toLowerCase();
+                    ).toLowerCase();
 
                 return (
-                    status ===
-                    "completed" ||
-                    status ===
-                    "selesai" ||
-                    status ===
-                    "resolved"
+                    status === "completed" ||
+                    status === "selesai" ||
+                    status === "resolved"
                 );
 
             }
         ).length;
 
 
-    // ======================================
-    // TAMPILKAN STATISTIK
-    // ======================================
+    setStatistik(
+        ["totalLaporan"],
+        total
+    );
 
     setStatistik(
-    ["totalLaporan"],
-    total
-);
+        ["totalPending"],
+        menunggu
+    );
 
-setStatistik(
-    ["totalPending"],
-    menunggu
-);
+    setStatistik(
+        ["totalDiproses"],
+        diproses
+    );
 
-setStatistik(
-    ["totalDiproses"],
-    diproses
-);
-
-setStatistik(
-    ["totalSelesai"],
-    selesai
-);
-
-
-    console.log(
-        "SIDAT STATISTIK LAPORAN:",
-        {
-            total,
-            menunggu,
-            diproses,
-            selesai
-        }
+    setStatistik(
+        ["totalSelesai"],
+        selesai
     );
 
 }
@@ -887,10 +806,7 @@ function setStatistik(
                     id
                 );
 
-
-            if (
-                element
-            ) {
+            if (element) {
 
                 element.textContent =
                     value;
@@ -909,12 +825,8 @@ function setStatistik(
 
 function isiFilterKategori() {
 
-    if (
-        !categoryFilter
-    ) {
-
+    if (!categoryFilter) {
         return;
-
     }
 
 
@@ -925,7 +837,6 @@ function isiFilterKategori() {
     const kategori =
         [
             ...new Set(
-
                 semuaLaporan
                     .map(
                         laporan =>
@@ -935,7 +846,6 @@ function isiFilterKategori() {
                         kategori =>
                             kategori
                     )
-
             )
         ]
         .sort();
@@ -958,14 +868,11 @@ function isiFilterKategori() {
                     "option"
                 );
 
-
             option.value =
                 kategori;
 
-
             option.textContent =
                 kategori;
-
 
             categoryFilter.appendChild(
                 option
@@ -1028,24 +935,14 @@ function filterLaporan() {
 
                 const teks =
                     [
-
                         laporan.title,
-
                         laporan.description,
-
                         laporan.category,
-
                         laporan.resident_name,
-
                         laporan.resident_code
-
                     ]
-                    .filter(
-                        Boolean
-                    )
-                    .join(
-                        " "
-                    )
+                    .filter(Boolean)
+                    .join(" ")
                     .toLowerCase();
 
 
@@ -1056,14 +953,18 @@ function filterLaporan() {
                     );
 
 
-                const cocokStatus =
-                    !status ||
+                const laporanStatus =
                     String(
                         laporan.status ||
                         ""
                     )
-                    .toLowerCase() ===
-                    status;
+                    .toLowerCase();
+
+
+                const cocokStatus =
+                    !status ||
+                    laporanStatus ===
+                        status;
 
 
                 const cocokKategori =
@@ -1094,43 +995,12 @@ function filterLaporan() {
 
 
 // ==========================================
-// EXPORT GLOBAL SEMENTARA
-// ==========================================
-
-window.loadLaporan =
-    loadLaporan;
-
-
-window.filterLaporan =
-    filterLaporan;
-
-
-window.isiFilterKategori =
-    isiFilterKategori;
-
-
-window.updateStatistik =
-    updateStatistik;
-
-
-console.log(
-    "SIDAT ADMIN LAPORAN JS AKTIF"
-);
-// ==========================================
 // RENDER LAPORAN
 // ==========================================
 
-function renderLaporan(
-    data
-) {
+function renderLaporan(data) {
 
-    // ======================================
-    // SEMBUNYIKAN LOADING
-    // ======================================
-
-    if (
-        loadingState
-    ) {
+    if (loadingState) {
 
         loadingState.classList.add(
             "hidden"
@@ -1142,23 +1012,7 @@ function renderLaporan(
     }
 
 
-    // ======================================
-    // TAMPILKAN LIST
-    // ======================================
-
-    if (
-        laporanContainer
-    ) {
-
-        laporanContainer.style.display =
-            "block";
-
-    }
-
-
-    if (
-        !laporanContainer
-    ) {
+    if (!laporanContainer) {
 
         console.error(
             "SIDAT: laporanList tidak ditemukan."
@@ -1169,10 +1023,6 @@ function renderLaporan(
     }
 
 
-    // ======================================
-    // JIKA KOSONG
-    // ======================================
-
     if (
         !data ||
         data.length === 0
@@ -1180,14 +1030,10 @@ function renderLaporan(
 
         laporanContainer.innerHTML = `
 
-            <div
-                class="laporan-kosong"
-            >
+            <div class="laporan-kosong">
 
-                <div
-                    class="laporan-kosong-icon"
-                >
-                    📭
+                <div class="laporan-kosong-icon">
+                    ${SVG_INBOX}
                 </div>
 
                 <strong>
@@ -1204,9 +1050,7 @@ function renderLaporan(
         `;
 
 
-        if (
-            emptyState
-        ) {
+        if (emptyState) {
 
             emptyState.classList.remove(
                 "hidden"
@@ -1223,13 +1067,7 @@ function renderLaporan(
     }
 
 
-    // ======================================
-    // SEMBUNYIKAN EMPTY STATE
-    // ======================================
-
-    if (
-        emptyState
-    ) {
+    if (emptyState) {
 
         emptyState.classList.add(
             "hidden"
@@ -1241,10 +1079,6 @@ function renderLaporan(
     }
 
 
-    // ======================================
-    // RENDER DATA
-    // ======================================
-
     laporanContainer.innerHTML =
         data
             .map(
@@ -1254,20 +1088,6 @@ function renderLaporan(
                     )
             )
             .join("");
-
-
-    // ======================================
-    // PASTIKAN LOADING TETAP HILANG
-    // ======================================
-
-    if (
-        loadingState
-    ) {
-
-        loadingState.style.display =
-            "none";
-
-    }
 
 }
 
@@ -1284,9 +1104,7 @@ function buatKartuLaporan(
         laporan.photo_url
             ? `
 
-                <div
-                    class="laporan-card-photo"
-                >
+                <div class="laporan-card-photo">
 
                     <img
                         src="${escapeHTML(
@@ -1328,14 +1146,9 @@ function buatKartuLaporan(
 
             ${fotoHTML}
 
+            <div class="laporan-card-body">
 
-            <div
-                class="laporan-card-body"
-            >
-
-                <div
-                    class="laporan-card-top"
-                >
+                <div class="laporan-card-top">
 
                     <span
                         class="
@@ -1345,75 +1158,49 @@ function buatKartuLaporan(
                             )}
                         "
                     >
-
                         ${escapeHTML(
                             statusLabel(
                                 laporan.status
                             )
                         )}
-
                     </span>
 
-
-                    <span
-                        class="laporan-date"
-                    >
-
+                    <span class="laporan-date">
                         ${formatTanggal(
                             laporan.created_at
                         )}
-
                     </span>
 
                 </div>
 
 
-                <div
-                    class="laporan-category"
-                >
-
+                <div class="laporan-category">
                     ${escapeHTML(
                         laporan.category ||
                         "Umum"
                     )}
-
                 </div>
 
 
                 <h3>
-
                     ${escapeHTML(
                         laporan.title ||
                         "Tanpa judul"
                     )}
-
                 </h3>
 
 
-                <p
-                    class="
-                        laporan-description
-                    "
-                >
-
+                <p class="laporan-description">
                     ${escapeHTML(
                         laporan.description ||
                         "-"
                     )}
-
                 </p>
 
 
-                <div
-                    class="
-                        laporan-pelapor
-                    "
-                >
+                <div class="laporan-pelapor">
 
-                    <span>
-                        👤
-                    </span>
-
+                    ${SVG_USER}
 
                     <strong>
                         ${escapeHTML(
@@ -1421,7 +1208,6 @@ function buatKartuLaporan(
                             "Warga"
                         )}
                     </strong>
-
 
                     <small>
                         ID:
@@ -1447,7 +1233,8 @@ function buatKartuLaporan(
                     "
                 >
 
-                    👁
+                    ${SVG_EYE}
+
                     Lihat Detail
 
                 </button>
@@ -1465,9 +1252,7 @@ function buatKartuLaporan(
 // DETAIL LAPORAN
 // ==========================================
 
-function bukaDetailLaporan(
-    id
-) {
+function bukaDetailLaporan(id) {
 
     const laporan =
         semuaLaporan.find(
@@ -1481,13 +1266,7 @@ function bukaDetailLaporan(
         );
 
 
-    // ======================================
-    // CEK DATA
-    // ======================================
-
-    if (
-        !laporan
-    ) {
+    if (!laporan) {
 
         console.error(
             "SIDAT: Laporan tidak ditemukan:",
@@ -1499,27 +1278,11 @@ function bukaDetailLaporan(
     }
 
 
-    // ======================================
-    // SIMPAN LAPORAN TERPILIH
-    // ======================================
-
     laporanTerpilih =
         laporan;
 
 
-    console.log(
-        "SIDAT: Buka detail laporan:",
-        laporan
-    );
-
-
-    // ======================================
-    // CEK MODAL
-    // ======================================
-
-    if (
-        !detailModal
-    ) {
+    if (!detailModal) {
 
         console.error(
             "SIDAT: detailModal tidak ditemukan."
@@ -1530,27 +1293,14 @@ function bukaDetailLaporan(
     }
 
 
-    // ======================================
-    // DETAIL CONTENT
-    // ======================================
-
-    if (
-        detailContent
-    ) {
-
-
-        // ==================================
-        // FOTO
-        // ==================================
+    if (detailContent) {
 
         const fotoHTML =
             laporan.photo_url
 
                 ? `
 
-                    <div
-                        class="detail-photo"
-                    >
+                    <div class="detail-photo">
 
                         <img
                             src="${escapeHTML(
@@ -1575,11 +1325,9 @@ function bukaDetailLaporan(
 
                 : `
 
-                    <div
-                        class="detail-no-photo"
-                    >
+                    <div class="detail-no-photo">
 
-                        📷
+                        ${SVG_CAMERA}
 
                         <span>
                             Tidak ada foto bukti
@@ -1589,10 +1337,6 @@ function bukaDetailLaporan(
 
                 `;
 
-
-        // ==================================
-        // TANGGAPAN ADMIN
-        // ==================================
 
         const adminNoteHTML =
             laporan.admin_note
@@ -1606,21 +1350,15 @@ function bukaDetailLaporan(
                         "
                     >
 
-                        <div
-                            class="detail-label"
-                        >
-
-                            💬
+                        <div class="detail-label">
+                            ${SVG_COMMENT}
                             Tanggapan Admin
-
                         </div>
 
                         <p>
-
                             ${escapeHTML(
                                 laporan.admin_note
                             )}
-
                         </p>
 
                     </div>
@@ -1637,20 +1375,14 @@ function bukaDetailLaporan(
                         "
                     >
 
-                        <div
-                            class="detail-label"
-                        >
-
-                            💬
+                        <div class="detail-label">
+                            ${SVG_COMMENT}
                             Tanggapan Admin
-
                         </div>
 
                         <p>
-
                             Belum ada tanggapan
                             dari admin.
-
                         </p>
 
                     </div>
@@ -1658,145 +1390,88 @@ function bukaDetailLaporan(
                 `;
 
 
-        // ==================================
-        // ISI DETAIL
-        // ==================================
-
         detailContent.innerHTML = `
 
             ${fotoHTML}
 
 
-            <!-- ==========================
-                 PELAPOR
-            =========================== -->
+            <div class="detail-section">
 
-            <div
-                class="detail-section"
-            >
-
-                <div
-                    class="detail-label"
-                >
+                <div class="detail-label">
                     Pelapor
                 </div>
 
                 <strong>
-
-                    👤
+                    ${SVG_USER}
 
                     ${escapeHTML(
                         laporan.resident_name ||
                         "Warga"
                     )}
-
                 </strong>
 
                 <small>
-
                     ID:
-
                     ${escapeHTML(
                         laporan.resident_code ||
                         "-"
                     )}
-
                 </small>
 
             </div>
 
 
-            <!-- ==========================
-                 KATEGORI
-            =========================== -->
+            <div class="detail-section">
 
-            <div
-                class="detail-section"
-            >
-
-                <div
-                    class="detail-label"
-                >
+                <div class="detail-label">
                     Kategori
                 </div>
 
                 <strong>
-
                     ${escapeHTML(
                         laporan.category ||
                         "-"
                     )}
-
                 </strong>
 
             </div>
 
 
-            <!-- ==========================
-                 JUDUL
-            =========================== -->
+            <div class="detail-section">
 
-            <div
-                class="detail-section"
-            >
-
-                <div
-                    class="detail-label"
-                >
+                <div class="detail-label">
                     Judul
                 </div>
 
                 <strong>
-
                     ${escapeHTML(
                         laporan.title ||
                         "-"
                     )}
-
                 </strong>
 
             </div>
 
 
-            <!-- ==========================
-                 ISI LAPORAN
-            =========================== -->
+            <div class="detail-section">
 
-            <div
-                class="detail-section"
-            >
-
-                <div
-                    class="detail-label"
-                >
+                <div class="detail-label">
                     Isi Laporan
                 </div>
 
-                <p
-                    class="detail-description"
-                >
-
+                <p class="detail-description">
                     ${escapeHTML(
                         laporan.description ||
                         "-"
                     )}
-
                 </p>
 
             </div>
 
 
-            <!-- ==========================
-                 STATUS SAAT INI
-            =========================== -->
+            <div class="detail-section">
 
-            <div
-                class="detail-section"
-            >
-
-                <div
-                    class="detail-label"
-                >
+                <div class="detail-label">
                     Status Saat Ini
                 </div>
 
@@ -1808,38 +1483,26 @@ function bukaDetailLaporan(
                         )}
                     "
                 >
-
                     ${escapeHTML(
                         statusLabel(
                             laporan.status
                         )
                     )}
-
                 </span>
 
             </div>
 
 
-            <!-- ==========================
-                 TANGGAL
-            =========================== -->
+            <div class="detail-section">
 
-            <div
-                class="detail-section"
-            >
-
-                <div
-                    class="detail-label"
-                >
+                <div class="detail-label">
                     Tanggal Laporan
                 </div>
 
                 <strong>
-
                     ${formatTanggal(
                         laporan.created_at
                     )}
-
                 </strong>
 
             </div>
@@ -1851,10 +1514,6 @@ function bukaDetailLaporan(
 
     }
 
-
-    // ======================================
-    // ISI FORM ADMIN
-    // ======================================
 
     const detailStatus =
         document.getElementById(
@@ -1868,62 +1527,44 @@ function bukaDetailLaporan(
         );
 
 
-    // ======================================
-    // STATUS
-    // ======================================
+    if (detailStatus) {
 
-// ======================================
-// STATUS
-// ======================================
-
-if (detailStatus) {
-
-    const status =
-        String(
-            laporan.status ||
-            "pending"
-        ).toLowerCase();
+        const status =
+            String(
+                laporan.status ||
+                "pending"
+            ).toLowerCase();
 
 
-    if (
-        status === "processing" ||
-        status === "diproses" ||
-        status === "proses"
-    ) {
+        if (
+            status === "processing" ||
+            status === "diproses" ||
+            status === "proses"
+        ) {
 
-        detailStatus.value =
-            "processing";
+            detailStatus.value =
+                "processing";
 
-    }
+        } else if (
+            status === "completed" ||
+            status === "resolved" ||
+            status === "selesai"
+        ) {
 
-    else if (
-        status === "completed" ||
-        status === "resolved" ||
-        status === "selesai"
-    ) {
+            detailStatus.value =
+                "completed";
 
-        detailStatus.value =
-            "completed";
+        } else {
+
+            detailStatus.value =
+                "pending";
+
+        }
 
     }
 
-    else {
 
-        detailStatus.value =
-            "pending";
-
-    }
-
-}
-
-
-    // ======================================
-    // TANGGAPAN ADMIN
-    // ======================================
-
-    if (
-        detailAdminNote
-    ) {
+    if (detailAdminNote) {
 
         detailAdminNote.value =
             laporan.admin_note ||
@@ -1931,10 +1572,6 @@ if (detailStatus) {
 
     }
 
-
-    // ======================================
-    // TAMPILKAN MODAL
-    // ======================================
 
     detailModal.classList.remove(
         "hidden"
@@ -1952,19 +1589,11 @@ if (detailStatus) {
     );
 
 
-    // ======================================
-    // FOCUS STATUS
-    // ======================================
-
     setTimeout(
         () => {
 
-            if (
-                detailStatus
-            ) {
-
+            if (detailStatus) {
                 detailStatus.focus();
-
             }
 
         },
@@ -1978,16 +1607,10 @@ if (detailStatus) {
 // FOTO LAPORAN
 // ==========================================
 
-function bukaFotoLaporan(
-    url
-) {
+function bukaFotoLaporan(url) {
 
-    if (
-        !url
-    ) {
-
+    if (!url) {
         return;
-
     }
 
 
@@ -2008,16 +1631,17 @@ function bukaFotoLaporan(
         ></div>
 
 
-        <div
-            class="foto-preview-box"
-        >
+        <div class="foto-preview-box">
 
             <button
                 type="button"
                 class="foto-preview-close"
                 aria-label="Tutup foto"
             >
-                ×
+                <svg viewBox="0 0 24 24">
+                    <path d="M6 6l12 12"></path>
+                    <path d="M18 6L6 18"></path>
+                </svg>
             </button>
 
 
@@ -2053,9 +1677,7 @@ function bukaFotoLaporan(
     close?.addEventListener(
         "click",
         () => {
-
             modal.remove();
-
         }
     );
 
@@ -2063,23 +1685,25 @@ function bukaFotoLaporan(
     overlay?.addEventListener(
         "click",
         () => {
-
             modal.remove();
-
         }
     );
 
 
-    modal.addEventListener(
-        "click",
-        event => {
+    document.addEventListener(
+        "keydown",
+        function tutupFotoEscape(event) {
 
             if (
-                event.target ===
-                modal
+                event.key === "Escape"
             ) {
 
                 modal.remove();
+
+                document.removeEventListener(
+                    "keydown",
+                    tutupFotoEscape
+                );
 
             }
 
@@ -2095,12 +1719,15 @@ function bukaFotoLaporan(
 
 function tutupDetail() {
 
-    if (
-        detailModal
-    ) {
+    if (detailModal) {
 
         detailModal.classList.add(
             "hidden"
+        );
+
+        detailModal.setAttribute(
+            "aria-hidden",
+            "true"
         );
 
     }
@@ -2116,8 +1743,9 @@ function tutupDetail() {
 
 }
 
+
 // ==========================================
-// SIMPAN PERUBAHAN LAPORAN
+// SIMPAN PERUBAHAN
 // ==========================================
 
 async function simpanPerubahanLaporan() {
@@ -2133,19 +1761,17 @@ async function simpanPerubahanLaporan() {
     }
 
 
-    // ======================================
-    // ELEMENT
-    // ======================================
-
     const statusInput =
         document.getElementById(
             "detailStatus"
         );
 
+
     const noteInput =
         document.getElementById(
             "detailAdminNote"
         );
+
 
     const saveButton =
         document.getElementById(
@@ -2177,16 +1803,14 @@ async function simpanPerubahanLaporan() {
     }
 
 
-    // ======================================
-    // NILAI
-    // ======================================
-
     const status =
         statusInput.value ||
         "pending";
 
+
     const adminNote =
-        noteInput.value.trim();
+        noteInput.value.trim() ||
+        "";
 
 
     const statusValid = [
@@ -2212,75 +1836,19 @@ async function simpanPerubahanLaporan() {
     }
 
 
-    // ======================================
-    // SIMPAN DATA LAMA
-    // ======================================
-
-    const laporanId =
-        laporanTerpilih.id;
-
-    const residentId =
-        laporanTerpilih.resident_id;
-
-    const judulLaporan =
-        laporanTerpilih.title ||
-        "Laporan warga";
-
-
-    console.log(
-        "SIDAT: UPDATE LAPORAN",
-        {
-            laporanId,
-            residentId,
-            status,
-            adminNote
-        }
-    );
-
-
-    // ======================================
-    // VALIDASI RESIDENT
-    // ======================================
-
-    if (!residentId) {
-
-        console.error(
-            "SIDAT: resident_id laporan kosong."
-        );
-
-        tampilkanNotifikasi(
-            "Laporan tidak memiliki data warga.",
-            "error"
-        );
-
-        return;
-
-    }
-
-
     try {
-
-        // ==================================
-        // TOMBOL LOADING
-        // ==================================
 
         if (saveButton) {
 
             saveButton.disabled =
                 true;
 
-            saveButton.textContent =
-                "⏳ Menyimpan...";
+            saveButton.innerHTML = `
+                ${SVG_RELOAD}
+                Menyimpan...
+            `;
 
         }
-
-
-        // ==================================
-        // UPDATE REPORT
-        // ==================================
-
-        const updatedAt =
-            new Date().toISOString();
 
 
         const hasil =
@@ -2288,13 +1856,12 @@ async function simpanPerubahanLaporan() {
 
                 `${SUPABASE_URL}/rest/v1/reports` +
                 `?id=eq.${encodeURIComponent(
-                    laporanId
+                    laporanTerpilih.id
                 )}`,
 
                 {
 
-                    method:
-                        "PATCH",
+                    method: "PATCH",
 
                     headers: {
 
@@ -2316,7 +1883,8 @@ async function simpanPerubahanLaporan() {
                                 adminNote,
 
                             updated_at:
-                                updatedAt
+                                new Date()
+                                    .toISOString()
 
                         })
 
@@ -2326,132 +1894,16 @@ async function simpanPerubahanLaporan() {
 
 
         console.log(
-            "SIDAT: UPDATE REPORT BERHASIL:",
+            "SIDAT: Perubahan laporan berhasil:",
             hasil
         );
 
 
         // ==================================
-        // UPDATE DATA LOKAL
+        // NOTIFIKASI UPDATE KEPADA WARGA
         // ==================================
-
-        const index =
-            semuaLaporan.findIndex(
-                item =>
-                    String(
-                        item.id
-                    ) ===
-                    String(
-                        laporanId
-                    )
-            );
-
-
-        if (
-            index !== -1
-        ) {
-
-            semuaLaporan[index] = {
-
-                ...semuaLaporan[index],
-
-                status:
-                    status,
-
-                admin_note:
-                    adminNote,
-
-                updated_at:
-                    updatedAt
-
-            };
-
-
-            laporanTerpilih =
-                semuaLaporan[index];
-
-        }
-
-
-        // ==================================
-        // UPDATE UI
-        // ==================================
-
-        updateStatistik();
-
-        filterLaporan();
-
-
-        // ==================================
-        // NOTIFIKASI KE WARGA
-        // ==================================
-
-        let pushBerhasil =
-            false;
-
 
         try {
-
-            console.log(
-                "SIDAT: Memulai push update laporan..."
-            );
-
-
-            // ==================================
-            // AMBIL SESSION SUPABASE
-            // ==================================
-
-            let accessToken =
-                localStorage.getItem(
-                    "sidat_access_token"
-                );
-
-
-            if (
-                window.supabaseClient?.auth
-            ) {
-
-                const {
-                    data:
-                        sessionData
-                } =
-                    await window.supabaseClient
-                        .auth
-                        .getSession();
-
-
-                const session =
-                    sessionData?.session;
-
-
-                if (
-                    session?.access_token
-                ) {
-
-                    accessToken =
-                        session.access_token;
-
-                }
-
-            }
-
-
-            if (!accessToken) {
-
-                throw new Error(
-                    "Session admin tidak ditemukan."
-                );
-
-            }
-
-
-            // ==================================
-            // BUAT NOTIFICATION
-            // ==================================
-
-            const notificationId =
-                crypto.randomUUID();
-
 
             const statusText = {
 
@@ -2472,15 +1924,18 @@ async function simpanPerubahanLaporan() {
                 status;
 
 
+            const judulLaporan =
+                laporanTerpilih.title ||
+                "Laporan warga";
+
+
             let pesan =
                 `Laporan "${judulLaporan}" ` +
                 `telah diperbarui menjadi ` +
                 `"${namaStatus}".`;
 
 
-            if (
-                adminNote
-            ) {
+            if (adminNote) {
 
                 pesan +=
                     ` Tanggapan admin: ${adminNote}`;
@@ -2488,68 +1943,52 @@ async function simpanPerubahanLaporan() {
             }
 
 
-            const notificationPayload = {
+            if (
+                laporanTerpilih.resident_id
+            ) {
 
-                id:
-                    notificationId,
+                const notificationPayload = {
 
-                title:
-                    "📢 Laporan Diperbarui",
+                    title:
+                        "Laporan Diperbarui",
 
-                message:
-                    pesan,
+                    message:
+                        pesan,
 
-                target_type:
-                    "resident",
+                    target_type:
+                        "resident",
 
-                target_resident_id:
-                    residentId,
+                    target_resident_id:
+                        laporanTerpilih.resident_id,
 
-                is_read:
-                    false,
+                    is_read:
+                        false,
 
-                created_by:
-                    null,
+                    created_by:
+                        null,
 
-                created_at:
-                    new Date().toISOString(),
+                    created_at:
+                        new Date()
+                            .toISOString()
 
-                report_id:
-                    laporanId
-
-            };
+                };
 
 
-            // ==================================
-            // INSERT NOTIFICATION
-            // ==================================
-
-            const notificationResponse =
-                await fetch(
+                await supabaseRequestAdmin(
 
                     `${SUPABASE_URL}/rest/v1/notifications`,
 
                     {
 
-                        method:
-                            "POST",
+                        method: "POST",
 
                         headers: {
-
-                            "apikey":
-                                SUPABASE_KEY,
-
-                            "Authorization":
-                                `Bearer ${accessToken}`,
 
                             "Content-Type":
                                 "application/json",
 
-                            "Accept":
-                                "application/json",
-
                             "Prefer":
-                                "return=representation"
+                                "return=minimal"
 
                         },
 
@@ -2562,173 +2001,78 @@ async function simpanPerubahanLaporan() {
 
                 );
 
-
-            const notificationText =
-                await notificationResponse.text();
-
-
-            if (
-                !notificationResponse.ok
-            ) {
-
-                throw new Error(
-                    notificationText ||
-                    `Gagal membuat notification (${notificationResponse.status})`
-                );
-
             }
-
-
-            console.log(
-                "SIDAT: Notification berhasil dibuat:",
-                notificationText
-            );
-
-
-            // ==================================
-            // PANGGIL EDGE FUNCTION PUSH
-            // ==================================
-
-            const pushResponse =
-                await fetch(
-
-                    `${SUPABASE_URL}/functions/v1/send-push-notification`,
-
-                    {
-
-                        method:
-                            "POST",
-
-                        headers: {
-
-                            "Authorization":
-                                `Bearer ${accessToken}`,
-
-                            "apikey":
-                                SUPABASE_KEY,
-
-                            "Content-Type":
-                                "application/json"
-
-                        },
-
-                        body:
-                            JSON.stringify({
-
-                                notification_id:
-                                    notificationId
-
-                            })
-
-                    }
-
-                );
-
-
-            const pushText =
-                await pushResponse.text();
-
-
-            let pushResult =
-                null;
-
-
-            try {
-
-                pushResult =
-                    pushText
-                        ? JSON.parse(
-                            pushText
-                        )
-                        : null;
-
-            } catch (
-                error
-            ) {
-
-                pushResult =
-                    pushText;
-
-            }
-
-
-            console.log(
-                "SIDAT: HASIL SEND PUSH:",
-                pushResult
-            );
-
-
-            if (
-                !pushResponse.ok ||
-                !pushResult?.success
-            ) {
-
-                throw new Error(
-                    pushResult?.message ||
-                    `Edge Function push gagal (${pushResponse.status})`
-                );
-
-            }
-
-
-            pushBerhasil =
-                true;
-
-
-            console.log(
-                "SIDAT: PUSH UPDATE LAPORAN BERHASIL."
-            );
-
 
         } catch (
-            pushError
+            notificationError
         ) {
-
-            // ==================================
-            // PUSH GAGAL TAPI UPDATE TETAP BERHASIL
-            // ==================================
 
             console.error(
-                "SIDAT: PUSH UPDATE LAPORAN GAGAL:",
-                pushError
+                "SIDAT: Gagal membuat notifikasi update:",
+                notificationError
             );
 
         }
 
 
         // ==================================
-        // PESAN KE ADMIN
+        // UPDATE DATA LOKAL
         // ==================================
+
+        const index =
+            semuaLaporan.findIndex(
+                item =>
+                    String(
+                        item.id
+                    ) ===
+                    String(
+                        laporanTerpilih.id
+                    )
+            );
+
 
         if (
-            pushBerhasil
+            index !== -1
         ) {
 
-            tampilkanNotifikasi(
-                "Laporan berhasil diperbarui dan notifikasi telah dikirim ke warga.",
-                "success"
-            );
+            semuaLaporan[index] = {
 
-        } else {
+                ...semuaLaporan[index],
 
-            tampilkanNotifikasi(
-                "Laporan berhasil diperbarui, tetapi notifikasi ke warga gagal dikirim.",
-                "warning"
-            );
+                status:
+                    status,
+
+                admin_note:
+                    adminNote,
+
+                updated_at:
+                    new Date()
+                        .toISOString()
+
+            };
+
+
+            laporanTerpilih =
+                semuaLaporan[index];
 
         }
 
 
-        // ==================================
-        // TUTUP MODAL
-        // ==================================
+        updateStatistik();
+
+        filterLaporan();
+
+
+        tampilkanNotifikasi(
+            "Perubahan laporan berhasil disimpan.",
+            "success"
+        );
+
 
         tutupDetail();
 
 
-    } catch (
-        error
-    ) {
+    } catch (error) {
 
         console.error(
             "SIDAT: Gagal menyimpan perubahan laporan:",
@@ -2743,17 +2087,15 @@ async function simpanPerubahanLaporan() {
 
     } finally {
 
-        // ==================================
-        // KEMBALIKAN TOMBOL
-        // ==================================
-
         if (saveButton) {
 
             saveButton.disabled =
                 false;
 
-            saveButton.textContent =
-                "💾 Simpan Perubahan";
+            saveButton.innerHTML = `
+                ${SVG_SAVE}
+                Simpan Perubahan
+            `;
 
         }
 
@@ -2768,53 +2110,24 @@ async function simpanPerubahanLaporan() {
 
 async function hapusLaporan() {
 
-    if (
-        !laporanTerpilih
-    ) {
-
+    if (!laporanTerpilih) {
         return;
-
     }
 
 
     const yakin =
         window.confirm(
-
             "Hapus laporan ini?\n\n" +
             "Data yang sudah dihapus tidak dapat dikembalikan."
-
         );
 
 
-    if (
-        !yakin
-    ) {
-
+    if (!yakin) {
         return;
-
     }
 
 
-    const deleteButton =
-        document.querySelector(
-            ".detail-admin-actions .btn-delete"
-        );
-
-
     try {
-
-        if (
-            deleteButton
-        ) {
-
-            deleteButton.disabled =
-                true;
-
-            deleteButton.textContent =
-                "⏳ Menghapus...";
-
-        }
-
 
         await supabaseRequestAdmin(
 
@@ -2824,10 +2137,7 @@ async function hapusLaporan() {
             )}`,
 
             {
-
-                method:
-                    "DELETE"
-
+                method: "DELETE"
             }
 
         );
@@ -2855,9 +2165,7 @@ async function hapusLaporan() {
 
         tutupDetail();
 
-
         updateStatistik();
-
 
         filterLaporan();
 
@@ -2868,9 +2176,7 @@ async function hapusLaporan() {
         );
 
 
-    } catch (
-        error
-    ) {
+    } catch (error) {
 
         console.error(
             "SIDAT: Gagal menghapus laporan:",
@@ -2882,19 +2188,6 @@ async function hapusLaporan() {
             "Gagal menghapus laporan.",
             "error"
         );
-
-
-        if (
-            deleteButton
-        ) {
-
-            deleteButton.disabled =
-                false;
-
-            deleteButton.textContent =
-                "🗑 Hapus";
-
-        }
 
     }
 
@@ -2916,9 +2209,7 @@ function tampilkanNotifikasi(
         );
 
 
-    if (
-        !element
-    ) {
+    if (!element) {
 
         element =
             document.createElement(
@@ -2976,35 +2267,17 @@ function tampilkanNotifikasi(
 
 function resetFilterLaporan() {
 
-    if (
-        searchInput
-    ) {
-
-        searchInput.value =
-            "";
-
+    if (searchInput) {
+        searchInput.value = "";
     }
 
-
-    if (
-        statusFilter
-    ) {
-
-        statusFilter.value =
-            "";
-
+    if (statusFilter) {
+        statusFilter.value = "";
     }
 
-
-    if (
-        categoryFilter
-    ) {
-
-        categoryFilter.value =
-            "";
-
+    if (categoryFilter) {
+        categoryFilter.value = "";
     }
-
 
     filterLaporan();
 
@@ -3012,55 +2285,39 @@ function resetFilterLaporan() {
 
 
 // ==========================================
-// EVENT SEARCH
+// KEMBALI ADMIN
 // ==========================================
 
-if (
-    searchInput
-) {
+function kembaliAdmin() {
 
-    searchInput.addEventListener(
-        "input",
-        filterLaporan
+    window.location.href =
+        "dashboard.html";
+
+}
+
+
+// ==========================================
+// REFRESH
+// ==========================================
+
+const refreshButton =
+    document.getElementById(
+        "refreshButton"
+    );
+
+
+if (refreshButton) {
+
+    refreshButton.addEventListener(
+        "click",
+        loadLaporan
     );
 
 }
 
 
 // ==========================================
-// EVENT STATUS
-// ==========================================
-
-if (
-    statusFilter
-) {
-
-    statusFilter.addEventListener(
-        "change",
-        filterLaporan
-    );
-
-}
-
-
-// ==========================================
-// EVENT KATEGORI
-// ==========================================
-
-if (
-    categoryFilter
-) {
-
-    categoryFilter.addEventListener(
-        "change",
-        filterLaporan
-    );
-
-}
-
-
-// ==========================================
-// EVENT RESET
+// RESET FILTER
 // ==========================================
 
 const resetFilterButton =
@@ -3069,9 +2326,7 @@ const resetFilterButton =
     );
 
 
-if (
-    resetFilterButton
-) {
+if (resetFilterButton) {
 
     resetFilterButton.addEventListener(
         "click",
@@ -3082,12 +2337,10 @@ if (
 
 
 // ==========================================
-// EVENT TUTUP MODAL
+// TUTUP MODAL
 // ==========================================
 
-if (
-    closeDetailButton
-) {
+if (closeDetailButton) {
 
     closeDetailButton.addEventListener(
         "click",
@@ -3098,18 +2351,15 @@ if (
 
 
 // ==========================================
-// TUTUP DENGAN ESC
+// ESCAPE
 // ==========================================
 
 document.addEventListener(
     "keydown",
-    function (
-        event
-    ) {
+    function(event) {
 
         if (
-            event.key ===
-            "Escape"
+            event.key === "Escape"
         ) {
 
             if (
@@ -3130,50 +2380,54 @@ document.addEventListener(
 
 
 // ==========================================
-// EXPORT GLOBAL
+// GLOBAL
 // ==========================================
+
+window.loadLaporan =
+    loadLaporan;
+
+window.filterLaporan =
+    filterLaporan;
+
+window.isiFilterKategori =
+    isiFilterKategori;
+
+window.updateStatistik =
+    updateStatistik;
 
 window.renderLaporan =
     renderLaporan;
 
-
 window.buatKartuLaporan =
     buatKartuLaporan;
-
 
 window.bukaDetailLaporan =
     bukaDetailLaporan;
 
-
 window.bukaFotoLaporan =
     bukaFotoLaporan;
-
 
 window.tutupDetail =
     tutupDetail;
 
-
 window.simpanPerubahanLaporan =
     simpanPerubahanLaporan;
-
 
 window.hapusLaporan =
     hapusLaporan;
 
-
 window.tampilkanNotifikasi =
     tampilkanNotifikasi;
-
 
 window.resetFilterLaporan =
     resetFilterLaporan;
 
+window.kembaliAdmin =
+    kembaliAdmin;
 
-console.log(
-    "SIDAT: Bagian 2 admin-laporan.js aktif."
-);
+
 // ==========================================
-// START ADMIN LAPORAN
+// INIT
 // ==========================================
 
 function initAdminLaporan() {
@@ -3183,10 +2437,6 @@ function initAdminLaporan() {
     );
 
 
-    // ======================================
-    // CEK SUPABASE CONFIG
-    // ======================================
-
     if (
         typeof SUPABASE_URL ===
             "undefined" ||
@@ -3194,13 +2444,7 @@ function initAdminLaporan() {
             "undefined"
     ) {
 
-        console.error(
-            "SIDAT: SUPABASE_URL atau SUPABASE_KEY tidak tersedia."
-        );
-
-        if (
-            loadingState
-        ) {
+        if (loadingState) {
 
             loadingState.classList.add(
                 "hidden"
@@ -3208,18 +2452,15 @@ function initAdminLaporan() {
 
         }
 
-        if (
-            laporanContainer
-        ) {
+
+        if (laporanContainer) {
 
             laporanContainer.innerHTML = `
 
-                <div
-                    class="laporan-error"
-                >
+                <div class="laporan-error">
 
-                    <div>
-                        ⚠️
+                    <div class="laporan-error-icon">
+                        ${SVG_WARNING}
                     </div>
 
                     <strong>
@@ -3240,10 +2481,6 @@ function initAdminLaporan() {
 
     }
 
-
-    // ======================================
-    // LOAD LAPORAN
-    // ======================================
 
     loadLaporan();
 
@@ -3271,14 +2508,10 @@ if (
 }
 
 
-// ==========================================
-// EXPORT
-// ==========================================
-
 window.initAdminLaporan =
     initAdminLaporan;
 
 
 console.log(
     "SIDAT: ADMIN LAPORAN SIAP."
-); 
+);

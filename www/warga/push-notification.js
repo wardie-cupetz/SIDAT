@@ -565,8 +565,7 @@ async function daftarkanServiceWorker() {
                     `/rest/v1/push_subscriptions` +
                     `?resident_id=eq.${encodeURIComponent(
                         residentId
-                    )}` +
-                    `&endpoint=not.like.fcm-native:*`,
+                    )}`,
 
                     {
 

@@ -1,7 +1,14 @@
 // ==========================================
 // SIDAT
-// GENERATE QR KK
+// GENERATE QR
 // Dibuat oleh Suwardi
+//
+// ATURAN QR:
+// QR berisi ID Warga / resident_code.
+// Contoh: RT001
+//
+// Tidak membuat token acak.
+// Tidak mengubah households.qr_token.
 // ==========================================
 
 
@@ -110,7 +117,6 @@ async function muatKepalaKeluarga() {
                 `id,` +
                 `kk_number,` +
                 `head_resident_id,` +
-                `qr_token,` +
                 `address,` +
                 `head:residents!households_head_resident_id_fkey(` +
                     `id,` +
@@ -162,7 +168,8 @@ async function muatKepalaKeluarga() {
                             kk &&
                             kk.kk_number &&
                             kk.head &&
-                            kk.head.is_active !== false
+                            kk.head.is_active !== false &&
+                            kk.head.resident_code
                     )
                     .map(
                         kk => ({
@@ -178,9 +185,6 @@ async function muatKepalaKeluarga() {
 
                             kk_number:
                                 kk.kk_number,
-
-                            qr_token:
-                                kk.qr_token,
 
                             household_id:
                                 kk.id,
@@ -198,7 +202,7 @@ async function muatKepalaKeluarga() {
 
 
         console.log(
-            "SIDAT QR JUMLAH KK:",
+            "SIDAT QR JUMLAH KEPALA KELUARGA:",
             daftarKepalaKeluarga.length
         );
 
@@ -207,7 +211,7 @@ async function muatKepalaKeluarga() {
 
 
         tampilkanKepalaKeluarga(
-            daftarKepalaKeluarga
+            getDataTampilan()
         );
 
 
@@ -326,10 +330,6 @@ function tampilkanKepalaKeluarga(
             }
 
 
-            const qrTersedia =
-                !!warga.qr_token;
-
-
             item.innerHTML =
                 `
 
@@ -344,8 +344,25 @@ function tampilkanKepalaKeluarga(
                 </div>
 
 
-                <div class="resident-avatar">
-                    👤
+                <div
+                    class="resident-avatar"
+                    aria-hidden="true"
+                >
+
+                    <svg viewBox="0 0 24 24">
+
+                        <circle
+                            cx="12"
+                            cy="8"
+                            r="3"
+                        ></circle>
+
+                        <path
+                            d="M5 21c0-3.9 3.1-7 7-7s7 3.1 7 7"
+                        ></path>
+
+                    </svg>
+
                 </div>
 
 
@@ -377,17 +394,28 @@ function tampilkanKepalaKeluarga(
                 </div>
 
 
-                <div class="resident-qr-status ${
-                    qrTersedia
-                        ? "qr-ready"
-                        : "qr-new"
-                }">
+                <div
+                    class="resident-qr-status qr-ready"
+                >
 
-                    ${
-                        qrTersedia
-                            ? "✓ QR"
-                            : "＋ QR"
-                    }
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+
+                        <circle
+                            cx="12"
+                            cy="12"
+                            r="9"
+                        ></circle>
+
+                        <path
+                            d="M8 12.5l2.5 2.5L16 9"
+                        ></path>
+
+                    </svg>
+
+                    ID QR
 
                 </div>
 
@@ -399,8 +427,9 @@ function tampilkanKepalaKeluarga(
                 function(event) {
 
                     if (
-                        event.target.tagName ===
-                        "INPUT"
+                        event.target.closest(
+                            "input"
+                        )
                     ) {
 
                         return;
@@ -777,145 +806,11 @@ function bersihkanPencarian() {
 
 
 // ==========================================
-// BUAT TOKEN QR
-// ==========================================
-
-function buatTokenQR() {
-
-    const array =
-        new Uint8Array(
-            8
-        );
-
-
-    crypto.getRandomValues(
-        array
-    );
-
-
-    const random =
-        Array.from(
-            array
-        )
-        .map(
-            byte =>
-                byte
-                    .toString(16)
-                    .padStart(
-                        2,
-                        "0"
-                    )
-        )
-        .join("")
-        .toUpperCase();
-
-
-    return (
-        "SIDAT-KK-" +
-        random
-    );
-
-}
-
-
-// ==========================================
-// PASTIKAN TOKEN
-// ==========================================
-
-function pastikanToken(
-    warga
-) {
-
-    if (
-        warga.qr_token &&
-        String(
-            warga.qr_token
-        )
-        .toUpperCase()
-        .startsWith(
-            "SIDAT-KK-"
-        )
-    ) {
-
-        return String(
-            warga.qr_token
-        )
-        .toUpperCase();
-
-    }
-
-
-    return buatTokenQR();
-
-}
-
-
-// ==========================================
-// BUAT QR
-// ==========================================
-
-function buatQR(
-    element,
-    token
-) {
-
-    if (!element) {
-
-        throw new Error(
-            "Elemen QR tidak ditemukan."
-        );
-
-    }
-
-
-    if (
-        typeof QRCode ===
-        "undefined"
-    ) {
-
-        throw new Error(
-            "Library QR belum termuat."
-        );
-
-    }
-
-
-    element.innerHTML =
-        "";
-
-
-    new QRCode(
-        element,
-        {
-
-            text:
-                token,
-
-            width:
-                200,
-
-            height:
-                200,
-
-            colorDark:
-                "#111827",
-
-            colorLight:
-                "#ffffff",
-
-            correctLevel:
-                QRCode.CorrectLevel.H
-
-        }
-    );
-
-}
-// ==========================================
 // AMBIL GAMBAR QR
 // ==========================================
 
 async function ambilGambarQR(
-    token
+    residentCode
 ) {
 
     return new Promise(
@@ -966,7 +861,9 @@ async function ambilGambarQR(
                     {
 
                         text:
-                            String(token),
+                            String(
+                                residentCode
+                            ),
 
                         width:
                             190,
@@ -1031,10 +928,6 @@ async function ambilGambarQR(
                             );
 
 
-                        // ==========================
-                        // CANVAS
-                        // ==========================
-
                         if (canvas) {
 
                             try {
@@ -1086,10 +979,6 @@ async function ambilGambarQR(
                         }
 
 
-                        // ==========================
-                        // IMAGE
-                        // ==========================
-
                         if (
                             img &&
                             img.src &&
@@ -1125,10 +1014,6 @@ async function ambilGambarQR(
 
                         }
 
-
-                        // ==========================
-                        // TIMEOUT
-                        // ==========================
 
                         if (
                             percobaan >= 50
@@ -1167,6 +1052,7 @@ async function ambilGambarQR(
 
 }
 
+
 // ==========================================
 // CETAK QR
 // ==========================================
@@ -1192,8 +1078,32 @@ async function cetakQR() {
         printButton.disabled =
             true;
 
-        printButton.textContent =
-            "⏳ Menyiapkan QR...";
+        printButton.innerHTML = `
+
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+
+                <path
+                    d="M12 3v12"
+                ></path>
+
+                <path
+                    d="M7 10l5 5 5-5"
+                ></path>
+
+                <path
+                    d="M5 21h14"
+                ></path>
+
+            </svg>
+
+            <span>
+                Menyiapkan QR...
+            </span>
+
+        `;
 
     }
 
@@ -1205,7 +1115,7 @@ async function cetakQR() {
 
 
         // ==================================
-        // SIAPKAN TOKEN DAN GAMBAR
+        // SIAPKAN QR DARI ID WARGA
         // ==================================
 
         for (
@@ -1213,40 +1123,27 @@ async function cetakQR() {
             of wargaTerpilih
         ) {
 
-            const token =
-                pastikanToken(
-                    warga
-                );
-
-
-            /*
-             * Token sekarang disimpan langsung
-             * berdasarkan ID households.
-             */
-
-            if (
-                !warga.qr_token ||
+            const residentCode =
                 String(
-                    warga.qr_token
-                ).toUpperCase() !== token
-            ) {
+                    warga.resident_code ||
+                    ""
+                )
+                .trim()
+                .toUpperCase();
 
-                await simpanTokenQR(
-                    warga.household_id,
-                    token
+
+            if (!residentCode) {
+
+                throw new Error(
+                    `ID Warga untuk ${warga.name || "warga"} tidak ditemukan.`
                 );
-
-
-                warga.qr_token =
-                    token;
 
             }
 
 
-            // Buat gambar QR
             const image =
                 await ambilGambarQR(
-                    token
+                    residentCode
                 );
 
 
@@ -1255,8 +1152,8 @@ async function cetakQR() {
                 warga:
                     warga,
 
-                token:
-                    token,
+                residentCode:
+                    residentCode,
 
                 image:
                     image
@@ -1306,80 +1203,41 @@ async function cetakQR() {
             printButton.disabled =
                 wargaTerpilih.length === 0;
 
-            printButton.textContent =
-                "🖨️ Cetak QR";
+            printButton.innerHTML = `
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+
+                    <path
+                        d="M6 9V3h12v6"
+                    ></path>
+
+                    <path
+                        d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"
+                    ></path>
+
+                    <rect
+                        x="6"
+                        y="14"
+                        width="12"
+                        height="7"
+                    ></rect>
+
+                    <path
+                        d="M18 12h.01"
+                    ></path>
+
+                </svg>
+
+                <span>
+                    Cetak QR
+                </span>
+
+            `;
 
         }
-
-    }
-
-}
-
-
-// ==========================================
-// SIMPAN TOKEN KE HOUSEHOLDS
-// ==========================================
-
-async function simpanTokenQR(
-    householdId,
-    token
-) {
-
-    if (!householdId) {
-
-        throw new Error(
-            "ID KK tidak ditemukan."
-        );
-
-    }
-
-
-    const response =
-        await fetch(
-
-            `${SUPABASE_URL}/rest/v1/households?id=eq.${encodeURIComponent(
-                householdId
-            )}`,
-
-            {
-
-                method:
-                    "PATCH",
-
-                headers: {
-
-                    "apikey":
-                        SUPABASE_KEY,
-
-                    "Authorization":
-                        `Bearer ${accessToken}`,
-
-                    "Content-Type":
-                        "application/json",
-
-                    "Prefer":
-                        "return=minimal"
-
-                },
-
-                body:
-                    JSON.stringify({
-
-                        qr_token:
-                            token
-
-                    })
-
-            }
-
-        );
-
-
-    if (!response.ok) {
-
-        throw new Error(
-            await response.text()
-        );
 
     }
 
@@ -1435,7 +1293,9 @@ function bukaJendelaCetak(
                     <img
                         src="${item.image}"
                         class="qr-image"
-                        alt="QR Jimpitan"
+                        alt="QR Jimpitan ${escapeHTML(
+                            item.residentCode
+                        )}"
                     >
 
                     <div class="qr-name">
@@ -1447,8 +1307,9 @@ function bukaJendelaCetak(
 
 
                     <div class="qr-token">
+                        ID Warga:
                         ${escapeHTML(
-                            item.token
+                            item.residentCode
                         )}
                     </div>
 
@@ -1623,17 +1484,6 @@ function bukaJendelaCetak(
                 }
 
 
-                .qr-kk {
-
-                    margin-top:
-                        5px;
-
-                    font-size:
-                        13px;
-
-                }
-
-
                 .qr-token {
 
                     margin-top:
@@ -1649,7 +1499,10 @@ function bukaJendelaCetak(
                         6px;
 
                     font-size:
-                        10px;
+                        11px;
+
+                    font-weight:
+                        bold;
 
                     word-break:
                         break-all;
@@ -1782,21 +1635,6 @@ function sembunyikanLoading() {
 // ==========================================
 // UTIL
 // ==========================================
-
-function tunggu(
-    waktu
-) {
-
-    return new Promise(
-        resolve =>
-            setTimeout(
-                resolve,
-                waktu
-            )
-    );
-
-}
-
 
 function escapeHTML(
     value

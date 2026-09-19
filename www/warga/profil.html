@@ -2,761 +2,906 @@
 <html lang="id">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     >
+
+    <meta name="theme-color" content="#15803d">
 
     <title>Profil Warga - SIDAT</title>
 
-    <link
-        rel="stylesheet"
-        href="profil.css"
-    >
-
+    <link rel="stylesheet" href="profil.css">
+    <link rel="stylesheet" href="warga-menu.css">
 </head>
-
 
 <body>
 
-
-<!-- ==========================================
-     LOADING
-========================================== -->
-
-<div
-    id="loadingOverlay"
-    class="loading-overlay"
->
-
-    <div class="loading-box">
-
-        <div class="spinner"></div>
-
-        <span>
-            Memuat profil...
-        </span>
-
-    </div>
-
-</div>
-
-
-<!-- ==========================================
-     HEADER
-========================================== -->
-
-<header class="top-header">
-
-    <button
-        class="btn-back"
-        onclick="kembaliDashboard()"
-        type="button"
-    >
-        ←
-    </button>
-
-
-    <div class="header-title">
-
-        <strong>
-            Profil Saya
-        </strong>
-
-        <span>
-            Data warga SIDAT
-        </span>
-
-    </div>
-
-</header>
-
-
-<!-- ==========================================
-     MAIN
-========================================== -->
-
-<main class="profile-container">
-
-
-    <!-- ======================================
-         PROFILE HEADER
-    ======================================= -->
-
-    <section class="profile-card profile-header-card">
-
-        <div class="profile-photo-wrapper">
-
-            <img
-                id="profilePhoto"
-                class="profile-photo"
-                src=""
-                alt="Foto Profil"
-            >
-
-
-            <button
-                id="photoEditButton"
-                class="photo-edit-button"
-                type="button"
-                onclick="bukaEditProfil()"
-                aria-label="Edit foto profil"
-            >
-                📷
-            </button>
-
-        </div>
-
-
-        <div class="profile-main-info">
-
-            <h1 id="namaWarga">
-                Memuat...
-            </h1>
-
-            <p id="kodeWarga">
-                -
-            </p>
-
-
-            <span
-                id="accountStatus"
-                class="account-status"
-            >
-                -
-            </span>
-
-        </div>
-
-    </section>
-
-
-    <!-- ======================================
-         TOMBOL EDIT
-    ======================================= -->
-
-    <button
-        id="editProfileButton"
-        class="btn-edit-profile"
-        type="button"
-        onclick="bukaEditProfil()"
-    >
-        ✏️ Edit Profil
-    </button>
-
-
-    <!-- ======================================
-         IDENTITAS
-    ======================================= -->
-
-    <section class="profile-card">
-
-        <div class="section-title">
-
-            <span class="section-icon">
-                🪪
-            </span>
-
-            <div>
-
-                <strong>
-                    Identitas Warga
-                </strong>
-
-                <small>
-                    Data identitas terdaftar
-                </small>
-
-            </div>
-
-        </div>
-
-
-        <div class="data-grid">
-
-
-            <div class="data-item">
-
-                <span>
-                    NIK
-                </span>
-
-                <strong id="nik">
-                    -
-                </strong>
-
-            </div>
-
-
-            <div class="data-item">
-
-                <span>
-                    Nomor KK
-                </span>
-
-                <strong id="nomorKK">
-                    -
-                </strong>
-
-            </div>
-
-
-            <div class="data-item">
-
-                <span>
-                    Nama Lengkap
-                </span>
-
-                <strong id="namaLengkap">
-                    -
-                </strong>
-
-            </div>
-
-
-            <div class="data-item">
-
-                <span>
-                    Tempat Lahir
-                </span>
-
-                <strong id="tempatLahir">
-                    -
-                </strong>
-
-            </div>
-
-
-            <div class="data-item">
-
-                <span>
-                    Tanggal Lahir
-                </span>
-
-                <strong id="tanggalLahir">
-                    -
-                </strong>
-
-            </div>
-
-
-            <div class="data-item">
-
-                <span>
-                    Jenis Kelamin
-                </span>
-
-                <strong id="jenisKelamin">
-                    -
-                </strong>
-
-            </div>
-
-
-            <div class="data-item">
-
-                <span>
-                    Status Keluarga
-                </span>
-
-                <strong id="statusKeluarga">
-                    -
-                </strong>
-
-            </div>
-
-
-        </div>
-
-    </section>
-
-
-    <!-- ======================================
-         ALAMAT
-    ======================================= -->
-
-    <section class="profile-card">
-
-        <div class="section-title">
-
-            <span class="section-icon">
-                🏠
-            </span>
-
-            <div>
-
-                <strong>
-                    Alamat
-                </strong>
-
-                <small>
-                    Alamat tempat tinggal
-                </small>
-
-            </div>
-
-        </div>
-
-
-        <div class="data-grid">
-
-
-            <div class="data-item full">
-
-                <span>
-                    Alamat
-                </span>
-
-                <strong id="alamat">
-                    -
-                </strong>
-
-            </div>
-
-
-            <div class="data-item">
-
-                <span>
-                    Nomor Rumah
-                </span>
-
-                <strong id="nomorRumah">
-                    -
-                </strong>
-
-            </div>
-
-
-            <div class="data-item">
-
-                <span>
-                    Nomor HP
-                </span>
-
-                <strong id="nomorHP">
-                    -
-                </strong>
-
-            </div>
-
-
-        </div>
-
-    </section>
-
-
-    <!-- ======================================
-         AKUN
-    ======================================= -->
-
-    <section class="profile-card">
-
-        <div class="section-title">
-
-            <span class="section-icon">
-                🔐
-            </span>
-
-            <div>
-
-                <strong>
-                    Akun
-                </strong>
-
-                <small>
-                    Informasi akun warga
-                </small>
-
-            </div>
-
-        </div>
-
-
-        <div class="data-grid">
-
-
-            <div class="data-item full">
-
-                <span>
-                    Email Login
-                </span>
-
-                <strong id="email">
-                    -
-                </strong>
-
-            </div>
-
-
-            <div class="data-item">
-
-                <span>
-                    Status Akun
-                </span>
-
-                <strong id="statusAkun">
-                    -
-                </strong>
-
-            </div>
-
-
-            <div class="data-item">
-
-                <span>
-                    Akun Dibuat
-                </span>
-
-                <strong id="akunDibuat">
-                    -
-                </strong>
-
-            </div>
-<!-- ======================================
-     GANTI PIN
-======================================= -->
-
-<div class="data-item full">
-
-    <button
-        type="button"
-        class="btn-change-pin"
-        onclick="bukaGantiPIN()"
-    >
-        🔐 Ganti PIN
-    </button>
-
-</div>
-
-        </div>
-
-    </section>
-
-
-    <!-- ======================================
-         KETERANGAN
-    ======================================= -->
-
-    <div class="profile-note">
-
-        <span>
-            🔒
-        </span>
-
-        <p>
-            Data identitas seperti NIK, KK, nama,
-            dan tanggal lahir hanya dapat diubah
-            oleh admin.
-        </p>
-
-    </div>
-
-
-</main>
-
-
-<!-- ==========================================
-     MODAL EDIT PROFIL
-========================================== -->
-
-<div
-    id="editModal"
-    class="modal hidden"
->
-
-
-    <div class="modal-overlay"
-         onclick="tutupEditProfil()">
-    </div>
-
-
-    <div class="modal-box">
-
-
-        <div class="modal-header">
-
-            <div>
-
-                <h2>
-                    Edit Profil
-                </h2>
-
-                <p>
-                    Ubah foto dan nomor HP Anda
-                </p>
-
-            </div>
-
-
-            <button
-                type="button"
-                class="modal-close"
-                onclick="tutupEditProfil()"
-            >
-                ×
-            </button>
-
-        </div>
-
-
-        <!-- ==================================
-             PREVIEW FOTO
-        =================================== -->
-
-        <div class="edit-photo-section">
-
-            <div class="edit-photo-wrapper">
-
-                <img
-                    id="editPhotoPreview"
-                    src=""
-                    alt="Preview Foto"
-                >
-
-            </div>
-
-
-            <label
-                class="btn-photo"
-                for="photoInput"
-            >
-
-                📷 Pilih Foto
-
-            </label>
-
-
-            <input
-                id="photoInput"
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                hidden
-            >
-
-
-            <small id="photoInfo">
-                JPG, PNG atau WEBP maksimal 2 MB
-            </small>
-
-        </div>
-
-
-        <!-- ==================================
-             FORM
-        =================================== -->
-
-        <form
-            id="editProfileForm"
-            autocomplete="off"
-        >
-
-
-            <div class="form-group">
-
-                <label
-                    for="editPhone"
-                >
-                    Nomor HP
-                </label>
-
-                <input
-                    id="editPhone"
-                    type="tel"
-                    inputmode="numeric"
-                    maxlength="20"
-                    placeholder="Contoh: 081234567890"
-                >
-
-            </div>
-
-
-            <div
-                id="editError"
-                class="form-error hidden"
-            >
-            </div>
-
-
-            <div
-                id="editSuccess"
-                class="form-success hidden"
-            >
-            </div>
-
-
-            <div class="modal-actions">
-
-                <button
-                    type="button"
-                    class="btn-cancel"
-                    onclick="tutupEditProfil()"
-                >
-                    Batal
-                </button>
-
-
-                <button
-                    id="saveProfileButton"
-                    type="submit"
-                    class="btn-save"
-                >
-                    💾 Simpan Perubahan
-                </button>
-
-            </div>
-
-
-        </form>
-
-
-    </div>
-
-</div>
-
-<!-- ==========================================
-     MODAL GANTI PIN
-========================================== -->
-
-<div
-    id="pinModal"
-    class="modal hidden"
->
+    <!-- ==========================================
+         LOADING
+    =========================================== -->
 
     <div
-        class="modal-overlay"
-        onclick="tutupGantiPIN()"
+        id="loadingOverlay"
+        class="loading-overlay"
     >
+        <div class="loading-box">
+            <div class="spinner"></div>
+
+            <span>
+                Memuat profil...
+            </span>
+        </div>
     </div>
 
 
-    <div class="modal-box">
+    <!-- ==========================================
+         HEADER
+    =========================================== -->
 
+    <header class="top-header">
 
-        <div class="modal-header">
-
-            <div>
-
-                <h2>
-                    Ganti PIN
-                </h2>
-
-                <p>
-                    Gunakan PIN baru untuk login ke SIDAT
-                </p>
-
-            </div>
-
-
-            <button
-                type="button"
-                class="modal-close"
-                onclick="tutupGantiPIN()"
+        <button
+            class="btn-back"
+            onclick="kembaliDashboard()"
+            type="button"
+            aria-label="Kembali"
+        >
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
             >
-                ×
-            </button>
+                <path
+                    d="M15 18l-6-6 6-6"
+                />
+            </svg>
+        </button>
+
+
+        <div class="header-title">
+
+            <strong>
+                Profil Saya
+            </strong>
+
+            <span>
+                Data akun warga SIDAT
+            </span>
 
         </div>
 
+    </header>
 
-        <form
-            id="changePinForm"
-            autocomplete="off"
+
+    <!-- ==========================================
+         MAIN
+    =========================================== -->
+
+    <main class="profile-container">
+
+
+        <!-- ======================================
+             PROFILE HEADER
+        ======================================= -->
+
+        <section class="profile-card profile-header-card">
+
+            <div class="profile-photo-wrapper">
+
+                <img
+                    id="profilePhoto"
+                    class="profile-photo"
+                    src=""
+                    alt="Foto Profil"
+                >
+
+                <button
+                    id="photoEditButton"
+                    class="photo-edit-button"
+                    type="button"
+                    onclick="bukaEditProfil()"
+                    aria-label="Edit foto profil"
+                >
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            d="M4 7h3l1.5-2h5L15 7h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"
+                        />
+
+                        <circle
+                            cx="12"
+                            cy="13"
+                            r="3"
+                        />
+                    </svg>
+                </button>
+
+            </div>
+
+
+            <div class="profile-main-info">
+
+                <h1 id="namaWarga">
+                    Memuat...
+                </h1>
+
+                <p id="kodeWarga">
+                    -
+                </p>
+
+                <span
+                    id="accountStatus"
+                    class="account-status"
+                >
+                    -
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- ======================================
+             EDIT PROFILE
+        ======================================= -->
+
+        <button
+            id="editProfileButton"
+            class="btn-edit-profile"
+            type="button"
+            onclick="bukaEditProfil()"
         >
-
-
-            <div class="form-group">
-
-                <label for="pinBaru">
-                    PIN Baru
-                </label>
-
-                <input
-                    id="pinBaru"
-                    type="password"
-                    inputmode="numeric"
-                    maxlength="6"
-                    minlength="4"
-                    pattern="[0-9]{4,6}"
-                    placeholder="Masukkan PIN 4-6 digit"
-                    autocomplete="new-password"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="pinKonfirmasi">
-                    Konfirmasi PIN Baru
-                </label>
-
-                <input
-                    id="pinKonfirmasi"
-                    type="password"
-                    inputmode="numeric"
-                    maxlength="6"
-                    minlength="4"
-                    pattern="[0-9]{4,6}"
-                    placeholder="Ulangi PIN baru"
-                    autocomplete="new-password"
-                >
-
-            </div>
-
-
-            <div
-                id="pinError"
-                class="form-error hidden"
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
             >
+                <path
+                    d="M4 20h4L19 9l-4-4L4 16v4Z"
+                />
+
+                <path
+                    d="M13.5 6.5l4 4"
+                />
+            </svg>
+
+            <span>
+                Edit Profil
+            </span>
+        </button>
+
+
+        <!-- ======================================
+             IDENTITAS
+             NIK & KK SENGAJA TIDAK DITAMPILKAN
+        ======================================= -->
+
+        <section class="profile-card">
+
+            <div class="section-title">
+
+                <span class="section-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <rect
+                            x="3"
+                            y="5"
+                            width="18"
+                            height="14"
+                            rx="2"
+                        />
+
+                        <circle
+                            cx="8"
+                            cy="11"
+                            r="2"
+                        />
+
+                        <path
+                            d="M13 10h5M13 14h4"
+                        />
+                    </svg>
+
+                </span>
+
+                <div>
+
+                    <strong>
+                        Identitas Warga
+                    </strong>
+
+                    <small>
+                        Informasi identitas terdaftar
+                    </small>
+
+                </div>
+
             </div>
 
 
-            <div
-                id="pinSuccess"
-                class="form-success hidden"
+            <div class="data-grid">
+
+                <div class="data-item full">
+
+                    <span>
+                        Nama Lengkap
+                    </span>
+
+                    <strong id="namaLengkap">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>
+                        Tempat Lahir
+                    </span>
+
+                    <strong id="tempatLahir">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>
+                        Tanggal Lahir
+                    </span>
+
+                    <strong id="tanggalLahir">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>
+                        Jenis Kelamin
+                    </span>
+
+                    <strong id="jenisKelamin">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>
+                        Status Keluarga
+                    </span>
+
+                    <strong id="statusKeluarga">
+                        -
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ======================================
+             ALAMAT
+        ======================================= -->
+
+        <section class="profile-card">
+
+            <div class="section-title">
+
+                <span class="section-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            d="M3 11.5 12 4l9 7.5"
+                        />
+
+                        <path
+                            d="M5 10v9h14v-9"
+                        />
+
+                        <path
+                            d="M9 19v-5h6v5"
+                        />
+
+                    </svg>
+
+                </span>
+
+                <div>
+
+                    <strong>
+                        Alamat
+                    </strong>
+
+                    <small>
+                        Alamat tempat tinggal
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="data-grid">
+
+                <div class="data-item full">
+
+                    <span>
+                        Alamat
+                    </span>
+
+                    <strong id="alamat">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>
+                        Nomor Rumah
+                    </span>
+
+                    <strong id="nomorRumah">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>
+                        Nomor HP
+                    </span>
+
+                    <strong id="nomorHP">
+                        -
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ======================================
+             AKUN
+        ======================================= -->
+
+        <section class="profile-card">
+
+            <div class="section-title">
+
+                <span class="section-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <rect
+                            x="5"
+                            y="10"
+                            width="14"
+                            height="10"
+                            rx="2"
+                        />
+
+                        <path
+                            d="M8 10V7a4 4 0 0 1 8 0v3"
+                        />
+
+                    </svg>
+
+                </span>
+
+                <div>
+
+                    <strong>
+                        Akun
+                    </strong>
+
+                    <small>
+                        Informasi akun warga
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="data-grid">
+
+                <div class="data-item full">
+
+                    <span>
+                        Email Login
+                    </span>
+
+                    <strong id="email">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>
+                        Status Akun
+                    </span>
+
+                    <strong id="statusAkun">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>
+                        Akun Dibuat
+                    </span>
+
+                    <strong id="akunDibuat">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item full">
+
+                    <button
+                        type="button"
+                        class="btn-change-pin"
+                        onclick="bukaGantiPIN()"
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <rect
+                                x="5"
+                                y="10"
+                                width="14"
+                                height="10"
+                                rx="2"
+                            />
+
+                            <path
+                                d="M8 10V7a4 4 0 0 1 8 0v3"
+                            />
+
+                            <circle
+                                cx="12"
+                                cy="15"
+                                r="1"
+                            />
+                        </svg>
+
+                        <span>
+                            Ganti PIN
+                        </span>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ======================================
+             KETERANGAN
+        ======================================= -->
+
+        <div class="profile-note">
+
+            <span class="profile-note-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <rect
+                        x="5"
+                        y="10"
+                        width="14"
+                        height="10"
+                        rx="2"
+                    />
+
+                    <path
+                        d="M8 10V7a4 4 0 0 1 8 0v3"
+                    />
+
+                </svg>
+
+            </span>
+
+            <p>
+                Data identitas utama hanya dapat
+                diubah oleh admin. Warga hanya dapat
+                mengubah foto profil dan nomor HP.
+            </p>
+
+        </div>
+        <!-- ======================================
+             LOGOUT
+        ======================================= -->
+
+        <section class="profile-logout-section">
+
+            <button
+                type="button"
+                class="profile-logout-button"
+                onclick="sidatLogout()"
             >
-            </div>
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M10 17l5-5-5-5"
+                    />
+
+                    <path
+                        d="M15 12H3"
+                    />
+
+                    <path
+                        d="M13 5V3h8v18h-8v-2"
+                    />
+                </svg>
+
+                <span>
+                    Keluar dari Akun
+                </span>
+
+            </button>
+
+        </section>
+    </main>
 
 
-            <div class="modal-actions">
+    <!-- ==========================================
+         MODAL EDIT PROFIL
+    ========================================== -->
+
+    <div
+        id="editModal"
+        class="modal hidden"
+    >
+
+        <div
+            class="modal-overlay"
+            onclick="tutupEditProfil()"
+        ></div>
+
+
+        <div class="modal-box">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h2>
+                        Edit Profil
+                    </h2>
+
+                    <p>
+                        Ubah foto dan nomor HP Anda
+                    </p>
+
+                </div>
+
 
                 <button
                     type="button"
-                    class="btn-cancel"
-                    onclick="tutupGantiPIN()"
+                    class="modal-close"
+                    onclick="tutupEditProfil()"
+                    aria-label="Tutup"
                 >
-                    Batal
-                </button>
-
-
-                <button
-                    id="savePinButton"
-                    type="submit"
-                    class="btn-save"
-                >
-                    🔐 Simpan PIN
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            d="M6 6l12 12M18 6 6 18"
+                        />
+                    </svg>
                 </button>
 
             </div>
 
 
-        </form>
+            <div class="edit-photo-section">
+
+                <div class="edit-photo-wrapper">
+
+                    <img
+                        id="editPhotoPreview"
+                        src=""
+                        alt="Preview Foto"
+                    >
+
+                </div>
+
+
+                <label
+                    class="btn-photo"
+                    for="photoInput"
+                >
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            d="M4 7h3l1.5-2h5L15 7h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"
+                        />
+
+                        <circle
+                            cx="12"
+                            cy="13"
+                            r="3"
+                        />
+                    </svg>
+
+                    <span>
+                        Pilih Foto
+                    </span>
+                </label>
+
+
+                <input
+                    id="photoInput"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    hidden
+                >
+
+
+                <small id="photoInfo">
+                    JPG, PNG atau WEBP maksimal 2 MB
+                </small>
+
+            </div>
+
+
+            <form
+                id="editProfileForm"
+                autocomplete="off"
+            >
+
+                <div class="form-group">
+
+                    <label for="editPhone">
+                        Nomor HP
+                    </label>
+
+                    <input
+                        id="editPhone"
+                        type="tel"
+                        inputmode="numeric"
+                        maxlength="20"
+                        placeholder="Contoh: 081234567890"
+                        autocomplete="tel"
+                    >
+
+                </div>
+
+
+                <div
+                    id="editError"
+                    class="form-error hidden"
+                ></div>
+
+
+                <div
+                    id="editSuccess"
+                    class="form-success hidden"
+                ></div>
+
+
+                <div class="modal-actions">
+
+                    <button
+                        type="button"
+                        class="btn-cancel"
+                        onclick="tutupEditProfil()"
+                    >
+                        Batal
+                    </button>
+
+
+                    <button
+                        id="saveProfileButton"
+                        type="submit"
+                        class="btn-save"
+                    >
+                        Simpan Perubahan
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
 
     </div>
 
-</div>
-<!-- ==========================================
-     SUPABASE CONFIG
-========================================== -->
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- ==========================================
+         MODAL GANTI PIN
+    ========================================== -->
 
-<script src="../js/supabase-config.js"></script>
+    <div
+        id="pinModal"
+        class="modal hidden"
+    >
 
-<script src="profil.js"></script>
+        <div
+            class="modal-overlay"
+            onclick="tutupGantiPIN()"
+        ></div>
+
+
+        <div class="modal-box">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h2>
+                        Ganti PIN
+                    </h2>
+
+                    <p>
+                        Gunakan PIN baru untuk login SIDAT
+                    </p>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="modal-close"
+                    onclick="tutupGantiPIN()"
+                    aria-label="Tutup"
+                >
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            d="M6 6l12 12M18 6 6 18"
+                        />
+                    </svg>
+                </button>
+
+            </div>
+
+
+            <form
+                id="changePinForm"
+                autocomplete="off"
+            >
+
+                <div class="form-group">
+
+                    <label for="pinBaru">
+                        PIN Baru
+                    </label>
+
+                    <input
+                        id="pinBaru"
+                        type="password"
+                        inputmode="numeric"
+                        maxlength="6"
+                        minlength="4"
+                        pattern="[0-9]{4,6}"
+                        placeholder="Masukkan PIN 4-6 digit"
+                        autocomplete="new-password"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="pinKonfirmasi">
+                        Konfirmasi PIN Baru
+                    </label>
+
+                    <input
+                        id="pinKonfirmasi"
+                        type="password"
+                        inputmode="numeric"
+                        maxlength="6"
+                        minlength="4"
+                        pattern="[0-9]{4,6}"
+                        placeholder="Ulangi PIN baru"
+                        autocomplete="new-password"
+                    >
+
+                </div>
+
+
+                <div
+                    id="pinError"
+                    class="form-error hidden"
+                ></div>
+
+
+                <div
+                    id="pinSuccess"
+                    class="form-success hidden"
+                ></div>
+
+
+                <div class="modal-actions">
+
+                    <button
+                        type="button"
+                        class="btn-cancel"
+                        onclick="tutupGantiPIN()"
+                    >
+                        Batal
+                    </button>
+
+
+                    <button
+                        id="savePinButton"
+                        type="submit"
+                        class="btn-save"
+                    >
+                        Simpan PIN
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         SCRIPT
+    ========================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="../js/supabase-config.js"></script>
+
+    <script src="./warga-menu.js"></script>
+
+    <script src="profil.js"></script>
 
 </body>
 

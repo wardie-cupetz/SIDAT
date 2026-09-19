@@ -1,6 +1,6 @@
 /* ==========================================
    SIDAT
-   GENERATE QR KK
+   GENERATE QR
 ========================================== */
 
 * {
@@ -17,6 +17,7 @@ body {
     font-family: Arial, sans-serif;
     background: #f3f7f4;
     color: #1f2937;
+    padding-bottom: 95px;
 }
 
 .qr-container {
@@ -33,26 +34,103 @@ body {
 ========================================== */
 
 .top-header {
+    position: relative;
+    overflow: hidden;
+
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 16px;
+
+    min-height: 92px;
+    margin: -14px -14px 16px;
+    padding: 18px 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #166534 0%,
+            #15803d 55%,
+            #16a34a 100%
+        );
+
+    color: #ffffff;
+    border-radius: 0 0 24px 24px;
+    box-shadow: 0 8px 24px rgba(21, 128, 61, .16);
+}
+
+.header-bubble {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    background: rgba(255, 255, 255, .09);
+}
+
+.bubble-one {
+    width: 85px;
+    height: 85px;
+    top: -42px;
+    right: 28px;
+}
+
+.bubble-two {
+    width: 52px;
+    height: 52px;
+    top: 18px;
+    right: -15px;
+}
+
+.bubble-three {
+    width: 38px;
+    height: 38px;
+    bottom: -18px;
+    left: 42%;
+}
+
+.bubble-four {
+    width: 26px;
+    height: 26px;
+    top: 12px;
+    left: 48%;
+    background: rgba(255, 255, 255, .07);
 }
 
 .back-button {
+    position: relative;
+    z-index: 2;
+
     width: 44px;
     height: 44px;
     flex: 0 0 44px;
-    border: none;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid rgba(255, 255, 255, .25);
     border-radius: 14px;
-    background: #ffffff;
-    color: #166534;
-    font-size: 27px;
+
+    background: rgba(255, 255, 255, .14);
+    color: #ffffff;
+
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0,0,0,.06);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.back-button svg {
+    width: 22px;
+    height: 22px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 .header-title {
+    position: relative;
+    z-index: 2;
+
     display: flex;
     align-items: center;
     gap: 10px;
@@ -61,25 +139,38 @@ body {
 .header-icon {
     width: 44px;
     height: 44px;
+    flex: 0 0 44px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     border-radius: 14px;
-    background: #dcfce7;
-    font-size: 22px;
+    background: rgba(255, 255, 255, .16);
+}
+
+.header-icon svg {
+    width: 25px;
+    height: 25px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 .header-title h1 {
     margin: 0;
-    color: #14532d;
+    color: #ffffff;
     font-size: 20px;
 }
 
 .header-title span {
     display: block;
     margin-top: 3px;
-    color: #64748b;
-    font-size: 12px;
+    color: rgba(255, 255, 255, .82);
+    font-size: 11px;
 }
 
 
@@ -91,10 +182,13 @@ body {
     display: flex;
     align-items: flex-start;
     gap: 12px;
+
     margin-bottom: 14px;
     padding: 15px;
+
     border: 1px solid #bbf7d0;
     border-radius: 18px;
+
     background: #f0fdf4;
 }
 
@@ -102,12 +196,25 @@ body {
     width: 38px;
     height: 38px;
     flex: 0 0 38px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     border-radius: 12px;
     background: #dcfce7;
-    font-size: 18px;
+    color: #15803d;
+}
+
+.info-icon svg {
+    width: 21px;
+    height: 21px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 .info-card strong {
@@ -131,9 +238,11 @@ body {
 .search-card {
     margin-bottom: 14px;
     padding: 16px;
+
     border-radius: 20px;
     background: #ffffff;
-    box-shadow: 0 4px 18px rgba(0,0,0,.05);
+
+    box-shadow: 0 4px 18px rgba(0, 0, 0, .05);
 }
 
 .section-title {
@@ -147,11 +256,25 @@ body {
     width: 38px;
     height: 38px;
     flex: 0 0 38px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     border-radius: 12px;
     background: #dcfce7;
+    color: #15803d;
+}
+
+.section-icon svg {
+    width: 20px;
+    height: 20px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 .section-title strong {
@@ -169,6 +292,7 @@ body {
 
 .search-box {
     position: relative;
+
     display: flex;
     align-items: center;
     gap: 8px;
@@ -177,19 +301,39 @@ body {
 .search-box > span {
     position: absolute;
     left: 13px;
-    font-size: 15px;
+
+    width: 18px;
+    height: 18px;
+
+    color: #64748b;
     pointer-events: none;
+}
+
+.search-box > span svg {
+    width: 17px;
+    height: 17px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 .search-box input {
     width: 100%;
     height: 44px;
+
     padding: 0 42px 0 38px;
+
     border: 1px solid #e2e8f0;
     border-radius: 13px;
+
     outline: none;
+
     background: #f8fafc;
     color: #1f2937;
+
     font-size: 13px;
 }
 
@@ -201,15 +345,31 @@ body {
 .clear-search {
     position: absolute;
     right: 8px;
+
     width: 30px;
     height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
     border: none;
     border-radius: 9px;
+
     background: #e2e8f0;
     color: #475569;
-    font-size: 20px;
-    line-height: 1;
+
     cursor: pointer;
+}
+
+.clear-search svg {
+    width: 16px;
+    height: 16px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
 }
 
 
@@ -221,8 +381,10 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     margin-top: 13px;
     padding-top: 12px;
+
     border-top: 1px solid #f1f5f9;
 }
 
@@ -230,9 +392,11 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+
     color: #475569;
     font-size: 12px;
     font-weight: 700;
+
     cursor: pointer;
 }
 
@@ -244,9 +408,12 @@ body {
 
 .selected-count {
     padding: 5px 9px;
+
     border-radius: 20px;
+
     background: #dcfce7;
     color: #166534;
+
     font-size: 10px;
     font-weight: 700;
 }
@@ -260,20 +427,27 @@ body {
     display: flex;
     flex-direction: column;
     gap: 9px;
-    margin-bottom: 90px;
+
+    margin-bottom: 120px;
 }
 
 .resident-item {
     display: flex;
     align-items: center;
     gap: 10px;
+
     width: 100%;
     padding: 12px;
+
     border: 1px solid #e5e7eb;
     border-radius: 17px;
+
     background: #ffffff;
+
     cursor: pointer;
     transition: .15s ease;
+
+    -webkit-tap-highlight-color: transparent;
 }
 
 .resident-item:hover {
@@ -284,7 +458,7 @@ body {
 .resident-item.selected {
     border-color: #22c55e;
     background: #f0fdf4;
-    box-shadow: 0 3px 12px rgba(34,197,94,.10);
+    box-shadow: 0 3px 12px rgba(34, 197, 94, .10);
 }
 
 
@@ -312,12 +486,26 @@ body {
     width: 42px;
     height: 42px;
     flex: 0 0 42px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     border-radius: 13px;
+
     background: #dcfce7;
-    font-size: 19px;
+    color: #15803d;
+}
+
+.resident-avatar svg {
+    width: 21px;
+    height: 21px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 
@@ -333,8 +521,10 @@ body {
 .resident-info strong {
     display: block;
     overflow: hidden;
+
     color: #1e293b;
     font-size: 13px;
+
     white-space: nowrap;
     text-overflow: ellipsis;
 }
@@ -343,6 +533,7 @@ body {
 .resident-info small {
     display: block;
     margin-top: 3px;
+
     color: #64748b;
     font-size: 10px;
 }
@@ -358,8 +549,15 @@ body {
 
 .resident-qr-status {
     flex: 0 0 auto;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+
     padding: 5px 8px;
+
     border-radius: 9px;
+
     font-size: 9px;
     font-weight: 700;
 }
@@ -374,6 +572,17 @@ body {
     color: #b45309;
 }
 
+.resident-qr-status svg {
+    width: 12px;
+    height: 12px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
 
 /* ==========================================
    LOADING
@@ -384,7 +593,9 @@ body {
     align-items: center;
     justify-content: center;
     gap: 10px;
+
     padding: 35px 15px;
+
     color: #64748b;
     font-size: 12px;
 }
@@ -392,16 +603,20 @@ body {
 .spinner {
     width: 22px;
     height: 22px;
+
     border: 3px solid #dcfce7;
     border-top-color: #15803d;
     border-radius: 50%;
+
     animation: spin .8s linear infinite;
 }
 
 @keyframes spin {
+
     to {
         transform: rotate(360deg);
     }
+
 }
 
 
@@ -414,14 +629,35 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 7px;
+
     padding: 40px 15px;
+
     color: #64748b;
     text-align: center;
 }
 
 .empty-icon {
-    font-size: 34px;
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
     margin-bottom: 3px;
+
+    color: #64748b;
+}
+
+.empty-icon svg {
+    width: 30px;
+    height: 30px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 .empty-state strong {
@@ -444,7 +680,26 @@ body {
 }
 
 .error-icon {
-    font-size: 30px;
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0 auto;
+    color: #dc2626;
+}
+
+.error-icon svg {
+    width: 30px;
+    height: 30px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 .error-state strong {
@@ -460,11 +715,15 @@ body {
 
 .error-state button {
     padding: 10px 16px;
+
     border: none;
     border-radius: 10px;
+
     background: #15803d;
     color: #ffffff;
+
     font-weight: 700;
+    cursor: pointer;
 }
 
 
@@ -474,21 +733,31 @@ body {
 
 .print-bar {
     position: fixed;
+
     left: 50%;
-    bottom: 12px;
-    z-index: 50;
+    bottom: 82px;
+
+    z-index: 90;
+
     width: calc(100% - 28px);
     max-width: 732px;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+
     padding: 11px 12px 11px 15px;
+
     border: 1px solid #d1fae5;
     border-radius: 18px;
-    background: rgba(255,255,255,.96);
-    box-shadow: 0 8px 30px rgba(0,0,0,.12);
+
+    background: rgba(255, 255, 255, .96);
+
+    box-shadow: 0 8px 30px rgba(0, 0, 0, .12);
+
     transform: translateX(-50%);
+
     backdrop-filter: blur(8px);
 }
 
@@ -501,12 +770,16 @@ body {
 .print-info strong {
     min-width: 28px;
     height: 28px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     border-radius: 9px;
+
     background: #dcfce7;
     color: #166534;
+
     font-size: 12px;
 }
 
@@ -517,40 +790,40 @@ body {
 
 .print-button {
     height: 40px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
     padding: 0 17px;
+
     border: none;
     border-radius: 12px;
+
     background: #15803d;
     color: #ffffff;
+
     font-size: 12px;
     font-weight: 700;
+
     cursor: pointer;
+}
+
+.print-button svg {
+    width: 17px;
+    height: 17px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 .print-button:disabled {
     opacity: .45;
     cursor: not-allowed;
-}
-
-
-/* ==========================================
-   FOOTER
-========================================== */
-
-footer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 25px 0 85px;
-    color: #94a3b8;
-    font-size: 11px;
-    text-align: center;
-}
-
-footer strong {
-    color: #166534;
-    font-size: 14px;
 }
 
 
@@ -573,6 +846,12 @@ footer strong {
         padding: 11px;
     }
 
+    .top-header {
+        margin-left: -11px;
+        margin-right: -11px;
+        margin-top: -11px;
+    }
+
     .resident-item {
         padding: 10px;
         gap: 8px;
@@ -591,10 +870,45 @@ footer strong {
 
     .print-bar {
         width: calc(100% - 22px);
+        bottom: 78px;
     }
 
     .print-button {
         padding: 0 13px;
+    }
+
+}
+
+@media (max-width: 360px) {
+
+    .resident-info small {
+        display: none;
+    }
+
+    .print-bar {
+        gap: 7px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .print-info span {
+        font-size: 10px;
+    }
+
+    .print-button {
+        padding: 0 10px;
+    }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .spinner {
+        animation: none;
+    }
+
+    .resident-item {
+        transition: none;
     }
 
 }

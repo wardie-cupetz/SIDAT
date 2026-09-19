@@ -10,6 +10,97 @@ console.log(
 
 
 // ==========================================
+// ICON SVG
+// ==========================================
+
+const SVG_INFO = `
+<svg
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+>
+    <circle cx="12" cy="12" r="9"></circle>
+    <path d="M12 10v6"></path>
+    <circle
+        cx="12"
+        cy="7"
+        r="1"
+        fill="currentColor"
+        stroke="none"
+    ></circle>
+</svg>
+`;
+
+const SVG_CALENDAR = `
+<svg
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+>
+    <rect
+        x="4"
+        y="5"
+        width="16"
+        height="15"
+        rx="2"
+    ></rect>
+    <path d="M8 3v4"></path>
+    <path d="M16 3v4"></path>
+    <path d="M4 9h16"></path>
+</svg>
+`;
+
+const SVG_USER = `
+<svg
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+>
+    <circle
+        cx="12"
+        cy="8"
+        r="3"
+    ></circle>
+    <path d="M5 20c.8-4 3.1-6 7-6s6.2 2 7 6"></path>
+</svg>
+`;
+
+const SVG_SUCCESS = `
+<svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    style="
+        width:24px;
+        height:24px;
+        min-width:24px;
+        min-height:24px;
+        max-width:24px;
+        max-height:24px;
+        display:inline-block;
+        vertical-align:middle;
+        flex:none;
+    "
+>
+    <path d="M5 12.5l4.2 4.2L19 7"></path>
+</svg>
+`;
+const SVG_ERROR = `
+<svg
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+>
+    <circle cx="12" cy="12" r="9"></circle>
+    <path d="M12 8v5"></path>
+    <path d="M12 16h.01"></path>
+</svg>
+`;
+
+
+// ==========================================
 // DATA
 // ==========================================
 
@@ -180,10 +271,8 @@ async function loadTransaksi() {
                 `${SUPABASE_URL}/rest/v1/rpc/get_untransferred_jimpitan`,
                 {
                     method: "POST",
-
                     headers:
                         supabaseHeaders(),
-
                     body:
                         JSON.stringify({})
                 }
@@ -213,8 +302,6 @@ async function loadTransaksi() {
                 : [];
 
 
-        // Transaksi yang sudah tidak ada
-        // dari hasil query dibuang dari pilihan.
         transaksiTerpilih =
             new Set(
                 [
@@ -230,7 +317,6 @@ async function loadTransaksi() {
 
 
         renderTransaksi();
-
 
         updateRingkasan();
 
@@ -254,8 +340,13 @@ async function loadTransaksi() {
 
             list.innerHTML = `
                 <div class="empty">
-                    ⚠️ Gagal memuat transaksi.
+                    ${SVG_ERROR}
+                    <span>
+                        Gagal memuat transaksi.
+                    </span>
+
                     <br><br>
+
                     ${escapeHTML(
                         error.message ||
                         "Terjadi kesalahan."
@@ -290,17 +381,20 @@ function renderTransaksi() {
 
 
     if (
-        transaksiJimpitan.length === 0
-    ) {
+    transaksiJimpitan.length === 0
+) {
+    list.innerHTML = `
+        <div class="empty">
+            <span class="empty-success-icon">
+                ${SVG_SUCCESS}
+            </span>
 
-        list.innerHTML = `
-            <div class="empty">
-
-                ✅ Semua jimpitan
+            <span>
+                Semua jimpitan
                 sudah ditransfer ke kas RT.
-
-            </div>
-        `;
+            </span>
+        </div>
+    `;
 
         return;
 
@@ -400,12 +494,14 @@ function renderTransaksi() {
                             ID: ${kode}
                         </span>
 
-                        <span>
-                            📅 ${tanggal}
+                        <span class="meta-icon-item">
+                            ${SVG_CALENDAR}
+                            ${tanggal}
                         </span>
 
-                        <span>
-                            👤 ${petugas}
+                        <span class="meta-icon-item">
+                            ${SVG_USER}
+                            ${petugas}
                         </span>
 
                     </div>
@@ -530,10 +626,6 @@ function updateRingkasan() {
         );
 
 
-    // ======================================
-    // TOTAL BELUM TRANSFER
-    // ======================================
-
     const totalElement =
         document.getElementById(
             "totalBelumTransfer"
@@ -564,10 +656,6 @@ function updateRingkasan() {
     }
 
 
-    // ======================================
-    // TOTAL DIPILIH
-    // ======================================
-
     const dipilihElement =
         document.getElementById(
             "totalDipilih"
@@ -597,10 +685,6 @@ function updateRingkasan() {
 
     }
 
-
-    // ======================================
-    // TOMBOL TRANSFER
-    // ======================================
 
     const button =
         document.getElementById(
@@ -813,24 +897,32 @@ async function transferKeKas() {
         button.disabled =
             true;
 
-        button.textContent =
-            "⏳ Memproses transfer...";
+        button.innerHTML = `
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+                <path d="M12 3v4"></path>
+                <path d="M12 17v4"></path>
+                <path d="M3 12h4"></path>
+                <path d="M17 12h4"></path>
+            </svg>
+
+            <span>
+                Memproses transfer...
+            </span>
+        `;
 
     }
 
 
     try {
 
-        // ==================================
-        // Ambil user admin yang sedang login
-        // ==================================
-
         const userResponse =
             await fetch(
                 `${SUPABASE_URL}/auth/v1/user`,
                 {
                     method: "GET",
-
                     headers:
                         supabaseHeaders()
                 }
@@ -861,10 +953,6 @@ async function transferKeKas() {
 
         }
 
-
-        // ==================================
-        // Panggil RPC transfer
-        // ==================================
 
         const response =
             await fetch(
@@ -941,13 +1029,19 @@ async function transferKeKas() {
 
         showMessage(
             `
-                ✅ <strong>
+                ${SVG_SUCCESS}
+
+                <strong>
                     Transfer berhasil.
                 </strong>
+
                 <br>
+
                 ${formatRupiah(total)}
                 telah masuk ke Kas RT.
+
                 <br>
+
                 ${dataTerpilih.length}
                 transaksi diproses.
             `,
@@ -955,16 +1049,8 @@ async function transferKeKas() {
         );
 
 
-        // ==================================
-        // Bersihkan pilihan
-        // ==================================
-
         transaksiTerpilih.clear();
 
-
-        // ==================================
-        // Muat ulang data
-        // ==================================
 
         await loadTransaksi();
 
@@ -981,10 +1067,14 @@ async function transferKeKas() {
 
         showMessage(
             `
-                ⚠️ <strong>
+                ${SVG_ERROR}
+
+                <strong>
                     Transfer gagal.
                 </strong>
+
                 <br>
+
                 ${escapeHTML(
                     error.message ||
                     "Terjadi kesalahan."
@@ -1000,8 +1090,30 @@ async function transferKeKas() {
 
         if (button) {
 
-            button.textContent =
-                "💰 Transfer ke Kas RT";
+            button.innerHTML = `
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <rect
+                        x="3"
+                        y="6"
+                        width="18"
+                        height="13"
+                        rx="2"
+                    ></rect>
+
+                    <path d="M3 10h18"></path>
+
+                    <path d="M12 12v5"></path>
+
+                    <path d="M9.5 14.5L12 17l2.5-2.5"></path>
+                </svg>
+
+                <span>
+                    Transfer ke Kas RT
+                </span>
+            `;
 
         }
 

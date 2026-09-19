@@ -1,363 +1,434 @@
-<!DOCTYPE html>
-<html lang="id">
+<!DOCTYPE html><html lang="id"><head>
+    <meta charset="UTF-8"><meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+>
 
-<head>
+<meta
+    name="theme-color"
+    content="#15803d"
+>
 
-    <meta charset="UTF-8">
+<title>SIDAT - Kas RT</title>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
+<link rel="stylesheet" href="kas.css">
+<link rel="stylesheet" href="warga-menu.css">
+
+</head><body><div class="kas-container"><!-- HEADER -->
+<header class="top-header">
+
+    <button
+        type="button"
+        class="back-button"
+        onclick="kembaliDashboard()"
+        aria-label="Kembali ke Dashboard"
     >
-
-    <meta
-        name="theme-color"
-        content="#15803d"
-    >
-
-    <title>
-        SIDAT - Kas RT
-    </title>
-
-    <link
-        rel="stylesheet"
-        href="kas.css"
-    >
-
-</head>
-
-<body>
-
-<div class="kas-container">
-
-
-    <!-- =====================================
-         HEADER
-    ====================================== -->
-
-    <header class="top-header">
-
-        <button
-            type="button"
-            class="back-button"
-            onclick="kembaliDashboard()"
+        <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
         >
-            ←
-        </button>
+            <path
+                d="M15 18l-6-6 6-6"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            />
+        </svg>
+    </button>
 
+    <div class="header-title">
 
-        <div class="header-title">
+        <div class="header-icon">
 
-            <div class="header-icon">
-                💰
-            </div>
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+                <path
+                    d="M4 7.5C4 5.57 7.58 4 12 4s8 1.57 8 3.5S16.42 11 12 11 4 9.43 4 7.5Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                />
 
-            <div>
+                <path
+                    d="M4 7.5v4c0 1.93 3.58 3.5 8 3.5s8-1.57 8-3.5v-4"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                />
 
-                <h1>
-                    Kas RT
-                </h1>
-
-                <span>
-                    Informasi keuangan RT
-                </span>
-
-            </div>
-
-        </div>
-
-    </header>
-
-
-    <!-- =====================================
-         SALDO UTAMA
-    ====================================== -->
-
-    <section class="saldo-card">
-
-        <div class="saldo-label">
-            Saldo Kas RT
-        </div>
-
-        <div
-            id="saldoKas"
-            class="saldo-value"
-        >
-            Rp 0
-        </div>
-
-        <div class="saldo-caption">
-            Saldo kas berdasarkan seluruh transaksi
-        </div>
-
-    </section>
-
-
-    <!-- =====================================
-         RINGKASAN
-    ====================================== -->
-
-    <section class="summary-grid">
-
-        <div class="summary-card masuk">
-
-            <div class="summary-icon">
-                ↑
-            </div>
-
-            <div>
-
-                <span>
-                    Total Pemasukan
-                </span>
-
-                <strong
-                    id="totalPemasukan"
-                >
-                    Rp 0
-                </strong>
-
-                <small>
-                    Dana masuk
-                </small>
-
-            </div>
+                <path
+                    d="M4 11.5v4c0 1.93 3.58 3.5 8 3.5s8-1.57 8-3.5v-4"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                />
+            </svg>
 
         </div>
-
-
-        <div class="summary-card keluar">
-
-            <div class="summary-icon">
-                ↓
-            </div>
-
-            <div>
-
-                <span>
-                    Total Pengeluaran
-                </span>
-
-                <strong
-                    id="totalPengeluaran"
-                >
-                    Rp 0
-                </strong>
-
-                <small>
-                    Dana keluar
-                </small>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =====================================
-         FILTER
-    ====================================== -->
-
-    <section class="filter-card">
-
-        <div class="section-title">
-
-            <span>
-                📋
-            </span>
-
-            <div>
-
-                <h2>
-                    Riwayat Kas
-                </h2>
-
-                <p>
-                    Daftar transaksi kas RT
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div class="filter-row">
-
-            <div class="filter-field">
-
-                <label
-                    for="filterJenis"
-                >
-                    Jenis
-                </label>
-
-                <select
-                    id="filterJenis"
-                >
-
-                    <option value="">
-                        Semua transaksi
-                    </option>
-
-                    <option value="masuk">
-                        Pemasukan
-                    </option>
-
-                    <option value="keluar">
-                        Pengeluaran
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <div class="filter-field">
-
-                <label
-                    for="filterBulan"
-                >
-                    Bulan
-                </label>
-
-                <input
-                    type="month"
-                    id="filterBulan"
-                >
-
-            </div>
-
-        </div>
-
-
-        <button
-            type="button"
-            id="btnResetFilter"
-            class="reset-filter"
-            onclick="resetFilter()"
-        >
-            ↻ Reset Filter
-        </button>
-
-    </section>
-
-
-    <!-- =====================================
-         LOADING
-    ====================================== -->
-
-    <div
-        id="loading"
-        class="loading-state"
-    >
-
-        <div class="spinner"></div>
-
-        <span>
-            Memuat data kas...
-        </span>
-
-    </div>
-
-
-    <!-- =====================================
-         EMPTY
-    ====================================== -->
-
-    <div
-        id="emptyState"
-        class="empty-state hidden"
-    >
-
-        <div class="empty-icon">
-            📭
-        </div>
-
-        <strong>
-            Belum ada transaksi
-        </strong>
-
-        <span>
-            Belum terdapat transaksi kas yang sesuai.
-        </span>
-
-    </div>
-
-
-    <!-- =====================================
-         ERROR
-    ====================================== -->
-
-    <div
-        id="errorState"
-        class="error-state hidden"
-    >
 
         <div>
-            ⚠️
+
+            <h1>Kas RT</h1>
+
+            <span>
+                Informasi keuangan RT
+            </span>
+
         </div>
 
-        <strong>
-            Gagal memuat kas
-        </strong>
+    </div>
 
-        <p id="errorMessage">
-            Terjadi kesalahan.
-        </p>
+</header>
 
-        <button
-            type="button"
-            onclick="muatKas()"
-        >
-            Coba Lagi
-        </button>
+
+<!-- SALDO -->
+<section class="saldo-card">
+
+    <div class="saldo-label">
+        Saldo Kas RT
+    </div>
+
+    <div
+        id="saldoKas"
+        class="saldo-value"
+    >
+        Rp 0
+    </div>
+
+    <div class="saldo-caption">
+        Saldo berdasarkan transaksi kas yang tercatat
+    </div>
+
+</section>
+
+
+<!-- RINGKASAN -->
+<section class="summary-grid">
+
+    <div class="summary-card masuk">
+
+        <div class="summary-icon">
+
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+                <path
+                    d="M12 19V5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                />
+
+                <path
+                    d="M6.5 10.5 12 5l5.5 5.5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                />
+            </svg>
+
+        </div>
+
+        <div>
+
+            <span>Total Pemasukan</span>
+
+            <strong id="totalPemasukan">
+                Rp 0
+            </strong>
+
+            <small>Dana masuk</small>
+
+        </div>
 
     </div>
 
 
-    <!-- =====================================
-         LIST TRANSAKSI
-    ====================================== -->
+    <div class="summary-card keluar">
 
-    <section
-        id="transactionList"
-        class="transaction-list"
-    ></section>
+        <div class="summary-icon">
+
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+                <path
+                    d="M12 5v14"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                />
+
+                <path
+                    d="m6.5 13.5 5.5 5.5 5.5-5.5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                />
+            </svg>
+
+        </div>
+
+        <div>
+
+            <span>Total Pengeluaran</span>
+
+            <strong id="totalPengeluaran">
+                Rp 0
+            </strong>
+
+            <small>Dana keluar</small>
+
+        </div>
+
+    </div>
+
+</section>
 
 
-    <!-- =====================================
-         FOOTER
-    ====================================== -->
+<!-- FILTER -->
+<section class="filter-card">
 
-    <footer>
+    <div class="section-title">
 
-        <strong>
-            SIDAT
-        </strong>
+        <div class="section-title-icon">
 
-        <span>
-            Sistem Data Warga
-        </span>
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+                <path
+                    d="M4 6h16M7 12h10M10 18h4"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                />
+            </svg>
 
-        <small>
-            Dibuat oleh Suwardi
-        </small>
+        </div>
 
-    </footer>
+        <div>
 
+            <h2>Riwayat Kas</h2>
+
+            <p>
+                Daftar transaksi kas RT
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="filter-row">
+
+        <div class="filter-field">
+
+            <label for="filterJenis">
+                Jenis
+            </label>
+
+            <select id="filterJenis">
+
+                <option value="">
+                    Semua transaksi
+                </option>
+
+                <option value="masuk">
+                    Pemasukan
+                </option>
+
+                <option value="keluar">
+                    Pengeluaran
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="filter-field">
+
+            <label for="filterBulan">
+                Bulan
+            </label>
+
+            <input
+                type="month"
+                id="filterBulan"
+            >
+
+        </div>
+
+    </div>
+
+
+    <button
+        type="button"
+        id="btnResetFilter"
+        class="reset-filter"
+        onclick="resetFilter()"
+    >
+
+        <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+        >
+            <path
+                d="M4 12a8 8 0 1 0 2.34-5.66"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+            />
+
+            <path
+                d="M4 5v4h4"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            />
+        </svg>
+
+        <span>Reset Filter</span>
+
+    </button>
+
+</section>
+
+
+<!-- LOADING -->
+<div
+    id="loading"
+    class="loading-state"
+>
+
+    <div class="spinner"></div>
+
+    <span>
+        Memuat data kas...
+    </span>
 
 </div>
 
 
-<script
-    src="../js/supabase-config.js"
-></script>
+<!-- EMPTY -->
+<div
+    id="emptyState"
+    class="empty-state hidden"
+>
 
-<script
-    src="kas.js"
-></script>
+    <div class="empty-icon">
 
-</body>
+        <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+        >
+            <path
+                d="M4 7h16v12H4z"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linejoin="round"
+            />
 
-</html>
+            <path
+                d="M8 7V5h8v2M9 12h6"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+            />
+        </svg>
+
+    </div>
+
+    <strong>
+        Belum ada transaksi
+    </strong>
+
+    <span>
+        Belum terdapat transaksi kas yang sesuai.
+    </span>
+
+</div>
+
+
+<!-- ERROR -->
+<div
+    id="errorState"
+    class="error-state hidden"
+>
+
+    <div class="error-icon">
+
+        <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+        >
+            <path
+                d="M12 3 21 20H3L12 3Z"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linejoin="round"
+            />
+
+            <path
+                d="M12 9v5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+            />
+
+            <circle
+                cx="12"
+                cy="17"
+                r="1"
+                fill="currentColor"
+            />
+        </svg>
+
+    </div>
+
+    <strong>
+        Gagal memuat kas
+    </strong>
+
+    <p id="errorMessage">
+        Terjadi kesalahan.
+    </p>
+
+    <button
+        type="button"
+        onclick="muatKas()"
+    >
+        Coba Lagi
+    </button>
+
+</div>
+
+
+<!-- TRANSACTIONS -->
+<section
+    id="transactionList"
+    class="transaction-list"
+    aria-live="polite"
+></section>
+
+</div><!-- SUPABASE --><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../js/supabase-config.js"></script><script src="./warga-menu.js"></script><script src="./kas.js"></script></body></html>
