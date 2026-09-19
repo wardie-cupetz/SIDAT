@@ -1,1377 +1,1234 @@
-// ==========================================
-// SIDAT
-// RIWAYAT JIMPITAN
-// Dibuat oleh Suwardi
-// ==========================================
+/* =========================================================
+   SIDAT - RIWAYAT JIMPITAN WARGA
+   Versi: Final - Session Supabase Dinamis
+   ========================================================= */
 
-console.log(
-    "SIDAT - Riwayat Jimpitan"
-);
+(function () {
+    "use strict";
 
+    let semuaRiwayat = [];
+    let semuaWargaMonitoring = [];
 
-// ==========================================
-// SESSION
-// ==========================================
+    let supabaseClient = null;
 
-const accessToken =
-    localStorage.getItem(
-        "sidat_access_token"
-    );
+    /* =========================================================
+       INIT SUPABASE
+       ========================================================= */
 
-
-// ==========================================
-// CEK SESSION
-// ==========================================
-
-if (!accessToken) {
-
-    console.warn(
-        "SIDAT: access token tidak ditemukan."
-    );
-
-}
-
-
-// ==========================================
-// DATA GLOBAL
-// ==========================================
-
-let semuaRiwayat = [];
-
-let semuaWargaMonitoring = [];
-
-
-// ==========================================
-// FORMAT RUPIAH
-// ==========================================
-
-function formatRupiah(
-    nominal
-) {
-
-    return new Intl.NumberFormat(
-        "id-ID",
-        {
-            style: "currency",
-            currency: "IDR",
-            minimumFractionDigits: 0
-        }
-    ).format(
-        Number(nominal) || 0
-    );
-
-}
-
-
-// ==========================================
-// FORMAT TANGGAL
-// ==========================================
-
-function formatTanggal(
-    tanggal
-) {
-
-    if (!tanggal) {
-
-        return "-";
-
-    }
-
-
-    const date =
-        new Date(
-            tanggal + "T00:00:00"
-        );
-
-
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
-
-        return tanggal;
-
-    }
-
-
-    return date.toLocaleDateString(
-        "id-ID",
-        {
-            day: "2-digit",
-            month: "long",
-            year: "numeric"
-        }
-    );
-
-}
-
-
-// ==========================================
-// TANGGAL HARI INI
-// ==========================================
-
-function tanggalHariIni() {
-
-    const sekarang =
-        new Date();
-
-
-    const tahun =
-        sekarang.getFullYear();
-
-
-    const bulan =
-        String(
-            sekarang.getMonth() + 1
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    const tanggal =
-        String(
-            sekarang.getDate()
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    return (
-        `${tahun}-${bulan}-${tanggal}`
-    );
-
-}
-
-
-// ==========================================
-// ESCAPE HTML
-// ==========================================
-
-function escapeHTML(
-    value
-) {
-
-    const div =
-        document.createElement(
-            "div"
-        );
-
-
-    div.textContent =
-        value ?? "";
-
-
-    return div.innerHTML;
-
-}
-
-
-// ==========================================
-// HEADER SUPABASE
-// ==========================================
-
-function supabaseHeaders() {
-
-    return {
-
-        "apikey":
-            SUPABASE_KEY,
-
-        "Authorization":
-            `Bearer ${accessToken}`,
-
-        "Content-Type":
-            "application/json"
-
-    };
-
-}
-
-
-// ==========================================
-// LOAD SALDO JIMPITAN
-// Menggunakan RPC yang sudah ada
-// ==========================================
-
-async function loadSaldoJimpitan() {
-
-    try {
-
-        const response =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/rpc/get_jimpitan_balance`,
-                {
-                    method: "POST",
-
-                    headers:
-                        supabaseHeaders(),
-
-                    body:
-                        JSON.stringify({})
-                }
-            );
-
-
-        if (!response.ok) {
-
-            const errorText =
-                await response.text();
-
-            throw new Error(
-                errorText ||
-                `HTTP ${response.status}`
-            );
-
-        }
-
-
-        const result =
-            await response.json();
-
-
-        let saldo =
-            0;
-
-
-        // RPC bisa mengembalikan
-        // angka langsung atau object.
+    function initSupabase() {
         if (
-            typeof result ===
-            "number"
+            typeof supabase === "undefined" ||
+            typeof SUPABASE_URL === "undefined" ||
+            typeof SUPABASE_KEY === "undefined"
         ) {
-
-            saldo =
-                result;
-
+            throw new Error(
+                "Konfigurasi Supabase belum tersedia."
+            );
         }
 
-        else if (
-            result &&
-            typeof result ===
-            "object"
-        ) {
+        if (!supabaseClient) {
+            supabaseClient = supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_KEY
+            );
+        }
 
-            saldo =
-                Number(
-                    result.saldo ??
-                    result.balance ??
-                    result.total ??
-                    0
+        return supabaseClient;
+    }
+
+    /* =========================================================
+       SESSION SUPABASE
+       ========================================================= */
+
+    async function getValidAccessToken() {
+        const client = initSupabase();
+
+        const {
+            data,
+            error
+        } = await client.auth.getSession();
+
+        if (error) {
+            throw error;
+        }
+
+        let session = data ? data.session : null;
+
+        if (!session) {
+            throw new Error(
+                "Session login tidak ditemukan. Silakan login kembali."
+            );
+        }
+
+        const expiresAt = Number(
+            session.expires_at || 0
+        );
+
+        const sekarang = Math.floor(
+            Date.now() / 1000
+        );
+
+        /*
+         * Refresh jika token akan kedaluwarsa
+         * dalam waktu 60 detik.
+         */
+        if (
+            expiresAt &&
+            expiresAt <= sekarang + 60
+        ) {
+            const refresh =
+                await client.auth.refreshSession();
+
+            if (refresh.error) {
+                throw refresh.error;
+            }
+
+            session = refresh.data
+                ? refresh.data.session
+                : null;
+
+            if (!session) {
+                throw new Error(
+                    "Session gagal diperbarui."
                 );
-
+            }
         }
 
+        /*
+         * Sinkronkan kembali token terbaru
+         * ke localStorage agar bagian SIDAT
+         * lain yang masih membutuhkannya tetap
+         * mendapatkan token terbaru.
+         */
+        localStorage.setItem(
+            "sidat_access_token",
+            session.access_token
+        );
 
+        return session.access_token;
+    }
+
+    /* =========================================================
+       HEADER SUPABASE
+       ========================================================= */
+
+    async function supabaseHeaders() {
+        const accessToken =
+            await getValidAccessToken();
+
+        return {
+            "apikey": SUPABASE_KEY,
+            "Authorization":
+                "Bearer " + accessToken,
+            "Content-Type":
+                "application/json",
+            "Accept":
+                "application/json"
+        };
+    }
+
+    /* =========================================================
+       FORMAT RUPIAH
+       ========================================================= */
+
+    function formatRupiah(value) {
+        const angka = Number(value || 0);
+
+        return "Rp " +
+            angka.toLocaleString(
+                "id-ID"
+            );
+    }
+
+    /* =========================================================
+       FORMAT TANGGAL
+       ========================================================= */
+
+    function formatTanggal(value) {
+        if (!value) {
+            return "-";
+        }
+
+        const tanggal =
+            new Date(value);
+
+        if (Number.isNaN(
+            tanggal.getTime()
+        )) {
+            return value;
+        }
+
+        return tanggal.toLocaleDateString(
+            "id-ID",
+            {
+                day: "2-digit",
+                month: "long",
+                year: "numeric"
+            }
+        );
+    }
+
+    /* =========================================================
+       TANGGAL HARI INI
+       ========================================================= */
+
+    function tanggalHariIni() {
+        const sekarang =
+            new Date();
+
+        const tahun =
+            sekarang.getFullYear();
+
+        const bulan =
+            String(
+                sekarang.getMonth() + 1
+            ).padStart(2, "0");
+
+        const hari =
+            String(
+                sekarang.getDate()
+            ).padStart(2, "0");
+
+        return `${tahun}-${bulan}-${hari}`;
+    }
+
+    /* =========================================================
+       ESCAPE HTML
+       ========================================================= */
+
+    function escapeHTML(value) {
+        return String(
+            value == null
+                ? ""
+                : value
+        )
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            )
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+    }
+
+    /* =========================================================
+       LOAD SALDO JIMPITAN
+       ========================================================= */
+
+    async function loadSaldoJimpitan() {
         const saldoElement =
             document.getElementById(
                 "saldoJimpitan"
             );
 
+        if (!saldoElement) {
+            return;
+        }
 
-        if (saldoElement) {
+        try {
+            const headers =
+                await supabaseHeaders();
+
+            const response =
+                await fetch(
+                    SUPABASE_URL +
+                    "/rest/v1/rpc/get_jimpitan_balance",
+                    {
+                        method: "POST",
+                        headers: headers,
+                        body: JSON.stringify({})
+                    }
+                );
+
+            if (!response.ok) {
+                const text =
+                    await response.text();
+
+                throw new Error(
+                    text ||
+                    "Gagal mengambil saldo jimpitan."
+                );
+            }
+
+            const data =
+                await response.json();
+
+            let saldo = 0;
+
+            if (typeof data === "number") {
+                saldo = data;
+            } else if (
+                data &&
+                typeof data.balance !== "undefined"
+            ) {
+                saldo = data.balance;
+            } else if (
+                data &&
+                typeof data.saldo !== "undefined"
+            ) {
+                saldo = data.saldo;
+            } else if (
+                Array.isArray(data) &&
+                data.length
+            ) {
+                const row = data[0];
+
+                saldo =
+                    Number(
+                        row.balance ??
+                        row.saldo ??
+                        row.jimpitan_balance ??
+                        0
+                    );
+            }
 
             saldoElement.textContent =
-                formatRupiah(
-                    saldo
-                );
+                formatRupiah(saldo);
 
-        }
-
-
-        console.log(
-            "Saldo jimpitan:",
-            saldo
-        );
-
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Load saldo jimpitan error:",
-            error
-        );
-
-
-        const saldoElement =
-            document.getElementById(
-                "saldoJimpitan"
+        } catch (error) {
+            console.error(
+                "SIDAT saldo jimpitan:",
+                error
             );
-
-
-        if (saldoElement) {
 
             saldoElement.textContent =
                 "Rp 0";
-
         }
-
     }
 
-}
+    /* =========================================================
+       LOAD RIWAYAT
+       ========================================================= */
 
-
-// ==========================================
-// LOAD RIWAYAT JIMPITAN
-// Menggunakan RPC yang sudah ada
-// ==========================================
-
-async function loadRiwayat() {
-
-    const container =
-        document.getElementById(
-            "historyList"
-        );
-
-
-    if (container) {
-
-        container.innerHTML = `
-            <div class="empty">
-                Memuat riwayat...
-            </div>
-        `;
-
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/rpc/get_jimpitan_history`,
-                {
-                    method: "POST",
-
-                    headers:
-                        supabaseHeaders(),
-
-                    body:
-                        JSON.stringify({})
-                }
+    async function loadRiwayat() {
+        const historyList =
+            document.getElementById(
+                "historyList"
             );
 
+        if (historyList) {
+            historyList.innerHTML =
+                '<div class="loading">Memuat riwayat...</div>';
+        }
 
-        if (!response.ok) {
+        try {
+            const headers =
+                await supabaseHeaders();
 
-            const errorText =
-                await response.text();
+            const response =
+                await fetch(
+                    SUPABASE_URL +
+                    "/rest/v1/rpc/get_jimpitan_history",
+                    {
+                        method: "POST",
+                        headers: headers,
+                        body: JSON.stringify({})
+                    }
+                );
 
-            throw new Error(
-                errorText ||
-                `HTTP ${response.status}`
+            if (!response.ok) {
+                const text =
+                    await response.text();
+
+                throw new Error(
+                    text ||
+                    "Gagal mengambil riwayat jimpitan."
+                );
+            }
+
+            const data =
+                await response.json();
+
+            semuaRiwayat =
+                Array.isArray(data)
+                    ? data
+                    : [];
+
+            tampilkanRiwayat(
+                semuaRiwayat
             );
 
+        } catch (error) {
+            console.error(
+                "SIDAT riwayat jimpitan:",
+                error
+            );
+
+            if (historyList) {
+                historyList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-title">
+                            Riwayat belum dapat dimuat
+                        </div>
+                        <div class="empty-text">
+                            ${escapeHTML(
+                                error.message ||
+                                "Terjadi kesalahan."
+                            )}
+                        </div>
+                    </div>
+                `;
+            }
+
+            const jumlah =
+                document.getElementById(
+                    "jumlahTransaksi"
+                );
+
+            if (jumlah) {
+                jumlah.textContent =
+                    "0 transaksi";
+            }
         }
-
-
-        const result =
-            await response.json();
-
-
-        if (
-            Array.isArray(result)
-        ) {
-
-            semuaRiwayat =
-                result;
-
-        }
-
-        else {
-
-            semuaRiwayat =
-                [];
-
-        }
-
-
-        console.log(
-            "Riwayat jimpitan:",
-            semuaRiwayat
-        );
-
-
-        tampilkanRiwayat(
-            semuaRiwayat
-        );
-
-
     }
 
-    catch (error) {
+    /* =========================================================
+       TAMPILKAN RIWAYAT
+       ========================================================= */
 
-        console.error(
-            "Load riwayat error:",
-            error
-        );
+    function tampilkanRiwayat(data) {
+        const historyList =
+            document.getElementById(
+                "historyList"
+            );
 
+        const jumlah =
+            document.getElementById(
+                "jumlahTransaksi"
+            );
 
-        if (container) {
+        if (!historyList) {
+            return;
+        }
 
-            container.innerHTML = `
-                <div class="empty">
+        if (!Array.isArray(data) ||
+            data.length === 0) {
 
-                    ⚠️ Gagal memuat riwayat.
-
+            historyList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-title">
+                        Belum ada transaksi jimpitan
+                    </div>
+                    <div class="empty-text">
+                        Riwayat transaksi jimpitan
+                        akan tampil di sini.
+                    </div>
                 </div>
             `;
 
+            if (jumlah) {
+                jumlah.textContent =
+                    "0 transaksi";
+            }
+
+            return;
         }
 
-    }
+        if (jumlah) {
+            jumlah.textContent =
+                `${data.length} transaksi`;
+        }
 
-}
+        historyList.innerHTML =
+            data.map(
+                function (item) {
+                    const tanggal =
+                        item.transaction_date ??
+                        item.taken_at ??
+                        item.tanggal ??
+                        item.created_at;
 
+                    const collector =
+                        item.collector_name ??
+                        item.collector_nama ??
+                        item.collector_code ??
+                        "-";
 
-// ==========================================
-// TAMPILKAN RIWAYAT
-// ==========================================
+                    const resident =
+                        item.resident_name ??
+                        item.resident_nama ??
+                        item.name ??
+                        "-";
 
-function tampilkanRiwayat(
-    data
-) {
+                    const residentCode =
+                        item.resident_code ??
+                        item.kode_warga ??
+                        "";
 
-    const container =
-        document.getElementById(
-            "historyList"
-        );
+                    const amount =
+                        item.amount ?? 0;
 
+                    const notes =
+                        item.notes ??
+                        "";
 
-    if (!container) {
+                    const transferred =
+                        Boolean(
+                            item.transferred_to_cash
+                        );
 
-        return;
+                    return `
+                        <article class="history-item">
 
-    }
+                            <div class="history-item-top">
 
-
-    const jumlahElement =
-        document.getElementById(
-            "jumlahTransaksi"
-        );
-
-
-    if (jumlahElement) {
-
-        jumlahElement.textContent =
-            `${data.length} transaksi`;
-
-    }
-
-
-    if (
-        !data ||
-        data.length === 0
-    ) {
-
-        container.innerHTML = `
-            <div class="empty">
-
-                Belum ada transaksi jimpitan.
-
-            </div>
-        `;
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        data.map(
-            transaksi => {
-
-                const tanggal =
-                    transaksi.transaction_date ??
-                    transaksi.taken_at ??
-                    transaksi.tanggal ??
-                    "";
-
-
-                const namaWarga =
-                    transaksi.resident_name ??
-                    transaksi.name ??
-                    transaksi.warga_name ??
-                    "-";
-
-
-                const namaPetugas =
-                    transaksi.collector_name ??
-                    transaksi.petugas_name ??
-                    "Petugas";
-
-
-                const nominal =
-                    transaksi.amount ??
-                    transaksi.nominal ??
-                    0;
-
-
-                const sudahTransfer =
-                    transaksi.transferred_to_cash === true;
-
-
-                const statusHTML =
-                    sudahTransfer
-
-                        ? `
-                            <span
-                                class="history-status status-transferred"
-                            >
-                                ✓ Sudah masuk kas
-                            </span>
-                          `
-
-                        : `
-                            <span
-                                class="history-status status-pending"
-                            >
-                                ⏳ Belum ditransfer ke kas
-                            </span>
-                          `;
-
-
-                const notes =
-                    transaksi.notes ??
-                    "";
-
-
-                const notesHTML =
-                    notes
-
-                        ? `
-                            <div
-                                class="history-notes"
-                            >
-                                ${escapeHTML(
-                                    notes
-                                )}
-                            </div>
-                          `
-
-                        : "";
-
-
-                return `
-
-                    <article
-                        class="history-item"
-                    >
-
-                        <div
-                            class="history-top"
-                        >
-
-                            <div>
-
-                                <div
-                                    class="history-date"
-                                >
-                                    ${formatTanggal(
-                                        String(
+                                <div class="history-date">
+                                    ${escapeHTML(
+                                        formatTanggal(
                                             tanggal
-                                        ).substring(
-                                            0,
-                                            10
                                         )
                                     )}
                                 </div>
 
+                                <div class="history-amount">
+                                    ${escapeHTML(
+                                        formatRupiah(
+                                            amount
+                                        )
+                                    )}
+                                </div>
 
-                                <div
-                                    class="history-person"
-                                >
+                            </div>
 
-                                    <div>
-                                        👤 Petugas:
-                                        <strong>
-                                            ${escapeHTML(
-                                                namaPetugas
-                                            )}
-                                        </strong>
-                                    </div>
+                            <div class="history-person">
 
+                                <div class="history-person-icon">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <path
+                                            d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"
+                                        />
+                                        <path
+                                            d="M4 21a8 8 0 0 1 16 0"
+                                        />
+                                    </svg>
+                                </div>
 
-                                    <div>
-                                        🏠 Warga:
-                                        <strong>
-                                            ${escapeHTML(
-                                                namaWarga
-                                            )}
-                                        </strong>
-                                    </div>
+                                <div class="history-person-info">
+
+                                    <strong>
+                                        ${escapeHTML(
+                                            resident
+                                        )}
+                                    </strong>
+
+                                    ${
+                                        residentCode
+                                            ? `
+                                                <span>
+                                                    ${escapeHTML(
+                                                        residentCode
+                                                    )}
+                                                </span>
+                                            `
+                                            : ""
+                                    }
 
                                 </div>
 
                             </div>
 
+                            <div class="history-detail">
 
-                            <div
-                                class="history-amount"
-                            >
-                                ${formatRupiah(
-                                    nominal
-                                )}
+                                <div class="history-detail-row">
+
+                                    <span>
+                                        Petugas
+                                    </span>
+
+                                    <strong>
+                                        ${escapeHTML(
+                                            collector
+                                        )}
+                                    </strong>
+
+                                </div>
+
+                                <div class="history-detail-row">
+
+                                    <span>
+                                        Status Kas RT
+                                    </span>
+
+                                    <strong class="${
+                                        transferred
+                                            ? "status-success"
+                                            : "status-pending"
+                                    }">
+
+                                        ${
+                                            transferred
+                                                ? "Sudah masuk kas"
+                                                : "Belum ditransfer ke kas"
+                                        }
+
+                                    </strong>
+
+                                </div>
+
+                                ${
+                                    notes
+                                        ? `
+                                            <div class="history-detail-row">
+
+                                                <span>
+                                                    Catatan
+                                                </span>
+
+                                                <strong>
+                                                    ${escapeHTML(
+                                                        notes
+                                                    )}
+                                                </strong>
+
+                                            </div>
+                                        `
+                                        : ""
+                                }
+
                             </div>
 
-                        </div>
+                        </article>
+                    `;
+                }
+            )
+            .join("");
+    }
 
+    /* =========================================================
+       FILTER RIWAYAT BERDASARKAN TANGGAL
+       ========================================================= */
 
-                        ${statusHTML}
+    function filterRiwayatTanggal(
+        tanggal
+    ) {
+        if (!tanggal) {
+            tampilkanRiwayat(
+                semuaRiwayat
+            );
+            return;
+        }
 
+        const hasil =
+            semuaRiwayat.filter(
+                function (item) {
 
-                        ${notesHTML}
+                    const tanggalItem =
+                        item.transaction_date ??
+                        item.taken_at ??
+                        item.tanggal;
 
-                    </article>
+                    if (!tanggalItem) {
+                        return false;
+                    }
 
-                `;
-
-            }
-        ).join("");
-
-}
-
-
-// ==========================================
-// FILTER RIWAYAT BERDASARKAN TANGGAL
-// ==========================================
-
-function filterRiwayatTanggal(
-    tanggal
-) {
-
-    if (!tanggal) {
+                    return String(
+                        tanggalItem
+                    ).slice(0, 10) ===
+                    tanggal;
+                }
+            );
 
         tampilkanRiwayat(
-            semuaRiwayat
+            hasil
         );
-
-        return;
-
     }
 
+    /* =========================================================
+       RESET FILTER
+       ========================================================= */
 
-    const hasil =
-        semuaRiwayat.filter(
-            transaksi => {
-
-                const tanggalTransaksi =
-                    String(
-                        transaksi.transaction_date ??
-                        transaksi.taken_at ??
-                        transaksi.tanggal ??
-                        ""
-                    ).substring(
-                        0,
-                        10
-                    );
-
-
-                return (
-                    tanggalTransaksi ===
-                    tanggal
-                );
-
-            }
-        );
-
-
-    tampilkanRiwayat(
-        hasil
-    );
-
-}
-
-
-// ==========================================
-// RESET FILTER
-// ==========================================
-
-function resetFilter() {
-
-    const filterTanggal =
-        document.getElementById(
-            "filterTanggal"
-        );
-
-
-    if (filterTanggal) {
-
-        filterTanggal.value =
-            "";
-
-    }
-
-
-    tampilkanRiwayat(
-        semuaRiwayat
-    );
-
-
-    const searchInput =
-        document.getElementById(
-            "searchWarga"
-        );
-
-
-    if (searchInput) {
-
-        searchInput.value =
-            "";
-
-    }
-
-
-    const statusInput =
-        document.getElementById(
-            "filterStatus"
-        );
-
-
-    if (statusInput) {
-
-        statusInput.value =
-            "semua";
-
-    }
-
-
-    loadMonitoringJimpitan();
-
-}
-// ==========================================
-// LOAD MONITORING JIMPITAN
-// ==========================================
-
-async function loadMonitoringJimpitan() {
-
-    const list =
-        document.getElementById(
-            "monitoringList"
-        );
-
-
-    if (!list) {
-
-        return;
-
-    }
-
-
-    try {
-
-        const filterTanggal =
+    function resetFilter() {
+        const tanggal =
             document.getElementById(
                 "filterTanggal"
             );
 
+        const search =
+            document.getElementById(
+                "searchWarga"
+            );
+
+        const status =
+            document.getElementById(
+                "filterStatus"
+            );
+
+        if (tanggal) {
+            tanggal.value =
+                tanggalHariIni();
+        }
+
+        if (search) {
+            search.value = "";
+        }
+
+        if (status) {
+            status.value = "semua";
+        }
+
+        filterRiwayatTanggal(
+            tanggal
+                ? tanggal.value
+                : ""
+        );
+
+        loadMonitoringJimpitan();
+    }
+
+    /* =========================================================
+       LOAD MONITORING JIMPITAN
+       ========================================================= */
+
+    async function loadMonitoringJimpitan() {
+        const tanggalElement =
+            document.getElementById(
+                "filterTanggal"
+            );
 
         const tanggal =
-            filterTanggal &&
-            filterTanggal.value
-
-                ? filterTanggal.value
-
+            tanggalElement &&
+            tanggalElement.value
+                ? tanggalElement.value
                 : tanggalHariIni();
 
-
-        const response =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/rpc/get_jimpitan_monitoring`,
-                {
-                    method: "POST",
-
-                    headers:
-                        supabaseHeaders(),
-
-                    body:
-                        JSON.stringify({
-                            p_date:
-                                tanggal
-                        })
-                }
+        const monitoringList =
+            document.getElementById(
+                "monitoringList"
             );
 
-
-        if (!response.ok) {
-
-            const errorText =
-                await response.text();
-
-            throw new Error(
-                errorText ||
-                `HTTP ${response.status}`
-            );
-
+        if (monitoringList) {
+            monitoringList.innerHTML =
+                '<div class="loading">Memuat monitoring...</div>';
         }
 
+        try {
+            const headers =
+                await supabaseHeaders();
 
-        const result =
-            await response.json();
+            const response =
+                await fetch(
+                    SUPABASE_URL +
+                    "/rest/v1/rpc/get_jimpitan_monitoring",
+                    {
+                        method: "POST",
+                        headers: headers,
+                        body: JSON.stringify({
+                            p_date: tanggal
+                        })
+                    }
+                );
 
+            if (!response.ok) {
+                const text =
+                    await response.text();
 
-        semuaWargaMonitoring =
-            Array.isArray(result)
-                ? result
+                throw new Error(
+                    text ||
+                    "Gagal mengambil monitoring jimpitan."
+                );
+            }
+
+            const data =
+                await response.json();
+
+            semuaWargaMonitoring =
+                Array.isArray(data)
+                    ? data
+                    : [];
+
+            renderMonitoring();
+
+        } catch (error) {
+            console.error(
+                "SIDAT monitoring jimpitan:",
+                error
+            );
+
+            semuaWargaMonitoring = [];
+
+            if (monitoringList) {
+                monitoringList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-title">
+                            Monitoring belum dapat dimuat
+                        </div>
+                        <div class="empty-text">
+                            ${escapeHTML(
+                                error.message ||
+                                "Terjadi kesalahan."
+                            )}
+                        </div>
+                    </div>
+                `;
+            }
+
+            updateDailySummary();
+        }
+    }
+
+    /* =========================================================
+       RENDER MONITORING
+       ========================================================= */
+
+    function renderMonitoring() {
+        const monitoringList =
+            document.getElementById(
+                "monitoringList"
+            );
+
+        if (!monitoringList) {
+            return;
+        }
+
+        const searchElement =
+            document.getElementById(
+                "searchWarga"
+            );
+
+        const statusElement =
+            document.getElementById(
+                "filterStatus"
+            );
+
+        const search =
+            searchElement
+                ? searchElement.value
+                    .trim()
+                    .toLowerCase()
+                : "";
+
+        const status =
+            statusElement
+                ? statusElement.value
+                : "semua";
+
+        let data =
+            Array.isArray(
+                semuaWargaMonitoring
+            )
+                ? semuaWargaMonitoring
                 : [];
 
-
-        console.log(
-            "Monitoring jimpitan:",
-            semuaWargaMonitoring
-        );
-
-
-        renderMonitoring();
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Monitoring error:",
-            error
-        );
-
-
-        list.innerHTML = `
-            <div class="monitoring-empty">
-
-                ⚠️ Gagal memuat data monitoring.
-
-            </div>
-        `;
-
-    }
-
-}
-
-
-// ==========================================
-// RENDER MONITORING
-// ==========================================
-
-function renderMonitoring() {
-
-    const list =
-        document.getElementById(
-            "monitoringList"
-        );
-
-
-    if (!list) {
-
-        return;
-
-    }
-
-
-    const searchInput =
-        document.getElementById(
-            "searchWarga"
-        );
-
-
-    const statusInput =
-        document.getElementById(
-            "filterStatus"
-        );
-
-
-    const search =
-        searchInput
-            ? searchInput.value
-                .trim()
-                .toLowerCase()
-            : "";
-
-
-    const status =
-        statusInput
-            ? statusInput.value
-            : "semua";
-
-
-    // ======================================
-    // STATISTIK
-    // ======================================
-
-    const total =
-        semuaWargaMonitoring.length;
-
-
-    const sudah =
-        semuaWargaMonitoring.filter(
-            warga =>
-                warga.sudah_diambil === true
-        ).length;
-
-
-    const belum =
-        total - sudah;
-
-
-    const totalElement =
-        document.getElementById(
-            "totalWargaHariIni"
-        );
-
-
-    const sudahElement =
-        document.getElementById(
-            "sudahDiambil"
-        );
-
-
-    const belumElement =
-        document.getElementById(
-            "belumDiambil"
-        );
-
-
-    if (totalElement) {
-
-        totalElement.textContent =
-            total;
-
-    }
-
-
-    if (sudahElement) {
-
-        sudahElement.textContent =
-            sudah;
-
-    }
-
-
-    if (belumElement) {
-
-        belumElement.textContent =
-            belum;
-
-    }
-
-
-    // ======================================
-    // FILTER PENCARIAN
-    // ======================================
-
-    const hasil =
-        semuaWargaMonitoring.filter(
-            warga => {
-
-                const nama =
-                    String(
-                        warga.resident_name ||
-                        ""
-                    ).toLowerCase();
-
-
-                const kode =
-                    String(
-                        warga.resident_code ||
-                        ""
-                    ).toLowerCase();
-
-
-                const cocokSearch =
-                    !search ||
-                    nama.includes(search) ||
-                    kode.includes(search);
-
-
-                const sudahDiambil =
-                    warga.sudah_diambil === true;
-
-
-                let cocokStatus =
-                    true;
-
-
-                if (
-                    status === "sudah"
-                ) {
-
-                    cocokStatus =
-                        sudahDiambil;
-
+        /*
+         * Filter pencarian.
+         */
+        if (search) {
+            data =
+                data.filter(
+                    function (item) {
+
+                        const nama =
+                            String(
+                                item.resident_name ??
+                                item.resident_nama ??
+                                item.name ??
+                                ""
+                            )
+                            .toLowerCase();
+
+                        const kode =
+                            String(
+                                item.resident_code ??
+                                item.kode_warga ??
+                                ""
+                            )
+                            .toLowerCase();
+
+                        return (
+                            nama.includes(search) ||
+                            kode.includes(search)
+                        );
+                    }
+                );
+        }
+
+        /*
+         * Filter status.
+         */
+        if (status === "sudah") {
+            data =
+                data.filter(
+                    function (item) {
+                        return Boolean(
+                            item.sudah_diambil ??
+                            item.taken ??
+                            item.is_taken
+                        );
+                    }
+                );
+        }
+
+        if (status === "belum") {
+            data =
+                data.filter(
+                    function (item) {
+                        return !Boolean(
+                            item.sudah_diambil ??
+                            item.taken ??
+                            item.is_taken
+                        );
+                    }
+                );
+        }
+
+        updateDailySummary();
+
+        if (!data.length) {
+            monitoringList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-title">
+                        Data warga tidak ditemukan
+                    </div>
+                    <div class="empty-text">
+                        Tidak ada data yang sesuai
+                        dengan filter saat ini.
+                    </div>
+                </div>
+            `;
+
+            return;
+        }
+
+        monitoringList.innerHTML =
+            data.map(
+                function (item) {
+
+                    const nama =
+                        item.resident_name ??
+                        item.resident_nama ??
+                        item.name ??
+                        "-";
+
+                    const kode =
+                        item.resident_code ??
+                        item.kode_warga ??
+                        "";
+
+                    const sudahDiambil =
+                        Boolean(
+                            item.sudah_diambil ??
+                            item.taken ??
+                            item.is_taken
+                        );
+
+                    const amount =
+                        item.amount ??
+                        item.jimpitan_amount ??
+                        0;
+
+                    const collector =
+                        item.collector_name ??
+                        item.collector_nama ??
+                        item.collector_code ??
+                        "";
+
+                    const initial =
+                        String(nama)
+                            .trim()
+                            .charAt(0)
+                            .toUpperCase();
+
+                    return `
+                        <article class="monitoring-item">
+
+                            <div class="monitoring-avatar">
+                                ${escapeHTML(
+                                    initial || "?"
+                                )}
+                            </div>
+
+                            <div class="monitoring-content">
+
+                                <div class="monitoring-name">
+                                    ${escapeHTML(
+                                        nama
+                                    )}
+                                </div>
+
+                                ${
+                                    kode
+                                        ? `
+                                            <div class="monitoring-code">
+                                                ${escapeHTML(
+                                                    kode
+                                                )}
+                                            </div>
+                                        `
+                                        : ""
+                                }
+
+                                <div class="monitoring-status ${
+                                    sudahDiambil
+                                        ? "status-sudah"
+                                        : "status-belum"
+                                }">
+
+                                    <span
+                                        class="status-dot"
+                                        aria-hidden="true"
+                                    ></span>
+
+                                    <span>
+                                        ${
+                                            sudahDiambil
+                                                ? "Sudah Diambil"
+                                                : "Belum Diambil"
+                                        }
+                                    </span>
+
+                                </div>
+
+                                ${
+                                    sudahDiambil
+                                        ? `
+                                            <div class="monitoring-meta">
+
+                                                <span>
+                                                    ${escapeHTML(
+                                                        formatRupiah(
+                                                            amount
+                                                        )
+                                                    )}
+                                                </span>
+
+                                                ${
+                                                    collector
+                                                        ? `
+                                                            <span>
+                                                                Petugas:
+                                                                ${escapeHTML(
+                                                                    collector
+                                                                )}
+                                                            </span>
+                                                        `
+                                                        : ""
+                                                }
+
+                                            </div>
+                                        `
+                                        : ""
+                                }
+
+                            </div>
+
+                        </article>
+                    `;
                 }
-
-
-                if (
-                    status === "belum"
-                ) {
-
-                    cocokStatus =
-                        !sudahDiambil;
-
-                }
-
-
-                return (
-                    cocokSearch &&
-                    cocokStatus
-                );
-
-            }
-        );
-
-
-    // ======================================
-    // KOSONG
-    // ======================================
-
-    if (
-        hasil.length === 0
-    ) {
-
-        list.innerHTML = `
-            <div class="monitoring-empty">
-
-                🔎 Data warga tidak ditemukan.
-
-            </div>
-        `;
-
-        return;
-
+            )
+            .join("");
     }
 
-
-    // ======================================
-    // TAMPILKAN DATA
-    // ======================================
-
-    list.innerHTML = "";
-
-
-    hasil.forEach(
-        warga => {
-
-            const sudah =
-                warga.sudah_diambil === true;
-
-
-            const nama =
-                escapeHTML(
-                    warga.resident_name ||
-                    "-"
-                );
-
-
-            const kode =
-                escapeHTML(
-                    warga.resident_code ||
-                    "-"
-                );
-
-
-            const petugas =
-                escapeHTML(
-                    warga.collector_name ||
-                    "Petugas"
-                );
-
-
-            const nominal =
-                Number(
-                    warga.amount || 0
-                );
-
-
-            const initial =
-                String(
-                    warga.resident_name ||
-                    "?"
-                )
-                .trim()
-                .charAt(0)
-                .toUpperCase();
-
-
-            const item =
-                document.createElement(
-                    "div"
-                );
-
-
-            item.className =
-                "monitoring-item";
-
-
-            // =================================
-            // SUDAH DIAMBIL
-            // =================================
-
-            if (sudah) {
-
-                item.innerHTML = `
-
-                    <div class="monitoring-main">
-
-                        <div
-                            class="monitoring-avatar"
-                        >
-                            ${escapeHTML(
-                                initial
-                            )}
-                        </div>
-
-
-                        <div
-                            class="monitoring-info-box"
-                        >
-
-                            <strong>
-                                ${nama}
-                            </strong>
-
-                            <span>
-                                ID: ${kode}
-                            </span>
-
-                        </div>
-
-
-                        <span
-                            class="status-badge status-sudah"
-                        >
-                            ✅ Sudah Diambil
-                        </span>
-
-                    </div>
-
-
-                    <div
-                        class="monitoring-detail"
-                    >
-
-                        Jimpitan:
-
-                        <strong>
-                            ${formatRupiah(
-                                nominal
-                            )}
-                        </strong>
-
-                        &nbsp;•&nbsp;
-
-                        Petugas:
-
-                        <strong>
-                            ${petugas}
-                        </strong>
-
-                    </div>
-
-                `;
-
-            }
-
-
-            // =================================
-            // BELUM DIAMBIL
-            // =================================
-
-            else {
-
-                item.innerHTML = `
-
-                    <div class="monitoring-main">
-
-                        <div
-                            class="monitoring-avatar"
-                        >
-                            ${escapeHTML(
-                                initial
-                            )}
-                        </div>
-
-
-                        <div
-                            class="monitoring-info-box"
-                        >
-
-                            <strong>
-                                ${nama}
-                            </strong>
-
-                            <span>
-                                ID: ${kode}
-                            </span>
-
-                        </div>
-
-
-                        <span
-                            class="status-badge status-belum"
-                        >
-                            ⏳ Belum Diambil
-                        </span>
-
-                    </div>
-
-
-                    <div
-                        class="monitoring-detail"
-                    >
-
-                        Belum ada transaksi
-                        jimpitan pada tanggal ini.
-
-                    </div>
-
-                `;
-
-            }
-
-
-            list.appendChild(
-                item
+    /* =========================================================
+       RINGKASAN HARIAN
+       ========================================================= */
+
+    function updateDailySummary() {
+        const totalElement =
+            document.getElementById(
+                "totalWargaHarian"
             );
 
+        const sudahElement =
+            document.getElementById(
+                "sudahDiambil"
+            );
+
+        const belumElement =
+            document.getElementById(
+                "belumDiambil"
+            );
+
+        const jumlah =
+            Array.isArray(
+                semuaWargaMonitoring
+            )
+                ? semuaWargaMonitoring.length
+                : 0;
+
+        let sudah = 0;
+
+        if (Array.isArray(
+            semuaWargaMonitoring
+        )) {
+            sudah =
+                semuaWargaMonitoring.filter(
+                    function (item) {
+                        return Boolean(
+                            item.sudah_diambil ??
+                            item.taken ??
+                            item.is_taken
+                        );
+                    }
+                ).length;
         }
-    );
 
-}
+        const belum =
+            Math.max(
+                0,
+                jumlah - sudah
+            );
 
-
-// ==========================================
-// EVENT SEARCH
-// ==========================================
-
-const searchWarga =
-    document.getElementById(
-        "searchWarga"
-    );
-
-
-if (searchWarga) {
-
-    searchWarga.addEventListener(
-        "input",
-        function () {
-
-            renderMonitoring();
-
+        if (totalElement) {
+            totalElement.textContent =
+                jumlah;
         }
-    );
 
-}
-
-
-// ==========================================
-// EVENT STATUS
-// ==========================================
-
-const filterStatus =
-    document.getElementById(
-        "filterStatus"
-    );
-
-
-if (filterStatus) {
-
-    filterStatus.addEventListener(
-        "change",
-        function () {
-
-            renderMonitoring();
-
+        if (sudahElement) {
+            sudahElement.textContent =
+                sudah;
         }
-    );
 
-}
+        if (belumElement) {
+            belumElement.textContent =
+                belum;
+        }
+    }
 
+    /* =========================================================
+       EVENT LISTENER
+       ========================================================= */
 
-// ==========================================
-// EVENT TANGGAL
-// ==========================================
+    function pasangEventListener() {
+        const search =
+            document.getElementById(
+                "searchWarga"
+            );
 
-const filterTanggal =
-    document.getElementById(
-        "filterTanggal"
-    );
+        if (search) {
+            search.addEventListener(
+                "input",
+                function () {
+                    renderMonitoring();
+                }
+            );
+        }
 
+        const status =
+            document.getElementById(
+                "filterStatus"
+            );
 
-if (filterTanggal) {
+        if (status) {
+            status.addEventListener(
+                "change",
+                function () {
+                    renderMonitoring();
+                }
+            );
+        }
 
-    filterTanggal.addEventListener(
-        "change",
-        async function () {
+        const tanggal =
+            document.getElementById(
+                "filterTanggal"
+            );
+
+        if (tanggal) {
+            tanggal.addEventListener(
+                "change",
+                async function () {
+
+                    filterRiwayatTanggal(
+                        tanggal.value
+                    );
+
+                    await loadMonitoringJimpitan();
+                }
+            );
+        }
+    }
+
+    /* =========================================================
+       KEMBALI DASHBOARD
+       ========================================================= */
+
+    function kembaliDashboard() {
+        window.location.href =
+            "dashboard.html";
+    }
+
+    /* =========================================================
+       EXPOSE FUNCTION
+       ========================================================= */
+
+    window.resetFilter =
+        resetFilter;
+
+    window.kembaliDashboard =
+        kembaliDashboard;
+
+    window.loadRiwayat =
+        loadRiwayat;
+
+    window.loadMonitoringJimpitan =
+        loadMonitoringJimpitan;
+
+    /* =========================================================
+       INIT
+       ========================================================= */
+
+    async function initRiwayatJimpitan() {
+        try {
+            initSupabase();
 
             const tanggal =
-                this.value;
+                document.getElementById(
+                    "filterTanggal"
+                );
 
+            if (tanggal &&
+                !tanggal.value) {
 
-            filterRiwayatTanggal(
-                tanggal
-            );
+                tanggal.value =
+                    tanggalHariIni();
+            }
 
+            pasangEventListener();
 
+            await Promise.all([
+                loadSaldoJimpitan(),
+                loadRiwayat()
+            ]);
+
+            /*
+             * Setelah tanggal default terpasang,
+             * monitoring mengambil data tanggal hari ini.
+             */
             await loadMonitoringJimpitan();
 
+        } catch (error) {
+            console.error(
+                "SIDAT init riwayat jimpitan:",
+                error
+            );
         }
-    );
-
-}
-
-
-// ==========================================
-// KEMBALI
-// ==========================================
-
-function kembaliDashboard() {
-
-    window.location.href =
-        "dashboard.html";
-
-}
-
-
-// ==========================================
-// INISIALISASI
-// ==========================================
-
-async function initRiwayatJimpitan() {
-
-    console.log(
-        "SIDAT: memulai halaman Riwayat Jimpitan..."
-    );
-
-
-    await loadSaldoJimpitan();
-
-
-    await loadRiwayat();
-
-
-    // Monitoring default hari ini
-    if (filterTanggal) {
-
-        filterTanggal.value =
-            tanggalHariIni();
-
     }
 
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+        document.addEventListener(
+            "DOMContentLoaded",
+            initRiwayatJimpitan
+        );
+    } else {
+        initRiwayatJimpitan();
+    }
 
-    await loadMonitoringJimpitan();
-
-
-    console.log(
-        "SIDAT: halaman Riwayat Jimpitan siap."
-    );
-
-}
-
-
-// ==========================================
-// JALANKAN
-// ==========================================
-
-initRiwayatJimpitan();
+})();

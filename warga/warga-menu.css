@@ -1,0 +1,981 @@
+/* =========================================================
+SIDAT — WARGA MENU TERPUSAT
+File : warga-menu.css
+Fungsi :
+
+- Bottom navbar Warga
+- Tombol Scan Jimpitan menonjol
+- Panel Menu Warga
+- Footer SIDAT
+- Android safe-area
+- Mobile-first / APK-safe
+  ========================================================= */
+
+/* =========================================================
+VARIABEL
+========================================================= */
+
+:root {
+--sidat-green: #15803d;
+--sidat-green-dark: #166534;
+--sidat-green-light: #22c55e;
+--sidat-green-soft: #dcfce7;
+
+--sidat-white: #ffffff;
+--sidat-text: #1f2937;
+--sidat-muted: #6b7280;
+--sidat-border: #d1d5db;
+--sidat-bg: #f0fdf4;
+
+--sidat-shadow:
+    0 4px 14px rgba(21, 128, 61, 0.12);
+
+--warga-nav-height: 76px;
+--warga-footer-height: 38px;
+
+--warga-scan-size: 74px;
+
+}
+
+/* =========================================================
+RESET DASAR
+========================================================= */
+
+.sidat-warga-bottom-nav,
+.sidat-warga-bottom-nav *,
+.sidat-warga-menu-overlay,
+.sidat-warga-menu-overlay *,
+.sidat-warga-footer,
+.sidat-warga-footer * {
+box-sizing: border-box;
+}
+
+/* =========================================================
+BODY SAFE AREA
+========================================================= */
+
+html {
+scroll-padding-bottom:
+calc(
+var(--warga-nav-height) +
+var(--warga-footer-height) +
+env(safe-area-inset-bottom)
+);
+}
+
+body {
+padding-bottom:
+calc(
+var(--warga-nav-height) +
+var(--warga-footer-height) +
+env(safe-area-inset-bottom)
+);
+}
+
+/* =========================================================
+BOTTOM NAVBAR
+========================================================= */
+
+.sidat-warga-bottom-nav {
+
+position: fixed;
+
+left: 0;
+right: 0;
+bottom: 0;
+
+height:
+    calc(
+        var(--warga-nav-height) +
+        env(safe-area-inset-bottom)
+    );
+
+padding:
+    6px
+    12px
+    calc(
+        6px +
+        env(safe-area-inset-bottom)
+    );
+
+display: grid;
+
+grid-template-columns:
+    1fr
+    1.25fr
+    1fr;
+
+align-items: end;
+
+gap: 8px;
+
+background:
+    rgba(255, 255, 255, 0.98);
+
+border-top:
+    1px solid
+    rgba(21, 128, 61, 0.14);
+
+box-shadow:
+    0 -5px 18px
+    rgba(0, 0, 0, 0.10);
+
+z-index: 9000;
+
+-webkit-backdrop-filter: blur(10px);
+backdrop-filter: blur(10px);
+
+}
+
+/* =========================================================
+BUBBLE NAVBAR
+========================================================= */
+
+.sidat-warga-nav-bubble {
+
+position: absolute;
+
+width: 100px;
+height: 100px;
+
+border-radius: 50%;
+
+background:
+    rgba(220, 252, 231, 0.60);
+
+pointer-events: none;
+
+z-index: -1;
+
+}
+
+.sidat-warga-nav-bubble.bubble-left {
+
+left: -52px;
+bottom: -68px;
+
+}
+
+.sidat-warga-nav-bubble.bubble-right {
+
+right: -52px;
+bottom: -68px;
+
+}
+
+/* =========================================================
+NAV ITEM UMUM
+========================================================= */
+
+.sidat-warga-nav-item {
+
+position: relative;
+
+height: 58px;
+
+border: 0;
+
+background: transparent;
+
+color: var(--sidat-muted);
+
+display: flex;
+
+flex-direction: column;
+
+align-items: center;
+
+justify-content: center;
+
+gap: 3px;
+
+padding: 4px;
+
+font-family: inherit;
+
+cursor: pointer;
+
+-webkit-tap-highlight-color: transparent;
+
+transition:
+    color 0.18s ease,
+    transform 0.18s ease;
+
+}
+
+.sidat-warga-nav-item:active {
+
+transform: scale(0.94);
+
+}
+
+.sidat-warga-nav-item.active {
+
+color: var(--sidat-green);
+
+}
+
+/* =========================================================
+ICON NAV ITEM
+========================================================= */
+
+.sidat-warga-nav-icon {
+
+width: 25px;
+height: 25px;
+
+display: flex;
+
+align-items: center;
+justify-content: center;
+
+}
+
+.sidat-warga-nav-icon svg {
+
+width: 24px;
+height: 24px;
+
+fill: none;
+
+stroke: currentColor;
+
+stroke-width: 1.9;
+
+stroke-linecap: round;
+stroke-linejoin: round;
+
+}
+
+/* =========================================================
+LABEL NAV ITEM
+========================================================= */
+
+.sidat-warga-nav-label {
+
+font-size: 11px;
+
+line-height: 1.1;
+
+font-weight: 700;
+
+white-space: nowrap;
+
+}
+
+/* =========================================================
+SCAN JIMPITAN — TOMBOL UTAMA
+========================================================= */
+
+.sidat-warga-nav-scan {
+
+position: relative;
+
+width: 100%;
+
+height: 76px;
+
+margin-top: -27px;
+
+border: 0;
+
+background: transparent;
+
+display: flex;
+
+flex-direction: column;
+
+align-items: center;
+
+justify-content: flex-end;
+
+gap: 2px;
+
+padding: 0 0 3px;
+
+font-family: inherit;
+
+color: var(--sidat-green-dark);
+
+cursor: pointer;
+
+-webkit-tap-highlight-color: transparent;
+
+z-index: 3;
+
+transition:
+    transform 0.18s ease;
+
+}
+
+.sidat-warga-nav-scan:active {
+
+transform: scale(0.94);
+
+}
+
+/* =========================================================
+LINGKARAN SCAN JIMPITAN
+========================================================= */
+
+.sidat-warga-nav-scan-circle {
+
+width: var(--warga-scan-size);
+height: var(--warga-scan-size);
+
+min-width: var(--warga-scan-size);
+min-height: var(--warga-scan-size);
+
+margin-bottom: -1px;
+
+border-radius: 50%;
+
+background:
+    linear-gradient(
+        145deg,
+        var(--sidat-green-light),
+        var(--sidat-green)
+    );
+
+border:
+    5px solid
+    var(--sidat-white);
+
+outline:
+    3px solid
+    var(--sidat-green);
+
+box-shadow:
+    0 7px 18px
+    rgba(21, 128, 61, 0.32);
+
+display: flex;
+
+align-items: center;
+justify-content: center;
+
+color: var(--sidat-white);
+
+flex-shrink: 0;
+
+transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+
+}
+
+/* =========================================================
+ICON SCAN
+========================================================= */
+
+.sidat-warga-nav-scan-circle svg {
+
+width: 35px;
+height: 35px;
+
+fill: none;
+
+stroke: currentColor;
+
+stroke-width: 1.8;
+
+stroke-linecap: round;
+
+stroke-linejoin: round;
+
+}
+
+.sidat-warga-nav-scan:hover
+.sidat-warga-nav-scan-circle {
+
+box-shadow:
+    0 9px 23px
+    rgba(21, 128, 61, 0.40);
+
+}
+
+/* =========================================================
+LABEL SCAN JIMPITAN
+========================================================= */
+
+.sidat-warga-nav-scan-label {
+
+font-size: 11px;
+
+line-height: 1.1;
+
+font-weight: 800;
+
+color: var(--sidat-green-dark);
+
+white-space: nowrap;
+
+}
+
+/* =========================================================
+SCAN AKTIF
+========================================================= */
+
+.sidat-warga-nav-scan.active
+.sidat-warga-nav-scan-circle {
+
+background:
+    linear-gradient(
+        145deg,
+        var(--sidat-green-dark),
+        #14532d
+    );
+
+box-shadow:
+    0 9px 23px
+    rgba(21, 128, 61, 0.45);
+
+}
+
+/* =========================================================
+FOCUS
+========================================================= */
+
+.sidat-warga-nav-item:focus-visible,
+.sidat-warga-nav-scan:focus-visible {
+
+outline:
+    3px solid
+    rgba(34, 197, 94, 0.45);
+
+outline-offset: 2px;
+
+border-radius: 14px;
+
+}
+
+/* =========================================================
+MENU OVERLAY
+========================================================= */
+
+.sidat-warga-menu-overlay {
+
+position: fixed;
+
+inset: 0;
+
+background:
+    rgba(15, 23, 42, 0.46);
+
+opacity: 0;
+
+visibility: hidden;
+
+pointer-events: none;
+
+transition:
+    opacity 0.22s ease,
+    visibility 0.22s ease;
+
+z-index: 10000;
+
+display: flex;
+
+align-items: flex-end;
+
+justify-content: center;
+
+}
+
+.sidat-warga-menu-overlay.show {
+
+opacity: 1;
+
+visibility: visible;
+
+pointer-events: auto;
+
+}
+
+/* =========================================================
+MENU SHEET
+========================================================= */
+
+.sidat-warga-menu-sheet {
+
+width: 100%;
+
+max-width: 560px;
+
+max-height: 88vh;
+
+overflow-y: auto;
+
+background:
+    var(--sidat-white);
+
+border-radius:
+    24px 24px 0 0;
+
+padding:
+    10px
+    16px
+    calc(
+        24px +
+        env(safe-area-inset-bottom)
+    );
+
+transform:
+    translateY(105%);
+
+transition:
+    transform 0.25s ease;
+
+box-shadow:
+    0 -12px 35px
+    rgba(0, 0, 0, 0.18);
+
+}
+
+.sidat-warga-menu-sheet.show {
+
+transform:
+    translateY(0);
+
+}
+
+/* =========================================================
+HANDLE
+========================================================= */
+
+.sidat-warga-menu-handle {
+
+width: 44px;
+height: 5px;
+
+margin:
+    3px auto
+    13px;
+
+border-radius: 99px;
+
+background:
+    #d1d5db;
+
+}
+
+/* =========================================================
+MENU HEADER
+========================================================= */
+
+.sidat-warga-menu-header {
+
+display: flex;
+
+align-items: center;
+
+justify-content: space-between;
+
+gap: 12px;
+
+}
+
+.sidat-warga-menu-title-wrap {
+
+min-width: 0;
+
+}
+
+.sidat-warga-menu-brand {
+
+color:
+    var(--sidat-green-dark);
+
+font-size: 19px;
+
+line-height: 1.15;
+
+font-weight: 900;
+
+letter-spacing: 0.3px;
+
+}
+
+.sidat-warga-menu-subtitle {
+
+margin-top: 3px;
+
+color:
+    var(--sidat-muted);
+
+font-size: 12px;
+
+font-weight: 600;
+
+}
+
+/* =========================================================
+CLOSE
+========================================================= */
+
+.sidat-warga-menu-close {
+
+width: 42px;
+height: 42px;
+
+border: 0;
+
+border-radius: 50%;
+
+background:
+    var(--sidat-bg);
+
+color:
+    var(--sidat-green-dark);
+
+display: flex;
+
+align-items: center;
+justify-content: center;
+
+cursor: pointer;
+
+flex-shrink: 0;
+
+-webkit-tap-highlight-color: transparent;
+
+}
+
+.sidat-warga-menu-close svg {
+
+width: 22px;
+height: 22px;
+
+fill: none;
+
+stroke: currentColor;
+
+stroke-width: 2;
+
+stroke-linecap: round;
+
+stroke-linejoin: round;
+
+}
+
+/* =========================================================
+DIVIDER
+========================================================= */
+
+.sidat-warga-menu-divider {
+
+height: 1px;
+
+margin:
+    14px 0;
+
+background:
+    var(--sidat-border);
+
+}
+
+/* =========================================================
+MENU LIST
+========================================================= */
+
+.sidat-warga-menu-list {
+
+display: grid;
+
+grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+gap: 10px;
+
+}
+
+/* =========================================================
+MENU ITEM
+========================================================= */
+
+.sidat-warga-menu-item {
+
+min-height: 78px;
+
+border:
+    1px solid
+    var(--sidat-border);
+
+border-radius: 17px;
+
+background:
+    var(--sidat-white);
+
+color:
+    var(--sidat-text);
+
+padding:
+    12px;
+
+display: flex;
+
+align-items: center;
+
+gap: 10px;
+
+text-align: left;
+
+font-family: inherit;
+
+cursor: pointer;
+
+-webkit-tap-highlight-color: transparent;
+
+box-shadow:
+    0 2px 7px
+    rgba(0, 0, 0, 0.04);
+
+transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background 0.16s ease;
+
+}
+
+.sidat-warga-menu-item:active {
+
+transform:
+    scale(0.97);
+
+background:
+    var(--sidat-bg);
+
+}
+
+.sidat-warga-menu-item:hover {
+
+border-color:
+    rgba(21, 128, 61, 0.35);
+
+}
+
+/* =========================================================
+MENU ICON
+========================================================= */
+
+.sidat-warga-menu-icon {
+
+width: 42px;
+height: 42px;
+
+min-width: 42px;
+
+border-radius: 13px;
+
+background:
+    var(--sidat-green-soft);
+
+color:
+    var(--sidat-green-dark);
+
+display: flex;
+
+align-items: center;
+justify-content: center;
+
+}
+
+.sidat-warga-menu-icon svg {
+
+width: 23px;
+height: 23px;
+
+fill: none;
+
+stroke: currentColor;
+
+stroke-width: 1.8;
+
+stroke-linecap: round;
+
+stroke-linejoin: round;
+
+}
+
+/* =========================================================
+MENU LABEL
+========================================================= */
+
+.sidat-warga-menu-label {
+
+flex: 1;
+
+font-size: 13px;
+
+line-height: 1.25;
+
+font-weight: 800;
+
+}
+
+/* =========================================================
+MENU ARROW
+========================================================= */
+
+.sidat-warga-menu-arrow {
+
+width: 20px;
+height: 20px;
+
+display: flex;
+
+align-items: center;
+justify-content: center;
+
+color:
+    #9ca3af;
+
+}
+
+.sidat-warga-menu-arrow svg {
+
+width: 18px;
+height: 18px;
+
+fill: none;
+
+stroke: currentColor;
+
+stroke-width: 2;
+
+stroke-linecap: round;
+
+stroke-linejoin: round;
+
+}
+
+/* =========================================================
+BODY SAAT MENU TERBUKA
+========================================================= */
+
+body.sidat-menu-open {
+
+overflow: hidden;
+
+touch-action: none;
+
+}
+
+/* =========================================================
+FOOTER COPYRIGHT — DI BAWAH BOTTOM NAVBAR
+========================================================= */
+
+.sidat-warga-footer {
+
+position: fixed;
+
+left: 0;
+right: 0;
+
+/*
+ * Footer berada DI BAWAH navbar.
+ * Tingginya mengikuti safe-area Android.
+ */
+bottom: 0;
+
+min-height:
+    calc(
+        var(--warga-footer-height) +
+        env(safe-area-inset-bottom)
+    );
+
+padding:
+    5px 12px
+    calc(
+        5px +
+        env(safe-area-inset-bottom)
+    );
+
+display: flex;
+
+align-items: center;
+
+justify-content: center;
+
+gap: 5px;
+
+background:
+    rgba(240, 253, 244, 0.98);
+
+border-top:
+    1px solid
+    rgba(21, 128, 61, 0.10);
+
+color:
+    var(--sidat-muted);
+
+font-size: 10px;
+
+line-height: 1.2;
+
+text-align: center;
+
+z-index: 8990;
+
+pointer-events: none;
+
+}
+
+/* =========================================================
+NAVBAR DI ATAS COPYRIGHT
+========================================================= */
+
+.sidat-warga-bottom-nav {
+
+bottom:
+    calc(
+        var(--warga-footer-height) +
+        env(safe-area-inset-bottom)
+    );
+
+}
+
+/* =========================================================
+COPYRIGHT TEXT
+========================================================= */
+
+.sidat-warga-footer strong {
+
+color:
+    var(--sidat-green-dark);
+
+font-weight: 900;
+
+}
+/* =========================================================
+ACCESSIBILITY
+========================================================= */
+
+.sidat-warga-menu-close:focus-visible,
+.sidat-warga-menu-item:focus-visible {
+
+outline:
+    3px solid
+    rgba(34, 197, 94, 0.45);
+
+outline-offset: 2px;
+
+}
+
+/* =========================================================
+REDUCE MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+.sidat-warga-nav-item,
+.sidat-warga-nav-scan,
+.sidat-warga-nav-scan-circle,
+.sidat-warga-menu-overlay,
+.sidat-warga-menu-sheet,
+.sidat-warga-menu-item {
+
+    transition: none !important;
+}
+
+}

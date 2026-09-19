@@ -1,3272 +1,2670 @@
-/* ==========================================
-   SIDAT
-   DATA WARGA ADMIN
-   ========================================== */
+/* =========================================================
+SIDAT — DATA WARGA
+File : admin/data-warga.css
+Versi: FINAL UI REBUILD
 
+Menyesuaikan:
 
-/* ==========================================
-   RESET
-   ========================================== */
+- data-warga.html
+- data-warga.js
+- Gaya visual admin-laporan.css
+
+Catatan:
+
+- Tidak mengatur bottom navbar secara langsung.
+- Modal dibuat berada di atas bottom navbar.
+- Saat modal aktif, navbar tertutup oleh overlay/modal.
+  ========================================================= */
+
+/* =====================================================
+RESET
+===================================================== */
 
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
+  box-sizing: border-box;
+  }
 
 html {
-    scroll-behavior: smooth;
+scroll-behavior: smooth;
 }
-
 
 body {
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
+min-height: 100vh;
 
-    background:
-        #f0fdf4;
+margin: 0;
 
-    color:
-        #172018;
+background: #f0fdf4;
+color: #1e293b;
 
-    min-height:
-        100vh;
+font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+-webkit-font-smoothing: antialiased;
+
 }
 
-
-/* ==========================================
-   APP
-   ========================================== */
-
-.app {
-    width: 100%;
-    max-width: 900px;
-    min-height: 100vh;
-    margin: 0 auto;
-    background: #f8faf8;
+body.sidat-modal-open {
+overflow: hidden;
 }
 
+/* =====================================================
+HALAMAN
+===================================================== */
 
-/* ==========================================
-   HEADER
-   ========================================== */
+.data-warga-page {
+width: 100%;
+max-width: 900px;
 
-.header {
-    position: sticky;
-    top: 0;
-    z-index: 50;
+min-height: 100vh;
 
-    display: flex;
-    align-items: center;
-    gap: 14px;
+margin: 0 auto;
 
-    padding: 16px 18px;
+padding:
+    18px 13px
+    calc(
+        110px +
+        env(safe-area-inset-bottom)
+    );
 
-    background:
-        #15803d;
+color: #1e293b;
 
-    color:
-        #ffffff;
-
-    box-shadow:
-        0 2px 10px rgba(
-            0,
-            0,
-            0,
-            0.12
-        );
 }
 
+/* =====================================================
+HEADER
+===================================================== */
 
-.back-btn {
-    width: 42px;
-    height: 42px;
+.data-warga-header {
+  position: relative;
 
-    border: none;
-    border-radius: 12px;
+  width: calc(100% + 26px);
+  min-height: 64px;
 
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            0.15
-        );
+  display: flex;
+  align-items: center;
 
-    color:
-        #ffffff;
+  gap: 10px;
 
-    font-size: 32px;
-    line-height: 1;
+  margin:
+    -18px -13px 18px;
 
-    cursor: pointer;
+  padding:
+    10px 14px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  overflow: hidden;
 
-    transition:
-        background 0.2s ease,
-        transform 0.2s ease;
+  background: #166534;
+  color: #ffffff;
+
+  box-shadow:
+    0 2px 10px
+    rgba(0, 0, 0, 0.12);
 }
 
+/* dekorasi header */
 
-.back-btn:hover {
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            0.25
-        );
+.data-warga-header::before,
+.data-warga-header::after {
+  position: absolute;
+
+  content: "";
+
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  pointer-events: none;
+
+  opacity: 0.10;
 }
 
+.data-warga-header::before {
+  width: 92px;
+  height: 92px;
 
-.back-btn:active {
-    transform:
-        scale(0.94);
+  right: 35px;
+  top: -55px;
 }
 
+.data-warga-header::after {
+  width: 45px;
+  height: 45px;
 
-.header-title {
-    min-width: 0;
+  right: 118px;
+  bottom: -20px;
 }
 
+/* icon header */
 
-.header h1 {
-    font-size: 21px;
-    font-weight: 700;
-    margin-bottom: 3px;
+.data-warga-header-icon {
+position: relative;
+z-index: 2;
+
+width: 44px;
+height: 44px;
+min-width: 44px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+border-radius: 13px;
+
+background:
+    rgba(255, 255, 255, 0.14);
+
+color: #ffffff;
+
 }
 
+.data-warga-header-icon svg {
+width: 25px;
+height: 25px;
 
-.header span {
-    font-size: 12px;
-    opacity: 0.9;
+fill: none;
+
+stroke: currentColor;
+stroke-width: 1.8;
+
+stroke-linecap: round;
+stroke-linejoin: round;
+
 }
 
+/* teks header */
 
-/* ==========================================
-   CONTENT
-   ========================================== */
+.data-warga-header-text {
+position: relative;
+z-index: 2;
 
-.content {
-    padding: 18px;
+min-width: 0;
+
+display: flex;
+flex-direction: column;
+
 }
 
+.data-warga-header-text h1 {
+margin: 0;
 
-/* ==========================================
-   TITLE CARD
-   ========================================== */
+color: #ffffff;
 
-.title-card {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
+font-size: 17px;
+line-height: 1.3;
 
-    padding: 18px;
+font-weight: 800;
 
-    margin-bottom: 15px;
-
-    background:
-        #ffffff;
-
-    border:
-        1px solid #dcfce7;
-
-    border-radius:
-        16px;
-
-    box-shadow:
-        0 3px 12px rgba(
-            0,
-            0,
-            0,
-            0.05
-        );
 }
 
+.data-warga-header-text p {
+margin: 2px 0 0;
 
-.title-card h2 {
-    color:
-        #166534;
+color: #bbf7d0;
 
-    font-size:
-        20px;
+font-size: 10px;
+line-height: 1.35;
 
-    margin-bottom:
-        5px;
+font-weight: 500;
+
 }
 
+/* =====================================================
+ACTION BUTTONS
+===================================================== */
 
-.title-card p {
-    color:
-        #64748b;
+.data-warga-actions {
+width: 100%;
 
-    font-size:
-        13px;
+display: grid;
 
-    line-height:
-        1.5;
+grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+gap: 9px;
+
+margin-bottom: 14px;
+
 }
 
+.data-warga-action {
+min-width: 0;
+min-height: 48px;
 
-/* ==========================================
-   BUTTON PRIMARY
-   ========================================== */
+display: flex;
+align-items: center;
+justify-content: center;
 
-.btn-primary {
-    border: none;
+gap: 7px;
 
-    background:
-        #15803d;
+padding: 8px 10px;
 
-    color:
-        #ffffff;
+border: 1px solid #dcfce7;
+border-radius: 13px;
 
-    padding:
-        11px 15px;
+background: #ffffff;
+color: #166534;
 
-    border-radius:
-        10px;
+font-family: inherit;
 
-    font-size:
-        13px;
+font-size: 12px;
+font-weight: 700;
 
-    font-weight:
-        700;
+cursor: pointer;
 
-    cursor:
-        pointer;
+box-shadow:
+    0 2px 8px
+    rgba(15, 23, 42, 0.04);
 
-    white-space:
-        nowrap;
+-webkit-tap-highlight-color: transparent;
 
-    transition:
-        background 0.2s ease,
-        transform 0.2s ease,
-        opacity 0.2s ease;
+transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+
 }
 
+.data-warga-action:hover {
+border-color: #86efac;
 
-.btn-primary:hover {
-    background:
-        #166534;
+background: #f0fdf4;
+
+box-shadow:
+    0 4px 12px
+    rgba(22, 101, 52, 0.07);
+
 }
 
+.data-warga-action:active {
+transform: scale(0.97);
 
-.btn-primary:active {
-    transform:
-        scale(0.97);
+background: #dcfce7;
+
 }
 
+.data-warga-action.primary {
+border-color: #166534;
 
-.btn-primary:disabled {
-    opacity:
-        0.6;
+background: #166534;
+color: #ffffff;
 
-    cursor:
-        not-allowed;
+box-shadow:
+    0 4px 10px
+    rgba(22, 101, 52, 0.16);
+
 }
 
+.data-warga-action.primary:hover {
+border-color: #15803d;
 
-/* ==========================================
-   BUTTON SECONDARY
-   ========================================== */
+background: #15803d;
 
-.btn-secondary {
-    border:
-        1px solid #d1d5db;
-
-    background:
-        #ffffff;
-
-    color:
-        #374151;
-
-    padding:
-        11px 15px;
-
-    border-radius:
-        10px;
-
-    font-size:
-        13px;
-
-    font-weight:
-        700;
-
-    cursor:
-        pointer;
-
-    transition:
-        background 0.2s ease,
-        transform 0.2s ease;
 }
 
+.data-warga-action.primary:active {
+border-color: #14532d;
 
-.btn-secondary:hover {
-    background:
-        #f3f4f6;
+background: #14532d;
+
 }
 
+.data-warga-action .action-icon {
+width: 20px;
+height: 20px;
 
-.btn-secondary:active {
-    transform:
-        scale(0.97);
+min-width: 20px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
 }
 
+.data-warga-action svg {
+width: 18px;
+height: 18px;
 
-/* ==========================================
-   SUMMARY
-   ========================================== */
+fill: none;
 
-.summary-grid {
-    display:
-        grid;
+stroke: currentColor;
+stroke-width: 1.9;
 
-    grid-template-columns:
-        repeat(
-            3,
-            1fr
-        );
+stroke-linecap: round;
+stroke-linejoin: round;
 
-    gap:
-        10px;
-
-    margin-bottom:
-        15px;
 }
 
+/* =====================================================
+SEARCH
+===================================================== */
 
-.summary-card {
-    display:
-        flex;
+.data-warga-search {
+width: 100%;
 
-    align-items:
-        center;
+margin-bottom: 13px;
 
-    gap:
-        10px;
-
-    padding:
-        14px;
-
-    background:
-        #ffffff;
-
-    border:
-        1px solid #dcfce7;
-
-    border-radius:
-        14px;
-
-    box-shadow:
-        0 2px 8px rgba(
-            0,
-            0,
-            0,
-            0.04
-        );
 }
-
-
-.summary-card > span {
-    width:
-        38px;
-
-    height:
-        38px;
-
-    border-radius:
-        10px;
-
-    background:
-        #dcfce7;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    font-size:
-        19px;
-}
-
-
-.summary-card div {
-    min-width:
-        0;
-}
-
-
-.summary-card strong {
-    display:
-        block;
-
-    color:
-        #166534;
-
-    font-size:
-        17px;
-
-    margin-bottom:
-        2px;
-}
-
-
-.summary-card small {
-    display:
-        block;
-
-    color:
-        #64748b;
-
-    font-size:
-        11px;
-}
-
-
-/* ==========================================
-   SEARCH
-   ========================================== */
 
 .search-box {
-    display:
-        flex;
+position: relative;
 
-    align-items:
-        center;
+width: 100%;
 
-    gap:
-        10px;
+display: flex;
+align-items: center;
 
-    padding:
-        12px 14px;
-
-    margin-bottom:
-        12px;
-
-    background:
-        #ffffff;
-
-    border:
-        1px solid #d1d5db;
-
-    border-radius:
-        12px;
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
 }
 
+.search-box > svg {
+position: absolute;
 
-.search-box:focus-within {
-    border-color:
-        #16a34a;
+left: 12px;
 
-    box-shadow:
-        0 0 0 3px rgba(
-            22,
-            163,
-            74,
-            0.10
-        );
+width: 18px;
+height: 18px;
+
+color: #94a3b8;
+
+fill: none;
+
+stroke: currentColor;
+stroke-width: 1.9;
+
+stroke-linecap: round;
+stroke-linejoin: round;
+
+pointer-events: none;
+
 }
-
-
-.search-box span {
-    font-size:
-        17px;
-}
-
 
 .search-box input {
-    flex:
-        1;
+width: 100%;
+min-height: 43px;
 
-    min-width:
-        0;
+padding:
+    10px 42px
+    10px 37px;
 
-    border:
-        none;
+border:
+    1px solid #cbd5e1;
 
-    outline:
-        none;
+border-radius: 11px;
 
-    background:
-        transparent;
+outline: none;
 
-    color:
-        #172018;
+background: #ffffff;
+color: #1e293b;
 
-    font-size:
-        14px;
+font-family: inherit;
+font-size: 12px;
+
 }
-
 
 .search-box input::placeholder {
-    color:
-        #94a3b8;
+color: #94a3b8;
 }
 
+.search-box input:focus {
+border-color: #22c55e;
 
-/* ==========================================
-   FILTER BAR
-   ========================================== */
+box-shadow:
+    0 0 0 3px
+    rgba(34, 197, 94, 0.10);
 
-.filter-bar {
-    display:
-        flex;
-
-    gap:
-        8px;
-
-    overflow-x:
-        auto;
-
-    padding-bottom:
-        4px;
-
-    margin-bottom:
-        15px;
-
-    scrollbar-width:
-        none;
 }
 
+.search-clear {
+position: absolute;
 
-.filter-bar::-webkit-scrollbar {
-    display:
-        none;
+right: 7px;
+
+width: 31px;
+height: 31px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+border: none;
+border-radius: 50%;
+
+background: #f1f5f9;
+color: #64748b;
+
+cursor: pointer;
+
 }
 
-
-.filter-btn {
-    border:
-        1px solid #d1d5db;
-
-    background:
-        #ffffff;
-
-    color:
-        #475569;
-
-    padding:
-        8px 12px;
-
-    border-radius:
-        20px;
-
-    font-size:
-        12px;
-
-    font-weight:
-        600;
-
-    white-space:
-        nowrap;
-
-    cursor:
-        pointer;
-
-    transition:
-        all 0.2s ease;
+.search-clear:hover {
+background: #fee2e2;
+color: #dc2626;
 }
 
+.search-clear svg {
+width: 15px;
+height: 15px;
 
-.filter-btn:hover {
-    border-color:
-        #86efac;
+fill: none;
 
-    color:
-        #166534;
+stroke: currentColor;
+stroke-width: 2;
+
+stroke-linecap: round;
+
 }
 
+/* =====================================================
+SUMMARY
+===================================================== */
 
-.filter-btn.active {
-    background:
-        #15803d;
+.data-warga-summary {
+width: 100%;
 
-    border-color:
-        #15803d;
+display: grid;
 
-    color:
-        #ffffff;
+grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+gap: 9px;
+
+margin-bottom: 16px;
+
 }
 
+.summary-card {
+min-width: 0;
 
-/* ==========================================
-   LOADING
-   ========================================== */
+padding: 12px 8px;
 
-.loading {
-    padding:
-        35px 20px;
+background: #ffffff;
 
-    text-align:
-        center;
+border:
+    1px solid #dcfce7;
 
-    color:
-        #64748b;
+border-radius: 14px;
 
-    font-size:
-        14px;
+text-align: center;
+
+box-shadow:
+    0 2px 8px
+    rgba(15, 23, 42, 0.04);
+
 }
 
+.summary-label {
+display: block;
 
-/* ==========================================
-   HOUSEHOLD LIST
-   ========================================== */
+color: #64748b;
 
-.household-list {
-    display:
-        flex;
+font-size: 9px;
+line-height: 1.25;
 
-    flex-direction:
-        column;
+font-weight: 600;
 
-    gap:
-        12px;
 }
 
+.summary-value {
+display: block;
 
-/* ==========================================
-   HOUSEHOLD CARD
-   ========================================== */
+margin-top: 3px;
 
-.household-card {
-    background:
-        #ffffff;
+color: #14532d;
 
-    border:
-        1px solid #dcfce7;
+font-size: 19px;
+line-height: 1.2;
 
-    border-radius:
-        16px;
+font-weight: 800;
 
-    overflow:
-        hidden;
-
-    box-shadow:
-        0 3px 12px rgba(
-            0,
-            0,
-            0,
-            0.05
-        );
 }
 
+/* =====================================================
+SECTION HEADER
+===================================================== */
 
-.household-header {
-    display:
-        flex;
+.data-warga-section-header {
+width: 100%;
 
-    align-items:
-        flex-start;
+margin-bottom: 11px;
 
-    justify-content:
-        space-between;
-
-    gap:
-        12px;
-
-    padding:
-        15px 16px;
-
-    background:
-        #f0fdf4;
-
-    border-bottom:
-        1px solid #dcfce7;
 }
 
+.data-warga-section-header h2 {
+margin: 0;
 
-.household-number {
-    min-width:
-        0;
+color: #14532d;
+
+font-size: 17px;
+line-height: 1.3;
+
+font-weight: 800;
+
 }
 
+.data-warga-section-header p {
+margin: 3px 0 0;
 
-.household-number span {
-    display:
-        block;
+color: #64748b;
 
-    color:
-        #64748b;
+font-size: 10px;
+line-height: 1.4;
 
-    font-size:
-        11px;
-
-    margin-bottom:
-        4px;
 }
 
+/* =====================================================
+LOADING
+===================================================== */
 
-.household-number strong {
-    display:
-        block;
+.data-warga-loading {
+width: 100%;
 
-    color:
-        #166534;
+min-height: 130px;
 
-    font-size:
-        15px;
+display: flex;
+flex-direction: column;
 
-    word-break:
-        break-all;
+align-items: center;
+justify-content: center;
+
+gap: 8px;
+
+color: #64748b;
+
+font-size: 11px;
+font-weight: 600;
+
 }
 
+.loading-spinner {
+width: 28px;
+height: 28px;
 
-.household-status {
-    flex:
-        0 0 auto;
+border:
+    3px solid #dcfce7;
 
-    padding:
-        5px 9px;
+border-top-color:
+    #15803d;
 
-    border-radius:
-        20px;
+border-radius: 50%;
 
-    font-size:
-        10px;
+animation:
+    sidatDataWargaSpin
+    0.8s linear infinite;
 
-    font-weight:
-        700;
 }
 
-
-.household-status.complete {
-    background:
-        #dcfce7;
-
-    color:
-        #166534;
+@keyframes sidatDataWargaSpin {
+to {
+transform: rotate(360deg);
+}
 }
 
+/* =====================================================
+KELUARGA LIST
+===================================================== */
 
-.household-status.incomplete {
-    background:
-        #fef3c7;
+.keluarga-list {
+width: 100%;
 
-    color:
-        #92400e;
+display: grid;
+
+grid-template-columns:
+    1fr;
+
+gap: 11px;
+
 }
 
+/* =====================================================
+KARTU KEPALA KELUARGA
+===================================================== */
 
-/* ==========================================
-   HOUSEHOLD BODY
-   ========================================== */
+.keluarga-card {
+position: relative;
 
-.household-body {
-    padding:
-        15px 16px;
+width: 100%;
+
+padding: 13px;
+
+background: #ffffff;
+
+border:
+    1px solid #e2e8f0;
+
+border-radius: 16px;
+
+overflow: hidden;
+
+cursor: pointer;
+
+box-shadow:
+    0 4px 14px
+    rgba(15, 23, 42, 0.05);
+
+-webkit-tap-highlight-color:
+    transparent;
+
+transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+
 }
 
+.keluarga-card:hover {
+border-color: #86efac;
 
-.head-preview {
-    display:
-        flex;
+box-shadow:
+    0 6px 18px
+    rgba(22, 101, 52, 0.08);
 
-    align-items:
-        center;
-
-    gap:
-        11px;
-
-    margin-bottom:
-        13px;
 }
 
-
-.head-avatar {
-    width:
-        44px;
-
-    height:
-        44px;
-
-    flex:
-        0 0 44px;
-
-    border-radius:
-        50%;
-
-    background:
-        #dcfce7;
-
-    color:
-        #166534;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    font-size:
-        17px;
-
-    font-weight:
-        700;
+.keluarga-card:active {
+transform: scale(0.99);
 }
 
+/* bagian utama kartu */
 
-.head-info {
-    min-width:
-        0;
+.keluarga-card-main {
+width: 100%;
+
+display: flex;
+align-items: center;
+
+gap: 11px;
+
 }
 
+.keluarga-avatar {
+width: 45px;
+height: 45px;
 
-.head-info span {
-    display:
-        block;
+min-width: 45px;
 
-    color:
-        #64748b;
+display: flex;
+align-items: center;
+justify-content: center;
 
-    font-size:
-        11px;
+border-radius: 13px;
 
-    margin-bottom:
-        3px;
+background: #dcfce7;
+color: #166534;
+
+font-size: 14px;
+font-weight: 800;
+
 }
 
+.keluarga-info {
+min-width: 0;
 
-.head-info strong {
-    display:
-        block;
+flex: 1;
 
-    color:
-        #172018;
-
-    font-size:
-        14px;
-
-    white-space:
-        nowrap;
-
-    overflow:
-        hidden;
-
-    text-overflow:
-        ellipsis;
 }
 
+.keluarga-name {
+overflow: hidden;
 
-/* ==========================================
-   HOUSEHOLD META
-   ========================================== */
+color: #14532d;
 
-.household-meta {
-    display:
-        flex;
+font-size: 14px;
+line-height: 1.3;
 
-    align-items:
-        center;
+font-weight: 800;
 
-    gap:
-        8px;
+white-space: nowrap;
+text-overflow: ellipsis;
 
-    flex-wrap:
-        wrap;
-
-    margin-bottom:
-        13px;
 }
 
+.keluarga-meta {
+margin-top: 3px;
 
-.meta-item {
-    display:
-        inline-flex;
+color: #64748b;
 
-    align-items:
-        center;
+font-size: 10px;
+line-height: 1.3;
 
-    gap:
-        5px;
+font-weight: 600;
 
-    padding:
-        6px 9px;
-
-    background:
-        #f8fafc;
-
-    border:
-        1px solid #e2e8f0;
-
-    border-radius:
-        8px;
-
-    color:
-        #475569;
-
-    font-size:
-        11px;
 }
 
+.keluarga-address {
+margin-top: 3px;
 
-/* ==========================================
-   HOUSEHOLD ACTIONS
-   ========================================== */
+overflow: hidden;
 
-.household-actions {
-    display:
-        flex;
+color: #94a3b8;
 
-    gap:
-        8px;
+font-size: 9px;
+line-height: 1.35;
+
+white-space: nowrap;
+text-overflow: ellipsis;
+
 }
 
+/* footer kartu */
 
-.household-actions button {
-    flex:
-        1;
+.keluarga-card-footer {
+width: 100%;
 
-    min-height:
-        38px;
+display: flex;
+align-items: center;
+
+gap: 7px;
+
+margin-top: 11px;
+padding-top: 9px;
+
+border-top:
+    1px solid #f1f5f9;
+
+color: #64748b;
+
+font-size: 9px;
+line-height: 1.3;
+
 }
 
+.keluarga-card-footer span {
+min-width: 0;
 
-/* ==========================================
-   EMPTY STATE
-   ========================================== */
+overflow: hidden;
 
-.empty-state {
-    display:
-        flex;
+white-space: nowrap;
+text-overflow: ellipsis;
 
-    flex-direction:
-        column;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    text-align:
-        center;
-
-    padding:
-        55px 20px;
-
-    color:
-        #64748b;
 }
 
+.keluarga-card-footer span:nth-child(2) {
+flex: 1;
 
-.empty-state > div {
-    font-size:
-        42px;
+text-align: right;
 
-    margin-bottom:
-        12px;
 }
 
+.keluarga-arrow {
+flex:
+0 0 auto;
 
-.empty-state strong {
-    display:
-        block;
+color: #94a3b8;
 
-    color:
-        #334155;
+font-size: 22px;
+line-height: 1;
 
-    font-size:
-        15px;
-
-    margin-bottom:
-        5px;
 }
 
+/* =====================================================
+EMPTY STATE
+===================================================== */
 
-.empty-state span {
-    font-size:
-        12px;
+.data-warga-empty,
+.sidat-empty-state {
+width: 100%;
+
+padding: 35px 15px;
+
+background: #ffffff;
+
+border:
+    1px dashed #cbd5e1;
+
+border-radius: 15px;
+
+text-align: center;
+
 }
 
-
-/* ==========================================
-   MODAL
-   ========================================== */
-
-.modal {
-    position:
-        fixed;
-
-    inset:
-        0;
-
-    z-index:
-        100;
-
-    display:
-        flex;
-
-    align-items:
-        flex-end;
-
-    justify-content:
-        center;
-
-    padding:
-        0;
-
-    background:
-        rgba(
-            15,
-            23,
-            42,
-            0.55
-        );
-
-    overflow-y:
-        auto;
+.data-warga-empty[hidden] {
+display: none !important;
 }
 
+.sidat-empty-icon,
+.empty-icon {
+width: 45px;
+height: 45px;
 
-.modal.hidden {
-    display:
-        none;
+margin:
+    0 auto 10px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+border-radius: 50%;
+
+background: #dcfce7;
+color: #166534;
+
+font-size: 22px;
+
 }
 
+.empty-icon svg {
+width: 25px;
+height: 25px;
 
-.modal-content {
-    position:
-        relative;
+fill: none;
 
-    width:
-        100%;
+stroke: currentColor;
+stroke-width: 1.7;
 
-    max-width:
-        650px;
+stroke-linecap: round;
+stroke-linejoin: round;
 
-    max-height:
-        94vh;
-
-    overflow-y:
-        auto;
-
-    padding:
-        22px 18px;
-
-    background:
-        #ffffff;
-
-    border-radius:
-        20px 20px 0 0;
-
-    box-shadow:
-        0 -5px 30px rgba(
-            0,
-            0,
-            0,
-            0.18
-        );
 }
 
+.data-warga-empty h3,
+.sidat-empty-state h3 {
+margin: 0;
 
-.close-btn {
-    position:
-        absolute;
+color: #334155;
 
-    top:
-        14px;
+font-size: 14px;
+line-height: 1.35;
 
-    right:
-        14px;
+font-weight: 800;
 
-    width:
-        36px;
-
-    height:
-        36px;
-
-    border:
-        none;
-
-    border-radius:
-        50%;
-
-    background:
-        #f1f5f9;
-
-    color:
-        #475569;
-
-    font-size:
-        24px;
-
-    line-height:
-        1;
-
-    cursor:
-        pointer;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
 }
 
+.data-warga-empty p,
+.sidat-empty-state p {
+margin: 5px 0 13px;
 
-.close-btn:hover {
-    background:
-        #e2e8f0;
+color: #64748b;
+
+font-size: 11px;
+line-height: 1.5;
+
 }
 
+.empty-add-button,
+.sidat-empty-state .btn-primary,
+.sidat-error-state .btn-primary {
+min-height: 40px;
 
-/* ==========================================
-   MODAL HEADER
-   ========================================== */
+padding:
+    8px 16px;
+
+border:
+    1px solid #166534;
+
+border-radius: 10px;
+
+background: #166534;
+color: #ffffff;
+
+font-family: inherit;
+
+font-size: 11px;
+font-weight: 700;
+
+cursor: pointer;
+
+}
+
+/* =====================================================
+ERROR
+===================================================== */
+
+.sidat-error-state {
+width: 100%;
+
+padding: 30px 15px;
+
+background: #ffffff;
+
+border:
+    1px solid #fecaca;
+
+border-radius: 15px;
+
+text-align: center;
+
+}
+
+.sidat-error-icon {
+margin-bottom: 8px;
+
+font-size: 28px;
+
+}
+
+.sidat-error-state h3 {
+margin: 0;
+
+color: #991b1b;
+
+font-size: 14px;
+
+}
+
+.sidat-error-state p {
+margin: 6px 0 13px;
+
+color: #64748b;
+
+font-size: 11px;
+line-height: 1.5;
+
+}
+
+/* =====================================================
+REFRESH
+===================================================== */
+
+.data-warga-refresh {
+width: 42px;
+height: 42px;
+
+margin:
+    15px auto 0;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+border:
+    1px solid #dcfce7;
+
+border-radius: 50%;
+
+background: #ffffff;
+color: #166534;
+
+cursor: pointer;
+
+box-shadow:
+    0 2px 8px
+    rgba(15, 23, 42, 0.04);
+
+}
+
+.data-warga-refresh:hover {
+background: #f0fdf4;
+}
+
+.data-warga-refresh:active {
+transform: rotate(-30deg);
+}
+
+.data-warga-refresh svg {
+width: 19px;
+height: 19px;
+
+fill: none;
+
+stroke: currentColor;
+stroke-width: 1.9;
+
+stroke-linecap: round;
+stroke-linejoin: round;
+
+}
+
+/* =====================================================
+MODAL UTAMA
+===================================================== */
+
+/*
+
+* Sengaja sangat tinggi agar modal selalu berada
+* di atas bottom navbar admin.
+  */
+
+.data-warga-modal {
+position: fixed;
+
+inset: 0;
+
+z-index: 50000;
+
+width: 100%;
+height: 100%;
+
+display: flex;
+
+align-items: center;
+justify-content: center;
+
+padding:
+    12px;
+
+overflow: hidden;
+
+isolation: isolate;
+
+}
+
+.data-warga-modal[hidden] {
+display: none !important;
+}
+
+.data-warga-modal.active {
+display: flex;
+}
+
+/* =====================================================
+MODAL BACKDROP
+===================================================== */
+
+.modal-backdrop {
+position: absolute;
+
+inset: 0;
+
+z-index: 0;
+
+background:
+    rgba(15, 23, 42, 0.62);
+
+backdrop-filter:
+    blur(3px);
+
+-webkit-backdrop-filter:
+    blur(3px);
+
+}
+
+/* =====================================================
+MODAL PANEL
+===================================================== */
+
+.modal-panel {
+position: relative;
+
+z-index: 2;
+
+width: 100%;
+
+max-width: 560px;
+
+max-height:
+    calc(
+        100vh -
+        24px -
+        env(safe-area-inset-top) -
+        env(safe-area-inset-bottom)
+    );
+
+overflow-y: auto;
+
+padding: 17px;
+
+background: #ffffff;
+
+border:
+    1px solid #e2e8f0;
+
+border-radius: 19px;
+
+box-shadow:
+    0 20px 50px
+    rgba(0, 0, 0, 0.22);
+
+-webkit-overflow-scrolling:
+    touch;
+
+overscroll-behavior:
+    contain;
+
+animation:
+    sidatDataWargaModalMasuk
+    0.20s ease;
+
+}
+
+@keyframes sidatDataWargaModalMasuk {
+
+from {
+    opacity: 0;
+
+    transform:
+        translateY(12px)
+        scale(0.98);
+}
+
+to {
+    opacity: 1;
+
+    transform:
+        translateY(0)
+        scale(1);
+}
+
+}
+
+/* =====================================================
+PANEL KHUSUS
+===================================================== */
+
+.family-modal-panel {
+max-height:
+calc(
+92vh -
+env(safe-area-inset-bottom)
+);
+}
+
+.resident-modal-panel {
+max-height:
+calc(
+94vh -
+env(safe-area-inset-bottom)
+);
+}
+
+.import-modal-panel {
+max-height:
+calc(
+94vh -
+env(safe-area-inset-bottom)
+);
+}
+
+/* =====================================================
+MODAL HEADER
+===================================================== */
 
 .modal-header {
-    padding-right:
-        45px;
+width: 100%;
 
-    margin-bottom:
-        20px;
+display: flex;
+
+align-items: flex-start;
+justify-content: space-between;
+
+gap: 10px;
+
+margin-bottom: 14px;
+
 }
 
-
-.modal-header > span {
-    display:
-        block;
-
-    color:
-        #16a34a;
-
-    font-size:
-        11px;
-
-    font-weight:
-        700;
-
-    letter-spacing:
-        0.5px;
-
-    margin-bottom:
-        5px;
+.modal-header > div {
+min-width: 0;
 }
-
 
 .modal-header h2 {
-    color:
-        #166534;
+margin: 0;
 
-    font-size:
-        21px;
+color: #14532d;
 
-    margin-bottom:
-        5px;
+font-size: 18px;
+line-height: 1.3;
+
+font-weight: 800;
+
+word-break: break-word;
+
 }
-
 
 .modal-header p {
-    color:
-        #64748b;
+margin: 3px 0 0;
 
-    font-size:
-        13px;
+color: #64748b;
 
-    line-height:
-        1.5;
+font-size: 10px;
+line-height: 1.45;
+
 }
 
+.modal-close {
+width: 36px;
+height: 36px;
 
-/* ==========================================
-   FORM
-   ========================================== */
+min-width: 36px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+border: none;
+border-radius: 10px;
+
+background: #f1f5f9;
+color: #475569;
+
+cursor: pointer;
+
+}
+
+.modal-close:hover {
+background: #fee2e2;
+color: #dc2626;
+}
+
+.modal-close:active {
+transform: scale(0.95);
+}
+
+.modal-close svg {
+width: 18px;
+height: 18px;
+
+fill: none;
+
+stroke: currentColor;
+stroke-width: 2;
+
+stroke-linecap: round;
+stroke-linejoin: round;
+
+}
+
+/* =====================================================
+FAMILY SUMMARY
+===================================================== */
+
+.family-summary {
+width: 100%;
+
+display: grid;
+
+grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+gap: 7px;
+
+margin-bottom: 12px;
+
+}
+
+.family-summary > div {
+min-width: 0;
+
+padding: 10px 7px;
+
+background: #f0fdf4;
+
+border:
+    1px solid #dcfce7;
+
+border-radius: 11px;
+
+text-align: center;
+
+}
+
+.family-summary span {
+display: block;
+
+color: #64748b;
+
+font-size: 9px;
+line-height: 1.3;
+
+}
+
+.family-summary strong {
+display: block;
+
+margin-top: 3px;
+
+overflow: hidden;
+
+color: #14532d;
+
+font-size: 12px;
+line-height: 1.3;
+
+font-weight: 800;
+
+white-space: nowrap;
+text-overflow: ellipsis;
+
+}
+
+/* =====================================================
+FAMILY ACTIONS
+===================================================== */
+
+.family-actions {
+width: 100%;
+
+display: grid;
+
+grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+gap: 8px;
+
+margin-bottom: 14px;
+
+}
+
+.family-actions button {
+width: 100%;
+
+min-height: 42px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+padding:
+    8px 10px;
+
+border-radius: 10px;
+
+font-family: inherit;
+
+font-size: 11px;
+line-height: 1.2;
+
+font-weight: 700;
+
+cursor: pointer;
+
+transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
+
+}
+
+.family-actions button:active {
+transform: scale(0.97);
+}
+
+/* tombol utama */
+
+.family-actions .btn-primary {
+border:
+1px solid #166534;
+
+background: #166534;
+color: #ffffff;
+
+box-shadow:
+    0 3px 8px
+    rgba(22, 101, 52, 0.14);
+
+}
+
+.family-actions .btn-primary:hover {
+background: #15803d;
+}
+
+/* tombol sekunder */
+
+.family-actions .btn-secondary {
+border:
+1px solid #cbd5e1;
+
+background: #ffffff;
+color: #334155;
+
+}
+
+.family-actions .btn-secondary:hover {
+border-color: #86efac;
+
+background: #f0fdf4;
+color: #166534;
+
+}
+
+/* =====================================================
+FAMILY MEMBERS
+===================================================== */
+
+.family-members {
+width: 100%;
+
+display: flex;
+flex-direction: column;
+
+gap: 8px;
+
+}
+
+.family-member {
+width: 100%;
+
+display: flex;
+align-items: flex-start;
+
+gap: 9px;
+
+padding: 11px;
+
+background: #ffffff;
+
+border:
+    1px solid #e2e8f0;
+
+border-radius: 13px;
+
+box-shadow:
+    0 2px 7px
+    rgba(15, 23, 42, 0.03);
+
+}
+
+.family-member-avatar {
+width: 38px;
+height: 38px;
+
+min-width: 38px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+border-radius: 10px;
+
+background: #dcfce7;
+color: #166534;
+
+font-size: 11px;
+font-weight: 800;
+
+}
+
+.family-member-info {
+min-width: 0;
+
+flex: 1;
+
+}
+
+.family-member-info strong {
+display: block;
+
+overflow: hidden;
+
+color: #1e293b;
+
+font-size: 12px;
+line-height: 1.3;
+
+font-weight: 800;
+
+white-space: nowrap;
+text-overflow: ellipsis;
+
+}
+
+.family-member-info span {
+display: block;
+
+margin-top: 2px;
+
+color: #64748b;
+
+font-size: 10px;
+line-height: 1.3;
+
+}
+
+.family-member-info small {
+display: block;
+
+margin-top: 2px;
+
+color: #94a3b8;
+
+font-size: 9px;
+
+}
+
+.family-member-actions {
+flex:
+0 0 auto;
+
+display: flex;
+flex-direction: column;
+
+gap: 5px;
+
+}
+
+.family-member-actions button {
+min-width: 62px;
+min-height: 30px;
+
+padding:
+    5px 8px;
+
+border:
+    1px solid #cbd5e1;
+
+border-radius: 8px;
+
+background: #ffffff;
+color: #475569;
+
+font-family: inherit;
+
+font-size: 9px;
+font-weight: 700;
+
+cursor: pointer;
+
+}
+
+.family-member-actions button:hover {
+border-color: #86efac;
+
+background: #f0fdf4;
+color: #166534;
+
+}
+
+.family-member-actions button[data-member-action="delete"] {
+border-color: #fecaca;
+
+color: #b91c1c;
+
+}
+
+.family-member-actions button[data-member-action="delete"]:hover {
+background: #fef2f2;
+
+border-color: #fca5a5;
+
+color: #991b1b;
+
+}
+
+.family-empty {
+width: 100%;
+
+padding: 20px 12px;
+
+border:
+    1px dashed #cbd5e1;
+
+border-radius: 11px;
+
+background: #f8fafc;
+
+color: #94a3b8;
+
+text-align: center;
+
+font-size: 10px;
+
+}
+
+/* =====================================================
+FORM
+===================================================== */
+
+#residentForm {
+width: 100%;
+
+display: flex;
+flex-direction: column;
+
+gap: 11px;
+
+}
 
 .form-group {
-    margin-bottom:
-        15px;
+width: 100%;
+
+display: flex;
+flex-direction: column;
+
+gap: 5px;
+
+min-width: 0;
+
 }
 
+.form-row {
+width: 100%;
+
+display: grid;
+
+grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+gap: 9px;
+
+}
 
 .form-group label {
-    display:
-        block;
+color: #334155;
 
-    color:
-        #334155;
+font-size: 10px;
+line-height: 1.25;
 
-    font-size:
-        12px;
+font-weight: 700;
 
-    font-weight:
-        700;
-
-    margin-bottom:
-        7px;
 }
-
 
 .form-group input,
 .form-group select,
 .form-group textarea {
-    width:
-        100%;
+width: 100%;
 
-    border:
-        1px solid #d1d5db;
+min-height: 42px;
 
-    border-radius:
-        10px;
+padding:
+    9px 11px;
 
-    background:
-        #ffffff;
+border:
+    1px solid #cbd5e1;
 
-    color:
-        #172018;
+border-radius: 10px;
 
-    padding:
-        11px 12px;
+outline: none;
 
-    font-family:
-        inherit;
+background: #ffffff;
+color: #1e293b;
 
-    font-size:
-        13px;
+font-family: inherit;
+font-size: 12px;
 
-    outline:
-        none;
+appearance: none;
+-webkit-appearance: none;
 
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
 }
-
 
 .form-group textarea {
-    resize:
-        vertical;
+min-height: 78px;
 
-    min-height:
-        80px;
+resize: vertical;
+
+line-height: 1.5;
+
 }
 
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+color: #94a3b8;
+}
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-    border-color:
-        #16a34a;
+border-color: #22c55e;
 
-    box-shadow:
-        0 0 0 3px rgba(
-            22,
-            163,
-            74,
-            0.10
-        );
+box-shadow:
+    0 0 0 3px
+    rgba(34, 197, 94, 0.10);
+
 }
 
+.form-group select {
+cursor: pointer;
 
-.form-group input::placeholder,
-.form-group textarea::placeholder {
-    color:
-        #94a3b8;
+background-image:
+    linear-gradient(
+        45deg,
+        transparent 50%,
+        #64748b 50%
+    ),
+    linear-gradient(
+        135deg,
+        #64748b 50%,
+        transparent 50%
+    );
+
+background-position:
+    calc(100% - 14px) 18px,
+    calc(100% - 9px) 18px;
+
+background-size:
+    5px 5px,
+    5px 5px;
+
+background-repeat:
+    no-repeat;
+
 }
 
+/* disabled */
 
-.form-group small {
-    display:
-        block;
+.form-group input:disabled,
+.form-group select:disabled,
+.form-group textarea:disabled {
+background: #f8fafc;
 
-    color:
-        #64748b;
+color: #94a3b8;
 
-    font-size:
-        11px;
+cursor: not-allowed;
 
-    line-height:
-        1.5;
-
-    margin-top:
-        5px;
 }
 
+/* =====================================================
+ACCOUNT INFO
+===================================================== */
 
-.form-row {
-    display:
-        grid;
+.account-info {
+width: 100%;
 
-    grid-template-columns:
-        1fr 1fr;
+display: flex;
+align-items: flex-start;
 
-    gap:
-        12px;
+gap: 9px;
+
+padding: 11px;
+
+background: #f0fdf4;
+
+border:
+    1px solid #bbf7d0;
+
+border-radius: 11px;
+
 }
 
-
-/* ==========================================
-   SOURCE DATA OPTIONS
-   ========================================== */
-
-.source-options {
-    display:
-        flex;
-
-    flex-direction:
-        column;
-
-    gap:
-        9px;
+.account-info[hidden] {
+display: none !important;
 }
 
+.account-info-icon {
+width: 34px;
+height: 34px;
 
-.source-option {
-    display:
-        flex;
+min-width: 34px;
 
-    align-items:
-        flex-start;
+display: flex;
+align-items: center;
+justify-content: center;
 
-    gap:
-        10px;
+border-radius: 9px;
 
-    padding:
-        12px;
+background: #dcfce7;
+color: #166534;
 
-    border:
-        1px solid #d1d5db;
-
-    border-radius:
-        11px;
-
-    cursor:
-        pointer;
-
-    transition:
-        border-color 0.2s ease,
-        background 0.2s ease;
 }
 
+.account-info-icon svg {
+width: 18px;
+height: 18px;
 
-.source-option:hover {
-    border-color:
-        #86efac;
+fill: none;
 
-    background:
-        #f0fdf4;
+stroke: currentColor;
+stroke-width: 1.8;
+
+stroke-linecap: round;
+stroke-linejoin: round;
+
 }
 
-
-.source-option input {
-    width:
-        17px;
-
-    height:
-        17px;
-
-    margin-top:
-        2px;
-
-    accent-color:
-        #15803d;
+.account-info > div:last-child {
+min-width: 0;
 }
 
+.account-info strong {
+display: block;
 
-.source-option span {
-    display:
-        flex;
+color: #166534;
 
-    flex-direction:
-        column;
+font-size: 11px;
+line-height: 1.3;
 
-    gap:
-        3px;
+font-weight: 800;
+
 }
 
+.account-info p {
+margin: 3px 0 0;
 
-.source-option strong {
-    color:
-        #334155;
+color: #64748b;
 
-    font-size:
-        13px;
+font-size: 10px;
+line-height: 1.4;
+
 }
 
-
-.source-option small {
-    color:
-        #64748b;
-
-    font-size:
-        11px;
-}
-
-
-/* ==========================================
-   EXISTING RESIDENT
-   ========================================== */
-
-.existing-resident-section {
-    padding:
-        13px;
-
-    margin-bottom:
-        15px;
-
-    border:
-        1px solid #bbf7d0;
-
-    border-radius:
-        12px;
-
-    background:
-        #f0fdf4;
-}
-
-
-.existing-resident-list {
-    display:
-        flex;
-
-    flex-direction:
-        column;
-
-    gap:
-        8px;
-
-    max-height:
-        220px;
-
-    overflow-y:
-        auto;
-}
-
-
-.existing-resident-card {
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        space-between;
-
-    gap:
-        10px;
-
-    padding:
-        10px;
-
-    background:
-        #ffffff;
-
-    border:
-        1px solid #e2e8f0;
-
-    border-radius:
-        10px;
-}
-
-
-.existing-resident-info {
-    min-width:
-        0;
-}
-
-
-.existing-resident-info strong {
-    display:
-        block;
-
-    color:
-        #334155;
-
-    font-size:
-        13px;
-
-    white-space:
-        nowrap;
-
-    overflow:
-        hidden;
-
-    text-overflow:
-        ellipsis;
-}
-
-
-.existing-resident-info span {
-    display:
-        block;
-
-    color:
-        #64748b;
-
-    font-size:
-        10px;
-
-    margin-top:
-        3px;
-}
-
-
-.existing-resident-card button {
-    flex:
-        0 0 auto;
-
-    border:
-        none;
-
-    background:
-        #15803d;
-
-    color:
-        #ffffff;
-
-    padding:
-        8px 11px;
-
-    border-radius:
-        8px;
-
-    font-size:
-        11px;
-
-    font-weight:
-        700;
-
-    cursor:
-        pointer;
-}
-
-
-/* ==========================================
-   SECTION DIVIDER
-   ========================================== */
-
-.section-divider {
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    gap:
-        10px;
-
-    margin:
-        20px 0 15px;
-}
-
-
-.section-divider::before,
-.section-divider::after {
-    content:
-        "";
-
-    flex:
-        1;
-
-    height:
-        1px;
-
-    background:
-        #e2e8f0;
-}
-
-
-.section-divider span {
-    color:
-        #64748b;
-
-    font-size:
-        10px;
-
-    font-weight:
-        700;
-
-    letter-spacing:
-        0.5px;
-}
-
-
-/* ==========================================
-   INFO BOX
-   ========================================== */
-
-.info-box {
-    display:
-        flex;
-
-    align-items:
-        flex-start;
-
-    gap:
-        10px;
-
-    padding:
-        12px;
-
-    margin:
-        5px 0 15px;
-
-    background:
-        #eff6ff;
-
-    border:
-        1px solid #dbeafe;
-
-    border-radius:
-        11px;
-}
-
-
-.info-box > div:first-child {
-    font-size:
-        18px;
-}
-
-
-.info-box strong {
-    display:
-        block;
-
-    color:
-        #1e40af;
-
-    font-size:
-        12px;
-
-    margin-bottom:
-        3px;
-}
-
-
-.info-box p {
-    color:
-        #475569;
-
-    font-size:
-        11px;
-
-    line-height:
-        1.5;
-}
-
-
-/* ==========================================
-   ERROR
-   ========================================== */
-
-.form-error {
-    padding:
-        10px 12px;
-
-    margin-bottom:
-        14px;
-
-    border:
-        1px solid #fecaca;
-
-    border-radius:
-        9px;
-
-    background:
-        #fef2f2;
-
-    color:
-        #b91c1c;
-
-    font-size:
-        12px;
-
-    line-height:
-        1.5;
-}
-
-
-.form-error.hidden {
-    display:
-        none;
-}
-
-
-/* ==========================================
-   MODAL ACTIONS
-   ========================================== */
+/* =====================================================
+MODAL ACTIONS
+===================================================== */
 
 .modal-actions {
-    display:
-        flex;
+width: 100%;
 
-    gap:
-        10px;
+display: grid;
 
-    margin-top:
-        20px;
-}
+grid-template-columns:
+    repeat(2, minmax(0, 1fr));
 
+gap: 8px;
 
-.modal-actions button {
-    flex:
-        1;
+margin-top: 15px;
 
-    min-height:
-        42px;
-}
+padding-top: 13px;
 
-
-/* ==========================================
-   DETAIL KK
-   ========================================== */
-
-.household-modal {
-    max-width:
-        700px;
-}
-
-
-.detail-section {
-    margin-bottom:
-        18px;
-}
-
-
-.section-title {
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        space-between;
-
-    gap:
-        10px;
-
-    margin-bottom:
-        10px;
-}
-
-
-.section-title strong {
-    color:
-        #334155;
-
-    font-size:
-        13px;
-}
-
-
-.section-title span {
-    color:
-        #64748b;
-
-    font-size:
-        11px;
-}
-
-
-.head-resident {
-    padding:
-        13px;
-
-    border:
-        1px solid #bbf7d0;
-
-    border-radius:
-        12px;
-
-    background:
-        #f0fdf4;
-}
-
-
-/* ==========================================
-   HEAD RESIDENT CARD
-   ========================================== */
-
-.head-resident-card {
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    gap:
-        12px;
-}
-
-
-.head-resident-avatar {
-    width:
-        48px;
-
-    height:
-        48px;
-
-    flex:
-        0 0 48px;
-
-    border-radius:
-        50%;
-
-    background:
-        #15803d;
-
-    color:
-        #ffffff;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    font-size:
-        18px;
-
-    font-weight:
-        700;
-}
-
-
-.head-resident-info {
-    flex:
-        1;
-
-    min-width:
-        0;
-}
-
-
-.head-resident-info strong {
-    display:
-        block;
-
-    color:
-        #166534;
-
-    font-size:
-        14px;
-
-    margin-bottom:
-        4px;
-}
-
-
-.head-resident-info span {
-    display:
-        block;
-
-    color:
-        #64748b;
-
-    font-size:
-        11px;
-
-    margin-bottom:
-        3px;
-}
-
-
-.head-resident-actions {
-    display:
-        flex;
-
-    gap:
-        6px;
-
-    flex-wrap:
-        wrap;
-}
-
-
-/* ==========================================
-   FAMILY MEMBERS
-   ========================================== */
-
-.family-member-list {
-    display:
-        flex;
-
-    flex-direction:
-        column;
-
-    gap:
-        8px;
-}
-
-
-.family-member-card {
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    gap:
-        10px;
-
-    padding:
-        11px;
-
-    background:
-        #ffffff;
-
-    border:
-        1px solid #e2e8f0;
-
-    border-radius:
-        11px;
-}
-
-
-.member-avatar {
-    width:
-        40px;
-
-    height:
-        40px;
-
-    flex:
-        0 0 40px;
-
-    border-radius:
-        50%;
-
-    background:
-        #f1f5f9;
-
-    color:
-        #475569;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    font-size:
-        14px;
-
-    font-weight:
-        700;
-}
-
-
-.member-info {
-    flex:
-        1;
-
-    min-width:
-        0;
-}
-
-
-.member-info strong {
-    display:
-        block;
-
-    color:
-        #334155;
-
-    font-size:
-        13px;
-
-    margin-bottom:
-        3px;
-
-    white-space:
-        nowrap;
-
-    overflow:
-        hidden;
-
-    text-overflow:
-        ellipsis;
-}
-
-
-.member-info span {
-    display:
-        block;
-
-    color:
-        #64748b;
-
-    font-size:
-        10px;
-
-    line-height:
-        1.5;
-}
-
-
-.member-actions {
-    display:
-        flex;
-
-    gap:
-        5px;
-
-    flex-wrap:
-        wrap;
-
-    justify-content:
-        flex-end;
-}
-
-
-.member-actions button,
-.head-resident-actions button {
-    border:
-        none;
-
-    padding:
-        7px 9px;
-
-    border-radius:
-        8px;
-
-    font-size:
-        10px;
-
-    font-weight:
-        700;
-
-    cursor:
-        pointer;
-
-    white-space:
-        nowrap;
-}
-
-
-.btn-edit-small {
-    background:
-        #eff6ff;
-
-    color:
-        #1d4ed8;
-}
-
-
-.btn-move-small {
-    background:
-        #fff7ed;
-
-    color:
-        #c2410c;
-}
-
-
-.btn-delete-small {
-    background:
-        #fef2f2;
-
-    color:
-        #b91c1c;
-}
-
-
-.btn-qr-small {
-    background:
-        #ecfdf5;
-
-    color:
-        #047857;
-}
-
-
-/* ==========================================
-   DETAIL ACTIONS
-   ========================================== */
-
-.detail-actions {
-    display:
-        flex;
-
-    gap:
-        9px;
-
-    padding-top:
-        5px;
-}
-
-
-.detail-actions button {
-    flex:
-        1;
-}
-
-
-/* ==========================================
-   SELECTED RESIDENT
-   ========================================== */
-
-.selected-resident-box {
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    gap:
-        10px;
-
-    padding:
-        12px;
-
-    margin-bottom:
-        16px;
-
-    background:
-        #f0fdf4;
-
-    border:
-        1px solid #bbf7d0;
-
-    border-radius:
-        11px;
-}
-
-
-/* ==========================================
-   MOVE OPTIONS
-   ========================================== */
-
-.move-options {
-    display:
-        flex;
-
-    flex-direction:
-        column;
-
-    gap:
-        8px;
-}
-
-
-.move-options label {
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    gap:
-        8px;
-
-    padding:
-        10px;
-
-    border:
-        1px solid #e2e8f0;
-
-    border-radius:
-        9px;
-
-    background:
-        #ffffff;
-
-    color:
-        #475569;
-
-    font-size:
-        12px;
-
-    cursor:
-        pointer;
-}
-
-
-.move-options input {
-    width:
-        16px;
-
-    height:
-        16px;
-
-    accent-color:
-        #15803d;
-}
-
-
-/* ==========================================
-   QR MODAL
-   ========================================== */
-
-.qr-modal {
-    max-width:
-        450px;
-
-    text-align:
-        center;
-}
-
-
-.qr-header {
-    padding-right:
-        35px;
-
-    margin-bottom:
-        15px;
-}
-
-
-.qr-header > span {
-    display:
-        block;
-
-    color:
-        #16a34a;
-
-    font-size:
-        11px;
-
-    font-weight:
-        700;
-
-    margin-bottom:
-        5px;
-}
-
-
-.qr-header h2 {
-    color:
-        #166534;
-
-    font-size:
-        20px;
-
-    margin-bottom:
-        4px;
-}
-
-
-.qr-header p {
-    color:
-        #64748b;
-
-    font-size:
-        12px;
-}
-
-
-/* ==========================================
-   QR CODE
-   ========================================== */
-
-.qrcode {
-    width:
-        220px;
-
-    min-height:
-        220px;
-
-    margin:
-        15px auto;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    padding:
-        10px;
-
-    background:
-        #ffffff;
-
-    border:
-        1px solid #e2e8f0;
-
-    border-radius:
-        12px;
-}
-
-
-.qrcode img,
-.qrcode canvas {
-    max-width:
-        100%;
-
-    height:
-        auto;
-}
-
-
-/* ==========================================
-   QR TOKEN
-   ========================================== */
-
-.qr-token-box {
-    padding:
-        10px 12px;
-
-    margin:
-        12px 0;
-
-    background:
-        #f8fafc;
-
-    border:
-        1px solid #e2e8f0;
-
-    border-radius:
-        10px;
-
-    text-align:
-        left;
-}
-
-
-.qr-token-box span {
-    display:
-        block;
-
-    color:
-        #64748b;
-
-    font-size:
-        10px;
-
-    margin-bottom:
-        4px;
-}
-
-
-.qr-token-box strong {
-    display:
-        block;
-
-    color:
-        #334155;
-
-    font-size:
-        10px;
-
-    line-height:
-        1.5;
-
-    word-break:
-        break-all;
-}
-
-
-.qr-actions {
-    display:
-        flex;
-
-    gap:
-        8px;
-
-    margin-top:
-        12px;
-}
-
-
-.qr-actions button {
-    flex:
-        1;
-}
-
-
-.qr-info {
-    margin-top:
-        15px;
-
-    color:
-        #64748b;
-
-    font-size:
-        11px;
-
-    line-height:
-        1.5;
-}
-
-
-/* ==========================================
-   FOOTER
-   ========================================== */
-
-footer {
-    display:
-        flex;
-
-    flex-direction:
-        column;
-
-    align-items:
-        center;
-
-    gap:
-        3px;
-
-    padding:
-        20px;
-
-    color:
-        #64748b;
-
-    font-size:
-        11px;
-
-    text-align:
-        center;
-}
-
-
-footer strong {
-    color:
-        #15803d;
-
-    font-size:
-        13px;
-}
-
-
-/* ==========================================
-   UTILITY
-   ========================================== */
-
-.hidden {
-    display:
-        none !important;
-}
-
-
-/* ==========================================
-   RESPONSIVE
-   ========================================== */
-
-@media (
-    max-width: 600px
-) {
-
-    .content {
-        padding:
-            13px;
-    }
-
-
-    .title-card {
-        align-items:
-            stretch;
-
-        flex-direction:
-            column;
-    }
-
-
-    .title-card .btn-primary {
-        width:
-            100%;
-    }
-
-
-    .summary-grid {
-        grid-template-columns:
-            repeat(
-                3,
-                1fr
-            );
-
-        gap:
-            7px;
-    }
-
-
-    .summary-card {
-        flex-direction:
-            column;
-
-        align-items:
-            center;
-
-        justify-content:
-            center;
-
-        text-align:
-            center;
-
-        padding:
-            11px 5px;
-
-        gap:
-            6px;
-    }
-
-
-    .summary-card > span {
-        width:
-            34px;
-
-        height:
-            34px;
-
-        font-size:
-            16px;
-    }
-
-
-    .summary-card strong {
-        font-size:
-            15px;
-    }
-
-
-    .summary-card small {
-        font-size:
-            9px;
-    }
-
-
-    .form-row {
-        grid-template-columns:
-            1fr;
-
-        gap:
-            0;
-    }
-
-
-    .modal-content {
-        padding:
-            20px 14px;
-    }
-
-
-    .household-header {
-        padding:
-            13px;
-    }
-
-
-    .household-body {
-        padding:
-            13px;
-    }
-
-
-    .household-actions {
-        flex-direction:
-            column;
-    }
-
-
-    .family-member-card {
-        align-items:
-            flex-start;
-    }
-
-
-    .member-actions {
-        flex-direction:
-            column;
-    }
-
-
-    .member-actions button {
-        width:
-            100%;
-    }
-
-
-    .head-resident-card {
-        align-items:
-            flex-start;
-
-        flex-wrap:
-            wrap;
-    }
-
-
-    .head-resident-info {
-        flex:
-            1 1 calc(
-                100% - 65px
-            );
-    }
-
-
-    .head-resident-actions {
-        width:
-            100%;
-    }
-
-
-    .head-resident-actions button {
-        flex:
-            1;
-    }
-
-
-    .detail-actions {
-        flex-direction:
-            column;
-    }
-
-
-    .qr-actions {
-        flex-direction:
-            column;
-    }
+border-top:
+    1px solid #e2e8f0;
 
 }
 
+.modal-button {
+width: 100%;
 
-@media (
-    min-width: 601px
-) {
+min-height: 43px;
 
-    .modal {
-        align-items:
-            center;
+display: flex;
+align-items: center;
+justify-content: center;
 
-        padding:
-            20px;
-    }
+border-radius: 10px;
 
+font-family: inherit;
 
-    .modal-content {
-        border-radius:
-            20px;
+font-size: 12px;
+font-weight: 700;
 
-        max-height:
-            90vh;
-    }
+cursor: pointer;
 
 }
-.title-actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
-}
-/* ==========================================
-   IMPORT DATA WARGA
-========================================== */
 
-.import-modal {
-    max-width: 1000px;
-}
+.modal-button.primary {
+border:
+1px solid #166534;
 
+background: #166534;
+color: #ffffff;
 
-.import-preview-section {
-    margin-top: 20px;
+box-shadow:
+    0 3px 8px
+    rgba(22, 101, 52, 0.14);
+
 }
 
+.modal-button.primary:hover {
+background: #14532d;
+}
+
+.modal-button.secondary {
+border:
+1px solid #cbd5e1;
+
+background: #ffffff;
+color: #475569;
+
+}
+
+.modal-button.secondary:hover {
+background: #f8fafc;
+}
+
+.modal-button:disabled {
+opacity: 0.55;
+
+cursor: not-allowed;
+
+}
+
+/* =====================================================
+IMPORT
+===================================================== */
+
+.import-step {
+width: 100%;
+}
+
+.import-step[hidden] {
+display: none !important;
+}
+
+#importStepSelect,
+#importStepPreview,
+#importStepValidation,
+#importStepImport {
+width: 100%;
+}
+
+/* upload */
+
+.import-upload-box {
+width: 100%;
+
+padding: 26px 15px;
+
+background: #f0fdf4;
+
+border:
+    1px dashed #86efac;
+
+border-radius: 15px;
+
+text-align: center;
+
+}
+
+.import-upload-icon,
+.import-confirm-icon {
+width: 54px;
+height: 54px;
+
+margin:
+    0 auto 11px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+border-radius: 50%;
+
+background: #dcfce7;
+color: #166534;
+
+}
+
+.import-upload-icon svg,
+.import-confirm-icon svg {
+width: 26px;
+height: 26px;
+
+fill: none;
+
+stroke: currentColor;
+stroke-width: 1.8;
+
+stroke-linecap: round;
+stroke-linejoin: round;
+
+}
+
+.import-upload-box h3,
+.import-confirm h3 {
+margin: 0;
+
+color: #14532d;
+
+font-size: 14px;
+line-height: 1.3;
+
+font-weight: 800;
+
+}
+
+.import-upload-box p,
+.import-confirm p {
+margin: 6px 0 15px;
+
+color: #64748b;
+
+font-size: 10px;
+line-height: 1.45;
+
+}
+
+.import-upload-box .modal-button {
+width: auto;
+
+min-width: 140px;
+
+}
+
+.selected-file-info {
+max-width: 100%;
+
+margin-top: 12px;
+
+padding: 8px 10px;
+
+overflow-wrap: anywhere;
+
+border:
+    1px solid #e2e8f0;
+
+border-radius: 9px;
+
+background: #ffffff;
+
+color: #475569;
+
+font-size: 10px;
+line-height: 1.4;
+
+font-weight: 600;
+
+}
+
+/* =====================================================
+IMPORT SUMMARY
+===================================================== */
 
 .import-summary {
-    display: grid;
-    grid-template-columns:
-        repeat(3, 1fr);
+width: 100%;
 
-    gap: 10px;
+display: grid;
 
-    margin-bottom: 15px;
-}
+grid-template-columns:
+    repeat(3, minmax(0, 1fr));
 
+gap: 7px;
 
-.import-summary > div {
-    padding: 12px;
-
-    border-radius: 10px;
-
-    background:
-        #f0fdf4;
-
-    border:
-        1px solid #bbf7d0;
-
-    text-align: center;
-}
-
-
-.import-summary strong {
-    display: block;
-
-    font-size: 22px;
-
-    color:
-        #15803d;
-}
-
-
-.import-summary small {
-    display: block;
-
-    margin-top: 4px;
-
-    color:
-        #64748b;
-}
-
-
-.import-preview {
-    width: 100%;
-
-    overflow-x: auto;
-
-    border:
-        1px solid #e2e8f0;
-
-    border-radius: 10px;
-
-    background:
-        white;
-}
-
-
-.import-preview table {
-    width: 100%;
-
-    border-collapse:
-        collapse;
-
-    min-width:
-        800px;
-
-    font-size:
-        13px;
-}
-
-
-.import-preview th,
-.import-preview td {
-    padding:
-        9px 10px;
-
-    border-bottom:
-        1px solid #e2e8f0;
-
-    text-align:
-        left;
-
-    white-space:
-        nowrap;
-}
-
-
-.import-preview th {
-    background:
-        #f8fafc;
-
-    font-weight:
-        700;
-
-    color:
-        #334155;
-}
-
-
-.import-preview tr:last-child td {
-    border-bottom:
-        none;
-}
-
-
-#importStatus {
-    margin-top: 15px;
-}
-
-
-@media (
-    max-width: 600px
-) {
-
-    .import-summary {
-        grid-template-columns:
-            1fr;
-    }
-
-    .import-modal {
-        width:
-            calc(100% - 20px);
-    }
+margin-bottom: 11px;
 
 }
-/* ==========================================
-   MODAL UBAH PIN
-========================================== */
 
-#ubahPinModal {
-    position: fixed;
-    inset: 0;
+.import-summary-card {
+min-width: 0;
 
-    z-index: 9999;
+padding: 10px 7px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+background: #f8fafc;
 
-    padding: 16px;
+border:
+    1px solid #e2e8f0;
 
-    background: rgba(0, 0, 0, 0.55);
-}
+border-radius: 11px;
 
-
-/* ==========================================
-   HIDDEN
-========================================== */
-
-#ubahPinModal.hidden {
-    display: none;
-}
-
-
-/* ==========================================
-   CONTENT
-========================================== */
-
-#ubahPinModal .modal-content {
-
-    width: 100%;
-    max-width: 420px;
-
-    background: #ffffff;
-
-    border-radius: 18px;
-
-    overflow: hidden;
-
-    box-shadow:
-        0 20px 50px rgba(0, 0, 0, 0.25);
-
-    animation:
-        modalUbahPinMasuk
-        0.2s ease;
-}
-
-
-/* ==========================================
-   ANIMASI
-========================================== */
-
-@keyframes modalUbahPinMasuk {
-
-    from {
-
-        opacity: 0;
-
-        transform:
-            translateY(20px)
-            scale(0.97);
-
-    }
-
-    to {
-
-        opacity: 1;
-
-        transform:
-            translateY(0)
-            scale(1);
-
-    }
+text-align: center;
 
 }
 
+.import-summary-card span {
+display: block;
 
-/* ==========================================
-   HEADER
-========================================== */
+color: #64748b;
 
-#ubahPinModal .modal-header {
+font-size: 9px;
 
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    padding: 18px 20px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #15803d,
-            #16a34a
-        );
-
-    color: white;
-}
-
-
-#ubahPinModal .modal-header h3 {
-
-    margin: 0;
-
-    font-size: 18px;
-
-    font-weight: 700;
+font-weight: 600;
 
 }
 
+.import-summary-card strong {
+display: block;
 
-#ubahPinModal .modal-header button {
+margin-top: 3px;
 
-    width: 34px;
-    height: 34px;
+color: #14532d;
 
-    border: none;
+font-size: 17px;
 
-    border-radius: 50%;
-
-    background:
-        rgba(255,255,255,0.18);
-
-    color: white;
-
-    font-size: 24px;
-
-    line-height: 1;
-
-    cursor: pointer;
+font-weight: 800;
 
 }
 
+/* =====================================================
+IMPORT PREVIEW
+===================================================== */
 
-/* ==========================================
-   BODY
-========================================== */
+.import-preview-scroll {
+width: 100%;
 
-#ubahPinModal .modal-body {
+max-height: 42vh;
 
-    padding: 22px 20px 10px;
+overflow: auto;
 
-}
+border:
+    1px solid #e2e8f0;
 
+border-radius: 11px;
 
-/* ==========================================
-   NAMA KEPALA KELUARGA
-========================================== */
-
-#ubahPinNama {
-
-    margin: 0 0 22px;
-
-    padding: 14px;
-
-    border-radius: 12px;
-
-    background: #f0fdf4;
-
-    border: 1px solid #bbf7d0;
-
-    color: #166534;
-
-    font-size: 14px;
+background: #ffffff;
 
 }
 
+.import-preview-scroll table {
+width: 100%;
 
-#ubahPinNama strong {
+min-width: 500px;
 
-    display: block;
+border-collapse: collapse;
 
-    margin-bottom: 4px;
-
-    font-size: 16px;
-
-}
-
-
-/* ==========================================
-   LABEL
-========================================== */
-
-#ubahPinModal label {
-
-    display: block;
-
-    margin:
-        14px 0 7px;
-
-    color: #374151;
-
-    font-size: 14px;
-
-    font-weight: 600;
+font-size: 10px;
 
 }
 
+.import-preview-scroll th {
+position: sticky;
 
-/* ==========================================
-   INPUT
-========================================== */
+top: 0;
 
-#ubahPinModal input {
+padding: 9px;
 
-    width: 100%;
+background: #f8fafc;
 
-    box-sizing: border-box;
+border-bottom:
+    1px solid #e2e8f0;
 
-    padding:
-        13px 14px;
+color: #475569;
 
-    border:
-        1px solid #d1d5db;
+text-align: left;
 
-    border-radius: 10px;
+font-weight: 800;
 
-    background: #ffffff;
-
-    color: #111827;
-
-    font-size: 16px;
-
-    outline: none;
-
-    transition:
-        border-color 0.2s,
-        box-shadow 0.2s;
+white-space: nowrap;
 
 }
 
+.import-preview-scroll td {
+padding: 9px;
 
-#ubahPinModal input:focus {
+border-bottom:
+    1px solid #f1f5f9;
 
-    border-color: #16a34a;
+color: #334155;
 
-    box-shadow:
-        0 0 0 3px
-        rgba(22, 163, 74, 0.12);
-
-}
-
-
-/* ==========================================
-   PETUNJUK PIN
-========================================== */
-
-#ubahPinModal .pin-hint {
-
-    margin-top: 7px;
-
-    color: #6b7280;
-
-    font-size: 12px;
+white-space: nowrap;
 
 }
 
+/* fallback table selector */
 
-/* ==========================================
-   ERROR
-========================================== */
+.import-table-wrapper {
+width: 100%;
 
-#ubahPinError {
+overflow-x: auto;
 
-    margin-top: 16px;
+border:
+    1px solid #e2e8f0;
 
-    padding: 12px 14px;
-
-    border-radius: 10px;
-
-    background: #fef2f2;
-
-    border:
-        1px solid #fecaca;
-
-    color: #b91c1c;
-
-    font-size: 13px;
+border-radius: 11px;
 
 }
 
+.import-table {
+width: 100%;
 
-#ubahPinError.hidden {
+min-width: 500px;
 
-    display: none;
+border-collapse: collapse;
 
-}
-
-
-/* ==========================================
-   STATUS
-========================================== */
-
-#ubahPinStatus {
-
-    margin-top: 16px;
-
-    padding: 12px 14px;
-
-    border-radius: 10px;
-
-    background: #f0fdf4;
-
-    border:
-        1px solid #bbf7d0;
-
-    color: #166534;
-
-    font-size: 13px;
+font-size: 10px;
 
 }
 
+.import-table th {
+padding: 9px;
 
-#ubahPinStatus.hidden {
+background: #f8fafc;
 
-    display: none;
+color: #475569;
 
-}
+text-align: left;
 
-
-/* ==========================================
-   FOOTER
-========================================== */
-
-#ubahPinModal .modal-footer {
-
-    display: flex;
-
-    gap: 10px;
-
-    padding:
-        16px 20px 20px;
+font-weight: 800;
 
 }
 
+.import-table td {
+padding: 9px;
 
-#ubahPinModal .modal-footer button {
+border-top:
+    1px solid #e2e8f0;
 
-    flex: 1;
-
-    min-height: 44px;
-
-    border: none;
-
-    border-radius: 10px;
-
-    font-size: 14px;
-
-    font-weight: 600;
-
-    cursor: pointer;
+color: #334155;
 
 }
 
+/* =====================================================
+VALIDATION
+===================================================== */
 
-/* ==========================================
-   BATAL
-========================================== */
+.validation-summary {
+width: 100%;
 
-#ubahPinModal .modal-footer button:first-child {
+display: grid;
 
-    background: #f3f4f6;
+grid-template-columns:
+    repeat(5, minmax(0, 1fr));
 
-    color: #374151;
+gap: 6px;
 
-}
-
-
-#ubahPinModal .modal-footer button:first-child:hover {
-
-    background: #e5e7eb;
+margin-bottom: 10px;
 
 }
 
+.validation-summary > div {
+min-width: 0;
 
-/* ==========================================
-   SIMPAN
-========================================== */
+padding: 8px 4px;
 
-#ubahPinModal #btnSimpanPin {
+background: #f8fafc;
 
-    background:
-        linear-gradient(
-            135deg,
-            #15803d,
-            #16a34a
-        );
+border:
+    1px solid #e2e8f0;
 
-    color: white;
+border-radius: 9px;
 
-}
+color: #64748b;
 
+text-align: center;
 
-#ubahPinModal #btnSimpanPin:hover {
-
-    opacity: 0.92;
+font-size: 8px;
+line-height: 1.25;
 
 }
 
+.validation-summary strong {
+display: block;
 
-#ubahPinModal #btnSimpanPin:disabled {
+margin-bottom: 2px;
 
-    opacity: 0.6;
+color: #166534;
 
-    cursor: not-allowed;
+font-size: 14px;
+font-weight: 800;
 
 }
 
+.validation-results {
+width: 100%;
 
-/* ==========================================
-   MOBILE
-========================================== */
+max-height: 42vh;
+
+display: flex;
+flex-direction: column;
+
+gap: 6px;
+
+overflow-y: auto;
+
+}
+
+.import-validation-row {
+width: 100%;
+
+display: grid;
+
+grid-template-columns:
+    48px
+    minmax(0, 1fr)
+    minmax(0, 1.3fr);
+
+gap: 7px;
+
+padding: 9px;
+
+border-radius: 10px;
+
+font-size: 9px;
+line-height: 1.35;
+
+}
+
+.import-validation-row.valid {
+background: #f0fdf4;
+
+border:
+    1px solid #bbf7d0;
+
+color: #166534;
+
+}
+
+.import-validation-row.invalid {
+background: #fef2f2;
+
+border:
+    1px solid #fecaca;
+
+color: #991b1b;
+
+}
+
+.import-validation-row > div {
+min-width: 0;
+
+overflow-wrap: anywhere;
+
+}
+
+/* =====================================================
+IMPORT CONFIRM
+===================================================== */
+
+.import-confirm {
+width: 100%;
+
+padding: 25px 15px;
+
+background: #f0fdf4;
+
+border:
+    1px solid #dcfce7;
+
+border-radius: 15px;
+
+text-align: center;
+
+}
+
+.import-confirm p {
+margin-bottom: 0;
+}
+
+/* =====================================================
+IMPORT FINISHED
+===================================================== */
+
+.import-finished {
+width: 100%;
+
+padding: 25px 15px;
+
+background: #f0fdf4;
+
+border:
+    1px solid #bbf7d0;
+
+border-radius: 15px;
+
+text-align: center;
+
+}
+
+.import-success-icon {
+width: 50px;
+height: 50px;
+
+margin:
+    0 auto 10px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+border-radius: 50%;
+
+background: #dcfce7;
+color: #166534;
+
+font-size: 23px;
+font-weight: 800;
+
+}
+
+.import-finished h3 {
+margin: 0;
+
+color: #14532d;
+
+font-size: 15px;
+
+}
+
+.import-finished p {
+margin: 5px 0 0;
+
+color: #64748b;
+
+font-size: 10px;
+
+}
+
+.import-finished strong {
+color: #166534;
+}
+
+.import-errors {
+margin-top: 12px;
+
+padding: 10px;
+
+background: #fef2f2;
+
+border:
+    1px solid #fecaca;
+
+border-radius: 10px;
+
+color: #991b1b;
+
+text-align: left;
+
+font-size: 9px;
+line-height: 1.45;
+
+}
+
+/* =====================================================
+HIDDEN STATE
+===================================================== */
+
+#excelFile,
+#templateInput {
+display: none !important;
+}
+
+[hidden] {
+display: none !important;
+}
+
+/* =====================================================
+FOCUS
+===================================================== */
+
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+outline:
+2px solid #22c55e;
+
+outline-offset: 2px;
+
+}
+
+/* =====================================================
+MOBILE
+===================================================== */
 
 @media (max-width: 480px) {
 
-    #ubahPinModal {
+.data-warga-page {
+    padding-left: 12px;
+    padding-right: 12px;
+}
 
-        align-items: flex-end;
+.data-warga-header {
+    width: calc(100% + 24px);
 
-        padding: 0;
+    margin-left: -12px;
+    margin-right: -12px;
 
-    }
+    padding-left: 12px;
+    padding-right: 12px;
+}
 
+.data-warga-header-text h1 {
+    font-size: 16px;
+}
 
-    #ubahPinModal .modal-content {
+.data-warga-header-text p {
+    font-size: 9px;
+}
 
-        max-width: none;
+.modal-panel {
+    max-width: 100%;
 
-        border-radius:
-            20px 20px 0 0;
+    padding: 15px;
 
-    }
+    border-radius: 17px;
+}
 
+.family-member {
+    align-items: flex-start;
+}
 
-    #ubahPinModal .modal-body {
+.family-member-actions {
+    min-width: 62px;
+}
 
-        padding:
-            20px 18px 8px;
+}
 
-    }
+/* =====================================================
+LAYAR SANGAT KECIL
+===================================================== */
 
+@media (max-width: 360px) {
 
-    #ubahPinModal .modal-footer {
+.data-warga-page {
+    padding-left: 10px;
+    padding-right: 10px;
+}
 
-        padding:
-            14px 18px 18px;
+.data-warga-header {
+    width: calc(100% + 20px);
 
-    }
+    margin-left: -10px;
+    margin-right: -10px;
+
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.data-warga-actions {
+    gap: 7px;
+}
+
+.data-warga-action {
+    min-height: 46px;
+
+    font-size: 10px;
+}
+
+.summary-label {
+    font-size: 8px;
+}
+
+.summary-value {
+    font-size: 17px;
+}
+
+.form-row {
+    grid-template-columns: 1fr;
+}
+
+.family-summary {
+    grid-template-columns:
+        1fr;
+}
+
+.family-actions {
+    grid-template-columns:
+        1fr;
+}
+
+.family-member {
+    display: grid;
+
+    grid-template-columns:
+        auto
+        minmax(0, 1fr);
+
+    gap: 8px;
+}
+
+.family-member-actions {
+    grid-column:
+        1 / -1;
+
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+}
+
+.family-member-actions button {
+    width: 100%;
+}
+
+.validation-summary {
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+}
+
+.import-validation-row {
+    grid-template-columns:
+        1fr;
+}
+
+}
+
+/* =====================================================
+TABLET
+===================================================== */
+
+@media (min-width: 480px) {
+
+.data-warga-header {
+    width: calc(100% + 36px);
+
+    margin-left: -18px;
+    margin-right: -18px;
+
+    padding-left: 18px;
+    padding-right: 18px;
+}
+
+.data-warga-actions {
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+}
+
+.data-warga-action {
+    flex-direction: column;
+
+    min-height: 66px;
+
+    gap: 3px;
+}
+
+.data-warga-action .action-icon {
+    width: 22px;
+    height: 22px;
+}
+
+.data-warga-action svg {
+    width: 20px;
+    height: 20px;
+}
+
+}
+
+/* =====================================================
+DESKTOP / TABLET BESAR
+===================================================== */
+
+@media (min-width: 700px) {
+
+.data-warga-page {
+    padding-left: 18px;
+    padding-right: 18px;
+}
+
+.keluarga-list {
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+}
+
+.modal-panel {
+    max-width: 600px;
+}
+
+}
+
+/* =====================================================
+REDUCE MOTION
+===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+.data-warga-action,
+.keluarga-card,
+.modal-button,
+.data-warga-refresh,
+.family-actions button {
+    transition: none !important;
+}
+
+.loading-spinner {
+    animation: none !important;
+}
+
+.modal-panel {
+    animation: none !important;
+}
 
 }

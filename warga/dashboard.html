@@ -1,537 +1,815 @@
-<!DOCTYPE html>
-<html lang="id">
-
+<!DOCTYPE html><html lang="id">
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <meta
-        name="theme-color"
-        content="#15803d"
-    >
-
-    <title>SIDAT - Dashboard Warga</title>
-
-    <link
-        rel="stylesheet"
-        href="dashboard.css"
-    >
-
-</head>
-
-<body>
-
-<div class="dashboard-container">
-
-
-    <!-- =====================================
-         HEADER
-    ====================================== -->
-
-    <header class="top-header">
-
-        <div class="brand">
-
-            <div class="brand-logo">
-                RT
-            </div>
-
-            <div>
-
-                <h1>SIDAT</h1>
-
-                <span>
-                    Sistem Data Warga
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <button
-            class="notification-button"
-            onclick="bukaNotifikasi()"
-        >
-
-            🔔
-
-            <span
-                id="notificationBadge"
-                class="notification-badge hidden"
-            >
-                0
-            </span>
-
-        </button>
-
-    </header>
-
-
-    <!-- =====================================
-         INFORMASI WILAYAH
-    ====================================== -->
-
-    <section class="region-card">
-
-        <div class="region-logo">
-
-    <img
-        id="logoRT"
-        src=""
-        alt="Logo RT"
-        class="hidden"
-    >
-
-    <span id="logoPlaceholder">
-        RT
-    </span>
-
-</div>
-
-        <div class="region-info">
-
-            <h2 id="namaWilayah">
-                RT - RW
-            </h2>
-
-            <p id="namaKetua">
-                Ketua RT
-            </p>
-
-        </div>
-
-    </section>
-
-
-    <!-- =====================================
-         PROFIL WARGA
-    ====================================== -->
-
-    <section class="profile-card">
-
-        <div class="profile-photo-wrapper">
-
-            <img
-                id="profilePhoto"
-                src=""
-                alt="Foto Profil"
-            >
-
-        </div>
-
-
-        <div class="profile-info">
-
-            <span class="welcome-text">
-                Selamat datang,
-            </span>
-
-            <h2 id="wargaName">
-                Warga
-            </h2>
-
-            <p>
-                ID:
-                <strong id="wargaCode">
-                    -
-                </strong>
-            </p>
-
-        </div>
-
-
-        <button
-            class="profile-button"
-            onclick="bukaProfil()"
-        >
-            ›
-        </button>
-
-    </section>
-
-
-<!-- ==========================================
-     PENGUMUMAN
-========================================== -->
-
-<section class="pengumuman-card">
-
-    <div class="pengumuman-header">
-
-        <div class="pengumuman-title">
-
-            <div class="pengumuman-icon">
-                🔔
-            </div>
-
-            <div>
-
-                <h3>
-                    Pengumuman
-                </h3>
-
-                <p>
-                    Informasi terbaru dari admin
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <span
-            id="badgePengumuman"
-            class="pengumuman-badge hidden"
-        >
-            0
-        </span>
-
-    </div>
-
-
-    <div
-        id="previewPengumuman"
-        class="preview-pengumuman"
-    >
-
-        <div class="pengumuman-kosong">
-
-            Memuat pengumuman...
-
-        </div>
-
-    </div>
-
-
-    <button
-    type="button"
-    id="btnLihatPengumuman"
-    class="btn-lihat-pengumuman notification-button"
-    onclick="bukaPengumumanWarga()"
+    <meta charset="UTF-8"><meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
 >
 
-    Lihat semua →
+<meta
+    name="theme-color"
+    content="#15803d"
+>
 
-    <span
-        id="notificationBadge"
-        class="notification-badge hidden"
+<meta
+    name="mobile-web-app-capable"
+    content="yes"
+>
+
+<meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+>
+
+<title>SIDAT - Dashboard Warga</title>
+
+<link
+    rel="manifest"
+    href="../manifest.json"
+>
+
+<link
+    rel="stylesheet"
+    href="./dashboard.css"
+>
+
+<link
+    rel="stylesheet"
+    href="./warga-menu.css"
+>
+
+</head><body><!-- =====================================================
+     HEADER
+     ===================================================== -->
+
+<header class="sidat-dashboard-header">
+
+    <div class="sidat-header-left">
+
+        <div class="sidat-header-logo">
+            <img
+                id="wilayahLogo"
+                src=""
+                alt="Logo SIDAT"
+            >
+
+            <span
+                id="logoFallback"
+                class="sidat-logo-fallback"
+            >
+                S
+            </span>
+        </div>
+
+        <div class="sidat-header-title">
+
+            <strong>SIDAT</strong>
+
+            <span
+                id="wilayahInfo"
+            >
+                Memuat wilayah...
+            </span>
+
+        </div>
+
+    </div>
+
+    <button
+        type="button"
+        id="profileButton"
+        class="sidat-profile-button"
+        aria-label="Buka profil"
     >
-        0
-    </span>
 
-</button>
+        <img
+            id="profilePhoto"
+            src=""
+            alt="Foto warga"
+        >
 
-</section>
+        <span
+            id="profileName"
+        >
+            Warga
+        </span>
+
+    </button>
+
+</header>
 
 
-    <!-- =====================================
-         SALDO KAS
-    ====================================== -->
+<!-- =====================================================
+     MAIN
+     ===================================================== -->
+
+<main class="sidat-dashboard-main">
+
+
+    <!-- =================================================
+         BANNER 16:9
+         ================================================= -->
 
     <section
-        class="balance-card"
-        onclick="bukaSaldoKas()"
+        class="dashboard-section banner-section"
+        aria-label="Informasi banner"
     >
 
-        <div class="balance-header">
+        <div
+            id="bannerSlider"
+            class="sidat-banner-slider"
+        >
 
-            <span>
-                💰 Saldo Kas RT
-            </span>
+            <div
+                class="sidat-banner-slide active"
+                data-banner-index="0"
+                data-link=""
+            >
+                <img
+                    id="bannerImage1"
+                    src=""
+                    alt="Banner SIDAT 1"
+                >
 
-            <span>
-                →
-            </span>
+                <div class="sidat-banner-overlay">
+                    <div class="sidat-banner-content">
+                        <strong id="bannerTitle1"></strong>
+                        <span id="bannerText1"></span>
+                    </div>
+                </div>
+            </div>
+
+
+            <div
+                class="sidat-banner-slide"
+                data-banner-index="1"
+                data-link=""
+            >
+                <img
+                    id="bannerImage2"
+                    src=""
+                    alt="Banner SIDAT 2"
+                >
+
+                <div class="sidat-banner-overlay">
+                    <div class="sidat-banner-content">
+                        <strong id="bannerTitle2"></strong>
+                        <span id="bannerText2"></span>
+                    </div>
+                </div>
+            </div>
+
+
+            <div
+                class="sidat-banner-slide"
+                data-banner-index="2"
+                data-link=""
+            >
+                <img
+                    id="bannerImage3"
+                    src=""
+                    alt="Banner SIDAT 3"
+                >
+
+                <div class="sidat-banner-overlay">
+                    <div class="sidat-banner-content">
+                        <strong id="bannerTitle3"></strong>
+                        <span id="bannerText3"></span>
+                    </div>
+                </div>
+            </div>
+
+
+            <div
+                class="sidat-banner-slide"
+                data-banner-index="3"
+                data-link=""
+            >
+                <img
+                    id="bannerImage4"
+                    src=""
+                    alt="Banner SIDAT 4"
+                >
+
+                <div class="sidat-banner-overlay">
+                    <div class="sidat-banner-content">
+                        <strong id="bannerTitle4"></strong>
+                        <span id="bannerText4"></span>
+                    </div>
+                </div>
+            </div>
+
+
+            <div
+                class="sidat-banner-slide"
+                data-banner-index="4"
+                data-link=""
+            >
+                <img
+                    id="bannerImage5"
+                    src=""
+                    alt="Banner SIDAT 5"
+                >
+
+                <div class="sidat-banner-overlay">
+                    <div class="sidat-banner-content">
+                        <strong id="bannerTitle5"></strong>
+                        <span id="bannerText5"></span>
+                    </div>
+                </div>
+            </div>
+
+
+            <button
+                type="button"
+                id="bannerPrev"
+                class="sidat-banner-control prev"
+                aria-label="Banner sebelumnya"
+            >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M15 18 9 12l6-6"/>
+                </svg>
+            </button>
+
+
+            <button
+                type="button"
+                id="bannerNext"
+                class="sidat-banner-control next"
+                aria-label="Banner berikutnya"
+            >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m9 18 6-6-6-6"/>
+                </svg>
+            </button>
+
+
+            <div
+                id="bannerDots"
+                class="sidat-banner-dots"
+            >
+
+                <button
+                    type="button"
+                    class="sidat-banner-dot active"
+                    data-banner-dot="0"
+                    aria-label="Banner 1"
+                ></button>
+
+                <button
+                    type="button"
+                    class="sidat-banner-dot"
+                    data-banner-dot="1"
+                    aria-label="Banner 2"
+                ></button>
+
+                <button
+                    type="button"
+                    class="sidat-banner-dot"
+                    data-banner-dot="2"
+                    aria-label="Banner 3"
+                ></button>
+
+                <button
+                    type="button"
+                    class="sidat-banner-dot"
+                    data-banner-dot="3"
+                    aria-label="Banner 4"
+                ></button>
+
+                <button
+                    type="button"
+                    class="sidat-banner-dot"
+                    data-banner-dot="4"
+                    aria-label="Banner 5"
+                ></button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         PENGUMUMAN
+         ================================================= -->
+
+    <section
+        class="dashboard-section"
+        aria-label="Pengumuman"
+    >
+
+        <div class="section-heading">
+
+            <div>
+                <span class="section-kicker">
+                    INFORMASI
+                </span>
+
+                <h2>Pengumuman</h2>
+            </div>
+
+            <button
+                type="button"
+                id="btnLihatPengumuman"
+                class="section-action"
+            >
+                Lihat Semua
+            </button>
+
+        </div>
+
+
+        <article
+            id="latestAnnouncement"
+            class="announcement-card"
+        >
+
+            <div class="announcement-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 10v4h3l4 4V6l-4 4H4z"/>
+                    <path d="M15 9.5a4 4 0 0 1 0 5"/>
+                    <path d="M17.5 7a7 7 0 0 1 0 10"/>
+                </svg>
+            </div>
+
+            <div class="announcement-body">
+
+                <h3 id="announcementTitle">
+                    Belum ada pengumuman
+                </h3>
+
+                <p id="announcementMessage">
+                    Informasi pengumuman akan tampil di sini.
+                </p>
+
+                <span
+                    id="announcementDate"
+                    class="announcement-date"
+                ></span>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- =================================================
+         NOTIFIKASI
+         ================================================= -->
+
+    <section
+        class="dashboard-section"
+        aria-label="Notifikasi"
+    >
+
+        <div class="section-heading">
+
+            <div>
+                <span class="section-kicker">
+                    PEMBERITAHUAN
+                </span>
+
+                <h2>Notifikasi</h2>
+            </div>
+
+            <button
+                type="button"
+                id="btnLihatNotifikasi"
+                class="section-action"
+            >
+                Lihat Semua
+            </button>
 
         </div>
 
 
         <div
-            id="saldoKas"
-            class="balance-amount"
+            id="notificationList"
+            class="notification-list"
         >
-            Rp 0
-        </div>
 
-
-        <div class="balance-footer">
-
-            <span>
-                Saldo kas saat ini
-            </span>
-
-            <span>
-                Lihat rincian
-            </span>
+            <div class="notification-empty">
+                Belum ada notifikasi.
+            </div>
 
         </div>
 
     </section>
 
 
-    <!-- =====================================
-         STATISTIK WARGA & KK
-    ====================================== -->
+    <!-- =================================================
+         JADWAL RONDA
+         ================================================= -->
 
-    <section class="statistics-grid">
+    <section
+        class="dashboard-section ronda-section"
+        aria-label="Jadwal ronda"
+    >
 
-        <div class="stat-card">
-
-            <div class="stat-icon">
-                👥
-            </div>
+        <div class="section-heading">
 
             <div>
-
-                <span>
-                    Jumlah Warga
+                <span class="section-kicker">
+                    KEGIATAN WARGA
                 </span>
 
-                <strong id="totalWarga">
-                    0
-                </strong>
-
-                <small>
-                    orang
-                </small>
-
+                <h2>Jadwal Ronda</h2>
             </div>
 
         </div>
 
 
-        <div class="stat-card">
+        <div
+            id="rondaToday"
+            class="ronda-today"
+        >
 
-            <div class="stat-icon">
-                🏠
+            <div class="ronda-today-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3v18"/>
+                    <path d="M5 8h14"/>
+                    <path d="M7 8v5"/>
+                    <path d="M17 8v5"/>
+                    <path d="M4 13h16"/>
+                </svg>
             </div>
 
             <div>
+                <strong>Jadwal Hari Ini</strong>
 
-                <span>
+                <span id="rondaTodayText">
+                    Memuat jadwal...
+                </span>
+            </div>
+
+        </div>
+
+
+        <div class="ronda-carousel">
+
+            <button
+                type="button"
+                id="rondaPrev"
+                class="ronda-control"
+                aria-label="Hari sebelumnya"
+            >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m15 18-6-6 6-6"/>
+                </svg>
+            </button>
+
+
+            <div
+                id="rondaScheduleList"
+                class="ronda-slide-container"
+            >
+            </div>
+
+
+            <button
+                type="button"
+                id="rondaNext"
+                class="ronda-control"
+                aria-label="Hari berikutnya"
+            >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m9 18 6-6-6-6"/>
+                </svg>
+            </button>
+
+        </div>
+
+
+        <div
+            id="rondaDots"
+            class="ronda-dots"
+        ></div>
+
+    </section>
+
+
+    <!-- =================================================
+         STATISTIK
+         ================================================= -->
+
+    <section
+        class="dashboard-section"
+        aria-label="Statistik"
+    >
+
+        <div class="section-heading">
+
+            <div>
+                <span class="section-kicker">
+                    RINGKASAN
+                </span>
+
+                <h2>Statistik RT</h2>
+            </div>
+
+        </div>
+
+
+        <div class="stats-grid">
+
+            <article class="stat-card">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3 10h18"/>
+                        <path d="M5 10V7h14v3"/>
+                        <path d="M4 10v9h16v-9"/>
+                        <path d="M8 14h2"/>
+                        <path d="M14 14h2"/>
+                    </svg>
+                </div>
+
+                <span class="stat-label">
+                    Saldo Kas
+                </span>
+
+                <strong id="saldoKas">
+                    Rp0
+                </strong>
+            </article>
+
+
+            <article class="stat-card">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="8"/>
+                        <path d="M12 8v8"/>
+                        <path d="M9 10h5a2 2 0 0 1 0 4H9"/>
+                    </svg>
+                </div>
+
+                <span class="stat-label">
+                    Saldo Jimpitan
+                </span>
+
+                <strong id="saldoJimpitan">
+                    Rp0
+                </strong>
+            </article>
+
+
+            <article class="stat-card">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="9" cy="8" r="3"/>
+                        <circle cx="17" cy="9" r="2"/>
+                        <path d="M3 19c0-3 2.5-5 6-5s6 2 6 5"/>
+                        <path d="M15 15c3 0 5 1.5 6 4"/>
+                    </svg>
+                </div>
+
+                <span class="stat-label">
+                    Total Warga
+                </span>
+
+                <strong id="totalWarga">
+                    0
+                </strong>
+            </article>
+
+
+            <article class="stat-card">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M4 20v-7h16v7"/>
+                        <path d="M6 13V7h12v6"/>
+                        <path d="M9 7V4h6v3"/>
+                    </svg>
+                </div>
+
+                <span class="stat-label">
                     Total KK
                 </span>
 
                 <strong id="totalKK">
                     0
                 </strong>
-
-                <small>
-                    KK
-                </small>
-
-            </div>
+            </article>
 
         </div>
 
     </section>
 
 
-    <!-- =====================================
-         SALDO JIMPITAN
-    ====================================== -->
+    <!-- =================================================
+         GRAFIK WARGA
+         ================================================= -->
 
-    <section class="jimpitan-card">
+    <section
+        class="dashboard-section chart-section"
+        aria-label="Grafik warga"
+    >
 
-        <div class="jimpitan-header">
-
-            <div class="jimpitan-icon">
-                💰
-            </div>
+        <div class="section-heading">
 
             <div>
-
-                <h3>
-                    Saldo Jimpitan
-                </h3>
-
-                <span>
-                    Total jimpitan RT
+                <span class="section-kicker">
+                    DATA WARGA
                 </span>
 
+                <h2>Grafik Warga</h2>
             </div>
 
         </div>
 
 
         <div
-            id="saldoJimpitan"
-            class="jimpitan-amount"
+            id="filterGrafikWarga"
+            class="chart-filter"
         >
-            Rp 0
+
+            <button
+                type="button"
+                class="active"
+                data-filter="semua"
+            >
+                Semua
+            </button>
+
+            <button
+                type="button"
+                data-filter="kk"
+            >
+                Kepala Keluarga
+            </button>
+
+            <button
+                type="button"
+                data-filter="laki"
+            >
+                Laki-laki
+            </button>
+
+            <button
+                type="button"
+                data-filter="perempuan"
+            >
+                Perempuan
+            </button>
+
         </div>
 
 
-        <div class="jimpitan-info">
+        <div class="chart-card">
 
-            Saldo ini merupakan total jimpitan
-            seluruh warga yang belum ditransfer
-            ke saldo kas RT.
+            <div class="chart-wrapper">
+                <canvas
+                    id="ageChart"
+                ></canvas>
+            </div>
+
+            <div
+                id="ageChartEmpty"
+                class="chart-empty"
+                style="display:none;"
+            >
+                Data grafik warga belum tersedia.
+            </div>
 
         </div>
-
-
-        <button
-            class="text-button"
-            onclick="bukaRiwayatJimpitan()"
-        >
-            Lihat riwayat jimpitan →
-        </button>
 
     </section>
 
 
-    <!-- =====================================
-         MENU
-    ====================================== -->
+    <!-- =================================================
+         GRAFIK KEUANGAN
+         ================================================= -->
 
-    <section class="menu-section">
+    <section
+        class="dashboard-section chart-section"
+        aria-label="Grafik keuangan"
+    >
 
         <div class="section-heading">
-            Menu
+
+            <div>
+                <span class="section-kicker">
+                    KEUANGAN RT
+                </span>
+
+                <h2>Grafik Keuangan</h2>
+            </div>
+
         </div>
 
 
-        <div class="menu-grid">
-
-
-            <!-- PROFIL -->
-
-            <button
-                class="menu-item"
-                onclick="bukaProfil()"
-            >
-
-                <div class="menu-icon">
-                    👤
-                </div>
-
-                <span>
-                    Profil Saya
-                </span>
-
-            </button>
-            <!-- DATA WARGA -->
-
-<button
-    class="menu-item"
-    onclick="bukaDataWarga()"
->
-
-    <div class="menu-icon">
-        👥
-    </div>
-
-    <span>
-        Data Warga
-    </span>
-
-</button>
-
-
-            <!-- SALDO JIMPITAN -->
+        <div
+            id="filterGrafikKeuangan"
+            class="chart-filter"
+        >
 
             <button
-                class="menu-item"
-                onclick="bukaRiwayatJimpitan()"
+                type="button"
+                class="active"
+                data-days="30"
             >
-
-                <div class="menu-icon">
-                    💰
-                </div>
-
-                <span>
-                    Saldo Jimpitan
-                </span>
-
+                30 Hari
             </button>
-
-
-            <!-- SCAN QR -->
 
             <button
-                class="menu-item"
-                onclick="bukaScanQR()"
+                type="button"
+                data-days="90"
             >
-
-                <div class="menu-icon">
-                    📷
-                </div>
-
-                <span>
-                    Scan QR Jimpitan
-                </span>
-
+                90 Hari
             </button>
-
-
-            <!-- LAPORAN -->
 
             <button
-                class="menu-item"
-                onclick="bukaLaporan()"
+                type="button"
+                data-days="180"
             >
-
-                <div class="menu-icon">
-                    📝
-                </div>
-
-                <span>
-                    Laporan & Aduan
-                </span>
-
+                6 Bulan
             </button>
 
+            <button
+                type="button"
+                data-days="365"
+            >
+                1 Tahun
+            </button>
+
+        </div>
+
+
+        <div class="chart-card">
+
+            <div class="chart-wrapper">
+                <canvas
+                    id="financeChart"
+                ></canvas>
+            </div>
+
+            <div
+                id="financeChartEmpty"
+                class="chart-empty"
+                style="display:none;"
+            >
+                Data keuangan belum tersedia.
+            </div>
 
         </div>
 
     </section>
 
-
-    <!-- =====================================
-         LOGOUT
-    ====================================== -->
-
-    <button
-        class="logout-button"
-        onclick="logoutWarga()"
-    >
-        Keluar dari akun
-    </button>
+</main>
 
 
-    <!-- =====================================
-         FOOTER
-    ====================================== -->
+<!-- =====================================================
+     TOAST
+     ===================================================== -->
 
-    <footer>
+<div
+    id="toast"
+    class="sidat-toast"
+    role="status"
+    aria-live="polite"
+></div>
+
+
+<!-- =====================================================
+     LOADING
+     ===================================================== -->
+
+<div
+    id="loadingScreen"
+    class="sidat-loading-screen"
+>
+
+    <div class="sidat-loading-box">
+
+        <div class="sidat-loading-spinner"></div>
 
         <strong>
-            SIDAT
+            Memuat SIDAT...
         </strong>
 
         <span>
-            Dibuat oleh Suwardi
+            Mohon tunggu
         </span>
 
-    </footer>
-
+    </div>
 
 </div>
 
 
-<script src="../js/supabase-config.js"></script>
-<script src="popup-notifikasi.js"></script>
+<!-- =====================================================
+     LIBRARY
+     ===================================================== -->
 
-<script src="push-notification.js"></script>
-<script src="dashboard.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="../js/supabase-config.js"></script>
+
+<script src="../js/offline-db.js"></script>
+
+<script src="./warga-menu.js"></script>
+
+<script src="./dashboard.js"></script>
 
 </body>
-
 </html>

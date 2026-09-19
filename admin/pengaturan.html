@@ -2,7 +2,6 @@
 <html lang="id">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -15,33 +14,30 @@
         content="#15803d"
     >
 
-    <title>
-        SIDAT - Pengaturan
-    </title>
-
-
-    <!-- CSS -->
+    <title>SIDAT - Pengaturan</title>
 
     <link
         rel="stylesheet"
         href="pengaturan.css"
     >
-
+  <link
+        rel="stylesheet"
+        href="admin-menu.css"
+    >
 </head>
-
 
 <body>
 
+<div class="settings-page">
 
-<div class="settings-container">
+    <!-- =====================================================
+         TOP BAR
+    ====================================================== -->
 
+    <header class="settings-header">
 
-    <!-- =====================================
-         HEADER
-    ====================================== -->
-
-    <header class="top-header">
-
+        <div class="header-decoration bubble-one"></div>
+        <div class="header-decoration bubble-two"></div>
 
         <button
             type="button"
@@ -49,42 +45,57 @@
             onclick="kembaliDashboard()"
             aria-label="Kembali ke Dashboard"
         >
-            ←
+
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+                <path
+                    d="M15 18l-6-6 6-6"
+                />
+            </svg>
+
         </button>
 
 
-        <div class="header-title">
+        <div class="header-brand">
 
+            <div class="header-logo">
 
-            <div class="header-icon">
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M12 3l7 3v5c0 4.5-2.9 8.5-7 10-4.1-1.5-7-5.5-7-10V6l7-3z"
+                    />
 
-                ⚙️
-
-            </div>
-
-
-            <div>
-
-                <h1>
-                    Pengaturan
-                </h1>
-
-                <span>
-                    Pengaturan identitas RT
-                </span>
+                    <path
+                        d="M9.5 12l1.7 1.7 3.5-3.5"
+                    />
+                </svg>
 
             </div>
 
+
+            <div class="header-title">
+
+                <h1>Pengaturan</h1>
+
+                <p>
+                    Kelola konfigurasi SIDAT
+                </p>
+
+            </div>
 
         </div>
-
 
     </header>
 
 
-    <!-- =====================================
+    <!-- =====================================================
          LOADING
-    ====================================== -->
+    ====================================================== -->
 
     <div
         id="loadingState"
@@ -100,550 +111,959 @@
     </div>
 
 
-    <!-- =====================================
+    <!-- =====================================================
          ERROR
-    ====================================== -->
+    ====================================================== -->
 
     <div
         id="errorState"
-        class="error-state hidden"
+        class="message-card error-card hidden"
     >
 
+        <div class="message-icon">
 
-        <div class="error-icon">
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+                <path
+                    d="M12 3l10 18H2L12 3z"
+                />
 
-            ⚠️
+                <path
+                    d="M12 9v5"
+                />
+
+                <path
+                    d="M12 17h.01"
+                />
+            </svg>
 
         </div>
 
 
-        <strong>
-            Gagal memuat pengaturan
-        </strong>
+        <div class="message-content">
 
+            <strong>
+                Gagal memuat pengaturan
+            </strong>
 
-        <p
-            id="errorMessage"
-        >
-            Terjadi kesalahan.
-        </p>
+            <p id="errorMessage">
+                Terjadi kesalahan.
+            </p>
+
+        </div>
 
 
         <button
             type="button"
+            class="retry-button"
             onclick="muatPengaturan()"
         >
             Coba Lagi
         </button>
 
-
     </div>
 
 
-    <!-- =====================================
-         FORM
-    ====================================== -->
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
 
-    <form
-        id="settingsForm"
-        class="settings-form hidden"
-        autocomplete="off"
+    <main
+        id="settingsContent"
+        class="settings-content hidden"
     >
 
 
-        <!-- =================================
-             IDENTITAS APLIKASI
-        ================================== -->
+        <!-- =================================================
+             IDENTITAS RT
+        ================================================== -->
 
         <section class="settings-card">
 
+            <div class="card-decoration decoration-a"></div>
+            <div class="card-decoration decoration-b"></div>
 
-            <div class="section-title">
 
+            <div class="card-heading">
 
-                <div class="section-icon">
+                <div class="heading-icon">
 
-                    📱
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            d="M3 21h18"
+                        />
+
+                        <path
+                            d="M5 21V10l7-5 7 5v11"
+                        />
+
+                        <path
+                            d="M9 21v-6h6v6"
+                        />
+
+                        <path
+                            d="M9 10h.01"
+                        />
+
+                        <path
+                            d="M12 10h.01"
+                        />
+
+                        <path
+                            d="M15 10h.01"
+                        />
+                    </svg>
 
                 </div>
 
 
                 <div>
 
+                    <span class="section-label">
+                        IDENTITAS
+                    </span>
+
                     <h2>
-                        Identitas Aplikasi
+                        Identitas RT
                     </h2>
 
                     <p>
-                        Nama yang ditampilkan pada SIDAT
+                        Informasi wilayah dan identitas
+                        yang ditampilkan pada aplikasi SIDAT.
                     </p>
 
                 </div>
 
-
             </div>
 
 
-            <div class="form-group">
-
-
-                <label
-                    for="namaAplikasi"
-                >
-                    Nama Aplikasi
-                </label>
-
-
-                <input
-                    type="text"
-                    id="namaAplikasi"
-                    maxlength="50"
-                    placeholder="Contoh: SIDAT"
-                >
-
-
-            </div>
-
-
-        </section>
-
-
-        <!-- =================================
-             WILAYAH
-        ================================== -->
-
-        <section class="settings-card">
-
-
-            <div class="section-title">
-
-
-                <div class="section-icon">
-
-                    🏘️
-
-                </div>
-
-
-                <div>
-
-                    <h2>
-                        Wilayah
-                    </h2>
-
-                    <p>
-                        Informasi wilayah RT
-                    </p>
-
-                </div>
-
-
-            </div>
-
-
-            <div class="form-group">
-
-
-                <label
-                    for="namaDusun"
-                >
-                    Dusun / Kampung
-                </label>
-
-
-                <input
-                    type="text"
-                    id="namaDusun"
-                    maxlength="100"
-                    placeholder="Masukkan nama dusun atau kampung"
-                >
-
-
-            </div>
-
-
-            <div class="form-group">
-
-
-                <label
-                    for="namaDesa"
-                >
-                    Desa / Kelurahan
-                </label>
-
-
-                <input
-                    type="text"
-                    id="namaDesa"
-                    maxlength="100"
-                    placeholder="Masukkan nama desa atau kelurahan"
-                >
-
-
-            </div>
-
-
-            <div class="two-column">
-
-
-                <div class="form-group">
-
-
-                    <label
-                        for="rt"
-                    >
-                        RT
-                    </label>
-
-
-                    <input
-                        type="text"
-                        id="rt"
-                        maxlength="10"
-                        placeholder="Contoh: 04"
-                    >
-
-
-                </div>
-
-
-                <div class="form-group">
-
-
-                    <label
-                        for="rw"
-                    >
-                        RW
-                    </label>
-
-
-                    <input
-                        type="text"
-                        id="rw"
-                        maxlength="10"
-                        placeholder="Contoh: 02"
-                    >
-
-
-                </div>
-
-
-            </div>
-
-
-            <div class="form-group">
-
-
-                <label
-                    for="kecamatan"
-                >
-                    Kecamatan
-                </label>
-
-
-                <input
-                    type="text"
-                    id="kecamatan"
-                    maxlength="100"
-                    placeholder="Masukkan nama kecamatan"
-                >
-
-
-            </div>
-
-
-            <div class="form-group">
-
-
-                <label
-                    for="kabupaten"
-                >
-                    Kabupaten / Kota
-                </label>
-
-
-                <input
-                    type="text"
-                    id="kabupaten"
-                    maxlength="100"
-                    placeholder="Masukkan nama kabupaten atau kota"
-                >
-
-
-            </div>
-
-
-            <div class="form-group">
-
-
-                <label
-                    for="provinsi"
-                >
-                    Provinsi
-                </label>
-
-
-                <input
-                    type="text"
-                    id="provinsi"
-                    maxlength="100"
-                    placeholder="Masukkan nama provinsi"
-                >
-
-
-            </div>
-
-
-        </section>
-
-
-        <!-- =================================
-             PENGURUS RT
-        ================================== -->
-
-        <section class="settings-card">
-
-
-            <div class="section-title">
-
-
-                <div class="section-icon">
-
-                    👤
-
-                </div>
-
-
-                <div>
-
-                    <h2>
-                        Pengurus RT
-                    </h2>
-
-                    <p>
-                        Informasi pengurus utama RT
-                    </p>
-
-                </div>
-
-
-            </div>
-
-
-            <div class="form-group">
-
-
-                <label
-                    for="namaKetuaRT"
-                >
-                    Nama Ketua RT
-                </label>
-
-
-                <input
-                    type="text"
-                    id="namaKetuaRT"
-                    maxlength="100"
-                    placeholder="Masukkan nama Ketua RT"
-                >
-
-
-            </div>
-
-
-        </section>
-
-
-        <!-- =================================
-             LOGO RT
-        ================================== -->
-
-        <section class="settings-card">
-
-
-            <div class="section-title">
-
-
-                <div class="section-icon">
-
-                    🖼️
-
-                </div>
-
-
-                <div>
-
-                    <h2>
-                        Logo RT
-                    </h2>
-
-                    <p>
-                        Logo ditampilkan pada dashboard SIDAT
-                    </p>
-
-                </div>
-
-
-            </div>
-
-
-            <div class="logo-upload-area">
-
-
-                <div class="logo-preview-wrapper">
-
-
-                    <img
-                        id="logoPreview"
-                        class="logo-preview hidden"
-                        src=""
-                        alt="Preview Logo RT"
-                    >
-
-
-                    <div
-                        id="logoPlaceholder"
-                        class="logo-placeholder"
-                    >
-
-                        🏘️
+            <form
+                id="identityForm"
+                autocomplete="off"
+            >
+
+                <div class="form-grid">
+
+
+                    <!-- NAMA APLIKASI -->
+
+                    <div class="form-group full">
+
+                        <label for="namaAplikasi">
+                            Nama Aplikasi
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <svg
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                            >
+                                <rect
+                                    x="4"
+                                    y="4"
+                                    width="16"
+                                    height="16"
+                                    rx="3"
+                                />
+
+                                <path
+                                    d="M8 9h8"
+                                />
+
+                                <path
+                                    d="M8 13h5"
+                                />
+
+                                <path
+                                    d="M8 17h3"
+                                />
+                            </svg>
+
+                            <input
+                                type="text"
+                                id="namaAplikasi"
+                                maxlength="50"
+                                placeholder="SIDAT"
+                            >
+
+                        </div>
 
                     </div>
 
 
+                    <!-- DUSUN -->
+
+                    <div class="form-group">
+
+                        <label for="namaDusun">
+                            Dusun / Kampung
+                        </label>
+
+                        <input
+                            type="text"
+                            id="namaDusun"
+                            maxlength="100"
+                            placeholder="Nama dusun"
+                        >
+
+                    </div>
+
+
+                    <!-- DESA -->
+
+                    <div class="form-group">
+
+                        <label for="namaDesa">
+                            Desa / Kelurahan
+                        </label>
+
+                        <input
+                            type="text"
+                            id="namaDesa"
+                            maxlength="100"
+                            placeholder="Nama desa"
+                        >
+
+                    </div>
+
+
+                    <!-- RT -->
+
+                    <div class="form-group">
+
+                        <label for="rt">
+                            RT
+                        </label>
+
+                        <input
+                            type="text"
+                            id="rt"
+                            maxlength="10"
+                            placeholder="03"
+                        >
+
+                    </div>
+
+
+                    <!-- RW -->
+
+                    <div class="form-group">
+
+                        <label for="rw">
+                            RW
+                        </label>
+
+                        <input
+                            type="text"
+                            id="rw"
+                            maxlength="10"
+                            placeholder="02"
+                        >
+
+                    </div>
+
+
+                    <!-- KECAMATAN -->
+
+                    <div class="form-group">
+
+                        <label for="kecamatan">
+                            Kecamatan
+                        </label>
+
+                        <input
+                            type="text"
+                            id="kecamatan"
+                            maxlength="100"
+                            placeholder="Nama kecamatan"
+                        >
+
+                    </div>
+
+
+                    <!-- KABUPATEN -->
+
+                    <div class="form-group">
+
+                        <label for="kabupaten">
+                            Kabupaten / Kota
+                        </label>
+
+                        <input
+                            type="text"
+                            id="kabupaten"
+                            maxlength="100"
+                            placeholder="Nama kabupaten"
+                        >
+
+                    </div>
+
+
+                    <!-- PROVINSI -->
+
+                    <div class="form-group full">
+
+                        <label for="provinsi">
+                            Provinsi
+                        </label>
+
+                        <input
+                            type="text"
+                            id="provinsi"
+                            maxlength="100"
+                            placeholder="Jawa Tengah"
+                        >
+
+                    </div>
+
+
+                    <!-- KETUA RT -->
+
+                    <div class="form-group full">
+
+                        <label for="namaKetuaRT">
+                            Nama Ketua RT
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <svg
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                            >
+                                <circle
+                                    cx="12"
+                                    cy="8"
+                                    r="3"
+                                />
+
+                                <path
+                                    d="M5 21c.8-4 3-6 7-6s6.2 2 7 6"
+                                />
+                            </svg>
+
+                            <input
+                                type="text"
+                                id="namaKetuaRT"
+                                maxlength="100"
+                                placeholder="Nama Ketua RT"
+                            >
+
+                        </div>
+
+                    </div>
+
                 </div>
 
 
-                <div class="logo-upload-info">
+                <!-- =========================================
+                     LOGO RT
+                ========================================== -->
 
+                <div class="logo-section">
+
+                    <div class="sub-heading">
+
+                        <div>
+
+                            <strong>
+                                Logo RT
+                            </strong>
+
+                            <span>
+                                Logo yang digunakan pada
+                                dashboard WARGA.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="logo-editor">
+
+
+                        <div class="logo-preview-box">
+
+                            <img
+                                id="logoPreview"
+                                class="logo-preview hidden"
+                                src=""
+                                alt="Logo RT"
+                            >
+
+
+                            <div
+                                id="logoPlaceholder"
+                                class="logo-placeholder"
+                            >
+
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M3 21h18"
+                                    />
+
+                                    <path
+                                        d="M5 21V10l7-5 7 5v11"
+                                    />
+
+                                    <path
+                                        d="M9 21v-6h6v6"
+                                    />
+                                </svg>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="logo-actions">
+
+                            <label
+                                for="logoInput"
+                                class="secondary-button"
+                            >
+
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M4 7h3l2-2h6l2 2h3v11H4z"
+                                    />
+
+                                    <circle
+                                        cx="12"
+                                        cy="12"
+                                        r="3"
+                                    />
+                                </svg>
+
+                                <span>
+                                    Pilih Logo
+                                </span>
+
+                            </label>
+
+
+                            <input
+                                type="file"
+                                id="logoInput"
+                                accept="image/jpeg,image/png,image/webp"
+                                hidden
+                            >
+
+
+                            <span class="file-help">
+                                JPG, PNG atau WEBP.
+                                Maksimal 2 MB.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="identityError"
+                    class="inline-message error-message hidden"
+                ></div>
+
+
+                <div
+                    id="identitySuccess"
+                    class="inline-message success-message hidden"
+                ></div>
+
+
+                <div class="form-actions">
+
+                    <button
+                        type="submit"
+                        id="saveIdentityButton"
+                        class="primary-button"
+                    >
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M5 4h12l2 2v14H5z"
+                            />
+
+                            <path
+                                d="M8 4v6h8V4"
+                            />
+
+                            <path
+                                d="M8 20v-6h8v6"
+                            />
+                        </svg>
+
+                        <span>
+                            Simpan Identitas RT
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- =================================================
+             BANNER DASHBOARD
+        ================================================== -->
+
+        <section class="settings-card">
+
+            <div class="card-heading">
+
+                <div class="heading-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <rect
+                            x="3"
+                            y="4"
+                            width="18"
+                            height="16"
+                            rx="2"
+                        />
+
+                        <circle
+                            cx="8"
+                            cy="9"
+                            r="1.5"
+                        />
+
+                        <path
+                            d="M3 17l5-5 4 4 3-3 6 6"
+                        />
+                    </svg>
+
+                </div>
+
+
+                <div>
+
+                    <span class="section-label">
+                        DASHBOARD WARGA
+                    </span>
+
+                    <h2>
+                        Banner Dashboard
+                    </h2>
+
+                    <p>
+                        Kelola gambar banner yang tampil
+                        pada Dashboard WARGA.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="banner-info">
+
+                <div class="info-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <circle
+                            cx="12"
+                            cy="12"
+                            r="9"
+                        />
+
+                        <path
+                            d="M12 10v6"
+                        />
+
+                        <path
+                            d="M12 7h.01"
+                        />
+                    </svg>
+
+                </div>
+
+
+                <div>
 
                     <strong>
-                        Upload Logo
+                        Ketentuan Banner
                     </strong>
 
+                    <ul>
 
-                    <span>
-                        JPG, PNG atau WEBP maksimal 2 MB
+                        <li>
+                            Maksimal 5 banner.
+                        </li>
+
+                        <li>
+                            JPG, PNG atau WEBP.
+                        </li>
+
+                        <li>
+                            Maksimal 5 MB per gambar.
+                        </li>
+
+                        <li>
+                            Setiap banner dapat diberi
+                            link tujuan.
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="bannerList"
+                class="banner-list"
+            ></div>
+
+
+            <div
+                id="bannerError"
+                class="inline-message error-message hidden"
+            ></div>
+
+
+            <div
+                id="bannerSuccess"
+                class="inline-message success-message hidden"
+            ></div>
+
+        </section>
+
+
+        <!-- =================================================
+             BACKUP & RESTORE
+        ================================================== -->
+
+        <section class="settings-card">
+
+            <div class="card-heading">
+
+                <div class="heading-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            d="M12 3v12"
+                        />
+
+                        <path
+                            d="M7 10l5 5 5-5"
+                        />
+
+                        <path
+                            d="M5 21h14"
+                        />
+
+                        <path
+                            d="M5 18v3"
+                        />
+
+                        <path
+                            d="M19 18v3"
+                        />
+                    </svg>
+
+                </div>
+
+
+                <div>
+
+                    <span class="section-label">
+                        KEAMANAN DATA
                     </span>
+
+                    <h2>
+                        Backup & Restore
+                    </h2>
+
+                    <p>
+                        Simpan dan pulihkan data aplikasi
+                        SIDAT dengan aman.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="backup-warning">
+
+                <div class="warning-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            d="M12 3l10 18H2L12 3z"
+                        />
+
+                        <path
+                            d="M12 9v5"
+                        />
+
+                        <path
+                            d="M12 17h.01"
+                        />
+                    </svg>
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+                        Penting
+                    </strong>
+
+                    <p>
+                        File backup berisi data aplikasi.
+                        Simpan file di tempat yang aman.
+                        Password dan akun autentikasi
+                        Supabase tidak termasuk dalam backup.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="backup-grid">
+
+
+                <!-- BACKUP -->
+
+                <div class="backup-box">
+
+                    <div class="backup-icon">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M4 4h11l5 5v11H4z"
+                            />
+
+                            <path
+                                d="M15 4v5h5"
+                            />
+
+                            <path
+                                d="M12 12v6"
+                            />
+
+                            <path
+                                d="M9 15l3 3 3-3"
+                            />
+                        </svg>
+
+                    </div>
+
+
+                    <div class="backup-content">
+
+                        <h3>
+                            Backup Data
+                        </h3>
+
+                        <p>
+                            Download salinan data SIDAT
+                            dalam format JSON.
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="backupButton"
+                        class="primary-button"
+                    >
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M12 3v12"
+                            />
+
+                            <path
+                                d="M7 11l5 5 5-5"
+                            />
+
+                            <path
+                                d="M5 21h14"
+                            />
+                        </svg>
+
+                        <span>
+                            Buat Backup
+                        </span>
+
+                    </button>
+
+                </div>
+
+
+                <!-- RESTORE -->
+
+                <div class="backup-box">
+
+                    <div class="backup-icon">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M20 11a8 8 0 0 0-14.7-4"
+                            />
+
+                            <path
+                                d="M4 4v5h5"
+                            />
+
+                            <path
+                                d="M4 13a8 8 0 0 0 14.7 4"
+                            />
+
+                            <path
+                                d="M20 20v-5h-5"
+                            />
+                        </svg>
+
+                    </div>
+
+
+                    <div class="backup-content">
+
+                        <h3>
+                            Restore Data
+                        </h3>
+
+                        <p>
+                            Pulihkan data SIDAT dari
+                            file backup sebelumnya.
+                        </p>
+
+                    </div>
 
 
                     <label
-                        for="logoInput"
-                        class="upload-button"
+                        for="restoreInput"
+                        class="secondary-button large-button"
                     >
 
-                        📷 Pilih Logo
+                        <svg
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M4 5h6l2 2h8v12H4z"
+                            />
+
+                            <path
+                                d="M12 10v6"
+                            />
+
+                            <path
+                                d="M9 13l3 3 3-3"
+                            />
+                        </svg>
+
+                        <span>
+                            Pilih File Backup
+                        </span>
 
                     </label>
 
 
                     <input
                         type="file"
-                        id="logoInput"
-                        accept="image/jpeg,image/png,image/webp"
+                        id="restoreInput"
+                        accept=".json,application/json"
                         hidden
                     >
 
-
                 </div>
-
 
             </div>
 
 
+            <div
+                id="backupStatus"
+                class="backup-status hidden"
+            ></div>
+
         </section>
 
-
-        <!-- =================================
-             PESAN
-        ================================== -->
-
-        <div
-            id="formError"
-            class="form-error hidden"
-        ></div>
+    </main>
 
 
-        <div
-            id="formSuccess"
-            class="form-success hidden"
-        ></div>
+    <!-- =====================================================
+     BOTTOM NAVBAR ADMIN
+====================================================== -->
+
+<nav
+    id="adminBottomNav"
+    class="admin-bottom-nav"
+    aria-label="Navigasi Admin"
+></nav>
 
 
-        <!-- =================================
-             SIMPAN
-        ================================== -->
-
-        <div class="save-area">
-
-
-            <button
-                type="submit"
-                id="saveButton"
-                class="save-button"
-            >
-
-                💾 Simpan Pengaturan
-
-            </button>
-
-
-        </div>
-
-
-    </form>
-
-
-    <!-- =====================================
-         FOOTER
-    ====================================== -->
-
-    <footer>
-
-
-        <strong>
-            SIDAT
-        </strong>
-
-
-        <span>
-            Sistem Informasi Data Warga
-        </span>
-
-
-        <small>
-            Dibuat oleh Suwardi
-        </small>
-
-
-    </footer>
-
-
-</div>
-
-
-<!-- ==========================================
+<!-- =====================================================
      SUPABASE
-========================================== -->
+====================================================== -->
 
 <script
     src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
 ></script>
 
-
 <script
     src="../js/supabase-config.js"
 ></script>
 
-
-<!-- ==========================================
+<script src="admin-menu.js"></script>
+<!-- =====================================================
      JAVASCRIPT
-========================================== -->
+====================================================== -->
 
 <script
     src="pengaturan.js"
 ></script>
-
 
 </body>
 

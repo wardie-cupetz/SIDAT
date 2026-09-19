@@ -1,0 +1,572 @@
+/* =========================================================
+   SIDAT — DASHBOARD NOTULA
+   ========================================================= */
+
+
+/* =========================================================
+   DASAR
+   ========================================================= */
+
+html {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+
+    min-height: 100vh;
+
+    background: #f5f7f6;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.notula-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+
+    min-height: 64px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 18px;
+
+    background: #15803d;
+    color: #ffffff;
+
+    box-sizing: border-box;
+}
+
+.notula-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.notula-header-brand {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: .4px;
+}
+
+.notula-header-title {
+    font-size: 14px;
+    font-weight: 600;
+
+    padding-left: 10px;
+
+    border-left: 1px solid rgba(255,255,255,.35);
+}
+
+.notula-header-right {
+    display: flex;
+    align-items: center;
+}
+
+.notula-header-role {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .7px;
+
+    padding: 6px 10px;
+
+    border: 1px solid rgba(255,255,255,.45);
+    border-radius: 999px;
+}
+
+
+/* =========================================================
+   MAIN
+   ========================================================= */
+
+.notula-main {
+    width: 100%;
+    max-width: 760px;
+
+    margin: 0 auto;
+
+    padding: 18px 16px 130px;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   WELCOME
+   ========================================================= */
+
+.notula-welcome-card {
+    overflow: hidden;
+
+    position: relative;
+
+    margin-bottom: 20px;
+
+    padding: 22px;
+
+    border-radius: 18px;
+
+    background: #ffffff;
+
+    border: 1px solid #e4e9e6;
+
+    box-shadow:
+        0 5px 18px rgba(0,0,0,.05);
+}
+
+.notula-welcome-content {
+    position: relative;
+    z-index: 1;
+}
+
+.notula-welcome-label {
+    margin-bottom: 5px;
+
+    color: #64748b;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+    letter-spacing: .8px;
+}
+
+.notula-welcome-card h1 {
+    margin: 0;
+
+    color: #166534;
+
+    font-size: 25px;
+    line-height: 1.2;
+}
+
+.notula-welcome-card p {
+    margin: 8px 0 0;
+
+    color: #64748b;
+
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   SECTION
+   ========================================================= */
+
+.notula-section {
+    margin-bottom: 22px;
+}
+
+.notula-section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 11px;
+}
+
+.notula-section-eyebrow {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #64748b;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+.notula-section-header h2 {
+    margin: 0;
+
+    color: #17251c;
+
+    font-size: 18px;
+    line-height: 1.25;
+}
+
+.notula-section-action {
+    border: 0;
+    background: transparent;
+
+    color: #15803d;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   STATISTIK
+   ========================================================= */
+
+.notula-stat-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 10px;
+}
+
+.notula-stat-card {
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 15px;
+
+    background: #ffffff;
+
+    border: 1px solid #e4e9e6;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 4px 14px rgba(0,0,0,.035);
+
+    box-sizing: border-box;
+}
+
+.notula-stat-icon {
+    flex: 0 0 38px;
+
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 11px;
+
+    background: #ecfdf3;
+
+    color: #15803d;
+}
+
+.notula-stat-icon svg {
+    width: 20px;
+    height: 20px;
+
+    fill: none;
+    stroke: currentColor;
+
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.notula-stat-info {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+.notula-stat-info span {
+    color: #64748b;
+
+    font-size: 11px;
+    line-height: 1.3;
+}
+
+.notula-stat-info strong {
+    color: #17251c;
+
+    font-size: 20px;
+    line-height: 1;
+}
+
+.notula-stat-coming {
+    opacity: .72;
+}
+
+
+/* =========================================================
+   LIST
+   ========================================================= */
+
+.notula-list {
+    display: flex;
+    flex-direction: column;
+
+    gap: 9px;
+}
+
+.notula-list-item {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    width: 100%;
+
+    padding: 14px;
+
+    border: 1px solid #e4e9e6;
+
+    border-radius: 14px;
+
+    background: #ffffff;
+
+    box-sizing: border-box;
+
+    cursor: pointer;
+}
+
+.notula-list-icon {
+    flex: 0 0 38px;
+
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #f0fdf4;
+
+    color: #15803d;
+}
+
+.notula-list-icon svg {
+    width: 19px;
+    height: 19px;
+
+    fill: none;
+    stroke: currentColor;
+
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.notula-list-content {
+    min-width: 0;
+    flex: 1;
+}
+
+.notula-list-title {
+    display: block;
+
+    overflow: hidden;
+
+    color: #17251c;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.notula-list-meta {
+    display: block;
+
+    margin-top: 3px;
+
+    color: #64748b;
+
+    font-size: 11px;
+}
+
+.notula-list-arrow {
+    flex: 0 0 auto;
+
+    color: #94a3b8;
+}
+
+.notula-list-arrow svg {
+    width: 17px;
+    height: 17px;
+
+    fill: none;
+    stroke: currentColor;
+
+    stroke-width: 2;
+
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+/* =========================================================
+   EMPTY
+   ========================================================= */
+
+.notula-empty-state {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 17px;
+
+    border: 1px dashed #d8e1dc;
+
+    border-radius: 14px;
+
+    background: #ffffff;
+}
+
+.notula-empty-icon {
+    flex: 0 0 36px;
+
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #f1f5f3;
+
+    color: #64748b;
+}
+
+.notula-empty-icon svg {
+    width: 18px;
+    height: 18px;
+
+    fill: none;
+    stroke: currentColor;
+
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.notula-empty-state strong {
+    color: #64748b;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   ABSENSI COMING SOON
+   ========================================================= */
+
+.notula-coming-card {
+    display: flex;
+    align-items: center;
+
+    gap: 13px;
+
+    margin-top: 4px;
+    margin-bottom: 15px;
+
+    padding: 16px;
+
+    border: 1px solid #e2e8e4;
+
+    border-radius: 15px;
+
+    background: #ffffff;
+}
+
+.notula-coming-icon {
+    flex: 0 0 40px;
+
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 11px;
+
+    background: #f1f5f3;
+
+    color: #64748b;
+}
+
+.notula-coming-icon svg {
+    width: 20px;
+    height: 20px;
+
+    fill: none;
+    stroke: currentColor;
+
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.notula-coming-card strong {
+    display: block;
+
+    color: #334155;
+
+    font-size: 13px;
+}
+
+.notula-coming-card p {
+    margin: 3px 0 0;
+
+    color: #64748b;
+
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+    .notula-main {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .notula-stat-card {
+        padding: 12px;
+        gap: 9px;
+    }
+
+    .notula-stat-icon {
+        flex-basis: 34px;
+
+        width: 34px;
+        height: 34px;
+    }
+
+    .notula-stat-info span {
+        font-size: 10px;
+    }
+
+    .notula-stat-info strong {
+        font-size: 18px;
+    }
+
+}

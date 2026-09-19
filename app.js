@@ -4,6 +4,8 @@
 // Dibuat oleh Suwardi
 // ==========================================
 
+"use strict";
+
 
 // ==========================================
 // ELEMENT
@@ -14,6 +16,9 @@ const loginChoice =
 
 const wargaLogin =
     document.getElementById("wargaLogin");
+
+const wargaChangePin =
+    document.getElementById("wargaChangePin");
 
 const adminLogin =
     document.getElementById("adminLogin");
@@ -28,8 +33,71 @@ const supabaseClient =
         SUPABASE_URL,
         SUPABASE_KEY
     );
+
+
 // ==========================================
-// SIDAT SESSION SYNC
+// ROLE SIDAT
+// ==========================================
+
+const SIDAT_ROLES = {
+
+    ADMIN: "admin",
+
+    KETUA_RT: "ketua_rt",
+
+    BENDAHARA: "bendahara",
+
+    KOPERASI_RT: "koperasi_rt",
+
+    WARGA: "warga",
+
+    NOTULA: "notula"
+
+};
+
+
+// ==========================================
+// LABEL ROLE
+// ==========================================
+
+const SIDAT_ROLE_LABELS = {
+
+    admin:
+        "ADMIN",
+
+    ketua_rt:
+        "KETUA RT",
+
+    bendahara:
+        "BENDAHARA",
+
+    koperasi_rt:
+        "KOPERASI RT",
+
+    warga:
+        "WARGA",
+
+    notula:
+        "NOTULA"
+
+};
+
+
+// ==========================================
+// DASHBOARD
+// ==========================================
+
+const SIDAT_AVAILABLE_DASHBOARDS = {
+    admin: "admin/dashboard.html",
+    ketua_rt: "ketua-rt/dashboard.html",
+    bendahara: "bendahara/dashboard.html",
+    koperasi_rt: "koperasi/dashboard.html",
+    warga: "warga/dashboard.html",
+    notula: "notula/dashboard.html"
+};
+
+// ==========================================
+// SESSION SYNC
 // ==========================================
 
 async function syncSidatSession() {
@@ -46,11 +114,14 @@ async function syncSidatSession() {
 
 
         if (error) {
+
             console.error(
                 "Gagal membaca session:",
                 error
             );
+
             return;
+
         }
 
 
@@ -58,12 +129,27 @@ async function syncSidatSession() {
             data?.session;
 
 
-        if (session?.access_token) {
+        if (
+            session?.access_token
+        ) {
 
             localStorage.setItem(
                 "sidat_access_token",
                 session.access_token
             );
+
+
+            if (
+                session.refresh_token
+            ) {
+
+                localStorage.setItem(
+                    "sidat_refresh_token",
+                    session.refresh_token
+                );
+
+            }
+
 
             console.log(
                 "SIDAT: access token tersinkron."
@@ -73,6 +159,10 @@ async function syncSidatSession() {
 
             localStorage.removeItem(
                 "sidat_access_token"
+            );
+
+            localStorage.removeItem(
+                "sidat_refresh_token"
             );
 
         }
@@ -90,7 +180,7 @@ async function syncSidatSession() {
 
 
 // ==========================================
-// OTOMATIS UPDATE TOKEN
+// AUTH STATE
 // ==========================================
 
 supabaseClient.auth.onAuthStateChange(
@@ -111,10 +201,26 @@ supabaseClient.auth.onAuthStateChange(
                 session.access_token
             );
 
+
+            if (
+                session.refresh_token
+            ) {
+
+                localStorage.setItem(
+                    "sidat_refresh_token",
+                    session.refresh_token
+                );
+
+            }
+
         } else {
 
             localStorage.removeItem(
                 "sidat_access_token"
+            );
+
+            localStorage.removeItem(
+                "sidat_refresh_token"
             );
 
         }
@@ -123,54 +229,106 @@ supabaseClient.auth.onAuthStateChange(
 );
 
 
-// Jalankan saat aplikasi dibuka
 syncSidatSession();
 
+
 // ==========================================
-// NAVIGASI LOGIN
+// NAVIGASI
 // ==========================================
 
 function showWargaLogin() {
 
-    loginChoice.classList.add("hidden");
+    loginChoice.classList.add(
+        "hidden"
+    );
 
-    adminLogin.classList.add("hidden");
+    adminLogin.classList.add(
+        "hidden"
+    );
 
-    wargaLogin.classList.remove("hidden");
+    if (wargaChangePin) {
+
+        wargaChangePin.classList.add(
+            "hidden"
+        );
+
+    }
+
+    wargaLogin.classList.remove(
+        "hidden"
+    );
 
 }
 
 
 function showAdminLogin() {
 
-    loginChoice.classList.add("hidden");
+    loginChoice.classList.add(
+        "hidden"
+    );
 
-    wargaLogin.classList.add("hidden");
+    wargaLogin.classList.add(
+        "hidden"
+    );
 
-    adminLogin.classList.remove("hidden");
+    if (wargaChangePin) {
+
+        wargaChangePin.classList.add(
+            "hidden"
+        );
+
+    }
+
+    adminLogin.classList.remove(
+        "hidden"
+    );
 
 }
 
 
 function showLoginChoice() {
 
-    wargaLogin.classList.add("hidden");
+    wargaLogin.classList.add(
+        "hidden"
+    );
 
-    adminLogin.classList.add("hidden");
+    adminLogin.classList.add(
+        "hidden"
+    );
 
-    loginChoice.classList.remove("hidden");
+    if (wargaChangePin) {
+
+        wargaChangePin.classList.add(
+            "hidden"
+        );
+
+    }
+
+    loginChoice.classList.remove(
+        "hidden"
+    );
 
 }
 
 
 // ==========================================
-// TAMPILKAN PIN WARGA
+// TOGGLE PIN
 // ==========================================
 
-function togglePin() {
+function toggleWargaPin() {
 
     const input =
-        document.getElementById("wargaPin");
+        document.getElementById(
+            "wargaPin"
+        );
+
+
+    if (!input) {
+
+        return;
+
+    }
+
 
     input.type =
         input.type === "password"
@@ -180,14 +338,73 @@ function togglePin() {
 }
 
 
-// ==========================================
-// TAMPILKAN PASSWORD ADMIN
-// ==========================================
+function togglePin() {
+
+    toggleWargaPin();
+
+}
+
+
+function toggleWargaNewPin() {
+
+    const input =
+        document.getElementById(
+            "wargaNewPin"
+        );
+
+
+    if (!input) {
+
+        return;
+
+    }
+
+
+    input.type =
+        input.type === "password"
+            ? "text"
+            : "password";
+
+}
+
+
+function toggleWargaConfirmPin() {
+
+    const input =
+        document.getElementById(
+            "wargaConfirmPin"
+        );
+
+
+    if (!input) {
+
+        return;
+
+    }
+
+
+    input.type =
+        input.type === "password"
+            ? "text"
+            : "password";
+
+}
+
 
 function toggleAdminPassword() {
 
     const input =
-        document.getElementById("adminPassword");
+        document.getElementById(
+            "adminPassword"
+        );
+
+
+    if (!input) {
+
+        return;
+
+    }
+
 
     input.type =
         input.type === "password"
@@ -198,7 +415,7 @@ function toggleAdminPassword() {
 
 
 // ==========================================
-// TAMPILKAN ERROR
+// ERROR
 // ==========================================
 
 function showError(
@@ -210,6 +427,14 @@ function showError(
         document.getElementById(
             elementId
         );
+
+
+    if (!box) {
+
+        return;
+
+    }
+
 
     box.textContent =
         message;
@@ -230,6 +455,14 @@ function hideError(
             elementId
         );
 
+
+    if (!box) {
+
+        return;
+
+    }
+
+
     box.textContent =
         "";
 
@@ -241,18 +474,160 @@ function hideError(
 
 
 // ==========================================
+// ROLE
+// ==========================================
+
+function saveSidatRole(
+    role
+) {
+
+    localStorage.setItem(
+        "sidat_role",
+        role
+    );
+
+
+    localStorage.setItem(
+        "sidat_role_label",
+        SIDAT_ROLE_LABELS[role] ||
+        role
+    );
+
+}
+
+
+function clearSidatRole() {
+
+    localStorage.removeItem(
+        "sidat_role"
+    );
+
+    localStorage.removeItem(
+        "sidat_role_label"
+    );
+
+}
+
+
+function getSidatRoleLabel(
+    role
+) {
+
+    return (
+        SIDAT_ROLE_LABELS[role] ||
+        role
+    );
+
+}
+
+
+function isValidSidatRole(
+    role
+) {
+
+    return [
+
+        SIDAT_ROLES.ADMIN,
+
+        SIDAT_ROLES.KETUA_RT,
+
+        SIDAT_ROLES.BENDAHARA,
+
+        SIDAT_ROLES.KOPERASI_RT,
+
+        SIDAT_ROLES.WARGA,
+
+        SIDAT_ROLES.NOTULA
+
+    ].includes(
+        role
+    );
+
+}
+
+
+function hasSidatDashboard(
+    role
+) {
+
+    return Boolean(
+        SIDAT_AVAILABLE_DASHBOARDS[role]
+    );
+
+}
+
+
+function getRoleDashboardMessage(
+    role
+) {
+
+    const label =
+        getSidatRoleLabel(
+            role
+        );
+
+
+    return (
+
+        "Login berhasil sebagai " +
+        label +
+        ", tetapi dashboard " +
+        label +
+        " belum tersedia. " +
+        "Silakan tunggu dashboard role tersebut dibuat."
+
+    );
+
+}
+
+
+// ==========================================
+// TAMPILKAN FORM GANTI PIN
+// ==========================================
+
+function showWargaChangePin() {
+
+    loginChoice.classList.add(
+        "hidden"
+    );
+
+    wargaLogin.classList.add(
+        "hidden"
+    );
+
+    adminLogin.classList.add(
+        "hidden"
+    );
+
+    if (wargaChangePin) {
+
+        wargaChangePin.classList.remove(
+            "hidden"
+        );
+
+    }
+
+}
+
+
+// ==========================================
 // LOGIN WARGA
 // ==========================================
 
-document
-    .getElementById(
+const wargaLoginForm =
+    document.getElementById(
         "wargaLoginForm"
-    )
-    .addEventListener(
+    );
+
+
+if (wargaLoginForm) {
+
+    wargaLoginForm.addEventListener(
         "submit",
         async function (event) {
 
             event.preventDefault();
+
 
             hideError(
                 "wargaError"
@@ -284,10 +659,6 @@ document
                     .trim();
 
 
-            // ==================================
-            // VALIDASI ID
-            // ==================================
-
             if (!residentCode) {
 
                 showError(
@@ -299,10 +670,6 @@ document
 
             }
 
-
-            // ==================================
-            // VALIDASI PIN
-            // ==================================
 
             if (
                 !/^\d{4,6}$/.test(
@@ -320,10 +687,6 @@ document
             }
 
 
-            // ==================================
-            // LOADING
-            // ==================================
-
             button.disabled =
                 true;
 
@@ -333,9 +696,11 @@ document
 
             try {
 
-                // ==================================
-                // PANGGIL EDGE FUNCTION
-                // ==================================
+                /*
+                ==========================================
+                PANGGIL resident-login
+                ==========================================
+                */
 
                 const response =
                     await fetch(
@@ -378,10 +743,6 @@ document
                     await response.json();
 
 
-                // ==================================
-                // LOGIN GAGAL
-                // ==================================
-
                 if (
                     !response.ok ||
                     !result.success
@@ -390,6 +751,7 @@ document
                     throw new Error(
 
                         result.message ||
+                        result.error ||
                         "Login warga gagal."
 
                     );
@@ -397,9 +759,11 @@ document
                 }
 
 
-                // ==================================
-                // CEK SESSION DARI EDGE FUNCTION
-                // ==================================
+                /*
+                ==========================================
+                SESSION WAJIB ADA
+                ==========================================
+                */
 
                 if (
                     !result.session ||
@@ -414,80 +778,88 @@ document
                 }
 
 
-                // ==================================
-                // SET SESSION SUPABASE
-                // ==================================
+                /*
+                ==========================================
+                SET SESSION SUPABASE
+                ==========================================
+                */
 
                 const {
-    data: sessionData,
-    error: sessionError
-} =
-    await supabaseClient
-        .auth
-        .setSession({
+                    data: sessionData,
+                    error: sessionError
+                } =
+                    await supabaseClient
+                        .auth
+                        .setSession({
 
-            access_token:
-                result.session.access_token,
+                            access_token:
+                                result.session.access_token,
 
-            refresh_token:
-                result.session.refresh_token
+                            refresh_token:
+                                result.session.refresh_token
 
-        });
-
-
-if (sessionError) {
-
-    throw sessionError;
-
-}
+                        });
 
 
-// ==========================================
-// SIMPAN SESSION WARGA
-// ==========================================
+                if (
+                    sessionError
+                ) {
 
-const session =
-    sessionData?.session;
+                    throw sessionError;
 
-
-if (
-    !session ||
-    !session.access_token
-) {
-
-    throw new Error(
-        "Session Supabase warga tidak berhasil dibuat."
-    );
-
-}
+                }
 
 
-localStorage.setItem(
-    "sidat_access_token",
-    session.access_token
-);
+                const session =
+                    sessionData?.session;
 
 
-localStorage.setItem(
-    "sidat_refresh_token",
-    session.refresh_token
-);
+                if (
+                    !session ||
+                    !session.access_token
+                ) {
+
+                    throw new Error(
+                        "Session Supabase warga tidak berhasil dibuat."
+                    );
+
+                }
 
 
-// DEBUG
-console.log(
-    "SUPABASE SESSION WARGA:",
-    session
-);
+                /*
+                ==========================================
+                SIMPAN TOKEN
+                ==========================================
+                */
 
-console.log(
-    "ACCESS TOKEN SIDAT:",
-    session.access_token
-);
+                localStorage.setItem(
+                    "sidat_access_token",
+                    session.access_token
+                );
 
-                // ==================================
-                // SIMPAN DATA SIDAT
-                // ==================================
+
+                if (
+                    session.refresh_token
+                ) {
+
+                    localStorage.setItem(
+                        "sidat_refresh_token",
+                        session.refresh_token
+                    );
+
+                }
+
+
+                /*
+                ==========================================
+                ROLE WARGA
+                ==========================================
+                */
+
+                saveSidatRole(
+                    SIDAT_ROLES.WARGA
+                );
+
 
                 localStorage.setItem(
                     "sidat_user",
@@ -497,31 +869,58 @@ console.log(
                 );
 
 
-                // ==================================
-                // CEK USER SESSION
-                // ==================================
+                /*
+                ==========================================
+                CEK WAJIB GANTI PIN
+                ==========================================
+                */
+
+                const mustChangePin =
+                    result.user?.must_change_pin === true;
+
 
                 console.log(
                     "LOGIN WARGA BERHASIL"
                 );
 
-                console.log(
-                    "USER:",
-                    sessionData?.user
-                );
 
                 console.log(
-                    "SESSION:",
-                    sessionData?.session
+                    "ROLE:",
+                    SIDAT_ROLES.WARGA
                 );
 
 
-                // ==================================
-                // PINDAH KE DASHBOARD WARGA
-                // ==================================
+                console.log(
+                    "MUST CHANGE PIN:",
+                    mustChangePin
+                );
+
+
+                /*
+                ==========================================
+                JIKA WAJIB GANTI PIN
+                ==========================================
+                */
+
+                if (
+                    mustChangePin
+                ) {
+
+                    showWargaChangePin();
+
+                    return;
+
+                }
+
+
+                /*
+                ==========================================
+                LANGSUNG DASHBOARD
+                ==========================================
+                */
 
                 window.location.href =
-                    "warga/dashboard.html";
+                    SIDAT_AVAILABLE_DASHBOARDS.warga;
 
 
             } catch (error) {
@@ -552,20 +951,351 @@ console.log(
         }
     );
 
+}
+
 
 // ==========================================
-// LOGIN ADMIN
+// GANTI PIN WARGA
 // ==========================================
 
-document
-    .getElementById(
+async function changeWargaPin() {
+
+    hideError(
+        "wargaChangePinError"
+    );
+
+
+    const newPinInput =
+        document.getElementById(
+            "wargaNewPin"
+        );
+
+
+    const confirmPinInput =
+        document.getElementById(
+            "wargaConfirmPin"
+        );
+
+
+    const button =
+        document.getElementById(
+            "wargaChangePinButton"
+        );
+
+
+    const newPin =
+        newPinInput?.value
+            ?.trim() || "";
+
+
+    const confirmPin =
+        confirmPinInput?.value
+            ?.trim() || "";
+
+
+    /*
+    ==========================================
+    VALIDASI
+    ==========================================
+    */
+
+    if (
+        !/^\d{4,6}$/.test(
+            newPin
+        )
+    ) {
+
+        showError(
+            "wargaChangePinError",
+            "PIN baru harus terdiri dari 4–6 digit."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        newPin !== confirmPin
+    ) {
+
+        showError(
+            "wargaChangePinError",
+            "Konfirmasi PIN tidak sama."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        newPin === "123456"
+    ) {
+
+        showError(
+            "wargaChangePinError",
+            "PIN baru harus berbeda dari PIN awal."
+        );
+
+        return;
+
+    }
+
+
+    /*
+    ==========================================
+    AMBIL SESSION TERBARU
+    ==========================================
+    */
+
+    button.disabled =
+        true;
+
+    button.textContent =
+        "MENYIMPAN...";
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .auth
+                .getSession();
+
+
+        if (error) {
+
+            throw error;
+
+        }
+
+
+        const session =
+            data?.session;
+
+
+        if (
+            !session?.access_token
+        ) {
+
+            throw new Error(
+                "Sesi WARGA tidak ditemukan. Silakan login kembali."
+            );
+
+        }
+
+
+        /*
+        ==========================================
+        SIMPAN TOKEN TERBARU
+        ==========================================
+        */
+
+        localStorage.setItem(
+            "sidat_access_token",
+            session.access_token
+        );
+
+
+        if (
+            session.refresh_token
+        ) {
+
+            localStorage.setItem(
+                "sidat_refresh_token",
+                session.refresh_token
+            );
+
+        }
+
+
+        /*
+        ==========================================
+        PANGGIL change-resident-pin
+        ==========================================
+        */
+
+        const response =
+            await fetch(
+
+                `${SUPABASE_URL}/functions/v1/change-resident-pin`,
+
+                {
+
+                    method:
+                        "POST",
+
+                    headers:
+                        {
+
+                            "apikey":
+                                SUPABASE_KEY,
+
+                            "Authorization":
+                                `Bearer ${session.access_token}`,
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                    body:
+                        JSON.stringify({
+
+                            new_pin:
+                                newPin,
+
+                            confirm_pin:
+                                confirmPin
+
+                        })
+
+                }
+
+            );
+
+
+        const result =
+            await response.json();
+
+
+        /*
+        ==========================================
+        ERROR FUNCTION
+        ==========================================
+        */
+
+        if (
+            !response.ok ||
+            !result.success
+        ) {
+
+            throw new Error(
+
+                result.error ||
+                result.message ||
+                "Gagal mengubah PIN."
+
+            );
+
+        }
+
+
+        /*
+        ==========================================
+        UPDATE DATA USER LOCAL
+        ==========================================
+        */
+
+        const oldUser =
+            localStorage.getItem(
+                "sidat_user"
+            );
+
+
+        if (oldUser) {
+
+            try {
+
+                const user =
+                    JSON.parse(
+                        oldUser
+                    );
+
+
+                user.must_change_pin =
+                    false;
+
+
+                localStorage.setItem(
+    "sidat_user",
+    JSON.stringify(user)
+);
+                
+
+            } catch (e) {
+
+                console.warn(
+                    "SIDAT: gagal memperbarui sidat_user.",
+                    e
+                );
+
+            }
+
+        }
+
+
+        /*
+        ==========================================
+        BERHASIL
+        ==========================================
+        */
+
+        console.log(
+            "SIDAT: PIN WARGA berhasil diubah."
+        );
+
+
+        /*
+        ==========================================
+        KE DASHBOARD
+        ==========================================
+        */
+
+        window.location.href =
+            SIDAT_AVAILABLE_DASHBOARDS.warga;
+
+
+    } catch (error) {
+
+        console.error(
+            "Ganti PIN warga error:",
+            error
+        );
+
+
+        showError(
+            "wargaChangePinError",
+            error.message ||
+            "Gagal mengubah PIN."
+        );
+
+
+    } finally {
+
+        button.disabled =
+            false;
+
+        button.textContent =
+            "SIMPAN PIN BARU";
+
+    }
+
+}
+
+
+// ==========================================
+// LOGIN PENGELOLA
+// ==========================================
+
+const adminLoginForm =
+    document.getElementById(
         "adminLoginForm"
-    )
-    .addEventListener(
+    );
+
+
+if (adminLoginForm) {
+
+    adminLoginForm.addEventListener(
         "submit",
         async function (event) {
 
             event.preventDefault();
+
 
             hideError(
                 "adminError"
@@ -595,10 +1325,6 @@ document
                     .value;
 
 
-            // ==================================
-            // VALIDASI
-            // ==================================
-
             if (
                 !email ||
                 !password
@@ -614,10 +1340,6 @@ document
             }
 
 
-            // ==================================
-            // LOADING
-            // ==================================
-
             button.disabled =
                 true;
 
@@ -626,10 +1348,6 @@ document
 
 
             try {
-
-                // ==================================
-                // LOGIN SUPABASE AUTH
-                // ==================================
 
                 const {
                     data,
@@ -648,10 +1366,6 @@ document
                         });
 
 
-                // ==================================
-                // CEK ERROR LOGIN
-                // ==================================
-
                 if (
                     error
                 ) {
@@ -668,42 +1382,34 @@ document
                 ) {
 
                     throw new Error(
-                        "Session admin tidak berhasil dibuat."
+                        "Session pengelola tidak berhasil dibuat."
                     );
 
                 }
-                // ==================================
-// SIMPAN ACCESS TOKEN ADMIN
-// ==================================
-
-localStorage.setItem(
-    "sidat_access_token",
-    data.session.access_token
-);
 
 
-                // ==================================
-                // LOG LOGIN
-                // ==================================
-
-                console.log(
-                    "LOGIN ADMIN BERHASIL"
-                );
-
-                console.log(
-                    "USER:",
-                    data.user
-                );
-
-                console.log(
-                    "SESSION:",
-                    data.session
+                localStorage.setItem(
+                    "sidat_access_token",
+                    data.session.access_token
                 );
 
 
-                // ==================================
-                // CEK PROFILE ADMIN
-                // ==================================
+                if (
+                    data.session.refresh_token
+                ) {
+
+                    localStorage.setItem(
+                        "sidat_refresh_token",
+                        data.session.refresh_token
+                    );
+
+                }
+
+
+                console.log(
+                    "LOGIN PENGELOLA BERHASIL"
+                );
+
 
                 const {
                     data: profile,
@@ -738,13 +1444,9 @@ localStorage.setItem(
                 );
 
 
-                // ==================================
-                // VALIDASI ROLE
-                // ==================================
-
                 if (
                     !profile ||
-                    profile.role !== "admin"
+                    !profile.role
                 ) {
 
                     await supabaseClient
@@ -752,82 +1454,203 @@ localStorage.setItem(
                         .signOut();
 
 
+                    clearSidatRole();
+
+
                     throw new Error(
-                        "Akun ini bukan akun admin."
+                        "Role akun tidak ditemukan."
                     );
 
                 }
 
 
-                // ==================================
-                // SIMPAN DATA ADMIN
-                // ==================================
+                const role =
+                    String(
+                        profile.role
+                    )
+                    .trim()
+                    .toLowerCase();
+
+
+                console.log(
+                    "ROLE SIDAT:",
+                    role
+                );
+
+
+                if (
+                    !isValidSidatRole(
+                        role
+                    )
+                ) {
+
+                    await supabaseClient
+                        .auth
+                        .signOut();
+
+
+                    clearSidatRole();
+
+
+                    throw new Error(
+                        "Role akun tidak dikenali oleh SIDAT."
+                    );
+
+                }
+
+
+                if (
+                    role === SIDAT_ROLES.WARGA
+                ) {
+
+                    await supabaseClient
+                        .auth
+                        .signOut();
+
+
+                    clearSidatRole();
+
+
+                    throw new Error(
+                        "Akun WARGA harus masuk melalui Login Warga."
+                    );
+
+                }
+
+
+                saveSidatRole(
+                    role
+                );
+
 
                 localStorage.setItem(
-                    "sidat_admin_user",
+                    "sidat_user",
                     JSON.stringify(
                         data.user
                     )
                 );
 
 
-                // ==================================
-                // CEK IS ADMIN
-                // ==================================
-
-                const {
-                    data: adminStatus,
-                    error: adminError
-                } =
-                    await supabaseClient
-                        .rpc(
-                            "is_admin"
-                        );
-
-
                 if (
-                    adminError
+                    role === SIDAT_ROLES.ADMIN
                 ) {
 
-                    throw adminError;
+                    localStorage.setItem(
+                        "sidat_admin_user",
+                        JSON.stringify(
+                            data.user
+                        )
+                    );
+
+
+                    const {
+                        data: adminStatus,
+                        error: adminError
+                    } =
+                        await supabaseClient
+                            .rpc(
+                                "is_admin"
+                            );
+
+
+                    if (
+                        adminError
+                    ) {
+
+                        await supabaseClient
+                            .auth
+                            .signOut();
+
+                        clearSidatRole();
+
+                        throw adminError;
+
+                    }
+
+
+                    console.log(
+                        "STATUS ADMIN:",
+                        adminStatus
+                    );
+
+
+                    if (
+                        adminStatus !== true
+                    ) {
+
+                        await supabaseClient
+                            .auth
+                            .signOut();
+
+                        clearSidatRole();
+
+                        throw new Error(
+                            "Session berhasil dibuat, tetapi akun belum dikenali sebagai admin."
+                        );
+
+                    }
+
+
+                    window.location.href =
+                        SIDAT_AVAILABLE_DASHBOARDS.admin;
+
+
+                    return;
 
                 }
 
 
-                console.log(
-                    "STATUS ADMIN:",
-                    adminStatus
-                );
-
-
                 if (
-                    adminStatus !== true
+                    !hasSidatDashboard(
+                        role
+                    )
                 ) {
+
+                    const message =
+                        getRoleDashboardMessage(
+                            role
+                        );
+
+
+                    console.warn(
+                        message
+                    );
+
 
                     await supabaseClient
                         .auth
                         .signOut();
 
 
+                    clearSidatRole();
+
+
+                    localStorage.removeItem(
+                        "sidat_user"
+                    );
+
+
+                    localStorage.removeItem(
+                        "sidat_admin_user"
+                    );
+
+
                     throw new Error(
-                        "Session berhasil dibuat, tetapi akun belum dikenali sebagai admin."
+                        message
                     );
 
                 }
 
 
-                // ==================================
-                // PINDAH DASHBOARD ADMIN
-                // ==================================
-
                 window.location.href =
-                    "admin/dashboard.html";
-
+                    SIDAT_AVAILABLE_DASHBOARDS[
+                        role
+                    ];
 
             } catch (error) {
 
                 console.error(
-                    "Login admin error:",
+                    "Login pengelola error:",
                     error
                 );
 
@@ -835,7 +1658,7 @@ localStorage.setItem(
                 showError(
                     "adminError",
                     error.message ||
-                    "Login admin gagal."
+                    "Login pengelola gagal."
                 );
 
 
@@ -852,29 +1675,46 @@ localStorage.setItem(
         }
     );
 
-// ======================================
-// CEK VERSI APLIKASI
-// ======================================
+}
+
+
+// ==========================================
+// VERSI APLIKASI
+// ==========================================
 
 async function checkAppVersion() {
 
     try {
 
-        const response = await fetch(
-            "/SIDAT/version.json?ts=" + Date.now()
-        );
+        const response =
+            await fetch(
+                "/SIDAT/version.json?ts=" +
+                Date.now()
+            );
 
-        if (!response.ok) {
+
+        if (
+            !response.ok
+        ) {
+
             return;
+
         }
 
-        const data = await response.json();
 
-        if (data.version !== SIDAT_APP_VERSION) {
+        const data =
+            await response.json();
+
+
+        if (
+            data.version !==
+            SIDAT_APP_VERSION
+        ) {
 
             alert(
                 "Versi baru SIDAT tersedia.\nHalaman akan dimuat ulang."
             );
+
 
             location.reload();
 
@@ -882,16 +1722,25 @@ async function checkAppVersion() {
 
     } catch (err) {
 
-        console.error("Gagal cek versi:", err);
+        console.error(
+            "Gagal cek versi:",
+            err
+        );
 
     }
 
 }
 
+
 checkAppVersion();
 
 
+// ==========================================
+// OFFLINE DATABASE
+// ==========================================
+
 openOfflineDatabase()
+
     .then(() => {
 
         console.log(
@@ -899,20 +1748,54 @@ openOfflineDatabase()
         );
 
     })
+
     .catch(err => {
 
-        console.error(err);
+        console.error(
+            "SIDAT Offline DB gagal:",
+            err
+        );
 
     });
 
+
 openOfflineDatabase()
 
-.then(() => {
+    .then(() => {
 
-    console.log(
-        "SIDAT Offline DB siap."
-    );
+        console.log(
+            "SIDAT Offline DB siap."
+        );
 
-    syncOfflineQueue();
 
-});
+        if (
+            typeof syncOfflineQueue ===
+            "function"
+        ) {
+
+            syncOfflineQueue();
+
+        }
+
+    })
+
+    .catch(err => {
+
+        console.error(
+            "SIDAT Offline DB / Sync error:",
+            err
+        );
+
+    });
+
+
+// ==========================================
+// DEBUG ROLE
+// ==========================================
+
+console.log(
+    "SIDAT ROLE SAAT INI:",
+    localStorage.getItem(
+        "sidat_role"
+    )
+);

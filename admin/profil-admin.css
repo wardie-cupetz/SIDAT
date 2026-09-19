@@ -1,0 +1,877 @@
+/* =========================================================
+SIDAT
+PROFIL ADMIN
+Versi: Rebuild Baru
+Fokus:
+
+- Foto Profil
+- Password
+  ========================================================= */
+
+/* =========================================================
+DASAR
+========================================================= */
+
+html {
+margin: 0;
+padding: 0;
+min-height: 100%;
+}
+
+body {
+margin: 0;
+padding: 0;
+
+min-height: 100vh;
+
+background: #f5f7f6;
+
+color: #17251d;
+
+font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+-webkit-tap-highlight-color: transparent;
+
+}
+
+button,
+input {
+font: inherit;
+}
+
+button {
+-webkit-tap-highlight-color: transparent;
+}
+
+.hidden {
+display: none !important;
+}
+
+/* =========================================================
+HEADER
+========================================================= */
+
+.profil-header {
+position: relative;
+
+min-height: 180px;
+
+padding:
+    calc(18px + env(safe-area-inset-top))
+    20px
+    28px;
+
+box-sizing: border-box;
+
+overflow: hidden;
+
+background:
+    linear-gradient(
+        145deg,
+        #166534 0%,
+        #15803d 48%,
+        #16a34a 100%
+    );
+
+color: #ffffff;
+
+border-radius:
+    0 0 28px 28px;
+
+box-shadow:
+    0 7px 22px rgba(22, 101, 52, .18);
+
+}
+
+/* Bubble */
+
+.header-bubble {
+position: absolute;
+
+border-radius: 50%;
+
+background: rgba(255,255,255,.10);
+
+pointer-events: none;
+
+}
+
+.bubble-1 {
+width: 150px;
+height: 150px;
+
+right: -55px;
+top: -65px;
+
+}
+
+.bubble-2 {
+width: 95px;
+height: 95px;
+
+right: 55px;
+top: 82px;
+
+background: rgba(255,255,255,.07);
+
+}
+
+.bubble-3 {
+width: 65px;
+height: 65px;
+
+left: -22px;
+bottom: -27px;
+
+background: rgba(255,255,255,.08);
+
+}
+
+/* Back */
+
+.back-button {
+position: relative;
+z-index: 3;
+
+width: 42px;
+height: 42px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+padding: 0;
+
+border: 0;
+border-radius: 50%;
+
+background: rgba(255,255,255,.15);
+
+color: #ffffff;
+
+cursor: pointer;
+
+}
+
+.back-button:active {
+transform: scale(.94);
+}
+
+.back-button svg {
+width: 22px !important;
+height: 22px !important;
+
+fill: none;
+stroke: currentColor;
+stroke-width: 2;
+
+stroke-linecap: round;
+stroke-linejoin: round;
+
+}
+
+/* Header content */
+
+.header-content {
+position: relative;
+z-index: 2;
+
+margin-top: 18px;
+
+}
+
+.header-content h1 {
+margin: 0;
+
+font-size: 23px;
+line-height: 1.15;
+
+font-weight: 800;
+
+letter-spacing: .2px;
+
+}
+
+.header-content p {
+margin: 6px 0 10px;
+
+font-size: 13px;
+
+color: rgba(255,255,255,.82);
+
+}
+
+.role-badge {
+display: inline-flex;
+
+align-items: center;
+justify-content: center;
+
+min-height: 27px;
+
+padding: 0 12px;
+
+border-radius: 999px;
+
+background: rgba(255,255,255,.16);
+
+border: 1px solid rgba(255,255,255,.20);
+
+font-size: 11px;
+font-weight: 800;
+
+letter-spacing: .7px;
+
+}
+
+/* =========================================================
+MAIN
+========================================================= */
+
+.profil-main {
+width: 100%;
+max-width: 620px;
+
+margin: 0 auto;
+
+box-sizing: border-box;
+
+padding:
+    18px
+    14px
+    calc(
+        105px +
+        env(safe-area-inset-bottom)
+    );
+
+}
+
+/* =========================================================
+LOADING
+========================================================= */
+
+.loading-screen {
+min-height: 280px;
+
+display: flex;
+
+flex-direction: column;
+
+align-items: center;
+justify-content: center;
+
+gap: 12px;
+
+color: #64746a;
+
+font-size: 13px;
+
+}
+
+.loading-spinner {
+width: 30px;
+height: 30px;
+
+border-radius: 50%;
+
+border:
+    3px solid #dce8df;
+
+border-top-color: #15803d;
+
+animation:
+    spin .8s linear infinite;
+
+}
+
+@keyframes spin {
+to {
+transform: rotate(360deg);
+}
+}
+
+/* =========================================================
+CARD
+========================================================= */
+
+.profile-content {
+display: flex;
+
+flex-direction: column;
+
+gap: 14px;
+
+}
+
+.profile-card {
+background: #ffffff;
+
+border:
+    1px solid #e4ebe6;
+
+border-radius: 19px;
+
+padding: 18px;
+
+box-sizing: border-box;
+
+box-shadow:
+    0 5px 18px rgba(20, 50, 30, .06);
+
+}
+
+/* =========================================================
+CARD TITLE
+========================================================= */
+
+.card-title {
+display: flex;
+
+align-items: center;
+
+gap: 12px;
+
+margin-bottom: 18px;
+
+}
+
+.card-title-icon {
+width: 40px;
+height: 40px;
+
+flex: 0 0 40px;
+
+display: flex;
+
+align-items: center;
+justify-content: center;
+
+border-radius: 12px;
+
+background: #eaf7ee;
+
+color: #15803d;
+
+}
+
+.card-title-icon svg {
+width: 21px !important;
+height: 21px !important;
+
+fill: none;
+
+stroke: currentColor;
+stroke-width: 1.8;
+
+stroke-linecap: round;
+stroke-linejoin: round;
+
+}
+
+.card-title h2 {
+margin: 0;
+
+font-size: 16px;
+
+line-height: 1.25;
+
+font-weight: 800;
+
+color: #18261e;
+
+}
+
+.card-title p {
+margin: 3px 0 0;
+
+font-size: 12px;
+
+line-height: 1.35;
+
+color: #718077;
+
+}
+
+/* =========================================================
+FOTO PROFIL
+========================================================= */
+
+.profile-photo-area {
+display: flex;
+
+flex-direction: column;
+
+align-items: center;
+
+text-align: center;
+
+}
+
+.profile-photo-wrapper {
+width: 112px;
+height: 112px;
+
+margin-bottom: 15px;
+
+position: relative;
+
+overflow: hidden;
+
+border-radius: 50%;
+
+background: #eaf0eb;
+
+border:
+    4px solid #ffffff;
+
+box-shadow:
+    0 4px 16px rgba(0,0,0,.10);
+
+outline:
+    1px solid #dbe6de;
+
+}
+
+.profile-photo {
+width: 100%;
+height: 100%;
+
+display: block;
+
+object-fit: cover;
+
+}
+
+.profile-placeholder {
+width: 100%;
+height: 100%;
+
+display: flex;
+
+align-items: center;
+justify-content: center;
+
+background: #e8f4eb;
+
+color: #72a982;
+
+}
+
+.profile-placeholder svg {
+width: 48px !important;
+height: 48px !important;
+
+fill: none;
+
+stroke: currentColor;
+stroke-width: 1.35;
+
+stroke-linecap: round;
+stroke-linejoin: round;
+
+}
+
+/* =========================================================
+BUTTON
+========================================================= */
+
+.primary-button,
+.secondary-button,
+.cancel-button {
+min-height: 44px;
+
+border: 0;
+
+border-radius: 12px;
+
+display: inline-flex;
+
+align-items: center;
+justify-content: center;
+
+gap: 8px;
+
+padding:
+    0 15px;
+
+font-size: 13px;
+
+font-weight: 750;
+
+cursor: pointer;
+
+transition:
+    transform .12s ease,
+    opacity .12s ease;
+
+}
+
+.primary-button {
+background: #15803d;
+
+color: #ffffff;
+
+box-shadow:
+    0 4px 10px rgba(21,128,61,.16);
+
+}
+
+.secondary-button {
+width: 100%;
+
+background: #eaf7ee;
+
+color: #166534;
+
+}
+
+.cancel-button {
+background: #eef2ef;
+
+color: #4d5b52;
+
+}
+
+.primary-button:active,
+.secondary-button:active,
+.cancel-button:active {
+transform: scale(.98);
+}
+
+.primary-button:disabled,
+.secondary-button:disabled,
+.cancel-button:disabled {
+opacity: .55;
+
+cursor: not-allowed;
+
+transform: none;
+
+}
+
+.primary-button svg,
+.secondary-button svg,
+.cancel-button svg {
+width: 18px !important;
+height: 18px !important;
+
+min-width: 18px !important;
+min-height: 18px !important;
+
+max-width: 18px !important;
+max-height: 18px !important;
+
+flex: 0 0 18px;
+
+fill: none;
+
+stroke: currentColor;
+stroke-width: 1.8;
+
+stroke-linecap: round;
+stroke-linejoin: round;
+
+}
+
+/* =========================================================
+HELP
+========================================================= */
+
+.help-text {
+max-width: 320px;
+
+margin:
+    9px auto 0;
+
+font-size: 11px;
+
+line-height: 1.45;
+
+color: #7b887f;
+
+}
+
+/* =========================================================
+PASSWORD FORM
+========================================================= */
+
+.password-form {
+margin-top: 16px;
+
+padding-top: 16px;
+
+border-top:
+    1px solid #edf1ee;
+
+}
+
+.form-group {
+margin-bottom: 14px;
+}
+
+.form-group label {
+display: block;
+
+margin-bottom: 7px;
+
+font-size: 12px;
+
+font-weight: 700;
+
+color: #34443a;
+
+}
+
+.password-input-wrapper {
+position: relative;
+}
+
+.password-input-wrapper input {
+width: 100%;
+
+height: 46px;
+
+box-sizing: border-box;
+
+padding:
+    0 45px
+    0 13px;
+
+border:
+    1px solid #dce5df;
+
+border-radius: 12px;
+
+outline: none;
+
+background: #fbfcfb;
+
+color: #1c2921;
+
+font-size: 13px;
+
+transition:
+    border-color .15s ease,
+    box-shadow .15s ease;
+
+}
+
+.password-input-wrapper input:focus {
+border-color: #39a95d;
+
+box-shadow:
+    0 0 0 3px rgba(21,128,61,.09);
+
+background: #ffffff;
+
+}
+
+.password-toggle {
+position: absolute;
+
+right: 5px;
+top: 50%;
+
+width: 36px;
+height: 36px;
+
+transform: translateY(-50%);
+
+display: flex;
+
+align-items: center;
+justify-content: center;
+
+padding: 0;
+
+border: 0;
+
+background: transparent;
+
+color: #718077;
+
+cursor: pointer;
+
+}
+
+.password-toggle svg {
+width: 19px !important;
+height: 19px !important;
+
+fill: none;
+
+stroke: currentColor;
+stroke-width: 1.7;
+
+stroke-linecap: round;
+stroke-linejoin: round;
+
+}
+
+/* =========================================================
+PASSWORD RULES
+========================================================= */
+
+.password-rules {
+display: flex;
+
+flex-direction: column;
+
+gap: 6px;
+
+margin:
+    2px 0 16px;
+
+padding:
+    11px 12px;
+
+border-radius: 11px;
+
+background: #f5faf6;
+
+color: #66736b;
+
+font-size: 11px;
+
+}
+
+.password-rules div {
+display: flex;
+
+align-items: center;
+
+gap: 7px;
+
+}
+
+.rule-icon {
+width: 17px;
+height: 17px;
+
+display: inline-flex;
+
+align-items: center;
+justify-content: center;
+
+flex: 0 0 17px;
+
+border-radius: 50%;
+
+background: #dff2e4;
+
+color: #15803d;
+
+font-size: 10px;
+
+font-weight: 900;
+
+}
+
+/* =========================================================
+PASSWORD ACTION
+========================================================= */
+
+.password-actions {
+display: grid;
+
+grid-template-columns: 1fr 1.4fr;
+
+gap: 9px;
+
+}
+
+/* =========================================================
+TOAST
+========================================================= */
+
+.toast {
+position: fixed;
+
+z-index: 5000;
+
+left: 50%;
+
+bottom:
+    calc(
+        82px +
+        env(safe-area-inset-bottom)
+    );
+
+transform:
+    translate(-50%, 20px);
+
+width:
+    calc(
+        100% - 32px
+    );
+
+max-width: 420px;
+
+box-sizing: border-box;
+
+padding:
+    12px 15px;
+
+border-radius: 12px;
+
+background: #1f2933;
+
+color: #ffffff;
+
+text-align: center;
+
+font-size: 12px;
+
+line-height: 1.4;
+
+opacity: 0;
+
+pointer-events: none;
+
+transition:
+    opacity .2s ease,
+    transform .2s ease;
+
+box-shadow:
+    0 8px 25px rgba(0,0,0,.18);
+
+}
+
+.toast.show {
+opacity: 1;
+
+transform:
+    translate(-50%, 0);
+
+}
+
+.toast.success {
+background: #166534;
+}
+
+.toast.error {
+background: #b42318;
+}
+
+/* =========================================================
+RESPONSIVE
+========================================================= */
+
+@media (min-width: 600px) {
+
+.profil-header {
+    padding-left: 28px;
+    padding-right: 28px;
+}
+
+.profil-main {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+}

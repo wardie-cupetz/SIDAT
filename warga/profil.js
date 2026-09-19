@@ -1,200 +1,221 @@
-// ==========================================
-// SIDAT
-// SISTEM INFORMASI DATA WARGA
-// PROFIL WARGA
-// ==========================================
+/* =========================================================
+   SIDAT - PROFIL WARGA
+   Versi final mobile / APK
+   ========================================================= */
 
 "use strict";
 
 console.log("SIDAT: profil.js mulai...");
 
 
-// ==========================================
-// KONFIGURASI
-// ==========================================
+/* =========================================================
+   KONFIGURASI
+   ========================================================= */
 
 const PROFILE_BUCKET = "profile-photos";
+const SESSION_STORAGE_KEY = "sidat_access_token";
 
 
-// ==========================================
-// GLOBAL
-// ==========================================
+/* =========================================================
+   GLOBAL
+   ========================================================= */
 
 let supabaseClient = null;
-
 let profilWarga = null;
-
 let currentUser = null;
-
 let fotoBaru = null;
 
 
-// ==========================================
-// ELEMENT HTML
-// ==========================================
+/* =========================================================
+   ELEMENT
+   ========================================================= */
 
-const loadingOverlay =
-    document.getElementById("loadingOverlay");
+const loadingOverlay = document.getElementById("loadingOverlay");
 
-const profilePhoto =
-    document.getElementById("profilePhoto");
+const profilePhoto = document.getElementById("profilePhoto");
+const namaWarga = document.getElementById("namaWarga");
+const kodeWarga = document.getElementById("kodeWarga");
+const accountStatus = document.getElementById("accountStatus");
 
-const photoEditButton =
-    document.getElementById("photoEditButton");
+const namaLengkap = document.getElementById("namaLengkap");
+const tempatLahir = document.getElementById("tempatLahir");
+const tanggalLahir = document.getElementById("tanggalLahir");
+const jenisKelamin = document.getElementById("jenisKelamin");
+const statusKeluarga = document.getElementById("statusKeluarga");
 
-const namaWarga =
-    document.getElementById("namaWarga");
+const alamat = document.getElementById("alamat");
+const nomorRumah = document.getElementById("nomorRumah");
+const nomorHP = document.getElementById("nomorHP");
 
-const kodeWarga =
-    document.getElementById("kodeWarga");
+const email = document.getElementById("email");
+const statusAkun = document.getElementById("statusAkun");
+const akunDibuat = document.getElementById("akunDibuat");
 
-const accountStatus =
-    document.getElementById("accountStatus");
+const editModal = document.getElementById("editModal");
+const editPhotoPreview = document.getElementById("editPhotoPreview");
+const photoInput = document.getElementById("photoInput");
+const editProfileForm = document.getElementById("editProfileForm");
+const editPhone = document.getElementById("editPhone");
 
-const nik =
-    document.getElementById("nik");
+const editError = document.getElementById("editError");
+const editSuccess = document.getElementById("editSuccess");
+const saveProfileButton = document.getElementById("saveProfileButton");
 
-const nomorKK =
-    document.getElementById("nomorKK");
-
-const namaLengkap =
-    document.getElementById("namaLengkap");
-
-const tempatLahir =
-    document.getElementById("tempatLahir");
-
-const tanggalLahir =
-    document.getElementById("tanggalLahir");
-
-const jenisKelamin =
-    document.getElementById("jenisKelamin");
-
-const statusKeluarga =
-    document.getElementById("statusKeluarga");
-
-const alamat =
-    document.getElementById("alamat");
-
-const nomorRumah =
-    document.getElementById("nomorRumah");
-
-const nomorHP =
-    document.getElementById("nomorHP");
-
-const email =
-    document.getElementById("email");
-
-const statusAkun =
-    document.getElementById("statusAkun");
-
-const akunDibuat =
-    document.getElementById("akunDibuat");
-
-const editModal =
-    document.getElementById("editModal");
-
-const editPhotoPreview =
-    document.getElementById("editPhotoPreview");
-
-const photoInput =
-    document.getElementById("photoInput");
-
-const editProfileForm =
-    document.getElementById("editProfileForm");
-
-const editPhone =
-    document.getElementById("editPhone");
-
-const editError =
-    document.getElementById("editError");
-
-const editSuccess =
-    document.getElementById("editSuccess");
-
-const saveProfileButton =
-    document.getElementById("saveProfileButton");
+const pinModal = document.getElementById("pinModal");
+const changePinForm = document.getElementById("changePinForm");
+const pinBaru = document.getElementById("pinBaru");
+const pinKonfirmasi = document.getElementById("pinKonfirmasi");
+const pinError = document.getElementById("pinError");
+const pinSuccess = document.getElementById("pinSuccess");
+const savePinButton = document.getElementById("savePinButton");
 
 
-// ==========================================
-// INIT SUPABASE
-// ==========================================
+/* =========================================================
+   INIT SUPABASE
+   ========================================================= */
 
 function initSupabase() {
 
-    if (
-        typeof supabase === "undefined"
-    ) {
-
-        throw new Error(
-            "Library Supabase belum dimuat."
-        );
+    if (typeof supabase === "undefined") {
+        throw new Error("Library Supabase belum dimuat.");
     }
 
-
-    if (
-        typeof SUPABASE_URL === "undefined"
-    ) {
-
-        throw new Error(
-            "SUPABASE_URL tidak ditemukan."
-        );
+    if (typeof SUPABASE_URL === "undefined") {
+        throw new Error("SUPABASE_URL tidak ditemukan.");
     }
 
-
-    if (
-        typeof SUPABASE_KEY === "undefined"
-    ) {
-
-        throw new Error(
-            "SUPABASE_KEY tidak ditemukan."
-        );
+    if (typeof SUPABASE_KEY === "undefined") {
+        throw new Error("SUPABASE_KEY tidak ditemukan.");
     }
 
-
-    supabaseClient =
-        supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_KEY
-        );
-
-
-    console.log(
-        "SIDAT: Supabase client siap."
+    supabaseClient = supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
     );
+
+    console.log("SIDAT: Supabase client siap.");
 }
 
 
-// ==========================================
-// LOADING
-// ==========================================
+/* =========================================================
+   SESSION
+   ========================================================= */
+
+async function getValidSession() {
+
+    if (!supabaseClient) {
+        initSupabase();
+    }
+
+    const {
+        data,
+        error
+    } = await supabaseClient.auth.getSession();
+
+    if (error) {
+        throw new Error(
+            "Gagal membaca sesi login: " +
+            error.message
+        );
+    }
+
+    let session = data?.session || null;
+
+    if (!session) {
+        throw new Error(
+            "Sesi login tidak ditemukan. Silakan login kembali."
+        );
+    }
+
+    const expiresAt =
+        Number(session.expires_at || 0);
+
+    const now =
+        Math.floor(Date.now() / 1000);
+
+    if (
+        expiresAt &&
+        expiresAt - now < 60
+    ) {
+
+        const {
+            data: refreshed,
+            error: refreshError
+        } = await supabaseClient.auth.refreshSession();
+
+        if (refreshError) {
+            throw new Error(
+                "Sesi login telah berakhir. Silakan login kembali."
+            );
+        }
+
+        session =
+            refreshed?.session || null;
+    }
+
+    if (!session?.access_token) {
+        throw new Error(
+            "Token login tidak tersedia."
+        );
+    }
+
+    localStorage.setItem(
+        SESSION_STORAGE_KEY,
+        session.access_token
+    );
+
+    currentUser =
+        session.user || null;
+
+    return session;
+}
+
+
+/* =========================================================
+   USER LOGIN
+   ========================================================= */
+
+async function ambilUserLogin() {
+
+    const session =
+        await getValidSession();
+
+    if (!session?.user) {
+        throw new Error(
+            "Sesi login tidak ditemukan."
+        );
+    }
+
+    currentUser =
+        session.user;
+
+    return currentUser;
+}
+
+
+/* =========================================================
+   LOADING
+   ========================================================= */
 
 function tampilkanLoading() {
 
-    if (!loadingOverlay) {
-        return;
+    if (loadingOverlay) {
+        loadingOverlay.style.display = "flex";
     }
-
-
-    loadingOverlay.style.display =
-        "flex";
 }
 
 
 function sembunyikanLoading() {
 
-    if (!loadingOverlay) {
-        return;
+    if (loadingOverlay) {
+        loadingOverlay.style.display = "none";
     }
-
-
-    loadingOverlay.style.display =
-        "none";
 }
 
 
-// ==========================================
-// NILAI AMAN
-// ==========================================
+/* =========================================================
+   HELPER
+   ========================================================= */
 
 function nilaiAman(value) {
 
@@ -203,18 +224,12 @@ function nilaiAman(value) {
         value === undefined ||
         value === ""
     ) {
-
         return "-";
     }
-
 
     return value;
 }
 
-
-// ==========================================
-// SET TEXT
-// ==========================================
 
 function setText(element, value) {
 
@@ -222,15 +237,14 @@ function setText(element, value) {
         return;
     }
 
-
     element.textContent =
         nilaiAman(value);
 }
 
 
-// ==========================================
-// FORMAT TANGGAL
-// ==========================================
+/* =========================================================
+   FORMAT TANGGAL
+   ========================================================= */
 
 function formatTanggal(value) {
 
@@ -238,20 +252,16 @@ function formatTanggal(value) {
         return "-";
     }
 
-
     const tanggal =
         new Date(value);
-
 
     if (
         Number.isNaN(
             tanggal.getTime()
         )
     ) {
-
         return value;
     }
-
 
     return tanggal.toLocaleDateString(
         "id-ID",
@@ -264,9 +274,9 @@ function formatTanggal(value) {
 }
 
 
-// ==========================================
-// FORMAT JENIS KELAMIN
-// ==========================================
+/* =========================================================
+   FORMAT GENDER
+   ========================================================= */
 
 function formatGender(value) {
 
@@ -274,12 +284,10 @@ function formatGender(value) {
         return "-";
     }
 
-
     const gender =
         String(value)
             .toLowerCase()
             .trim();
-
 
     if (
         gender === "l" ||
@@ -288,10 +296,8 @@ function formatGender(value) {
         gender === "laki-laki" ||
         gender === "laki laki"
     ) {
-
         return "Laki-laki";
     }
-
 
     if (
         gender === "p" ||
@@ -299,53 +305,16 @@ function formatGender(value) {
         gender === "female" ||
         gender === "perempuan"
     ) {
-
         return "Perempuan";
     }
 
-
     return value;
 }
 
 
-// ==========================================
-// FORMAT STATUS AKUN
-// ==========================================
-
-function formatStatusAkun(value) {
-
-    if (
-        value === true ||
-        value === "true" ||
-        value === 1
-    ) {
-
-        return "Aktif";
-    }
-
-
-    if (
-        value === false ||
-        value === "false" ||
-        value === 0
-    ) {
-
-        return "Tidak Aktif";
-    }
-
-
-    if (!value) {
-        return "-";
-    }
-
-
-    return value;
-}
-
-
-// ==========================================
-// DEFAULT AVATAR
-// ==========================================
+/* =========================================================
+   AVATAR DEFAULT
+   ========================================================= */
 
 function avatarDefault(nama) {
 
@@ -355,7 +324,6 @@ function avatarDefault(nama) {
             .charAt(0)
             .toUpperCase();
 
-
     const svg = `
         <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -363,7 +331,6 @@ function avatarDefault(nama) {
             height="300"
             viewBox="0 0 300 300"
         >
-
             <rect
                 width="300"
                 height="300"
@@ -379,13 +346,9 @@ function avatarDefault(nama) {
                 font-size="130"
                 font-weight="bold"
                 fill="#ffffff"
-            >
-                ${huruf}
-            </text>
-
+            >${huruf}</text>
         </svg>
     `;
-
 
     return (
         "data:image/svg+xml;charset=UTF-8," +
@@ -394,120 +357,43 @@ function avatarDefault(nama) {
 }
 
 
-// ==========================================
-// AMBIL USER LOGIN
-// ==========================================
-
-async function ambilUserLogin() {
-
-    if (!supabaseClient) {
-        initSupabase();
-    }
-
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient.auth.getUser();
-
-
-    if (error) {
-
-        throw new Error(
-            "Gagal membaca sesi login: " +
-            error.message
-        );
-    }
-
-
-    if (
-        !data ||
-        !data.user
-    ) {
-
-        throw new Error(
-            "Sesi login tidak ditemukan. Silakan login kembali."
-        );
-    }
-
-
-    currentUser =
-        data.user;
-
-
-    console.log(
-        "SIDAT AUTH USER:",
-        currentUser.id
-    );
-
-    console.log(
-        "SIDAT AUTH EMAIL:",
-        currentUser.email
-    );
-
-
-    return currentUser;
-}
-
-
-// ==========================================
-// AMBIL DATA RESIDENT
-// ==========================================
+/* =========================================================
+   AMBIL PROFIL RESIDENT
+   ========================================================= */
 
 async function ambilProfilWarga() {
 
     const user =
         await ambilUserLogin();
 
-
-    /*
-     * STRUKTUR DATABASE ANDA:
-     *
-     * residents.auth_id
-     *
-     * harus sama dengan:
-     *
-     * auth.uid()
-     */
-
-
     const {
         data,
         error
-    } =
-        await supabaseClient
-            .from("residents")
-            .select(`
-                id,
-                resident_code,
-                nik,
-                kk_number,
-                name,
-                birth_place,
-                birth_date,
-                gender,
-                address,
-                house_number,
-                phone,
-                family_status,
-                photo_url,
-                jimpitan_balance,
-                qr_token,
-                is_active,
-                created_at,
-                updated_at,
-                auth_email,
-                account_created,
-                kk,
-                auth_id
-            `)
-            .eq(
-                "auth_id",
-                user.id
-            )
-            .maybeSingle();
-
+    } = await supabaseClient
+        .from("residents")
+        .select(`
+            id,
+            resident_code,
+            name,
+            birth_place,
+            birth_date,
+            gender,
+            address,
+            house_number,
+            phone,
+            family_status,
+            photo_url,
+            is_active,
+            created_at,
+            auth_email,
+            account_created,
+            auth_id
+        `)
+        .eq(
+            "auth_id",
+            user.id
+        )
+        .maybeSingle();
 
     if (error) {
 
@@ -522,7 +408,6 @@ async function ambilProfilWarga() {
         );
     }
 
-
     if (!data) {
 
         throw new Error(
@@ -532,24 +417,16 @@ async function ambilProfilWarga() {
         );
     }
 
-
     profilWarga =
         data;
-
-
-    console.log(
-        "SIDAT PROFIL:",
-        data
-    );
-
 
     return data;
 }
 
 
-// ==========================================
-// TAMPILKAN PROFIL
-// ==========================================
+/* =========================================================
+   TAMPILKAN PROFIL
+   ========================================================= */
 
 function tampilkanProfil(data) {
 
@@ -557,22 +434,15 @@ function tampilkanProfil(data) {
         return;
     }
 
-
-    // ======================================
-    // HEADER
-    // ======================================
-
     setText(
         namaWarga,
         data.name
     );
 
-
     setText(
         kodeWarga,
         data.resident_code
     );
-
 
     setText(
         accountStatus,
@@ -581,89 +451,51 @@ function tampilkanProfil(data) {
             : "Tidak Aktif"
     );
 
-
-    // ======================================
-    // IDENTITAS
-    // ======================================
-
-    setText(
-        nik,
-        data.nik
-    );
-
-
-    setText(
-        nomorKK,
-        data.kk_number
-    );
-
-
     setText(
         namaLengkap,
         data.name
     );
-
 
     setText(
         tempatLahir,
         data.birth_place
     );
 
-
     setText(
         tanggalLahir,
-        formatTanggal(
-            data.birth_date
-        )
+        formatTanggal(data.birth_date)
     );
-
 
     setText(
         jenisKelamin,
-        formatGender(
-            data.gender
-        )
+        formatGender(data.gender)
     );
-
 
     setText(
         statusKeluarga,
         data.family_status
     );
 
-
-    // ======================================
-    // ALAMAT
-    // ======================================
-
     setText(
         alamat,
         data.address
     );
-
 
     setText(
         nomorRumah,
         data.house_number
     );
 
-
     setText(
         nomorHP,
         data.phone
     );
-
-
-    // ======================================
-    // AKUN
-    // ======================================
 
     setText(
         email,
         data.auth_email ||
         currentUser?.email
     );
-
 
     setText(
         statusAkun,
@@ -672,58 +504,33 @@ function tampilkanProfil(data) {
             : "Tidak Aktif"
     );
 
-
     setText(
         akunDibuat,
-        formatTanggal(
-            data.created_at
-        )
+        formatTanggal(data.created_at)
     );
 
-
-    // ======================================
-    // FOTO
-    // ======================================
-
     const foto =
-        data.photo_url;
-
+        data.photo_url ||
+        avatarDefault(data.name);
 
     if (profilePhoto) {
-
-        profilePhoto.src =
-            foto ||
-            avatarDefault(
-                data.name
-            );
+        profilePhoto.src = foto;
     }
-
 
     if (editPhotoPreview) {
-
-        editPhotoPreview.src =
-            foto ||
-            avatarDefault(
-                data.name
-            );
+        editPhotoPreview.src = foto;
     }
 
-
-    // ======================================
-    // FORM EDIT
-    // ======================================
-
     if (editPhone) {
-
         editPhone.value =
             data.phone || "";
     }
 }
 
 
-// ==========================================
-// LOAD PROFIL
-// ==========================================
+/* =========================================================
+   LOAD PROFIL
+   ========================================================= */
 
 async function loadProfil() {
 
@@ -731,15 +538,10 @@ async function loadProfil() {
 
         tampilkanLoading();
 
-
         const data =
             await ambilProfilWarga();
 
-
-        tampilkanProfil(
-            data
-        );
-
+        tampilkanProfil(data);
 
     } catch (error) {
 
@@ -748,12 +550,14 @@ async function loadProfil() {
             error
         );
 
-
-        alert(
-            error.message ||
-            "Gagal memuat profil."
+        localStorage.removeItem(
+            SESSION_STORAGE_KEY
         );
 
+        alert(
+            error?.message ||
+            "Gagal memuat profil."
+        );
 
     } finally {
 
@@ -762,90 +566,65 @@ async function loadProfil() {
 }
 
 
-// ==========================================
-// PESAN FORM
-// ==========================================
+/* =========================================================
+   PESAN EDIT PROFIL
+   ========================================================= */
 
 function bersihkanPesan() {
 
     if (editError) {
 
-        editError.textContent =
-            "";
+        editError.textContent = "";
 
         editError.classList.add(
             "hidden"
         );
-
-        editError.style.display =
-            "none";
     }
-
 
     if (editSuccess) {
 
-        editSuccess.textContent =
-            "";
+        editSuccess.textContent = "";
 
         editSuccess.classList.add(
             "hidden"
         );
-
-        editSuccess.style.display =
-            "none";
     }
 }
 
 
-function tampilkanError(
-    pesan
-) {
+function tampilkanError(pesan) {
 
     if (!editError) {
         return;
     }
 
-
     editError.textContent =
         pesan;
-
 
     editError.classList.remove(
         "hidden"
     );
-
-
-    editError.style.display =
-        "block";
 }
 
 
-function tampilkanSuccess(
-    pesan
-) {
+function tampilkanSuccess(pesan) {
 
     if (!editSuccess) {
         return;
     }
 
-
     editSuccess.textContent =
         pesan;
-
 
     editSuccess.classList.remove(
         "hidden"
     );
-
-
-    editSuccess.style.display =
-        "block";
 }
 
 
-// ==========================================
-// BUKA EDIT PROFIL
-// ==========================================
+/* =========================================================
+   EDIT PROFIL
+   ========================================================= */
 
 async function bukaEditProfil() {
 
@@ -853,26 +632,16 @@ async function bukaEditProfil() {
 
         bersihkanPesan();
 
-
         const data =
             await ambilProfilWarga();
 
+        tampilkanProfil(data);
 
-        tampilkanProfil(
-            data
-        );
-
-
-        fotoBaru =
-            null;
-
+        fotoBaru = null;
 
         if (photoInput) {
-
-            photoInput.value =
-                "";
+            photoInput.value = "";
         }
-
 
         if (editModal) {
 
@@ -884,7 +653,6 @@ async function bukaEditProfil() {
                 "flex";
         }
 
-
     } catch (error) {
 
         console.error(
@@ -892,34 +660,23 @@ async function bukaEditProfil() {
             error
         );
 
-
         alert(
-            error.message ||
+            error?.message ||
             "Gagal membuka edit profil."
         );
     }
 }
 
 
-// ==========================================
-// TUTUP EDIT PROFIL
-// ==========================================
-
 function tutupEditProfil() {
 
     bersihkanPesan();
 
-
-    fotoBaru =
-        null;
-
+    fotoBaru = null;
 
     if (photoInput) {
-
-        photoInput.value =
-            "";
+        photoInput.value = "";
     }
-
 
     if (editModal) {
 
@@ -933,142 +690,98 @@ function tutupEditProfil() {
 }
 
 
-// ==========================================
-// PILIH FOTO
-// ==========================================
+/* =========================================================
+   FOTO
+   ========================================================= */
 
 function handlePhotoChange(event) {
 
     bersihkanPesan();
 
-
     const file =
         event.target.files?.[0];
 
-
     if (!file) {
 
-        fotoBaru =
-            null;
+        fotoBaru = null;
 
         return;
     }
-
-
-    // Maksimal sesuai HTML:
-    // 2 MB
 
     if (
         file.size >
         2 * 1024 * 1024
     ) {
 
-        fotoBaru =
-            null;
+        fotoBaru = null;
 
-
-        event.target.value =
-            "";
-
+        event.target.value = "";
 
         tampilkanError(
             "Ukuran foto maksimal 2 MB."
         );
 
-
         return;
     }
-
 
     const tipeValid =
         [
             "image/jpeg",
             "image/png",
             "image/webp"
-        ].includes(
-            file.type
-        );
-
+        ].includes(file.type);
 
     if (!tipeValid) {
 
-        fotoBaru =
-            null;
+        fotoBaru = null;
 
-
-        event.target.value =
-            "";
-
+        event.target.value = "";
 
         tampilkanError(
             "Format foto harus JPG, PNG, atau WEBP."
         );
 
-
         return;
     }
-
 
     fotoBaru =
         file;
 
-
-    // ======================================
-    // PREVIEW
-    // ======================================
-
     const reader =
         new FileReader();
-
 
     reader.onload =
         function () {
 
-            if (
-                editPhotoPreview
-            ) {
-
+            if (editPhotoPreview) {
                 editPhotoPreview.src =
                     reader.result;
             }
         };
 
-
-    reader.readAsDataURL(
-        file
-    );
+    reader.readAsDataURL(file);
 }
 
 
-// ==========================================
-// VALIDASI NOMOR HP
-// ==========================================
+/* =========================================================
+   VALIDASI NOMOR HP
+   ========================================================= */
 
-function validasiNomorHP(
-    nomor
-) {
+function validasiNomorHP(nomor) {
 
     if (!nomor) {
         return true;
     }
 
-
-    /*
-     * Mengizinkan:
-     * 081234567890
-     * +6281234567890
-     * 0812-3456-7890
-     * 0812 3456 7890
-     */
-
     return /^[0-9+\-\s()]{8,20}$/.test(
         nomor
     );
 }
-// ==========================================
-// UPLOAD FOTO KE SUPABASE STORAGE
-// BUCKET: profile-photos
-// ==========================================
+
+
+/* =========================================================
+   UPLOAD FOTO
+   ========================================================= */
 
 async function uploadFotoProfil(
     userId,
@@ -1079,36 +792,16 @@ async function uploadFotoProfil(
         return null;
     }
 
-
-    // ======================================
-    // TENTUKAN EXTENSION
-    // ======================================
-
     let extension =
         "jpg";
 
-
-    if (
-        file.type ===
-        "image/png"
-    ) {
-
-        extension =
-            "png";
-
+    if (file.type === "image/png") {
+        extension = "png";
     } else if (
-        file.type ===
-        "image/webp"
+        file.type === "image/webp"
     ) {
-
-        extension =
-            "webp";
+        extension = "webp";
     }
-
-
-    // ======================================
-    // NAMA FILE
-    // ======================================
 
     const fileName =
         "profile-" +
@@ -1116,53 +809,26 @@ async function uploadFotoProfil(
         "." +
         extension;
 
-
-    /*
-     * Folder berdasarkan AUTH USER ID
-     *
-     * profile-photos/
-     * └── auth-user-id/
-     *     └── profile-xxxx.jpg
-     */
-
     const filePath =
         userId +
         "/" +
         fileName;
 
-
-    console.log(
-        "SIDAT: Upload foto:",
-        filePath
-    );
-
-
-    // ======================================
-    // UPLOAD
-    // ======================================
-
     const {
         data,
         error
-    } =
-        await supabaseClient
-            .storage
-            .from(
-                PROFILE_BUCKET
-            )
-            .upload(
-                filePath,
-                file,
-                {
-                    cacheControl:
-                        "3600",
-                    upsert:
-                        false,
-                    contentType:
-                        file.type
-                }
-            );
-
+    } = await supabaseClient
+        .storage
+        .from(PROFILE_BUCKET)
+        .upload(
+            filePath,
+            file,
+            {
+                cacheControl: "3600",
+                upsert: false,
+                contentType: file.type
+            }
+        );
 
     if (error) {
 
@@ -1171,108 +837,53 @@ async function uploadFotoProfil(
             error
         );
 
-
         throw new Error(
             "Gagal upload foto: " +
             error.message
         );
     }
 
-
-    console.log(
-        "SIDAT: Foto berhasil diupload:",
-        data
-    );
-
-
-    // ======================================
-    // AMBIL PUBLIC URL
-    // ======================================
-
     const {
         data: publicData
-    } =
-        supabaseClient
-            .storage
-            .from(
-                PROFILE_BUCKET
-            )
-            .getPublicUrl(
-                filePath
-            );
-
+    } = supabaseClient
+        .storage
+        .from(PROFILE_BUCKET)
+        .getPublicUrl(filePath);
 
     if (
-        !publicData ||
-        !publicData.publicUrl
+        !publicData?.publicUrl
     ) {
 
         throw new Error(
-            "Foto berhasil diupload tetapi URL foto tidak berhasil dibuat."
+            "URL foto tidak berhasil dibuat."
         );
     }
-
 
     return publicData.publicUrl;
 }
 
 
-// ==========================================
-// SIMPAN PROFIL
-// ==========================================
+/* =========================================================
+   SIMPAN PROFIL
+   ========================================================= */
 
-async function simpanProfil(
-    event
-) {
+async function simpanProfil(event) {
 
     if (event) {
-
         event.preventDefault();
     }
 
-
     bersihkanPesan();
-
 
     try {
 
-        // ======================================
-        // PASTIKAN SUPABASE
-        // ======================================
-
-        if (!supabaseClient) {
-
-            initSupabase();
-        }
-
-
-        // ======================================
-        // USER LOGIN
-        // ======================================
-
         const user =
             await ambilUserLogin();
-
-
-        console.log(
-            "SIDAT UPDATE AUTH ID:",
-            user.id
-        );
-
-
-        // ======================================
-        // NOMOR HP
-        // ======================================
 
         const nomorBaru =
             editPhone
                 ? editPhone.value.trim()
                 : "";
-
-
-        // ======================================
-        // VALIDASI NOMOR HP
-        // ======================================
 
         if (
             !validasiNomorHP(
@@ -1281,51 +892,29 @@ async function simpanProfil(
         ) {
 
             tampilkanError(
-                "Nomor HP tidak valid. Gunakan 8-20 karakter angka."
+                "Nomor HP tidak valid."
             );
 
-
-            if (editPhone) {
-
-                editPhone.focus();
-            }
-
+            editPhone?.focus();
 
             return;
         }
-
-
-        // ======================================
-        // DISABLE TOMBOL
-        // ======================================
 
         if (saveProfileButton) {
 
             saveProfileButton.disabled =
                 true;
 
-
             saveProfileButton.dataset.oldText =
                 saveProfileButton.textContent;
 
-
             saveProfileButton.textContent =
-                "⏳ Menyimpan...";
+                "Menyimpan...";
         }
-
-
-        // ======================================
-        // FOTO LAMA
-        // ======================================
 
         let photoUrl =
             profilWarga?.photo_url ||
             null;
-
-
-        // ======================================
-        // UPLOAD FOTO BARU
-        // ======================================
 
         if (fotoBaru) {
 
@@ -1336,717 +925,206 @@ async function simpanProfil(
                 );
         }
 
-
-        // ======================================
-        // DATA YANG BOLEH DIUBAH WARGA
-        // ======================================
-        //
-        // HANYA:
-        //
-        // phone
-        // photo_url
-        //
-        // ======================================
-
         const updateData = {
-
             phone:
                 nomorBaru || null
         };
-
 
         if (
             fotoBaru &&
             photoUrl
         ) {
-
             updateData.photo_url =
                 photoUrl;
         }
 
-
-        console.log(
-            "SIDAT: UPDATE residents:",
-            updateData
-        );
-
-
-        // ======================================
-        // UPDATE RESIDENTS
-        // ======================================
-
         const {
             data,
             error
-        } =
-            await supabaseClient
-                .from("residents")
-                .update(
-                    updateData
-                )
-                .eq(
-                    "auth_id",
-                    user.id
-                )
-                .select(`
-                    id,
-                    resident_code,
-                    nik,
-                    kk_number,
-                    name,
-                    birth_place,
-                    birth_date,
-                    gender,
-                    address,
-                    house_number,
-                    phone,
-                    family_status,
-                    photo_url,
-                    jimpitan_balance,
-                    qr_token,
-                    is_active,
-                    created_at,
-                    updated_at,
-                    auth_email,
-                    account_created,
-                    kk,
-                    auth_id
-                `)
-                .maybeSingle();
-
-
-        // ======================================
-        // ERROR UPDATE
-        // ======================================
+        } = await supabaseClient
+            .from("residents")
+            .update(updateData)
+            .eq(
+                "auth_id",
+                user.id
+            )
+            .select(`
+                id,
+                resident_code,
+                name,
+                birth_place,
+                birth_date,
+                gender,
+                address,
+                house_number,
+                phone,
+                family_status,
+                photo_url,
+                is_active,
+                created_at,
+                auth_email,
+                account_created,
+                auth_id
+            `)
+            .maybeSingle();
 
         if (error) {
-
-            console.error(
-                "================================"
-            );
-
-            console.error(
-                "SIDAT UPDATE ERROR"
-            );
-
-            console.error(
-                "message:",
-                error.message
-            );
-
-            console.error(
-                "details:",
-                error.details
-            );
-
-            console.error(
-                "hint:",
-                error.hint
-            );
-
-            console.error(
-                "code:",
-                error.code
-            );
-
-            console.error(
-                "================================"
-            );
-
-
-            throw new Error(
-                error.message
-            );
+            throw error;
         }
-
-
-        // ======================================
-        // DATA TIDAK KEMBALI
-        // ======================================
 
         if (!data) {
 
             throw new Error(
-                "Update tidak menghasilkan data. Periksa RLS residents dan pastikan auth_id sesuai dengan akun login."
+                "Profil tidak berhasil diperbarui."
             );
         }
-
-
-        // ======================================
-        // UPDATE GLOBAL
-        // ======================================
 
         profilWarga =
             data;
 
+        tampilkanProfil(data);
 
-        // ======================================
-        // TAMPILKAN DATA TERBARU
-        // ======================================
-
-        tampilkanProfil(
-            data
-        );
-
-
-        // ======================================
-        // RESET FOTO
-        // ======================================
-
-        fotoBaru =
-            null;
-
+        fotoBaru = null;
 
         if (photoInput) {
-
-            photoInput.value =
-                "";
+            photoInput.value = "";
         }
 
-
-        // ======================================
-        // SUKSES
-        // ======================================
-
         tampilkanSuccess(
-            "✓ Profil berhasil disimpan."
+            "Profil berhasil disimpan."
         );
-
-
-        console.log(
-            "SIDAT: Profil berhasil disimpan."
-        );
-
-
-        // ======================================
-        // TUTUP MODAL
-        // ======================================
 
         setTimeout(
-            function () {
-
-                tutupEditProfil();
-
-            },
-            1000
+            tutupEditProfil,
+            900
         );
-
 
     } catch (error) {
 
         console.error(
-            "SIDAT SIMPAN PROFIL ERROR:",
+            "SIDAT SIMPAN PROFIL:",
             error
         );
-
-
-        /*
-         * Sekarang kita tampilkan pesan error
-         * ASLI dari Supabase.
-         *
-         * Tidak lagi otomatis menyebut
-         * "RLS" jika belum tentu RLS.
-         */
 
         tampilkanError(
             error?.message ||
             "Gagal menyimpan profil."
         );
 
-
     } finally {
-
-        // ======================================
-        // ENABLE TOMBOL
-        // ======================================
 
         if (saveProfileButton) {
 
             saveProfileButton.disabled =
                 false;
 
-
             saveProfileButton.textContent =
                 saveProfileButton.dataset.oldText ||
-                "💾 Simpan Perubahan";
+                "Simpan Perubahan";
         }
     }
 }
 
 
-// ==========================================
-// KEMBALI KE DASHBOARD
-// ==========================================
-
-function kembaliDashboard() {
-
-    window.location.href =
-        "dashboard.html";
-}
-
-
-// ==========================================
-// EVENT FOTO
-// ==========================================
-
-function initPhotoEvent() {
-
-    if (!photoInput) {
-
-        console.warn(
-            "SIDAT: photoInput tidak ditemukan."
-        );
-
-        return;
-    }
-
-
-    if (
-        photoInput.dataset.initialized ===
-        "true"
-    ) {
-
-        return;
-    }
-
-
-    photoInput.addEventListener(
-        "change",
-        handlePhotoChange
-    );
-
-
-    photoInput.dataset.initialized =
-        "true";
-}
-
-
-// ==========================================
-// EVENT FORM
-// ==========================================
-
-function initFormEvent() {
-
-    if (!editProfileForm) {
-
-        console.warn(
-            "SIDAT: editProfileForm tidak ditemukan."
-        );
-
-        return;
-    }
-
-
-    if (
-        editProfileForm.dataset.initialized ===
-        "true"
-    ) {
-
-        return;
-    }
-
-
-    editProfileForm.addEventListener(
-        "submit",
-        simpanProfil
-    );
-
-
-    editProfileForm.dataset.initialized =
-        "true";
-}
-
-
-// ==========================================
-// EVENT MODAL
-// ==========================================
-
-function initModalEvent() {
-
-    if (!editModal) {
-        return;
-    }
-
-
-    if (
-        editModal.dataset.initialized ===
-        "true"
-    ) {
-
-        return;
-    }
-
-
-    // ======================================
-    // KLIK BACKDROP
-    // ======================================
-
-    editModal.addEventListener(
-        "click",
-        function(event) {
-
-            if (
-                event.target ===
-                editModal
-            ) {
-
-                tutupEditProfil();
-            }
-        }
-    );
-
-
-    // ======================================
-    // ESC
-    // ======================================
-
-    document.addEventListener(
-        "keydown",
-        function(event) {
-
-            if (
-                event.key ===
-                "Escape"
-            ) {
-
-                if (
-                    !editModal.classList.contains(
-                        "hidden"
-                    )
-                ) {
-
-                    tutupEditProfil();
-                }
-            }
-        }
-    );
-
-
-    editModal.dataset.initialized =
-        "true";
-}
-
-
-// ==========================================
-// INIT
-// ==========================================
-
-async function initProfil() {
-
-    console.log(
-        "SIDAT: init profil..."
-    );
-
-
-    try {
-
-        // ======================================
-        // INIT SUPABASE
-        // ======================================
-
-        initSupabase();
-
-
-        // ======================================
-        // PASANG EVENT
-        // ======================================
-
-        initPhotoEvent();
-
-        initFormEvent();
-
-        initModalEvent();
-
-
-        // ======================================
-        // LOAD DATA
-        // ======================================
-
-        await loadProfil();
-
-
-        console.log(
-            "SIDAT: profil siap digunakan."
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "SIDAT INIT ERROR:",
-            error
-        );
-
-
-        sembunyikanLoading();
-
-
-        alert(
-            error?.message ||
-            "Gagal menginisialisasi halaman profil."
-        );
-    }
-}
-
-// ==========================================
-// GANTI PIN
-// ==========================================
+/* =========================================================
+   GANTI PIN
+   ========================================================= */
 
 function bukaGantiPIN() {
 
-    const modal =
-        document.getElementById(
-            "pinModal"
-        );
-
-    const pinBaru =
-        document.getElementById(
-            "pinBaru"
-        );
-
-    const pinKonfirmasi =
-        document.getElementById(
-            "pinKonfirmasi"
-        );
-
-    const pinError =
-        document.getElementById(
-            "pinError"
-        );
-
-    const pinSuccess =
-        document.getElementById(
-            "pinSuccess"
-        );
-
-
-    if (!modal) {
-
-        console.error(
-            "SIDAT: Modal Ganti PIN tidak ditemukan."
-        );
-
+    if (!pinModal) {
         return;
     }
 
+    pinBaru.value = "";
+    pinKonfirmasi.value = "";
 
-    if (pinBaru) {
+    pinError.textContent = "";
+    pinSuccess.textContent = "";
 
-        pinBaru.value = "";
+    pinError.classList.add("hidden");
+    pinSuccess.classList.add("hidden");
 
-    }
-
-
-    if (pinKonfirmasi) {
-
-        pinKonfirmasi.value = "";
-
-    }
-
-
-    if (pinError) {
-
-        pinError.textContent = "";
-
-        pinError.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    if (pinSuccess) {
-
-        pinSuccess.textContent = "";
-
-        pinSuccess.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    modal.classList.remove(
-        "hidden"
-    );
-
+    pinModal.classList.remove("hidden");
+    pinModal.style.display = "flex";
 
     setTimeout(
-        function () {
-
-            if (pinBaru) {
-
-                pinBaru.focus();
-
-            }
-
-        },
+        () => pinBaru?.focus(),
         100
     );
-
 }
 
-
-// ==========================================
-// TUTUP GANTI PIN
-// ==========================================
 
 function tutupGantiPIN() {
 
-    const modal =
-        document.getElementById(
-            "pinModal"
-        );
-
-
-    if (modal) {
-
-        modal.classList.add(
-            "hidden"
-        );
-
+    if (!pinModal) {
+        return;
     }
 
+    pinModal.classList.add("hidden");
+    pinModal.style.display = "none";
 }
 
 
-// ==========================================
-// PESAN ERROR PIN
-// ==========================================
+function tampilkanErrorPIN(pesan) {
 
-function tampilkanErrorPIN(
-    pesan
-) {
-
-    const error =
-        document.getElementById(
-            "pinError"
-        );
-
-
-    const success =
-        document.getElementById(
-            "pinSuccess"
-        );
-
-
-    if (success) {
-
-        success.textContent = "";
-
-        success.classList.add(
-            "hidden"
-        );
-
+    if (!pinError) {
+        return;
     }
 
+    pinSuccess.textContent = "";
 
-    if (error) {
+    pinSuccess.classList.add(
+        "hidden"
+    );
 
-        error.textContent =
-            pesan;
+    pinError.textContent =
+        pesan;
 
-        error.classList.remove(
-            "hidden"
-        );
-
-    }
-
+    pinError.classList.remove(
+        "hidden"
+    );
 }
 
 
-// ==========================================
-// PESAN SUKSES PIN
-// ==========================================
+function tampilkanSuccessPIN(pesan) {
 
-function tampilkanSuccessPIN(
-    pesan
-) {
-
-    const error =
-        document.getElementById(
-            "pinError"
-        );
-
-
-    const success =
-        document.getElementById(
-            "pinSuccess"
-        );
-
-
-    if (error) {
-
-        error.textContent = "";
-
-        error.classList.add(
-            "hidden"
-        );
-
+    if (!pinSuccess) {
+        return;
     }
 
+    pinError.textContent = "";
 
-    if (success) {
+    pinError.classList.add(
+        "hidden"
+    );
 
-        success.textContent =
-            pesan;
+    pinSuccess.textContent =
+        pesan;
 
-        success.classList.remove(
-            "hidden"
-        );
-
-    }
-
+    pinSuccess.classList.remove(
+        "hidden"
+    );
 }
 
 
-// ==========================================
-// SIMPAN PIN BARU
-// ==========================================
-
-async function simpanPINBaru(
-    event
-) {
+async function simpanPINBaru(event) {
 
     event.preventDefault();
 
-
-    const pinBaru =
-        document.getElementById(
-            "pinBaru"
-        );
-
-
-    const pinKonfirmasi =
-        document.getElementById(
-            "pinKonfirmasi"
-        );
-
-
-    const tombol =
-        document.getElementById(
-            "savePinButton"
-        );
-
-
     const nilaiPin =
-        pinBaru
-            ? pinBaru.value.trim()
-            : "";
-
+        pinBaru?.value.trim() || "";
 
     const nilaiKonfirmasi =
-        pinKonfirmasi
-            ? pinKonfirmasi.value.trim()
-            : "";
+        pinKonfirmasi?.value.trim() || "";
 
+    pinError.classList.add(
+        "hidden"
+    );
 
-    tampilkanSuccessPIN("");
-
-
-    // ======================================
-    // VALIDASI PIN
-    // ======================================
+    pinSuccess.classList.add(
+        "hidden"
+    );
 
     if (
         !/^\d{4,6}$/.test(
@@ -2058,19 +1136,10 @@ async function simpanPINBaru(
             "PIN harus terdiri dari 4-6 digit angka."
         );
 
-        if (pinBaru) {
-
-            pinBaru.focus();
-
-        }
+        pinBaru?.focus();
 
         return;
     }
-
-
-    // ======================================
-    // KONFIRMASI
-    // ======================================
 
     if (
         nilaiPin !==
@@ -2078,213 +1147,289 @@ async function simpanPINBaru(
     ) {
 
         tampilkanErrorPIN(
-            "Konfirmasi PIN tidak sama dengan PIN baru."
+            "Konfirmasi PIN tidak sama."
         );
 
-        if (pinKonfirmasi) {
-
-            pinKonfirmasi.focus();
-
-        }
+        pinKonfirmasi?.focus();
 
         return;
     }
 
-
     try {
 
-        // ======================================
-        // PASTIKAN SUPABASE
-        // ======================================
-
         if (!supabaseClient) {
-
             initSupabase();
-
         }
 
+        await ambilUserLogin();
 
-        // ======================================
-        // CEK USER LOGIN
-        // ======================================
+        if (savePinButton) {
 
-        const user =
-            await ambilUserLogin();
-
-
-        if (
-            !user ||
-            !user.id
-        ) {
-
-            throw new Error(
-                "Sesi login tidak ditemukan. Silakan login kembali."
-            );
-
-        }
-
-
-        console.log(
-            "SIDAT: Mengubah PIN user:",
-            user.id
-        );
-
-
-        // ======================================
-        // DISABLE TOMBOL
-        // ======================================
-
-        if (tombol) {
-
-            tombol.disabled =
+            savePinButton.disabled =
                 true;
 
-            tombol.dataset.oldText =
-                tombol.textContent;
+            savePinButton.dataset.oldText =
+                savePinButton.textContent;
 
-            tombol.textContent =
-                "⏳ Menyimpan...";
-
+            savePinButton.textContent =
+                "Menyimpan...";
         }
-
-
-        // ======================================
-        // UPDATE PASSWORD SUPABASE AUTH
-        // ======================================
 
         const {
-            data,
             error
-        } =
-            await supabaseClient.auth.updateUser(
-                {
-                    password:
-                        nilaiPin
-                }
-            );
-
+        } = await supabaseClient.auth.updateUser({
+            password:
+                nilaiPin
+        });
 
         if (error) {
-
-            console.error(
-                "SIDAT GANTI PIN ERROR:",
-                error
-            );
-
             throw error;
-
         }
-
-
-        console.log(
-            "SIDAT: PIN berhasil diubah.",
-            data
-        );
-
-
-        // ======================================
-        // SUKSES
-        // ======================================
 
         tampilkanSuccessPIN(
-            "✓ PIN berhasil diubah. PIN baru sudah dapat digunakan untuk login."
+            "PIN berhasil diubah."
         );
 
-
-        if (pinBaru) {
-
-            pinBaru.value = "";
-
-        }
-
-
-        if (pinKonfirmasi) {
-
-            pinKonfirmasi.value = "";
-
-        }
-
-
-        // ======================================
-        // TUTUP MODAL
-        // ======================================
+        pinBaru.value = "";
+        pinKonfirmasi.value = "";
 
         setTimeout(
-            function () {
-
-                tutupGantiPIN();
-
-            },
-            1500
+            tutupGantiPIN,
+            1200
         );
-
 
     } catch (error) {
 
         console.error(
-            "SIDAT SIMPAN PIN ERROR:",
+            "SIDAT GANTI PIN:",
             error
         );
-
 
         tampilkanErrorPIN(
             error?.message ||
             "Gagal mengubah PIN."
         );
 
-
     } finally {
 
-        // ======================================
-        // ENABLE TOMBOL
-        // ======================================
+        if (savePinButton) {
 
-        if (tombol) {
-
-            tombol.disabled =
+            savePinButton.disabled =
                 false;
 
-            tombol.textContent =
-                tombol.dataset.oldText ||
-                "🔐 Simpan PIN";
-
+            savePinButton.textContent =
+                savePinButton.dataset.oldText ||
+                "Simpan PIN";
         }
-
     }
-
 }
 
 
-// ==========================================
-// EVENT FORM GANTI PIN
-// ==========================================
+/* =========================================================
+   KEMBALI
+   ========================================================= */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
+function kembaliDashboard() {
 
-        const form =
-            document.getElementById(
-                "changePinForm"
-            );
+    window.location.href =
+        "dashboard.html";
+}
+/* =========================================================
+   LOGOUT
+========================================================= */
 
+async function sidatLogout() {
 
-        if (form) {
+    const konfirmasi =
+        confirm(
+            "Keluar dari akun?\n\n" +
+            "Anda akan keluar dari akun SIDAT."
+        );
 
-            form.addEventListener(
-                "submit",
-                simpanPINBaru
-            );
+    if (!konfirmasi) {
+        return;
+    }
 
+    try {
+
+        tampilkanLoading();
+
+        if (!supabaseClient) {
+            initSupabase();
         }
 
+        /*
+         * Logout dari Supabase Auth.
+         */
+        const {
+            error
+        } = await supabaseClient.auth.signOut();
+
+        if (error) {
+
+            console.error(
+                "SIDAT LOGOUT:",
+                error
+            );
+
+            throw error;
+        }
+
+        /*
+         * Bersihkan token akses SIDAT
+         * tanpa menghapus data offline lainnya.
+         */
+        localStorage.removeItem(
+            SESSION_STORAGE_KEY
+        );
+
+        /*
+         * Kembali ke halaman login.
+         */
+        window.location.replace(
+            "../index.html"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "SIDAT LOGOUT ERROR:",
+            error
+        );
+
+        /*
+         * Jika session Supabase sudah tidak valid,
+         * token lokal tetap dibersihkan.
+         */
+        localStorage.removeItem(
+            SESSION_STORAGE_KEY
+        );
+
+        alert(
+            "Sesi telah dikeluarkan. " +
+            "Silakan login kembali."
+        );
+
+        window.location.replace(
+            "../index.html"
+        );
+
+    } finally {
+
+        sembunyikanLoading();
+
     }
-);
+}
+
+/* =========================================================
+   EVENT
+   ========================================================= */
+
+function initEvents() {
+
+    photoInput?.addEventListener(
+        "change",
+        handlePhotoChange
+    );
+
+    editProfileForm?.addEventListener(
+        "submit",
+        simpanProfil
+    );
+
+    changePinForm?.addEventListener(
+        "submit",
+        simpanPINBaru
+    );
+
+    document.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key !== "Escape"
+            ) {
+                return;
+            }
+
+            if (
+                editModal &&
+                !editModal.classList.contains(
+                    "hidden"
+                )
+            ) {
+                tutupEditProfil();
+            }
+
+            if (
+                pinModal &&
+                !pinModal.classList.contains(
+                    "hidden"
+                )
+            ) {
+                tutupGantiPIN();
+            }
+        }
+    );
+}
 
 
-// ==========================================
-// EXPORT
-// ==========================================
+/* =========================================================
+   INIT
+   ========================================================= */
+
+async function initProfil() {
+
+    try {
+
+        tampilkanLoading();
+
+        initSupabase();
+
+        initEvents();
+
+        await loadProfil();
+
+    } catch (error) {
+
+        console.error(
+            "SIDAT INIT PROFIL:",
+            error
+        );
+
+        alert(
+            error?.message ||
+            "Gagal menginisialisasi profil."
+        );
+
+    } finally {
+
+        sembunyikanLoading();
+    }
+}
+
+
+/* =========================================================
+   EXPORT
+   ========================================================= */
+
+window.bukaEditProfil =
+    bukaEditProfil;
+
+window.tutupEditProfil =
+    tutupEditProfil;
+
+window.simpanProfil =
+    simpanProfil;
+
+window.handlePhotoChange =
+    handlePhotoChange;
+
+window.loadProfil =
+    loadProfil;
+
+window.tampilkanProfil =
+    tampilkanProfil;
 
 window.bukaGantiPIN =
     bukaGantiPIN;
@@ -2294,47 +1439,20 @@ window.tutupGantiPIN =
 
 window.simpanPINBaru =
     simpanPINBaru;
-    
-    
-// ==========================================
-// EXPORT
-// ==========================================
-
-window.bukaEditProfil =
-    bukaEditProfil;
-
-
-window.tutupEditProfil =
-    tutupEditProfil;
-
-
-window.simpanProfil =
-    simpanProfil;
-
 
 window.kembaliDashboard =
     kembaliDashboard;
 
-
-window.handlePhotoChange =
-    handlePhotoChange;
-
-
-window.loadProfil =
-    loadProfil;
+window.sidatLogout =
+    sidatLogout;
 
 
-window.tampilkanProfil =
-    tampilkanProfil;
-
-
-// ==========================================
-// START
-// ==========================================
+/* =========================================================
+   START
+   ========================================================= */
 
 if (
-    document.readyState ===
-    "loading"
+    document.readyState === "loading"
 ) {
 
     document.addEventListener(
@@ -2347,10 +1465,6 @@ if (
     initProfil();
 }
 
-
-// ==========================================
-// SELESAI
-// ==========================================
 
 console.log(
     "SIDAT: profil.js selesai dimuat."

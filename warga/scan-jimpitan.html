@@ -7,7 +7,7 @@
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     >
 
     <meta
@@ -15,11 +15,16 @@
         content="#15803d"
     >
 
-    <title>SIDAT - Scan QR Jimpitan</title>
+    <title>SIDAT - Scan Jimpitan</title>
 
     <link
         rel="stylesheet"
         href="scan-jimpitan.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="warga-menu.css"
     >
 
 </head>
@@ -29,21 +34,33 @@
 <div class="page-container">
 
 
-    <!-- HEADER -->
+    <!-- =================================================
+         HEADER
+         ================================================= -->
 
     <header class="page-header">
 
         <button
+            type="button"
             class="back-button"
             onclick="kembaliDashboard()"
+            aria-label="Kembali ke dashboard"
         >
-            ‹
+
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+                <path d="M15 18 9 12l6-6"/>
+            </svg>
+
         </button>
 
-        <div>
+
+        <div class="page-header-text">
 
             <h1>
-                Scan QR Jimpitan
+                Scan Jimpitan
             </h1>
 
             <span>
@@ -55,67 +72,123 @@
     </header>
 
 
-    <!-- SCANNER -->
+    <!-- =================================================
+         SCANNER
+         ================================================= -->
 
-    <section class="scanner-card">
+    <section
+        class="scanner-card"
+        aria-label="Pemindai QR ID warga"
+    >
 
         <div
             id="reader"
             class="reader"
         ></div>
+
+
+        <!-- SCANNER CONTROLS -->
+
         <div class="scanner-controls">
 
-    <button
-        type="button"
-        id="btnTorch"
-        class="btn-secondary"
-        onclick="toggleTorch()"
-    >
-        🔦 Nyalakan Senter
-    </button>
+            <button
+                type="button"
+                id="btnTorch"
+                class="btn-secondary"
+                onclick="toggleTorch()"
+            >
 
-</div>
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M9 2h6l-1 6h3l-5 14-1-8H8z"
+                    />
+                </svg>
+
+                <span>
+                    Nyalakan Senter
+                </span>
+
+            </button>
+
+        </div>
+
 
         <p id="scannerStatus">
-            Arahkan kamera ke QR jimpitan warga
+            Arahkan kamera ke QR ID warga
         </p>
 
     </section>
 
-<!-- INPUT KODE MANUAL -->
 
-<div class="manual-code-section">
+    <!-- =================================================
+         INPUT ID WARGA MANUAL
+         ================================================= -->
 
-    <div class="manual-title">
-        Tidak bisa scan QR?
-    </div>
+    <section
+        class="manual-code-section"
+        aria-label="Pencarian ID warga manual"
+    >
 
-    <p>
-        Masukkan kode jimpitan warga secara manual.
-    </p>
+        <div class="manual-title">
+            Tidak bisa scan QR?
+        </div>
 
-    <div class="manual-input-row">
+        <p>
+            Masukkan ID warga secara manual.
+        </p>
 
-        <input
-            type="text"
-            id="manualQrCode"
-            placeholder="Contoh: JMP-852D8D10F71B4666"
-            autocomplete="off"
-            autocapitalize="characters"
-        >
 
-        <button
-            type="button"
-            onclick="cariKodeManual()"
-        >
-            Cari
-        </button>
+        <div class="manual-input-row">
 
-    </div>
+            <input
+                type="text"
+                id="manualQrCode"
+                placeholder="Contoh: RT001"
+                autocomplete="off"
+                autocapitalize="characters"
+                maxlength="20"
+                aria-label="ID warga"
+            >
 
-</div>
 
-    <!-- HASIL SCAN -->
+            <button
+                type="button"
+                onclick="cariKodeManual()"
+                aria-label="Cari ID warga"
+            >
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <circle
+                        cx="11"
+                        cy="11"
+                        r="7"
+                    />
+
+                    <path
+                        d="m20 20-4-4"
+                    />
+                </svg>
+
+                <span>
+                    Cari
+                </span>
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         HASIL SCAN
+         ================================================= -->
 
     <section
         id="resultCard"
@@ -123,15 +196,37 @@
     >
 
         <div class="result-title">
-            QR berhasil ditemukan
+            ID warga berhasil ditemukan
         </div>
 
 
+        <!-- DATA WARGA -->
+
         <div class="resident-box">
 
-            <div class="resident-icon">
-                👤
+            <div
+                class="resident-icon"
+                aria-hidden="true"
+            >
+
+                <svg
+                    viewBox="0 0 24 24"
+                >
+
+                    <circle
+                        cx="12"
+                        cy="8"
+                        r="3.5"
+                    />
+
+                    <path
+                        d="M5 20c.7-4 3-6 7-6s6.3 2 7 6"
+                    />
+
+                </svg>
+
             </div>
+
 
             <div>
 
@@ -148,9 +243,12 @@
         </div>
 
 
+        <!-- NOMINAL -->
+
         <label for="amount">
             Nominal Jimpitan
         </label>
+
 
         <div class="amount-input">
 
@@ -164,14 +262,18 @@
                 value="500"
                 min="1"
                 step="100"
+                inputmode="numeric"
             >
 
         </div>
 
 
+        <!-- CATATAN -->
+
         <label for="notes">
             Catatan (opsional)
         </label>
+
 
         <textarea
             id="notes"
@@ -179,41 +281,120 @@
         ></textarea>
 
 
+        <!-- SIMPAN -->
+
         <button
+            type="button"
             id="saveButton"
             class="save-button"
             onclick="simpanJimpitan()"
         >
-            Simpan Jimpitan
+
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+
+                <path
+                    d="M5 12.5 9.5 17 19 7.5"
+                />
+
+            </svg>
+
+            <span>
+                Simpan Jimpitan
+            </span>
+
         </button>
 
 
+        <!-- SCAN ULANG -->
+
         <button
+            type="button"
             class="cancel-button"
             onclick="scanUlang()"
         >
-            Scan QR Lain
+
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+
+                <path
+                    d="M4 12a8 8 0 0 1 13.5-5.8L20 8"
+                />
+
+                <path
+                    d="M20 4v4h-4"
+                />
+
+                <path
+                    d="M20 12a8 8 0 0 1-13.5 5.8L4 16"
+                />
+
+                <path
+                    d="M4 20v-4h4"
+                />
+
+            </svg>
+
+            <span>
+                Scan QR Lain
+            </span>
+
         </button>
 
     </section>
 
 
-    <!-- PETUNJUK -->
+    <!-- =================================================
+         PETUNJUK
+         ================================================= -->
 
-    <section class="info-card">
+    <section
+        class="info-card"
+        aria-label="Petunjuk penggunaan"
+    >
 
-        <strong>
-            Cara menggunakan
-        </strong>
+        <div class="info-card-title">
+
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+
+                <circle
+                    cx="12"
+                    cy="12"
+                    r="9"
+                />
+
+                <path
+                    d="M12 10v6"
+                />
+
+                <path
+                    d="M12 7h.01"
+                />
+
+            </svg>
+
+            <strong>
+                Cara menggunakan
+            </strong>
+
+        </div>
+
 
         <ol>
 
             <li>
-                Arahkan kamera ke QR warga.
+                Arahkan kamera ke QR ID warga.
             </li>
 
             <li>
-                Pastikan nama warga sesuai.
+                Pastikan ID dan nama warga sesuai.
             </li>
 
             <li>
@@ -221,7 +402,7 @@
             </li>
 
             <li>
-                Ubah nominal jika tidak sesuai.
+                Ubah nominal jika diperlukan.
             </li>
 
             <li>
@@ -233,33 +414,44 @@
     </section>
 
 
-    <footer>
-
-        <strong>
-            SIDAT
-        </strong>
-
-        <span>
-            Dibuat oleh Suwardi
-        </span>
-
-    </footer>
-
-
 </div>
 
+
+<!-- =================================================
+     LIBRARY QR SCANNER
+     ================================================= -->
 
 <script
     src="https://unpkg.com/html5-qrcode"
 ></script>
 
+
+<!-- =================================================
+     SUPABASE CONFIG
+     ================================================= -->
+
 <script
     src="../js/supabase-config.js"
 ></script>
 
+
+<!-- =================================================
+     WARGA CENTRALIZED MENU
+     ================================================= -->
+
+<script
+    src="./warga-menu.js"
+></script>
+
+
+<!-- =================================================
+     SCAN JIMPITAN LOGIC
+     ================================================= -->
+
 <script
     src="scan-jimpitan.js"
 ></script>
+
 
 </body>
 

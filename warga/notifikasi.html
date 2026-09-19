@@ -7,7 +7,7 @@
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     >
 
     <meta
@@ -15,18 +15,17 @@
         content="#15803d"
     >
 
-    <title>
-        SIDAT - Notifikasi
-    </title>
-
-
-    <!-- ======================================
-         CSS NOTIFIKASI
-    ======================================= -->
+    <title>SIDAT - Notifikasi</title>
 
     <link
         rel="stylesheet"
         href="notifikasi.css"
+    >
+
+    <!-- Bottom Navbar WARGA -->
+    <link
+        rel="stylesheet"
+        href="warga-menu.css"
     >
 
 </head>
@@ -35,7 +34,6 @@
 <body>
 
 <div class="app">
-
 
     <!-- ======================================
          HEADER
@@ -49,15 +47,20 @@
             onclick="kembaliDashboard()"
             aria-label="Kembali"
         >
-            ‹
+
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+                <path d="M15 18l-6-6 6-6"></path>
+            </svg>
+
         </button>
 
 
         <div class="header-title">
 
-            <h1>
-                Notifikasi
-            </h1>
+            <h1>Notifikasi</h1>
 
             <span>
                 Informasi aktivitas akun Anda
@@ -70,11 +73,17 @@
             class="header-icon"
             aria-hidden="true"
         >
-            🔔
+
+            <svg
+                viewBox="0 0 24 24"
+            >
+                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
+                <path d="M10 21h4"></path>
+            </svg>
+
         </div>
 
     </header>
-
 
 
     <!-- ======================================
@@ -85,7 +94,7 @@
 
 
         <!-- ==================================
-             JUDUL HALAMAN
+             PAGE TITLE
         =================================== -->
 
         <section class="page-title">
@@ -94,25 +103,78 @@
                 class="page-icon"
                 aria-hidden="true"
             >
-                🔔
+
+                <svg viewBox="0 0 24 24">
+
+                    <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
+
+                    <path d="M10 21h4"></path>
+
+                </svg>
+
             </div>
 
 
-            <div>
+            <div class="page-title-content">
 
                 <h2>
-                    Notifikasi
+                    Pemberitahuan
                 </h2>
 
                 <p>
-                    Informasi aktivitas dan laporan
-                    yang berkaitan dengan akun Anda.
+                    Informasi laporan, pengumuman,
+                    agenda, dan jadwal ronda.
                 </p>
 
             </div>
 
         </section>
 
+
+        <!-- ==================================
+             FILTER / INFO
+        =================================== -->
+
+        <section
+            id="notificationSummary"
+            class="notification-summary hidden"
+        >
+
+            <div class="summary-item">
+
+                <span
+                    class="summary-number"
+                    id="totalNotifikasi"
+                >
+                    0
+                </span>
+
+                <span>
+                    Total
+                </span>
+
+            </div>
+
+
+            <div class="summary-separator"></div>
+
+
+            <div class="summary-item">
+
+                <span
+                    class="summary-number unread-number"
+                    id="totalBelumDibaca"
+                >
+                    0
+                </span>
+
+                <span>
+                    Belum dibaca
+                </span>
+
+            </div>
+
+        </section>
 
 
         <!-- ==================================
@@ -124,10 +186,13 @@
             class="loading"
         >
 
-            Memuat notifikasi...
+            <div class="loading-spinner"></div>
+
+            <span>
+                Memuat notifikasi...
+            </span>
 
         </div>
-
 
 
         <!-- ==================================
@@ -140,7 +205,6 @@
             aria-live="polite"
         >
         </section>
-
 
 
         <!-- ==================================
@@ -156,7 +220,15 @@
                 class="empty-icon"
                 aria-hidden="true"
             >
-                🔔
+
+                <svg viewBox="0 0 24 24">
+
+                    <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
+
+                    <path d="M10 21h4"></path>
+
+                </svg>
+
             </div>
 
 
@@ -173,21 +245,30 @@
         </div>
 
 
-
         <!-- ==================================
              ERROR STATE
         ================================== -->
 
         <div
             id="errorNotifikasi"
-            class="empty-state hidden"
+            class="empty-state error-state hidden"
         >
 
             <div
-                class="empty-icon"
+                class="empty-icon error-icon"
                 aria-hidden="true"
             >
-                ⚠️
+
+                <svg viewBox="0 0 24 24">
+
+                    <path d="M10.3 3.6 2.4 17a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0Z"></path>
+
+                    <path d="M12 9v4"></path>
+
+                    <path d="M12 17h.01"></path>
+
+                </svg>
+
             </div>
 
 
@@ -196,15 +277,22 @@
             </strong>
 
 
-            <span>
+            <span id="errorMessage">
                 Silakan coba lagi beberapa saat.
             </span>
 
+
+            <button
+                type="button"
+                class="retry-button"
+                onclick="tampilkanNotifikasi()"
+            >
+                Coba Lagi
+            </button>
+
         </div>
 
-
     </main>
-
 
 
     <!-- ======================================
@@ -223,27 +311,38 @@
 
     </footer>
 
-
 </div>
 
 
-
 <!-- ==========================================
-     SUPABASE CONFIG
+     SUPABASE
 =========================================== -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
 
 <script
     src="../js/supabase-config.js"
 ></script>
 
 
-
 <!-- ==========================================
-     JAVASCRIPT NOTIFIKASI
+     MENU WARGA
 =========================================== -->
 
 <script
-    src="notifikasi.js"
+    src="./warga-menu.js"
+></script>
+
+
+<!-- ==========================================
+     NOTIFIKASI
+=========================================== -->
+
+<script
+    src="./notifikasi.js"
 ></script>
 
 

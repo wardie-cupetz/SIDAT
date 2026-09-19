@@ -1,0 +1,903 @@
+/* =========================================================
+   SIDAT — PROFIL NOTULA
+   File : notula/profil.css
+   ========================================================= */
+
+
+* {
+    box-sizing: border-box;
+}
+
+
+html {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+
+body {
+    margin: 0;
+    padding: 0;
+
+    min-height: 100vh;
+
+    background: #f5f7f6;
+
+    color: #1f2937;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    padding-bottom: 110px;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.profil-header {
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 100;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    min-height: 64px;
+
+    padding:
+        10px
+        14px;
+
+    background: #15803d;
+
+    color: #ffffff;
+
+    box-shadow:
+        0 2px 8px
+        rgba(0,0,0,.12);
+
+}
+
+
+.back-button {
+
+    width: 42px;
+    height: 42px;
+
+    flex: 0 0 42px;
+
+    border: 0;
+
+    border-radius: 12px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        rgba(255,255,255,.12);
+
+    color: #ffffff;
+
+    cursor: pointer;
+
+}
+
+
+.back-button svg {
+
+    width: 24px;
+    height: 24px;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 2;
+
+    stroke-linecap: round;
+
+    stroke-linejoin: round;
+
+}
+
+
+.header-title {
+
+    min-width: 0;
+
+    flex: 1;
+
+}
+
+
+.header-title-main {
+
+    font-size: 16px;
+
+    font-weight: 800;
+
+    letter-spacing: .2px;
+
+}
+
+
+.header-title-sub {
+
+    margin-top: 2px;
+
+    font-size: 12px;
+
+    opacity: .85;
+
+}
+
+
+.header-role {
+
+    flex-shrink: 0;
+
+    padding:
+        6px
+        9px;
+
+    border-radius: 999px;
+
+    background:
+        rgba(255,255,255,.16);
+
+    border:
+        1px solid
+        rgba(255,255,255,.28);
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: .4px;
+
+}
+
+
+/* =========================================================
+   CONTAINER
+========================================================= */
+
+.profil-container {
+
+    width: 100%;
+
+    max-width: 720px;
+
+    margin: 0 auto;
+
+    padding:
+        16px;
+
+}
+
+
+.profil-content {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 16px;
+
+}
+
+
+.hidden {
+
+    display: none !important;
+
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.loading-profil {
+
+    min-height: 240px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 12px;
+
+    color: #64748b;
+
+}
+
+
+.loading-spinner {
+
+    width: 34px;
+    height: 34px;
+
+    border:
+        3px solid
+        #d1d5db;
+
+    border-top-color:
+        #15803d;
+
+    border-radius: 50%;
+
+    animation:
+        sidatSpin
+        .8s linear infinite;
+
+}
+
+
+.loading-spinner.small {
+
+    width: 24px;
+    height: 24px;
+
+}
+
+
+@keyframes sidatSpin {
+
+    to {
+        transform: rotate(360deg);
+    }
+
+}
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.profil-card {
+
+    background: #ffffff;
+
+    border:
+        1px solid
+        #e5e7eb;
+
+    border-radius: 16px;
+
+    padding: 18px;
+
+    box-shadow:
+        0 3px 12px
+        rgba(15,23,42,.05);
+
+}
+
+
+.card-title {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 16px;
+
+    font-size: 16px;
+
+    font-weight: 800;
+
+}
+
+
+.card-title-icon {
+
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 10px;
+
+    background:
+        #dcfce7;
+
+    color:
+        #15803d;
+
+}
+
+
+.card-title-icon svg {
+
+    width: 20px;
+    height: 20px;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 1.8;
+
+    stroke-linecap: round;
+
+    stroke-linejoin: round;
+
+}
+
+
+.section-description {
+
+    margin:
+        0 0 16px;
+
+    color: #64748b;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+}
+
+
+/* =========================================================
+   FOTO
+========================================================= */
+
+.photo-section {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    margin-bottom: 18px;
+
+}
+
+
+.profile-photo-wrapper {
+
+    position: relative;
+
+    width: 76px;
+    height: 76px;
+
+    flex: 0 0 76px;
+
+}
+
+
+.profile-photo {
+
+    width: 76px;
+    height: 76px;
+
+    display: block;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+
+    background:
+        #e5e7eb;
+
+    border:
+        3px solid
+        #dcfce7;
+
+}
+
+
+.photo-info {
+
+    min-width: 0;
+
+}
+
+
+.profile-name {
+
+    font-size: 17px;
+
+    font-weight: 800;
+
+    color: #111827;
+
+    word-break: break-word;
+
+}
+
+
+.profile-role {
+
+    margin-top: 4px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    color: #15803d;
+
+}
+
+
+.photo-loading {
+
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,.75);
+
+}
+
+
+.form-help {
+
+    margin:
+        8px 0 0;
+
+    color: #64748b;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+
+}
+
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+.primary-button,
+.secondary-button,
+.cancel-button {
+
+    min-height: 44px;
+
+    border-radius: 10px;
+
+    padding:
+        10px
+        14px;
+
+    border: 1px solid transparent;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+}
+
+
+.primary-button {
+
+    background:
+        #15803d;
+
+    color:
+        #ffffff;
+
+}
+
+
+.secondary-button {
+
+    background:
+        #f0fdf4;
+
+    color:
+        #166534;
+
+    border-color:
+        #bbf7d0;
+
+}
+
+
+.cancel-button {
+
+    background:
+        #f3f4f6;
+
+    color:
+        #374151;
+
+    border-color:
+        #d1d5db;
+
+}
+
+
+.primary-button:disabled {
+
+    opacity: .6;
+
+    cursor: not-allowed;
+
+}
+
+
+.button-with-icon svg {
+
+    width: 19px;
+    height: 19px;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 1.8;
+
+    stroke-linecap: round;
+
+    stroke-linejoin: round;
+
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.form-group {
+
+    margin-bottom: 16px;
+
+}
+
+
+.form-group label {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    color: #374151;
+
+}
+
+
+.password-input-wrapper {
+
+    position: relative;
+
+}
+
+
+.password-input-wrapper input {
+
+    width: 100%;
+
+    min-height: 46px;
+
+    padding:
+        10px
+        48px
+        10px
+        12px;
+
+    border:
+        1px solid
+        #d1d5db;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    background: #ffffff;
+
+    color: #111827;
+
+    font-size: 14px;
+
+}
+
+
+.password-input-wrapper input:focus {
+
+    border-color:
+        #15803d;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(21,128,61,.10);
+
+}
+
+
+.password-toggle {
+
+    position: absolute;
+
+    top: 50%;
+    right: 8px;
+
+    width: 36px;
+    height: 36px;
+
+    transform:
+        translateY(-50%);
+
+    border: 0;
+
+    background: transparent;
+
+    color: #64748b;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    cursor: pointer;
+
+}
+
+
+.password-toggle svg {
+
+    width: 20px;
+    height: 20px;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 1.8;
+
+    stroke-linecap: round;
+
+    stroke-linejoin: round;
+
+}
+
+
+/* =========================================================
+   PASSWORD RULES
+========================================================= */
+
+.password-rules {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 7px;
+
+    margin:
+        4px 0 18px;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+}
+
+
+.password-rules > div {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+}
+
+
+.rule-icon {
+
+    width: 18px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-weight: 800;
+
+}
+
+
+.password-rules .valid {
+
+    color:
+        #15803d;
+
+}
+
+
+.password-actions {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+.toast {
+
+    position: fixed;
+
+    left: 50%;
+
+    bottom: 92px;
+
+    z-index: 1000;
+
+    max-width:
+        calc(100% - 32px);
+
+    padding:
+        11px
+        14px;
+
+    border-radius: 10px;
+
+    background:
+        #1f2937;
+
+    color:
+        #ffffff;
+
+    font-size: 13px;
+
+    box-shadow:
+        0 8px 24px
+        rgba(0,0,0,.18);
+
+    transform:
+        translate(-50%, 20px);
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition:
+        opacity .2s ease,
+        transform .2s ease;
+
+}
+
+
+.toast.show {
+
+    opacity: 1;
+
+    transform:
+        translate(-50%, 0);
+
+}
+
+
+.toast-success {
+
+    background:
+        #166534;
+
+}
+
+
+.toast-error {
+
+    background:
+        #b91c1c;
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+    .profil-container {
+
+        padding:
+            12px;
+
+    }
+
+
+    .profil-card {
+
+        padding:
+            15px;
+
+        border-radius:
+            14px;
+
+    }
+
+
+    .photo-section {
+
+        align-items:
+            flex-start;
+
+    }
+
+
+    .password-actions {
+
+        display:
+            grid;
+
+        grid-template-columns:
+            1fr 1fr;
+
+    }
+
+
+    .password-actions button {
+
+        width:
+            100%;
+
+    }
+
+}

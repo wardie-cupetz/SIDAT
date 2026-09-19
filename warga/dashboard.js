@@ -1,2290 +1,3678 @@
-// ==========================================
-// SIDAT
-// DASHBOARD WARGA
-// SISTEM DATA WARGA
-// Dibuat oleh Suwardi
-// ==========================================
+/* =========================================================
+SIDAT - DASHBOARD WARGA
+FINAL
+========================================================= */
 
-
-// ==========================================
-// SESSION
-// ==========================================
+(function () {
+"use strict";
 
 const accessToken =
-    localStorage.getItem(
-        "sidat_access_token"
-    );
+    localStorage.getItem("sidat_access_token");
 
-const wargaData =
-    localStorage.getItem(
-        "sidat_user"
-    );
-
-
-// ==========================================
-// CEK LOGIN
-// ==========================================
-
-if (
-    !accessToken ||
-    !wargaData
-) {
-
-    window.location.href =
-        "../index.html";
-
-}
-
-
-// ==========================================
-// DATA WARGA
-// ==========================================
+const wargaRaw =
+    localStorage.getItem("sidat_user");
 
 let warga = null;
+let wilayahData = null;
 
+let ageChart = null;
+let financeChart = null;
+
+let currentBanner = 0;
+let bannerTimer = null;
+
+let rondaSchedules = [];
+let rondaCurrentDay = 1;
+let rondaTimer = null;
+
+if (!accessToken || !wargaRaw) {
+    window.location.href = "../index.html";
+    return;
+}
 
 try {
-
-    warga =
-        JSON.parse(
-            wargaData
-        );
-
+    warga = JSON.parse(wargaRaw);
 } catch (error) {
-
-    console.error(
-        "Data warga tidak valid:",
-        error
-    );
-
-    logoutWarga();
-
+    localStorage.removeItem("sidat_access_token");
+    localStorage.removeItem("sidat_user");
+    window.location.href = "../index.html";
+    return;
 }
 
 
-// ==========================================
-// FORMAT RUPIAH
-// ==========================================
+/* =====================================================
+   UTILITY
+   ===================================================== */
 
-function formatRupiah(
-    nominal
-) {
-
-    return new Intl.NumberFormat(
-        "id-ID",
-        {
-            style:
-                "currency",
-
-            currency:
-                "IDR",
-
-            maximumFractionDigits:
-                0
-        }
-    ).format(
-        Number(nominal) || 0
-    );
-
+function escapeHTML(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 
-// ==========================================
-// SUPABASE REST REQUEST
-// ==========================================
+function formatRupiah(value) {
+    return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0
+    }).format(Number(value || 0));
+}
+
+
+function formatTanggalWaktu(value) {
+    if (!value) return "";
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "";
+    }
+
+    return date.toLocaleString("id-ID", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+
+function formatJam(value) {
+    if (!value) return "";
+
+    const text = String(value);
+
+    return text.length >= 5
+        ? text.substring(0, 5)
+        : text;
+}
+
+
+function getJakartaDate() {
+    return new Date(
+        new Date().toLocaleString("en-US", {
+            timeZone: "Asia/Jakarta"
+        })
+    );
+}
+
+
+function getJakartaDayOfWeek() {
+    const day =
+        getJakartaDate().getDay();
+
+    return day === 0
+        ? 1
+        : day + 1;
+}
+
+
+function getNamaHari(day) {
+    const days = {
+        1: "Minggu",
+        2: "Senin",
+        3: "Selasa",
+        4: "Rabu",
+        5: "Kamis",
+        6: "Jumat",
+        7: "Sabtu"
+    };
+
+    return days[Number(day)] || "-";
+}
+
+
+function getInitials(name) {
+    const text =
+        String(name || "Warga")
+            .trim();
+
+    if (!text) return "W";
+
+    const parts =
+        text.split(/\s+/)
+            .filter(Boolean);
+
+    if (parts.length === 1) {
+        return parts[0]
+            .substring(0, 1)
+            .toUpperCase();
+    }
+
+    return (
+        parts[0].substring(0, 1) +
+        parts[parts.length - 1]
+            .substring(0, 1)
+    ).toUpperCase();
+}
+
+
+function createInitialAvatar(name) {
+    const initials =
+        getInitials(name);
+
+    const svg =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">' +
+        '<rect width="160" height="160" rx="80" fill="#15803d"/>' +
+        '<text x="80" y="96" text-anchor="middle" font-family="Arial,sans-serif" font-size="58" font-weight="700" fill="#ffffff">' +
+        escapeHTML(initials) +
+        "</text>" +
+        "</svg>";
+
+    return (
+        "data:image/svg+xml;charset=UTF-8," +
+        encodeURIComponent(svg)
+    );
+}
+
+
+function showToast(message) {
+    const toast =
+        document.getElementById("toast");
+
+    if (!toast) return;
+
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    clearTimeout(showToast.timer);
+
+    showToast.timer =
+        setTimeout(function () {
+            toast.classList.remove("show");
+        }, 3000);
+}
+
+
+/* =====================================================
+   SUPABASE REST
+   ===================================================== */
 
 async function supabaseGet(
     table,
-    query = ""
+    query
 ) {
+    const url =
+        SUPABASE_URL +
+        "/rest/v1/" +
+        table +
+        (query ? "?" + query : "");
 
     const response =
+        await fetch(url, {
+            method: "GET",
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization:
+                    "Bearer " +
+                    accessToken,
+                Accept:
+                    "application/json"
+            }
+        });
+
+    if (!response.ok) {
+        throw new Error(
+            "Supabase GET " +
+            table +
+            " gagal: " +
+            response.status
+        );
+    }
+
+    return response.json();
+}
+
+
+async function supabasePostRPC(
+    functionName,
+    body
+) {
+    const response =
         await fetch(
-            `${SUPABASE_URL}/rest/v1/${table}${query}`,
+            SUPABASE_URL +
+            "/rest/v1/rpc/" +
+            functionName,
             {
-
-                method:
-                    "GET",
-
+                method: "POST",
                 headers: {
-
-                    "apikey":
+                    apikey:
                         SUPABASE_KEY,
-
-                    "Authorization":
-                        `Bearer ${accessToken}`,
-
+                    Authorization:
+                        "Bearer " +
+                        accessToken,
                     "Content-Type":
                         "application/json",
-
-                    "Accept":
+                    Accept:
                         "application/json"
-
-                }
-
+                },
+                body:
+                    JSON.stringify(
+                        body || {}
+                    )
             }
         );
 
-
     if (!response.ok) {
-
-        const errorText =
-            await response.text();
-
         throw new Error(
-            errorText ||
-            `Gagal mengambil data ${table}`
+            "RPC " +
+            functionName +
+            " gagal: " +
+            response.status
         );
-
     }
 
-
-    return await response.json();
-
+    return response.json();
 }
 
 
-// ==========================================
-// ESCAPE HTML
-// ==========================================
-
-function escapeHTMLDashboard(
-    value
-) {
-
-    return String(
-        value ?? ""
-    )
-    .replaceAll(
-        "&",
-        "&amp;"
-    )
-    .replaceAll(
-        "<",
-        "&lt;"
-    )
-    .replaceAll(
-        ">",
-        "&gt;"
-    )
-    .replaceAll(
-        '"',
-        "&quot;"
-    )
-    .replaceAll(
-        "'",
-        "&#039;"
-    );
-
-}
-
-
-// ==========================================
-// FORMAT WAKTU PENGUMUMAN
-// ==========================================
-
-function formatWaktuPengumuman(
-    tanggal
-) {
-
-    if (!tanggal) {
-
-        return "";
-
-    }
-
-
-    const waktu =
-        new Date(
-            tanggal
-        );
-
-
-    const sekarang =
-        new Date();
-
-
-    const selisih =
-        Math.floor(
-            (
-                sekarang -
-                waktu
-            ) / 60000
-        );
-
-
-    if (
-        selisih < 1
-    ) {
-
-        return "Baru saja";
-
-    }
-
-
-    if (
-        selisih < 60
-    ) {
-
-        return `${selisih} menit`;
-
-    }
-
-
-    const jam =
-        Math.floor(
-            selisih / 60
-        );
-
-
-    if (
-        jam < 24
-    ) {
-
-        return `${jam} jam`;
-
-    }
-
-
-    const hari =
-        Math.floor(
-            jam / 24
-        );
-
-
-    if (
-        hari === 1
-    ) {
-
-        return "Kemarin";
-
-    }
-
-
-    return `${hari} hari`;
-
-}
-
-
-// ==========================================
-// LOAD PROFIL TERBARU
-// ==========================================
-
-async function loadProfilTerbaru() {
-
-    try {
-
-        if (!warga) {
-            return;
-        }
-
-
-        if (!warga.resident_id) {
-
-            console.warn(
-                "SIDAT: resident_id tidak ditemukan."
-            );
-
-            return;
-        }
-
-
-        console.log(
-            "SIDAT: Mengambil profil:",
-            warga.resident_id
-        );
-
-
-        const query =
-            "?select=id,resident_code,name,photo_url,phone,jimpitan_balance,is_active" +
-            "&id=eq." +
-            encodeURIComponent(
-                warga.resident_id
-            ) +
-            "&limit=1";
-
-
-        const data =
-            await supabaseGet(
-                "residents",
-                query
-            );
-
-
-        if (
-            !data ||
-            data.length === 0
-        ) {
-
-            console.warn(
-                "SIDAT: Data residents tidak ditemukan."
-            );
-
-            return;
-        }
-
-
-        const profil =
-            data[0];
-
-
-        console.log(
-            "SIDAT: DATA PROFIL TERBARU:",
-            profil
-        );
-
-
-        console.log(
-            "SIDAT: PHOTO URL:",
-            profil.photo_url
-        );
-
-
-        warga = {
-
-            ...warga,
-
-            ...profil
-
-        };
-
-
-        tampilkanDataWarga();
-
-
-    } catch (error) {
-
-        console.error(
-            "SIDAT: Gagal memuat profil terbaru:",
-            error
-        );
-
-    }
-
-}
-
-
-// ==========================================
-// TAMPILKAN DATA WARGA
-// ==========================================
-
-function tampilkanDataWarga() {
-
-    if (!warga) {
+/* =====================================================
+   PROFIL
+   ===================================================== */
+
+async function loadProfilWarga() {
+    const residentId =
+        warga.resident_id ||
+        warga.residentId;
+
+    if (!residentId) {
+        tampilkanProfilWarga(warga);
         return;
     }
 
+    try {
+        const rows =
+            await supabaseGet(
+                "residents",
+                [
+                    "select=id,resident_code,name,photo_url,phone,jimpitan_balance,is_active,family_status",
+                    "id=eq." +
+                        encodeURIComponent(
+                            residentId
+                        ),
+                    "limit=1"
+                ].join("&")
+            );
 
-    const nama =
-        document.getElementById(
-            "wargaName"
+        if (
+            Array.isArray(rows) &&
+            rows.length
+        ) {
+            warga = {
+                ...warga,
+                ...rows[0]
+            };
+
+            localStorage.setItem(
+                "sidat_user",
+                JSON.stringify(warga)
+            );
+        }
+    } catch (error) {
+        console.error(
+            "SIDAT profil:",
+            error
         );
-
-
-    if (nama) {
-
-        nama.textContent =
-            warga.name || "Warga";
-
     }
 
-
-    const kode =
-        document.getElementById(
-            "wargaCode"
-        );
+    tampilkanProfilWarga(warga);
+}
 
 
-    if (kode) {
+function tampilkanProfilWarga(data) {
+    const name =
+        data?.name ||
+        data?.resident_name ||
+        "Warga";
 
-        kode.textContent =
-            warga.resident_code || "-";
+    const photo =
+        data?.photo_url || "";
 
-    }
-
-
-    const profilePhoto =
+    const image =
         document.getElementById(
             "profilePhoto"
         );
 
-
-    if (!profilePhoto) {
-        return;
-    }
-
-
-    if (
-        warga.photo_url &&
-        String(
-            warga.photo_url
-        ).trim() !== ""
-    ) {
-
-        console.log(
-            "SIDAT FOTO DARI DATABASE:",
-            warga.photo_url
-        );
-
-
-        profilePhoto.src =
-            warga.photo_url;
-
-
-        return;
-
-    }
-
-
-    profilePhoto.src =
-        "https://ui-avatars.com/api/?name=" +
-        encodeURIComponent(
-            warga.name || "Warga"
-        ) +
-        "&background=dcfce7&color=14532d&size=128";
-
-}
-
-
-// ==========================================
-// TERAPKAN WILAYAH KE DASHBOARD
-// ==========================================
-
-function terapkanWilayah(
-    wilayah
-) {
-
-    if (!wilayah) {
-
-        console.warn(
-            "SIDAT: Data wilayah kosong."
-        );
-
-        return;
-
-    }
-
-
-    console.log(
-        "SIDAT: Menerapkan wilayah warga:",
-        wilayah
-    );
-
-
-    // ======================================
-    // NAMA WILAYAH
-    // ======================================
-
-    const namaWilayah =
+    const nameElement =
         document.getElementById(
-            "namaWilayah"
+            "profileName"
         );
 
-
-    if (namaWilayah) {
-
-        const rtRw =
-            [];
-
-
-        if (wilayah.rt) {
-
-            rtRw.push(
-                `RT ${wilayah.rt}`
-            );
-
-        }
-
-
-        if (wilayah.rw) {
-
-            rtRw.push(
-                `RW ${wilayah.rw}`
-            );
-
-        }
-
-
-        namaWilayah.textContent =
-            rtRw.length
-                ? rtRw.join(" / ")
-                : "RT / RW";
-
+    if (nameElement) {
+        nameElement.textContent =
+            name;
     }
 
+    if (image) {
+        image.src =
+            photo ||
+            createInitialAvatar(name);
 
-    // ======================================
-    // KETUA RT
-    // ======================================
+        image.alt =
+            "Foto " + name;
 
-    const namaKetua =
-        document.getElementById(
-            "namaKetua"
-        );
-
-
-    if (namaKetua) {
-
-        namaKetua.textContent =
-            wilayah.nama_ketua_rt
-                ? `Ketua RT: ${wilayah.nama_ketua_rt}`
-                : "Ketua RT";
-
+        image.onerror =
+            function () {
+                this.onerror = null;
+                this.src =
+                    createInitialAvatar(
+                        name
+                    );
+            };
     }
-
-
-    // ======================================
-    // LOGO HEADER
-    // ======================================
-
-    const brandLogo =
-        document.querySelector(
-            ".brand-logo"
-        );
-
-
-    if (
-        brandLogo &&
-        wilayah.logo_url
-    ) {
-
-        brandLogo.innerHTML = `
-
-            <img
-                src="${escapeHTMLDashboard(
-                    wilayah.logo_url
-                )}"
-                alt="Logo RT"
-            >
-
-        `;
-
-    }
-
-
-    // ======================================
-    // LOGO WILAYAH
-    // ======================================
-
-    const regionLogo =
-        document.querySelector(
-            ".region-logo"
-        );
-
-
-    if (
-        regionLogo &&
-        wilayah.logo_url
-    ) {
-
-        regionLogo.innerHTML = `
-
-            <img
-                src="${escapeHTMLDashboard(
-                    wilayah.logo_url
-                )}"
-                alt="Logo RT"
-            >
-
-        `;
-
-    }
-
-
-    // ======================================
-    // NAMA APLIKASI
-    // ======================================
-
-    if (
-        wilayah.nama_aplikasi
-    ) {
-
-        document.title =
-            `${wilayah.nama_aplikasi} - Dashboard Warga`;
-
-    }
-
-
-    // ======================================
-    // THEME COLOR
-    // TIDAK MENGUBAH TEMA CSS
-    // HANYA META HP
-    // ======================================
-
-    const metaTheme =
-        document.querySelector(
-            'meta[name="theme-color"]'
-        );
-
-
-    if (metaTheme) {
-
-        metaTheme.setAttribute(
-            "content",
-            "#15803d"
-        );
-
-    }
-
-
-    console.log(
-        "SIDAT: Wilayah warga berhasil diterapkan."
-    );
-
 }
 
 
-
-// ==========================================
-// LOAD STATISTIK WARGA
-// ==========================================
-
-async function loadStatistikWarga() {
-
-    try {
-
-        const response =
-            await fetch(
-
-                `${SUPABASE_URL}/rest/v1/rpc/get_resident_statistics`,
-
-                {
-
-                    method:
-                        "POST",
-
-                    headers: {
-
-                        "apikey":
-                            SUPABASE_KEY,
-
-                        "Authorization":
-                            `Bearer ${accessToken}`,
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-                        JSON.stringify({})
-
-                }
-
-            );
-
-
-        if (!response.ok) {
-
-            const errorText =
-                await response.text();
-
-            throw new Error(
-                errorText ||
-                "Gagal mengambil statistik warga"
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        console.log(
-            "Statistik warga:",
-            data
-        );
-
-
-        const totalWarga =
-            document.getElementById(
-                "totalWarga"
-            );
-
-
-        const totalKK =
-            document.getElementById(
-                "totalKK"
-            );
-
-
-        let statistik =
-            data;
-
-
-        if (
-            Array.isArray(
-                data
-            )
-        ) {
-
-            statistik =
-                data[0] || {};
-
-        }
-
-
-        if (totalWarga) {
-
-            totalWarga.textContent =
-                Number(
-                    statistik?.total_warga
-                ) || 0;
-
-        }
-
-
-        if (totalKK) {
-
-            totalKK.textContent =
-                Number(
-                    statistik?.total_kk
-                ) || 0;
-
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            "Gagal mengambil statistik warga:",
-            error
-        );
-
-
-        const totalWarga =
-            document.getElementById(
-                "totalWarga"
-            );
-
-
-        const totalKK =
-            document.getElementById(
-                "totalKK"
-            );
-
-
-        if (totalWarga) {
-
-            totalWarga.textContent =
-                "0";
-
-        }
-
-
-        if (totalKK) {
-
-            totalKK.textContent =
-                "0";
-
-        }
-
-    }
-
-}
-
-
-// ==========================================
-// LOAD SALDO JIMPITAN
-// ==========================================
-
-async function loadSaldoJimpitan() {
-
-    try {
-
-        const response =
-            await fetch(
-
-                `${SUPABASE_URL}/rest/v1/rpc/get_jimpitan_balance`,
-
-                {
-
-                    method:
-                        "POST",
-
-                    headers: {
-
-                        "apikey":
-                            SUPABASE_KEY,
-
-                        "Authorization":
-                            `Bearer ${accessToken}`,
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-                        JSON.stringify({})
-
-                }
-
-            );
-
-
-        if (!response.ok) {
-
-            const errorText =
-                await response.text();
-
-            throw new Error(
-                errorText ||
-                "Gagal mengambil saldo jimpitan"
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        console.log(
-            "Saldo jimpitan total:",
-            data
-        );
-
-
-        const saldoJimpitan =
-            document.getElementById(
-                "saldoJimpitan"
-            );
-
-
-        let saldo =
-            data;
-
-
-        if (
-            Array.isArray(
-                saldo
-            )
-        ) {
-
-            saldo =
-                saldo[0] || 0;
-
-        }
-
-
-        if (
-            typeof saldo ===
-            "object" &&
-            saldo !== null
-        ) {
-
-            saldo =
-                saldo.balance ??
-                saldo.saldo ??
-                saldo.get_jimpitan_balance ??
-                0;
-
-        }
-
-
-        if (saldoJimpitan) {
-
-            saldoJimpitan.textContent =
-                formatRupiah(
-                    saldo
-                );
-
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            "Gagal mengambil saldo jimpitan:",
-            error
-        );
-
-
-        const saldoJimpitan =
-            document.getElementById(
-                "saldoJimpitan"
-            );
-
-
-        if (saldoJimpitan) {
-
-            saldoJimpitan.textContent =
-                formatRupiah(
-                    0
-                );
-
-        }
-
-    }
-
-}
-
-
-// ==========================================
-// LOAD SALDO KAS RT
-// ==========================================
-
-async function loadSaldoKas() {
-
-    try {
-
-        const data =
-            await supabaseGet(
-                "cash_transactions",
-                "?select=transaction_type,amount"
-            );
-
-
-        let saldo =
-            0;
-
-
-        data.forEach(
-            transaksi => {
-
-                const amount =
-                    Number(
-                        transaksi.amount
-                    ) || 0;
-
-
-                const type =
-                    String(
-                        transaksi.transaction_type ||
-                        ""
-                    )
-                    .trim()
-                    .toLowerCase();
-
-
-                if (
-
-                    type === "masuk" ||
-
-                    type === "income" ||
-
-                    type === "pemasukan" ||
-
-                    type === "jimpitan_transfer"
-
-                ) {
-
-                    saldo +=
-                        amount;
-
-                }
-
-
-                else if (
-
-                    type === "keluar" ||
-
-                    type === "expense" ||
-
-                    type === "pengeluaran"
-
-                ) {
-
-                    saldo -=
-                        amount;
-
-                }
-
-            }
-        );
-
-
-        console.log(
-            "SIDAT DASHBOARD - SALDO KAS RT:",
-            saldo
-        );
-
-
-        const saldoKas =
-            document.getElementById(
-                "saldoKas"
-            );
-
-
-        if (saldoKas) {
-
-            saldoKas.textContent =
-                formatRupiah(
-                    saldo
-                );
-
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            "Gagal mengambil saldo kas:",
-            error
-        );
-
-
-        const saldoKas =
-            document.getElementById(
-                "saldoKas"
-            );
-
-
-        if (saldoKas) {
-
-            saldoKas.textContent =
-                formatRupiah(
-                    0
-                );
-
-        }
-
-    }
-
-}
-// ==========================================
-// LOAD WILAYAH SIDAT
-// ==========================================
+/* =====================================================
+   WILAYAH
+   ===================================================== */
 
 async function loadWilayah() {
-
     try {
-
-        console.log(
-            "SIDAT: Memuat identitas wilayah warga..."
-        );
-
-
-        const data =
+        const rows =
             await supabaseGet(
                 "wilayah",
-                "?select=id,nama_aplikasi,nama_dusun,nama_desa,rt,rw,nama_ketua_rt,kecamatan,kabupaten,provinsi,logo_url&limit=1"
+                "select=id,nama_aplikasi,nama_dusun,nama_desa,rt,rw,nama_ketua_rt,kecamatan,kabupaten,provinsi,logo_url&limit=1"
             );
-
-
-        console.log(
-            "SIDAT DATA WILAYAH WARGA:",
-            data
-        );
-
 
         if (
-            !Array.isArray(data) ||
-            data.length === 0
+            !Array.isArray(rows) ||
+            !rows.length
         ) {
-
-            console.warn(
-                "SIDAT: Data wilayah belum tersedia."
-            );
-
             return;
-
         }
 
-
-        const wilayah =
-            data[0];
-
-
-        // ======================================
-        // NAMA RT / RW
-        // ======================================
-
-        const namaWilayah =
-            document.getElementById(
-                "namaWilayah"
-            );
-
-
-        if (namaWilayah) {
-
-            const rtRw = [];
-
-
-            if (wilayah.rt) {
-
-                rtRw.push(
-                    `RT ${wilayah.rt}`
-                );
-
-            }
-
-
-            if (wilayah.rw) {
-
-                rtRw.push(
-                    `RW ${wilayah.rw}`
-                );
-
-            }
-
-
-            namaWilayah.textContent =
-                rtRw.length
-                    ? rtRw.join(" / ")
-                    : "RT / RW";
-
-        }
-
-
-        // ======================================
-        // NAMA KETUA RT
-        // ======================================
-
-        const namaKetua =
-            document.getElementById(
-                "namaKetua"
-            );
-
-
-        if (namaKetua) {
-
-            namaKetua.textContent =
-                wilayah.nama_ketua_rt
-                    ? `Ketua RT: ${wilayah.nama_ketua_rt}`
-                    : "Ketua RT";
-
-        }
-
-
-        // ======================================
-        // INFORMASI WILAYAH LENGKAP
-        // ======================================
-
-        let wilayahLengkap =
-            [];
-
-
-        if (wilayah.nama_dusun) {
-
-            wilayahLengkap.push(
-                `Dusun ${wilayah.nama_dusun}`
-            );
-
-        }
-
-
-        if (wilayah.nama_desa) {
-
-            wilayahLengkap.push(
-                `Desa ${wilayah.nama_desa}`
-            );
-
-        }
-
-
-        if (wilayah.kecamatan) {
-
-            wilayahLengkap.push(
-                `Kec. ${wilayah.kecamatan}`
-            );
-
-        }
-
-
-        if (wilayah.kabupaten) {
-
-            wilayahLengkap.push(
-                `Kab. ${wilayah.kabupaten}`
-            );
-
-        }
-
-
-        if (wilayah.provinsi) {
-
-            wilayahLengkap.push(
-                wilayah.provinsi
-            );
-
-        }
-
-
-        // ======================================
-        // BUAT ELEMENT INFORMASI WILAYAH
-        // ======================================
-
-        let detailWilayah =
-            document.getElementById(
-                "detailWilayah"
-            );
-
-
-        if (!detailWilayah) {
-
-            detailWilayah =
-                document.createElement(
-                    "p"
-                );
-
-
-            detailWilayah.id =
-                "detailWilayah";
-
-
-            detailWilayah.className =
-                "detail-wilayah";
-
-
-            const regionInfo =
-                document.querySelector(
-                    ".region-info"
-                );
-
-
-            if (regionInfo) {
-
-                regionInfo.appendChild(
-                    detailWilayah
-                );
-
-            }
-
-        }
-
-
-        if (detailWilayah) {
-
-            detailWilayah.textContent =
-                wilayahLengkap.length
-                    ? wilayahLengkap.join(" • ")
-                    : "Informasi wilayah belum diatur.";
-
-        }
-
-
-        // ======================================
-        // LOGO HEADER
-        // ======================================
-
-        const brandLogo =
-            document.querySelector(
-                ".brand-logo"
-            );
-
-
-        if (
-            brandLogo &&
-            wilayah.logo_url &&
-            String(
-                wilayah.logo_url
-            ).trim() !== ""
-        ) {
-
-            brandLogo.innerHTML = `
-
-                <img
-                    src="${escapeHTMLDashboard(
-                        wilayah.logo_url
-                    )}"
-                    alt="Logo RT"
-                >
-
-            `;
-
-        }
-
-
-        // ======================================
-        // LOGO WILAYAH
-        // ======================================
-
-        const regionLogo =
-            document.querySelector(
-                ".region-logo"
-            );
-
-
-        if (
-            regionLogo &&
-            wilayah.logo_url &&
-            String(
-                wilayah.logo_url
-            ).trim() !== ""
-        ) {
-
-            regionLogo.innerHTML = `
-
-                <img
-                    src="${escapeHTMLDashboard(
-                        wilayah.logo_url
-                    )}"
-                    alt="Logo RT"
-                >
-
-            `;
-
-        }
-
-
-        // ======================================
-        // NAMA APLIKASI
-        // ======================================
-
-        const titleElement =
-            document.querySelector(
-                ".brand h1"
-            );
-
-
-        if (titleElement) {
-
-            titleElement.textContent =
-                wilayah.nama_aplikasi ||
-                "SIDAT";
-
-        }
-
-
-        // ======================================
-        // CACHE WILAYAH
-        // ======================================
+        wilayahData = rows[0];
 
         localStorage.setItem(
             "sidat_wilayah_data",
             JSON.stringify(
-                wilayah
+                wilayahData
             )
         );
 
-
-        console.log(
-            "SIDAT: Wilayah lengkap berhasil diterapkan."
+        terapkanWilayah(
+            wilayahData
+        );
+    } catch (error) {
+        console.error(
+            "SIDAT wilayah:",
+            error
         );
 
+        try {
+            const cache =
+                localStorage.getItem(
+                    "sidat_wilayah_data"
+                );
+
+            if (cache) {
+                wilayahData =
+                    JSON.parse(cache);
+
+                terapkanWilayah(
+                    wilayahData
+                );
+            }
+        } catch (_) {}
+    }
+}
+
+
+function terapkanWilayah(data) {
+    if (!data) return;
+
+    const info =
+        document.getElementById(
+            "wilayahInfo"
+        );
+
+    const logo =
+        document.getElementById(
+            "wilayahLogo"
+        );
+
+    const fallback =
+        document.getElementById(
+            "logoFallback"
+        );
+
+    const rt =
+        data.rt
+            ? "RT " +
+              String(data.rt)
+                  .padStart(2, "0")
+            : "";
+
+    const rw =
+        data.rw
+            ? "RW " +
+              String(data.rw)
+                  .padStart(2, "0")
+            : "";
+
+    const region =
+        [rt, rw]
+            .filter(Boolean)
+            .join(" / ");
+
+    const detail =
+        [
+            data.nama_dusun,
+            data.nama_desa,
+            data.kecamatan
+                ? "Kec. " +
+                  data.kecamatan
+                : ""
+        ]
+            .filter(Boolean)
+            .join(" • ");
+
+    if (info) {
+        info.textContent =
+            region ||
+            detail ||
+            "Wilayah RT";
+    }
+
+    if (logo) {
+        if (data.logo_url) {
+            logo.src =
+                data.logo_url;
+
+            logo.style.display =
+                "block";
+
+            if (fallback) {
+                fallback.style.display =
+                    "none";
+            }
+        } else {
+            logo.style.display =
+                "none";
+
+            if (fallback) {
+                fallback.style.display =
+                    "flex";
+            }
+        }
+
+        logo.onerror =
+            function () {
+                this.style.display =
+                    "none";
+
+                if (fallback) {
+                    fallback.style.display =
+                        "flex";
+                }
+            };
+    }
+
+    if (data.nama_aplikasi) {
+        document.title =
+            data.nama_aplikasi +
+            " - Dashboard Warga";
+    }
+}
+
+  /* =====================================================
+   BANNER
+   ===================================================== */
+
+let bannerSlides = [];
+let bannerDots = [];
+let bannerSliderElement = null;
+let bannerTouchStartX = 0;
+
+
+/* =====================================================
+   SUPABASE CLIENT UNTUK BANNER
+   ===================================================== */
+
+function pastikanSupabase() {
+
+    if (
+        typeof supabase === "undefined"
+    ) {
+        throw new Error(
+            "Library Supabase belum tersedia."
+        );
+    }
+
+    if (
+        !window.sidatDashboardSupabaseClient
+    ) {
+        window.sidatDashboardSupabaseClient =
+            supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_KEY
+            );
+    }
+
+    return window.sidatDashboardSupabaseClient;
+}
+
+
+/* =====================================================
+   BANNER STORAGE URL
+   ===================================================== */
+
+function getBannerImageUrl(
+    banner
+) {
+
+    /*
+     * Prioritas pertama:
+     * image_url yang sudah disimpan oleh Admin.
+     */
+
+    const imageUrl =
+        String(
+            banner?.image_url || ""
+        ).trim();
+
+    if (imageUrl) {
+        return imageUrl;
+    }
+
+
+    /*
+     * Jika Admin hanya menyimpan storage_path,
+     * buat Public Storage URL.
+     *
+     * Bucket:
+     * sidat-banners
+     */
+
+    const storagePath =
+        String(
+            banner?.storage_path || ""
+        ).trim();
+
+    if (!storagePath) {
+        return "";
+    }
+
+
+    const client =
+        pastikanSupabase();
+
+
+    const result =
+        client.storage
+            .from("sidat-banners")
+            .getPublicUrl(
+                storagePath
+            );
+
+
+    return (
+        result?.data?.publicUrl ||
+        ""
+    );
+}
+
+
+/* =====================================================
+   LOAD BANNER
+   ===================================================== */
+
+async function loadBannerData() {
+
+    try {
+
+        const rows = await supabaseGet(
+            "banner_slides",
+            [
+                "select=id,slot,image_url,storage_path,target_url,is_active",
+                "is_active=eq.true",
+                "order=slot.asc",
+                "limit=5"
+            ].join("&")
+        );
+
+        const banners =
+            Array.isArray(rows)
+                ? rows
+                : [];
+
+        console.log(
+            "SIDAT BANNER DATA:",
+            banners
+        );
+
+        renderBannerData(banners);
 
     } catch (error) {
 
         console.error(
-            "SIDAT LOAD WILAYAH ERROR:",
+            "SIDAT BANNER ERROR:",
             error
         );
+      if (
+    typeof window.sidatRefreshBannerSlider ===
+    "function"
+) {
+    window.sidatRefreshBannerSlider();
+      }
 
+        renderBannerData([]);
     }
+}
+function pasangEventBanner() {
+
+    const slides =
+        document.querySelectorAll(
+            ".sidat-banner-slide"
+        );
+
+    slides.forEach(
+        (slide) => {
+
+            slide.addEventListener(
+                "click",
+                function () {
+
+                    const targetUrl =
+                        String(
+                            slide.dataset.link ||
+                            ""
+                        ).trim();
+
+                    if (!targetUrl) {
+                        return;
+                    }
+
+                    /*
+                     * Konfirmasi sebelum membuka
+                     * tautan banner.
+                     */
+                    const lanjut =
+                        window.confirm(
+                            "Buka tautan dari banner ini?"
+                        );
+
+                    if (!lanjut) {
+                        return;
+                    }
+
+                    window.location.href =
+                        targetUrl;
+                }
+            );
+        }
+    );
+}
+
+/* =====================================================
+   RENDER BANNER
+   ===================================================== */
+
+function renderBannerData(banners) {
+
+    const slides = Array.from(
+        document.querySelectorAll(
+            ".sidat-banner-slide"
+        )
+    );
+
+    const dots = Array.from(
+        document.querySelectorAll(
+            ".sidat-banner-dot"
+        )
+    );
+
+    if (!slides.length) {
+        console.warn(
+            "SIDAT: elemen banner tidak ditemukan."
+        );
+        return;
+    }
+
+    /*
+     * Reset semua slide
+     */
+    slides.forEach(
+        (slide, index) => {
+
+            slide.classList.toggle(
+                "active",
+                index === 0
+            );
+
+            slide.dataset.link = "";
+
+            const image =
+                slide.querySelector(
+                    "img"
+                );
+
+            if (image) {
+                image.removeAttribute(
+                    "src"
+                );
+
+                image.style.display =
+                    "none";
+            }
+
+            const title =
+                slide.querySelector(
+                    "strong"
+                );
+
+            const text =
+                slide.querySelector(
+                    "span"
+                );
+
+            if (title) {
+                title.textContent = "";
+            }
+
+            if (text) {
+                text.textContent = "";
+            }
+        }
+    );
+
+    /*
+     * Reset dots
+     */
+    dots.forEach(
+        (dot, index) => {
+
+            dot.classList.toggle(
+                "active",
+                index === 0
+            );
+
+            dot.style.display =
+                "none";
+        }
+    );
+
+    /*
+     * Jika tidak ada banner
+     */
+    if (
+        !Array.isArray(banners) ||
+        banners.length === 0
+    ) {
+
+        console.warn(
+            "SIDAT: tidak ada banner aktif."
+        );
+
+        return;
+    }
+
+    /*
+     * Render maksimal 5 banner
+     */
+    banners
+        .slice(0, 5)
+        .forEach(
+            (banner, index) => {
+
+                const slide =
+                    slides[index];
+
+                const dot =
+                    dots[index];
+
+                if (!slide) {
+                    return;
+                }
+
+                /*
+                 * URL gambar
+                 */
+                const imageUrl =
+                    String(
+                        banner.image_url ||
+                        ""
+                    ).trim();
+
+                /*
+                 * URL tujuan
+                 */
+                const targetUrl =
+                    String(
+                        banner.target_url ||
+                        ""
+                    ).trim();
+
+                slide.dataset.link =
+                    targetUrl;
+
+                /*
+                 * Gambar
+                 */
+                const image =
+                    slide.querySelector(
+                        "img"
+                    );
+
+                if (
+                    image &&
+                    imageUrl
+                ) {
+
+                    image.src =
+                        imageUrl;
+
+                    image.alt =
+                        `Banner SIDAT ${index + 1}`;
+
+                    image.style.display =
+                        "block";
+
+                    /*
+                     * Debug penting
+                     */
+                    image.onload =
+                        function () {
+
+                            console.log(
+                                "SIDAT BANNER IMAGE LOADED:",
+                                index + 1,
+                                imageUrl
+                            );
+                        };
+
+                    image.onerror =
+                        function () {
+
+                            console.error(
+                                "SIDAT BANNER IMAGE ERROR:",
+                                index + 1,
+                                imageUrl
+                            );
+                        };
+                }
+
+                /*
+                 * Judul
+                 */
+                const title =
+                    slide.querySelector(
+                        "strong"
+                    );
+
+                if (title) {
+
+                    title.textContent =
+                        String(
+                            banner.title ||
+                            ""
+                        );
+                }
+
+                /*
+                 * Deskripsi
+                 */
+                const text =
+                    slide.querySelector(
+                        "span"
+                    );
+
+                if (text) {
+
+                    text.textContent =
+                        String(
+                            banner.description ||
+                            ""
+                        );
+                }
+
+                /*
+                 * Tampilkan slide
+                 */
+                slide.style.display =
+                    index === 0
+                        ? "block"
+                        : "none";
+
+                /*
+                 * Tampilkan dot
+                 */
+                if (dot) {
+
+                    dot.style.display =
+                        "block";
+
+                    dot.classList.toggle(
+                        "active",
+                        index === 0
+                    );
+                }
+            }
+        );
+
+    /*
+     * Pastikan banner pertama aktif
+     */
+    slides.forEach(
+        (slide, index) => {
+
+            slide.classList.toggle(
+                "active",
+                index === 0
+            );
+        }
+    );
+
+    console.log(
+        "SIDAT BANNER RENDERED:",
+        banners.length
+    );
+}
+
+
+/* =====================================================
+   REFRESH SLIDER
+   ===================================================== */
+
+function refreshBannerSlider() {
+
+    bannerSlides =
+        Array.isArray(
+            bannerSlides
+        )
+            ? bannerSlides
+            : [];
+
+
+    bannerSlides =
+        bannerSlides.slice(
+            0,
+            5
+        );
+
+
+    bannerSlides.forEach(
+        function (
+            banner,
+            index
+        ) {
+
+            const slide =
+                document.querySelector(
+                    ".sidat-banner-slide:nth-child(" +
+                    (index + 1) +
+                    ")"
+                );
+
+            if (!slide) {
+                return;
+            }
+
+            slide.dataset.link =
+                String(
+                    banner.target_url ||
+                    ""
+                ).trim();
+
+        }
+    );
+
+
+    setupBannerSlider();
+
+
+    /*
+     * Pastikan banner pertama langsung tampil.
+     */
+
+    showBannerSlide(
+        0
+    );
 
 }
 
 
-// ==========================================
-// LOAD PREVIEW PENGUMUMAN
-// ==========================================
+/* =====================================================
+   SETUP SLIDER
+   ===================================================== */
 
-async function loadPreviewPengumuman() {
+function setupBannerSlider() {
 
-    const container =
+    bannerSlides =
+        Array.isArray(
+            bannerSlides
+        )
+            ? bannerSlides
+            : [];
+
+
+    const slides =
+        Array.from(
+            document.querySelectorAll(
+                ".sidat-banner-slide"
+            )
+        );
+
+
+    const dots =
+        Array.from(
+            document.querySelectorAll(
+                ".sidat-banner-dot"
+            )
+        );
+
+
+    bannerDots =
+        dots;
+
+
+    bannerSliderElement =
         document.getElementById(
-            "previewPengumuman"
+            "bannerSlider"
         );
 
 
-    const badge =
-        document.getElementById(
-            "badgePengumuman"
-        );
-
-
-    if (!container) {
-
-        console.log(
-            "Element previewPengumuman tidak ditemukan."
-        );
-
+    if (!slides.length) {
         return;
+    }
+
+
+    /*
+     * Bersihkan event lama dengan clone
+     * agar tidak terjadi event ganda.
+     */
+
+    slides.forEach(
+        function (
+            slide
+        ) {
+
+            const clone =
+                slide.cloneNode(
+                    true
+                );
+
+            slide.replaceWith(
+                clone
+            );
+
+        }
+    );
+
+
+    /*
+     * Ambil ulang slide setelah clone.
+     */
+
+    const freshSlides =
+        Array.from(
+            document.querySelectorAll(
+                ".sidat-banner-slide"
+            )
+        );
+
+
+    const freshDots =
+        Array.from(
+            document.querySelectorAll(
+                ".sidat-banner-dot"
+            )
+        );
+
+
+    bannerDots =
+        freshDots;
+
+
+    freshSlides.forEach(
+        function (
+            slide,
+            index
+        ) {
+
+            slide.onclick =
+                function (
+                    event
+                ) {
+
+                    /*
+                     * Jangan membuka link ketika
+                     * pengguna sedang swipe.
+                     */
+
+                    if (
+                        slide.dataset.swiping ===
+                        "true"
+                    ) {
+                        slide.dataset.swiping =
+                            "false";
+
+                        return;
+                    }
+
+
+                    const link =
+                        String(
+                            slide.dataset.link ||
+                            ""
+                        ).trim();
+
+
+                    if (!link) {
+                        return;
+                    }
+
+
+                    if (
+                        window.confirm(
+                            "Buka informasi banner ini?"
+                        )
+                    ) {
+
+                        window.location.href =
+                            link;
+
+                    }
+
+                };
+
+
+            /*
+             * Hindari klik saat touch swipe.
+             */
+
+            slide.addEventListener(
+                "touchstart",
+                function () {
+
+                    bannerTouchStartX =
+                        0;
+
+                    slide.dataset.swiping =
+                        "false";
+
+                },
+                {
+                    passive: true
+                }
+            );
+
+
+            slide.addEventListener(
+                "touchmove",
+                function (
+                    event
+                ) {
+
+                    const touch =
+                        event.changedTouches[0];
+
+                    if (
+                        !touch
+                    ) {
+                        return;
+                    }
+
+                    if (
+                        !bannerTouchStartX
+                    ) {
+
+                        bannerTouchStartX =
+                            touch.clientX;
+
+                    }
+
+                },
+                {
+                    passive: true
+                }
+            );
+
+
+            slide.addEventListener(
+                "touchend",
+                function (
+                    event
+                ) {
+
+                    const touch =
+                        event.changedTouches[0];
+
+                    if (
+                        !touch ||
+                        !bannerTouchStartX
+                    ) {
+                        return;
+                    }
+
+
+                    const diff =
+                        bannerTouchStartX -
+                        touch.clientX;
+
+
+                    if (
+                        Math.abs(diff) >=
+                        45
+                    ) {
+
+                        slide.dataset.swiping =
+                            "true";
+
+
+                        if (
+                            diff > 0
+                        ) {
+
+                            showBannerSlide(
+                                currentBanner +
+                                1
+                            );
+
+                        } else {
+
+                            showBannerSlide(
+                                currentBanner -
+                                1
+                            );
+
+                        }
+
+
+                        restartBannerTimer();
+
+                    }
+
+                    bannerTouchStartX =
+                        0;
+
+                },
+                {
+                    passive: true
+                }
+            );
+
+        }
+    );
+
+
+    /*
+     * Tombol previous.
+     */
+
+    const prev =
+        document.getElementById(
+            "bannerPrev"
+        );
+
+
+    if (prev) {
+
+        prev.onclick =
+            function (
+                event
+            ) {
+
+                event.stopPropagation();
+
+                showBannerSlide(
+                    currentBanner -
+                    1
+                );
+
+                restartBannerTimer();
+
+            };
 
     }
 
 
-    try {
+    /*
+     * Tombol next.
+     */
 
-        const token =
-            localStorage.getItem(
-                "sidat_access_token"
-            );
-
-
-        if (!token) {
-
-            throw new Error(
-                "Session warga tidak ditemukan."
-            );
-
-        }
-
-
-        const response =
-            await fetch(
-
-                `${SUPABASE_URL}/rest/v1/announcements?select=id,title,content,created_at,is_active&is_active=eq.true&order=created_at.desc&limit=3`,
-
-                {
-
-                    method:
-                        "GET",
-
-                    headers: {
-
-                        "apikey":
-                            SUPABASE_KEY,
-
-                        "Authorization":
-                            `Bearer ${token}`,
-
-                        "Content-Type":
-                            "application/json",
-
-                        "Accept":
-                            "application/json"
-
-                    }
-
-                }
-
-            );
-
-
-        console.log(
-            "STATUS PENGUMUMAN:",
-            response.status
+    const next =
+        document.getElementById(
+            "bannerNext"
         );
 
 
-        if (!response.ok) {
+    if (next) {
 
-            const errorText =
-                await response.text();
+        next.onclick =
+            function (
+                event
+            ) {
 
+                event.stopPropagation();
 
-            throw new Error(
-                errorText ||
-                `Gagal memuat pengumuman (${response.status})`
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        console.log(
-            "PENGUMUMAN WARGA:",
-            data
-        );
-
-
-        if (
-            !data ||
-            data.length === 0
-        ) {
-
-            container.innerHTML = `
-
-                <div class="pengumuman-kosong">
-
-                    Belum ada pengumuman baru.
-
-                </div>
-
-            `;
-
-
-            if (badge) {
-
-                badge.classList.add(
-                    "hidden"
+                showBannerSlide(
+                    currentBanner +
+                    1
                 );
 
-            }
+                restartBannerTimer();
 
-            return;
+            };
+
+    }
+
+
+    /*
+     * Dot.
+     */
+
+    freshDots.forEach(
+        function (
+            dot,
+            index
+        ) {
+
+            dot.onclick =
+                function (
+                    event
+                ) {
+
+                    event.stopPropagation();
+
+                    showBannerSlide(
+                        index
+                    );
+
+                    restartBannerTimer();
+
+                };
 
         }
+    );
 
 
-        container.innerHTML =
-            data
+    /*
+     * Jika hanya ada satu banner,
+     * sembunyikan kontrol navigasi.
+     */
+
+    const total =
+        bannerSlides.length;
+
+
+    if (prev) {
+
+        prev.style.display =
+            total > 1
+                ? ""
+                : "none";
+
+    }
+
+
+    if (next) {
+
+        next.style.display =
+            total > 1
+                ? ""
+                : "none";
+
+    }
+
+
+    freshDots.forEach(
+        function (
+            dot,
+            index
+        ) {
+
+            dot.style.display =
+                index < total
+                    ? ""
+                    : "none";
+
+        }
+    );
+
+
+    restartBannerTimer();
+
+}
+
+
+/* =====================================================
+   TAMPILKAN SLIDE
+   ===================================================== */
+
+function showBannerSlide(
+    index
+) {
+
+    const slides =
+        Array.from(
+            document.querySelectorAll(
+                ".sidat-banner-slide"
+            )
+        );
+
+
+    const dots =
+        Array.from(
+            document.querySelectorAll(
+                ".sidat-banner-dot"
+            )
+        );
+
+
+    if (!slides.length) {
+        return;
+    }
+
+
+    const total =
+        bannerSlides.length ||
+        slides.filter(
+            function (slide) {
+                return !slide.classList.contains(
+                    "hidden"
+                );
+            }
+        ).length;
+
+
+    if (total <= 0) {
+        return;
+    }
+
+
+    if (index < 0) {
+        index =
+            total - 1;
+    }
+
+
+    if (index >= total) {
+        index = 0;
+    }
+
+
+    currentBanner =
+        index;
+
+
+    slides.forEach(
+        function (
+            slide,
+            slideIndex
+        ) {
+
+            slide.classList.toggle(
+                "active",
+                slideIndex ===
+                    currentBanner &&
+                    slideIndex <
+                        total
+            );
+
+        }
+    );
+
+
+    dots.forEach(
+        function (
+            dot,
+            dotIndex
+        ) {
+
+            dot.classList.toggle(
+                "active",
+                dotIndex ===
+                    currentBanner &&
+                    dotIndex <
+                        total
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   AUTOPLAY
+   ===================================================== */
+
+function restartBannerTimer() {
+
+    clearInterval(
+        bannerTimer
+    );
+
+
+    if (
+        bannerSlides.length <= 1
+    ) {
+        return;
+    }
+
+
+    bannerTimer =
+        setInterval(
+            function () {
+
+                showBannerSlide(
+                    currentBanner +
+                    1
+                );
+
+            },
+            6000
+        );
+
+}
+
+
+/* =====================================================
+   URL ESCAPE
+   ===================================================== */
+
+function escapeBannerUrl(
+    url
+) {
+
+    return String(
+        url || ""
+    )
+        .replace(
+            /\\/g,
+            "\\\\"
+        )
+        .replace(
+            /"/g,
+            '\\"'
+        )
+        .replace(
+            /\r/g,
+            ""
+        )
+        .replace(
+            /\n/g,
+            ""
+        );
+
+}
+
+
+/* =====================================================
+   PUBLIC REFRESH
+   ===================================================== */
+
+window.sidatRefreshBannerSlider =
+    function () {
+
+        refreshBannerSlider();
+
+    };
+
+
+function initBannerSlider() {
+
+    const slider =
+        document.getElementById(
+            "bannerSlider"
+        );
+
+    if (!slider) {
+        return;
+    }
+
+    const slides =
+        Array.from(
+            slider.querySelectorAll(
+                ".sidat-banner-slide"
+            )
+        );
+
+    const dots =
+        Array.from(
+            slider.querySelectorAll(
+                ".sidat-banner-dot"
+            )
+        );
+
+    const prevButton =
+        document.getElementById(
+            "bannerPrev"
+        );
+
+    const nextButton =
+        document.getElementById(
+            "bannerNext"
+        );
+
+    if (!slides.length) {
+        return;
+    }
+
+    let currentBanner = 0;
+    let bannerTimer = null;
+
+    /*
+     * Ambil hanya slide yang
+     * benar-benar memiliki gambar.
+     */
+    function getActiveSlides() {
+
+        return slides.filter(
+            (slide) => {
+
+                const image =
+                    slide.querySelector(
+                        "img"
+                    );
+
+                return (
+                    image &&
+                    image.getAttribute(
+                        "src"
+                    )
+                );
+            }
+        );
+    }
+
+    function tampilkanBanner(
+        index
+    ) {
+
+        const activeSlides =
+            getActiveSlides();
+
+        if (!activeSlides.length) {
+            return;
+        }
+
+        /*
+         * Pastikan index valid.
+         */
+        if (
+            index < 0
+        ) {
+            index =
+                activeSlides.length - 1;
+        }
+
+        if (
+            index >=
+            activeSlides.length
+        ) {
+            index = 0;
+        }
+
+        currentBanner = index;
+
+        /*
+         * Sembunyikan semua slide.
+         */
+        slides.forEach(
+            (slide) => {
+
+                slide.classList.remove(
+                    "active"
+                );
+
+                slide.style.display =
+                    "none";
+            }
+        );
+
+        /*
+         * Tampilkan slide aktif.
+         */
+        const activeSlide =
+            activeSlides[
+                currentBanner
+            ];
+
+        if (activeSlide) {
+
+            activeSlide.classList.add(
+                "active"
+            );
+
+            activeSlide.style.display =
+                "block";
+        }
+
+        /*
+         * Atur dot sesuai jumlah
+         * banner yang benar-benar aktif.
+         */
+        dots.forEach(
+            (dot, dotIndex) => {
+
+                if (
+                    dotIndex <
+                    activeSlides.length
+                ) {
+
+                    dot.style.display =
+                        "block";
+
+                    dot.classList.toggle(
+                        "active",
+                        dotIndex ===
+                        currentBanner
+                    );
+
+                } else {
+
+                    dot.style.display =
+                        "none";
+                }
+            }
+        );
+    }
+
+    function mulaiTimer() {
+
+        if (bannerTimer) {
+
+            clearInterval(
+                bannerTimer
+            );
+        }
+
+        /*
+         * Tidak perlu timer kalau
+         * hanya ada satu banner.
+         */
+        if (
+            getActiveSlides().length <= 1
+        ) {
+            return;
+        }
+
+        bannerTimer =
+            setInterval(
+                () => {
+
+                    tampilkanBanner(
+                        currentBanner + 1
+                    );
+
+                },
+                5000
+            );
+    }
+
+    /*
+     * Tombol sebelumnya.
+     */
+    if (prevButton) {
+
+        prevButton.onclick =
+            function (event) {
+
+                event.stopPropagation();
+
+                tampilkanBanner(
+                    currentBanner - 1
+                );
+
+                mulaiTimer();
+            };
+    }
+
+    /*
+     * Tombol berikutnya.
+     */
+    if (nextButton) {
+
+        nextButton.onclick =
+            function (event) {
+
+                event.stopPropagation();
+
+                tampilkanBanner(
+                    currentBanner + 1
+                );
+
+                mulaiTimer();
+            };
+    }
+
+    /*
+     * Dot navigasi.
+     */
+    dots.forEach(
+        (dot, index) => {
+
+            dot.onclick =
+                function (event) {
+
+                    event.stopPropagation();
+
+                    tampilkanBanner(
+                        index
+                    );
+
+                    mulaiTimer();
+                };
+        }
+    );
+
+    /*
+     * Swipe kiri / kanan
+     * untuk Android/mobile.
+     */
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    slider.addEventListener(
+        "touchstart",
+        function (event) {
+
+            if (
+                !event.touches ||
+                !event.touches.length
+            ) {
+                return;
+            }
+
+            touchStartX =
+                event.touches[0].clientX;
+
+        },
+        {
+            passive: true
+        }
+    );
+
+    slider.addEventListener(
+        "touchend",
+        function (event) {
+
+            if (
+                !event.changedTouches ||
+                !event.changedTouches.length
+            ) {
+                return;
+            }
+
+            touchEndX =
+                event.changedTouches[0].clientX;
+
+            const distance =
+                touchEndX -
+                touchStartX;
+
+            /*
+             * Minimal swipe 50px.
+             */
+            if (
+                Math.abs(distance) < 50
+            ) {
+                return;
+            }
+
+            if (distance < 0) {
+
+                tampilkanBanner(
+                    currentBanner + 1
+                );
+
+            } else {
+
+                tampilkanBanner(
+                    currentBanner - 1
+                );
+            }
+
+            mulaiTimer();
+        },
+        {
+            passive: true
+        }
+    );
+
+    /*
+     * Klik banner tetap ditangani
+     * oleh pasangEventBanner().
+     */
+
+    /*
+     * Render pertama.
+     */
+    tampilkanBanner(0);
+
+    /*
+     * Jalankan autoplay.
+     */
+    mulaiTimer();
+
+    /*
+     * Simpan controller global supaya
+     * renderBannerData() dapat
+     * me-refresh slider setelah
+     * data Supabase masuk.
+     */
+    window.sidatRefreshBannerSlider =
+        function () {
+
+            tampilkanBanner(0);
+
+            mulaiTimer();
+        };
+}
+/* =====================================================
+   PENGUMUMAN
+   ===================================================== */
+
+async function loadPengumuman() {
+    try {
+        let rows;
+
+        try {
+            rows =
+                await supabaseGet(
+                    "announcements",
+                    "select=*&is_active=eq.true&order=created_at.desc&limit=1"
+                );
+        } catch (_) {
+            rows =
+                await supabaseGet(
+                    "announcements",
+                    "select=*&order=created_at.desc&limit=1"
+                );
+        }
+
+        if (
+            !Array.isArray(rows) ||
+            !rows.length
+        ) {
+            return;
+        }
+
+        const item =
+            rows[0];
+
+        const title =
+            item.title ||
+            item.judul ||
+            "Pengumuman";
+
+        const content =
+            item.content ||
+            item.message ||
+            item.description ||
+            "";
+
+        const date =
+            item.published_at ||
+            item.created_at;
+
+        const titleElement =
+            document.getElementById(
+                "announcementTitle"
+            );
+
+        const messageElement =
+            document.getElementById(
+                "announcementMessage"
+            );
+
+        const dateElement =
+            document.getElementById(
+                "announcementDate"
+            );
+
+        if (titleElement) {
+            titleElement.textContent =
+                title;
+        }
+
+        if (messageElement) {
+            messageElement.textContent =
+                content ||
+                "Tidak ada keterangan.";
+        }
+
+        if (dateElement) {
+            dateElement.textContent =
+                formatTanggalWaktu(
+                    date
+                );
+        }
+    } catch (error) {
+        console.error(
+            "SIDAT pengumuman:",
+            error
+        );
+    }
+}
+
+
+/* =====================================================
+   NOTIFIKASI
+   ===================================================== */
+
+async function loadNotifikasi() {
+    const list =
+        document.getElementById(
+            "notificationList"
+        );
+
+    if (!list) return;
+
+    try {
+        const rows =
+            await supabaseGet(
+                "notifications",
+                "select=*&order=created_at.desc&limit=20"
+            );
+
+        const userId =
+            warga?.id ||
+            warga?.user_id ||
+            "";
+
+        const residentId =
+            warga?.resident_id ||
+            warga?.residentId ||
+            "";
+
+        const notifications =
+            (
+                Array.isArray(rows)
+                    ? rows
+                    : []
+            ).filter(
+                function (item) {
+                    const type =
+                        item.target_type ||
+                        "all";
+
+                    const target =
+                        item.target_resident_id ||
+                        item.resident_id ||
+                        "";
+
+                    if (
+                        type === "all" ||
+                        type === "warga"
+                    ) {
+                        return true;
+                    }
+
+                    if (
+                        type === "resident" ||
+                        type === "user"
+                    ) {
+                        return (
+                            String(target) ===
+                                String(
+                                    residentId
+                                ) ||
+                            String(target) ===
+                                String(userId)
+                        );
+                    }
+
+                    return false;
+                }
+            );
+
+        if (!notifications.length) {
+            list.innerHTML =
+                '<div class="notification-empty">Belum ada notifikasi.</div>';
+
+            return;
+        }
+
+        list.innerHTML =
+            notifications
+                .slice(0, 5)
                 .map(
-                    item => {
+                    function (
+                        item
+                    ) {
+                        const title =
+                            item.title ||
+                            item.judul ||
+                            "Notifikasi SIDAT";
 
-                        return `
+                        const message =
+                            item.message ||
+                            item.content ||
+                            item.body ||
+                            "";
 
-                            <div
-                                class="preview-item-pengumuman"
-                                onclick="bukaPengumumanWarga()"
-                            >
-
-                                <div
-                                    class="preview-item-icon"
-                                >
-                                    📢
-                                </div>
-
-
-                                <div
-                                    class="preview-item-content"
-                                >
-
-                                    <strong>
-                                        ${escapeHTMLDashboard(
-                                            item.title
-                                        )}
-                                    </strong>
-
-
-                                    <p>
-                                        ${escapeHTMLDashboard(
-                                            item.content
-                                        )}
-                                    </p>
-
-                                </div>
-
-
-                                <div
-                                    class="preview-item-time"
-                                >
-
-                                    ${formatWaktuPengumuman(
-                                        item.created_at
-                                    )}
-
-                                </div>
-
-                            </div>
-
-                        `;
-
+                        return (
+                            '<button type="button" class="dashboard-notification-item">' +
+                            '<span class="dashboard-notification-icon">' +
+                            '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+                            '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>' +
+                            '<path d="M10 21h4"/>' +
+                            "</svg>" +
+                            "</span>" +
+                            '<span class="dashboard-notification-body">' +
+                            "<strong>" +
+                            escapeHTML(title) +
+                            "</strong>" +
+                            "<span>" +
+                            escapeHTML(message) +
+                            "</span>" +
+                            "<small>" +
+                            escapeHTML(
+                                formatTanggalWaktu(
+                                    item.created_at
+                                )
+                            ) +
+                            "</small>" +
+                            "</span>" +
+                            "</button>"
+                        );
                     }
                 )
                 .join("");
 
-
-        if (badge) {
-
-            badge.textContent =
-                data.length > 9
-                    ? "9+"
-                    : data.length;
-
-
-            badge.classList.remove(
-                "hidden"
+        list
+            .querySelectorAll(
+                ".dashboard-notification-item"
+            )
+            .forEach(
+                function (item) {
+                    item.onclick =
+                        function () {
+                            window.location.href =
+                                "notifikasi.html";
+                        };
+                }
             );
-
-        }
-
-
     } catch (error) {
-
         console.error(
-            "Gagal memuat pengumuman:",
+            "SIDAT notifikasi:",
             error
         );
 
+        list.innerHTML =
+            '<div class="notification-empty">Notifikasi belum dapat dimuat.</div>';
     }
-
 }
 
 
-// ==========================================
-// LOAD BADGE IKON NOTIFIKASI
-// MENGGUNAKAN notification_reads
-// ==========================================
+/* =====================================================
+   RONDA
+   ===================================================== */
 
-async function loadBadgeIkonNotifikasi() {
-
-    const badge =
+async function loadJadwalRonda() {
+    const list =
         document.getElementById(
-            "notificationBadge"
+            "rondaScheduleList"
         );
 
-
-    if (!badge) {
-
-        console.log(
-            "SIDAT: notificationBadge tidak ditemukan."
-        );
-
-        return;
-
-    }
-
+    if (!list) return;
 
     try {
-
-        // ==================================
-        // SESSION
-        // ==================================
-
-        const token =
-            localStorage.getItem(
-                "sidat_access_token"
+        const rows =
+            await supabaseGet(
+                "ronda_schedule",
+                "select=id,day_of_week,resident_id,start_time,end_time,is_active,residents(id,resident_code,name)&is_active=eq.true&order=day_of_week.asc,start_time.asc"
             );
 
+        rondaSchedules =
+            Array.isArray(rows)
+                ? rows
+                : [];
 
-        if (!token) {
+        renderRondaCarousel();
 
-            console.log(
-                "SIDAT: Session warga tidak ditemukan."
-            );
-
-            return;
-
-        }
-
-
-        // ==================================
-        // AMBIL DATA WARGA
-        // ==================================
-
-        const dataWarga =
-            JSON.parse(
-                localStorage.getItem(
-                    "sidat_user"
-                ) ||
-                "{}"
-            );
-
-
-        const userId =
-            dataWarga.id ||
-            null;
-
-
-        const residentId =
-            dataWarga.resident_id ||
-            dataWarga.residentId ||
-            dataWarga.id_resident ||
-            null;
-
-
-        console.log(
-            "SIDAT BADGE USER ID:",
-            userId
-        );
-
-
-        console.log(
-            "SIDAT BADGE RESIDENT ID:",
-            residentId
-        );
-
-
-        if (!userId) {
-
-            console.warn(
-                "SIDAT: User ID tidak ditemukan."
-            );
-
-            badge.classList.add(
-                "hidden"
-            );
-
-            return;
-
-        }
-
-
-        // ==================================
-        // AMBIL NOTIFIKASI
-        // ==================================
-
-        let urlNotifikasi =
-            `${SUPABASE_URL}` +
-            `/rest/v1/notifications` +
-            `?select=id,target_type,target_resident_id`;
-
-
-        // ----------------------------------
-        // NOTIFIKASI UNTUK:
-        // 1. SEMUA WARGA
-        // 2. WARGA TERTENTU
-        // ----------------------------------
-
-        if (residentId) {
-
-            urlNotifikasi +=
-                `&or=` +
-                `(target_type.eq.all,` +
-                `and(` +
-                `target_type.eq.resident,` +
-                `target_resident_id.eq.${encodeURIComponent(
-                    residentId
-                )}` +
-                `))`;
-
-        }
-
-        else {
-
-            urlNotifikasi +=
-                `&target_type=eq.all`;
-
-        }
-
-
-        console.log(
-            "SIDAT URL BADGE NOTIFIKASI:",
-            urlNotifikasi
-        );
-
-
-        const notificationResponse =
-            await fetch(
-
-                urlNotifikasi,
-
-                {
-
-                    method:
-                        "GET",
-
-                    headers: {
-
-                        "apikey":
-                            SUPABASE_KEY,
-
-                        "Authorization":
-                            `Bearer ${token}`,
-
-                        "Accept":
-                            "application/json"
-
-                    }
-
-                }
-
-            );
-
-
-        if (
-            !notificationResponse.ok
-        ) {
-
-            const errorText =
-                await notificationResponse.text();
-
-
-            console.error(
-                "SIDAT ERROR BADGE NOTIFIKASI:",
-                errorText
-            );
-
-            throw new Error(
-                errorText ||
-                "Gagal mengambil notifikasi."
-            );
-
-        }
-
-
-        const notifications =
-            await notificationResponse.json();
-
-
-        if (
-            !Array.isArray(
-                notifications
-            )
-        ) {
-
-            throw new Error(
-                "Format data notifikasi tidak valid."
-            );
-
-        }
-
-
-        console.log(
-            "SIDAT TOTAL NOTIFIKASI:",
-            notifications.length
-        );
-
-
-        // ==================================
-        // JIKA TIDAK ADA NOTIFIKASI
-        // ==================================
-
-        if (
-            notifications.length ===
-            0
-        ) {
-
-            badge.textContent =
-                "0";
-
-            badge.classList.add(
-                "hidden"
-            );
-
-            return;
-
-        }
-
-
-        // ==================================
-        // AMBIL STATUS BACA USER
-        // ==================================
-
-        const urlReads =
-            `${SUPABASE_URL}` +
-            `/rest/v1/notification_reads` +
-            `?select=notification_id` +
-            `&user_id=eq.${encodeURIComponent(
-                userId
-            )}`;
-
-
-        console.log(
-            "SIDAT URL BADGE READS:",
-            urlReads
-        );
-
-
-        const readsResponse =
-            await fetch(
-
-                urlReads,
-
-                {
-
-                    method:
-                        "GET",
-
-                    headers: {
-
-                        "apikey":
-                            SUPABASE_KEY,
-
-                        "Authorization":
-                            `Bearer ${token}`,
-
-                        "Accept":
-                            "application/json"
-
-                    }
-
-                }
-
-            );
-
-
-        if (
-            !readsResponse.ok
-        ) {
-
-            const errorText =
-                await readsResponse.text();
-
-
-            console.error(
-                "SIDAT ERROR BADGE READS:",
-                errorText
-            );
-
-            throw new Error(
-                errorText ||
-                "Gagal mengambil status baca."
-            );
-
-        }
-
-
-        const reads =
-            await readsResponse.json();
-
-
-        // ==================================
-        // BUAT SET NOTIFIKASI SUDAH DIBACA
-        // ==================================
-
-        const sudahDibaca =
-            new Set(
-
-                Array.isArray(
-                    reads
-                )
-
-                    ? reads.map(
-                        item =>
-                            String(
-                                item.notification_id
-                            )
-                    )
-
-                    : []
-
-            );
-
-
-        console.log(
-            "SIDAT NOTIFIKASI SUDAH DIBACA:",
-            [
-                ...sudahDibaca
-            ]
-        );
-
-
-        // ==================================
-        // HITUNG BELUM DIBACA
-        // ==================================
-
-        const belumDibaca =
-            notifications.filter(
-                item =>
-                    !sudahDibaca.has(
-                        String(
-                            item.id
-                        )
-                    )
-            );
-
-
-        const jumlah =
-            belumDibaca.length;
-
-
-        console.log(
-            "SIDAT NOTIFIKASI BELUM DIBACA:",
-            jumlah
-        );
-
-
-        // ==================================
-        // TAMPILKAN BADGE
-        // ==================================
-
-        if (
-            jumlah > 0
-        ) {
-
-            badge.textContent =
-                jumlah > 99
-                    ? "99+"
-                    : jumlah;
-
-
-            badge.classList.remove(
-                "hidden"
-            );
-
-        }
-
-        else {
-
-            badge.textContent =
-                "0";
-
-
-            badge.classList.add(
-                "hidden"
-            );
-
-        }
-
-
-    }
-
-    catch (
-        error
-    ) {
-
+    } catch (error) {
         console.error(
-            "SIDAT: Gagal memuat badge ikon notifikasi:",
+            "SIDAT ronda:",
             error
         );
 
+        list.innerHTML =
+            '<div class="ronda-day-slide active">' +
+            '<div class="ronda-day-name">Jadwal Ronda</div>' +
+            '<div class="ronda-empty-day">Jadwal belum dapat dimuat.</div>' +
+            "</div>";
+    }
+}
 
-        badge.textContent =
-            "0";
 
-
-        badge.classList.add(
-            "hidden"
+function renderRondaCarousel() {
+    const list =
+        document.getElementById(
+            "rondaScheduleList"
         );
 
+    const dots =
+        document.getElementById(
+            "rondaDots"
+        );
+
+    const todayText =
+        document.getElementById(
+            "rondaTodayText"
+        );
+
+    if (!list) return;
+
+    const today =
+        getJakartaDayOfWeek();
+
+    rondaCurrentDay =
+        today;
+
+    const myResidentId =
+        warga?.resident_id ||
+        warga?.residentId ||
+        "";
+
+    let html = "";
+
+    for (
+        let day = 1;
+        day <= 7;
+        day++
+    ) {
+        const rows =
+            rondaSchedules.filter(
+                function (row) {
+                    return (
+                        Number(
+                            row.day_of_week
+                        ) === day
+                    );
+                }
+            );
+
+        const active =
+            day === rondaCurrentDay
+                ? "active"
+                : "";
+
+        html +=
+            '<article class="ronda-day-slide ' +
+            active +
+            '" data-ronda-day="' +
+            day +
+            '">' +
+
+            '<div class="ronda-day-name">' +
+            escapeHTML(
+                getNamaHari(day)
+            ) +
+            "</div>" +
+
+            (
+                day === today
+                    ? '<div class="ronda-day-date">Hari ini</div>'
+                    : '<div class="ronda-day-date">Jadwal mingguan</div>'
+            ) +
+
+            '<div class="ronda-person-list">';
+
+        if (!rows.length) {
+            html +=
+                '<div class="ronda-empty-day">' +
+                "Belum ada jadwal untuk hari ini." +
+                "</div>";
+        } else {
+            rows.forEach(
+                function (
+                    row
+                ) {
+                    const resident =
+                        row.residents ||
+                        {};
+
+                    const name =
+                        resident.name ||
+                        "Warga";
+
+                    const isMine =
+                        String(
+                            row.resident_id
+                        ) ===
+                        String(
+                            myResidentId
+                        );
+
+                    const time =
+                        row.start_time
+                            ? formatJam(
+                                  row.start_time
+                              )
+                            : "";
+
+                    const end =
+                        row.end_time
+                            ? formatJam(
+                                  row.end_time
+                              )
+                            : "";
+
+                    html +=
+                        '<div class="ronda-person ' +
+                        (
+                            isMine
+                                ? "mine"
+                                : ""
+                        ) +
+                        '">' +
+
+                        '<div class="ronda-person-avatar">' +
+                        escapeHTML(
+                            getInitials(
+                                name
+                            )
+                        ) +
+                        "</div>" +
+
+                        '<div class="ronda-person-info">' +
+                        "<strong>" +
+                        escapeHTML(
+                            name
+                        ) +
+                        "</strong>" +
+
+                        (
+                            time
+                                ? "<span>" +
+                                  escapeHTML(
+                                      time +
+                                      (
+                                          end
+                                              ? " – " +
+                                                end
+                                              : ""
+                                      )
+                                  ) +
+                                  "</span>"
+                                : ""
+                        ) +
+
+                        "</div>" +
+
+                        "</div>";
+                }
+            );
+        }
+
+        html +=
+            "</div>" +
+            "</article>";
     }
 
+    list.innerHTML =
+        html;
+
+    renderRondaDots();
+
+    updateRondaTodayText();
+
+    pasangKontrolRonda();
+
+    startRondaAutoSlide();
 }
 
 
-// ==========================================
-// BUKA PENGUMUMAN
-// ==========================================
+function renderRondaDots() {
+    const dots =
+        document.getElementById(
+            "rondaDots"
+        );
 
-function bukaPengumumanWarga() {
+    if (!dots) return;
 
-    window.location.href =
-        "pengumuman.html";
+    let html = "";
 
+    for (
+        let day = 1;
+        day <= 7;
+        day++
+    ) {
+        html +=
+            '<button type="button" class="ronda-dot ' +
+            (
+                day ===
+                rondaCurrentDay
+                    ? "active"
+                    : ""
+            ) +
+            '" data-ronda-dot="' +
+            day +
+            '" aria-label="Jadwal ' +
+            escapeHTML(
+                getNamaHari(day)
+            ) +
+            '"></button>';
+    }
+
+    dots.innerHTML =
+        html;
+
+    dots
+        .querySelectorAll(
+            ".ronda-dot"
+        )
+        .forEach(
+            function (dot) {
+                dot.onclick =
+                    function () {
+                        showRondaDay(
+                            Number(
+                                dot.dataset
+                                    .rondaDot
+                            )
+                        );
+
+                        restartRondaTimer();
+                    };
+            }
+        );
 }
 
 
-function bukaNotifikasi() {
+function showRondaDay(day) {
+    if (
+        day < 1 ||
+        day > 7
+    ) {
+        return;
+    }
 
-    window.location.href =
-        "notifikasi.html";
+    rondaCurrentDay =
+        day;
 
+    document
+        .querySelectorAll(
+            ".ronda-day-slide"
+        )
+        .forEach(
+            function (
+                slide
+            ) {
+                slide.classList.toggle(
+                    "active",
+                    Number(
+                        slide.dataset
+                            .rondaDay
+                    ) === day
+                );
+            }
+        );
+
+    document
+        .querySelectorAll(
+            ".ronda-dot"
+        )
+        .forEach(
+            function (
+                dot
+            ) {
+                dot.classList.toggle(
+                    "active",
+                    Number(
+                        dot.dataset
+                            .rondaDot
+                    ) === day
+                );
+            }
+        );
+
+    updateRondaTodayText();
 }
 
 
-// ==========================================
-// TOMBOL LIHAT SEMUA PENGUMUMAN
-// ==========================================
+function updateRondaTodayText() {
+    const element =
+        document.getElementById(
+            "rondaTodayText"
+        );
 
-function pasangTombolPengumuman() {
+    const today =
+        getJakartaDayOfWeek();
 
-    const tombol =
+    const myResidentId =
+        warga?.resident_id ||
+        warga?.residentId ||
+        "";
+
+    const todayRows =
+        rondaSchedules.filter(
+            function (row) {
+                return (
+                    Number(
+                        row.day_of_week
+                    ) === today
+                );
+            }
+        );
+
+    const mine =
+        todayRows.find(
+            function (row) {
+                return (
+                    String(
+                        row.resident_id
+                    ) ===
+                    String(
+                        myResidentId
+                    )
+                );
+            }
+        );
+
+    if (!element) return;
+
+    if (mine) {
+        element.textContent =
+            "Anda mendapat jadwal ronda hari ini.";
+    } else if (
+        todayRows.length
+    ) {
+        element.textContent =
+            todayRows.length +
+            " warga bertugas hari ini.";
+    } else {
+        element.textContent =
+            "Tidak ada jadwal ronda hari ini.";
+    }
+}
+
+
+function pasangKontrolRonda() {
+    const prev =
+        document.getElementById(
+            "rondaPrev"
+        );
+
+    const next =
+        document.getElementById(
+            "rondaNext"
+        );
+
+    if (prev) {
+        prev.onclick =
+            function () {
+                let day =
+                    rondaCurrentDay -
+                    1;
+
+                if (day < 1) {
+                    day = 7;
+                }
+
+                showRondaDay(day);
+                restartRondaTimer();
+            };
+    }
+
+    if (next) {
+        next.onclick =
+            function () {
+                let day =
+                    rondaCurrentDay +
+                    1;
+
+                if (day > 7) {
+                    day = 1;
+                }
+
+                showRondaDay(day);
+                restartRondaTimer();
+            };
+    }
+}
+
+
+function startRondaAutoSlide() {
+    clearInterval(
+        rondaTimer
+    );
+
+    rondaTimer =
+        setInterval(
+            function () {
+                let day =
+                    rondaCurrentDay +
+                    1;
+
+                if (day > 7) {
+                    day = 1;
+                }
+
+                showRondaDay(day);
+            },
+            7000
+        );
+}
+
+
+function restartRondaTimer() {
+    startRondaAutoSlide();
+}
+
+
+/* =====================================================
+   STATISTIK
+   ===================================================== */
+
+async function loadStatistikWarga() {
+    try {
+        const result =
+            await supabasePostRPC(
+                "get_resident_statistics"
+            );
+
+        const data =
+            Array.isArray(result)
+                ? result[0] || {}
+                : result || {};
+
+        const totalWarga =
+            data.total_warga ??
+            data.total_residents ??
+            data.warga ??
+            0;
+
+        const totalKK =
+            data.total_kk ??
+            data.total_households ??
+            data.kk ??
+            0;
+
+        const wargaElement =
+            document.getElementById(
+                "totalWarga"
+            );
+
+        const kkElement =
+            document.getElementById(
+                "totalKK"
+            );
+
+        if (wargaElement) {
+            wargaElement.textContent =
+                Number(
+                    totalWarga
+                ).toLocaleString(
+                    "id-ID"
+                );
+        }
+
+        if (kkElement) {
+            kkElement.textContent =
+                Number(
+                    totalKK
+                ).toLocaleString(
+                    "id-ID"
+                );
+        }
+    } catch (error) {
+        console.error(
+            "SIDAT statistik:",
+            error
+        );
+    }
+}
+
+
+/* =====================================================
+   JIMPITAN
+   ===================================================== */
+
+async function loadSaldoJimpitan() {
+    const element =
+        document.getElementById(
+            "saldoJimpitan"
+        );
+
+    if (!element) return;
+
+    try {
+        const result =
+            await supabasePostRPC(
+                "get_jimpitan_balance"
+            );
+
+        let balance = 0;
+
+        if (
+            typeof result ===
+            "number"
+        ) {
+            balance = result;
+        } else if (
+            Array.isArray(result)
+        ) {
+            const row =
+                result[0] || {};
+
+            balance =
+                row.balance ??
+                row.saldo ??
+                row.get_jimpitan_balance ??
+                0;
+        } else if (
+            result &&
+            typeof result ===
+                "object"
+        ) {
+            balance =
+                result.balance ??
+                result.saldo ??
+                result.get_jimpitan_balance ??
+                0;
+        }
+
+        element.textContent =
+            formatRupiah(
+                balance
+            );
+    } catch (error) {
+        console.error(
+            "SIDAT jimpitan:",
+            error
+        );
+
+        element.textContent =
+            formatRupiah(0);
+    }
+}
+
+
+/* =====================================================
+   KAS
+   ===================================================== */
+
+async function loadSaldoKas() {
+    const element =
+        document.getElementById(
+            "saldoKas"
+        );
+
+    if (!element) return;
+
+    try {
+        const rows =
+            await supabaseGet(
+                "cash_transactions",
+                "select=transaction_type,amount"
+            );
+
+        let saldo = 0;
+
+        (
+            Array.isArray(rows)
+                ? rows
+                : []
+        ).forEach(
+            function (row) {
+                const type =
+                    String(
+                        row.transaction_type ||
+                            ""
+                    ).toLowerCase();
+
+                const amount =
+                    Number(
+                        row.amount ||
+                            0
+                    );
+
+                if (
+                    [
+                        "masuk",
+                        "income",
+                        "pemasukan",
+                        "jimpitan_transfer"
+                    ].includes(type)
+                ) {
+                    saldo += amount;
+                }
+
+                if (
+                    [
+                        "keluar",
+                        "expense",
+                        "pengeluaran"
+                    ].includes(type)
+                ) {
+                    saldo -= amount;
+                }
+            }
+        );
+
+        element.textContent =
+            formatRupiah(
+                saldo
+            );
+    } catch (error) {
+        console.error(
+            "SIDAT kas:",
+            error
+        );
+
+        element.textContent =
+            formatRupiah(0);
+    }
+}
+
+
+/* =====================================================
+   GRAFIK WARGA
+   ===================================================== */
+
+async function loadGrafikWarga() {
+    try {
+        const rows =
+            await supabaseGet(
+                "residents",
+                "select=gender,birth_date,family_status,is_active"
+            );
+
+        window.sidatDashboardResidents =
+            Array.isArray(rows)
+                ? rows
+                : [];
+
+        renderGrafikWarga(
+            "semua"
+        );
+
+        pasangFilterGrafikWarga();
+    } catch (error) {
+        console.error(
+            "SIDAT grafik warga:",
+            error
+        );
+    }
+}
+
+
+function hitungUmur(
+    birthDate
+) {
+    if (!birthDate) return null;
+
+    const birth =
+        new Date(birthDate);
+
+    if (
+        Number.isNaN(
+            birth.getTime()
+        )
+    ) {
+        return null;
+    }
+
+    const today =
+        getJakartaDate();
+
+    let age =
+        today.getFullYear() -
+        birth.getFullYear();
+
+    const month =
+        today.getMonth() -
+        birth.getMonth();
+
+    if (
+        month < 0 ||
+        (
+            month === 0 &&
+            today.getDate() <
+                birth.getDate()
+        )
+    ) {
+        age--;
+    }
+
+    return age;
+}
+
+
+function normalizeGender(
+    value
+) {
+    const gender =
+        String(value || "")
+            .trim()
+            .toLowerCase();
+
+    if (
+        [
+            "l",
+            "laki-laki",
+            "laki laki",
+            "male",
+            "pria"
+        ].includes(gender)
+    ) {
+        return "laki";
+    }
+
+    if (
+        [
+            "p",
+            "perempuan",
+            "female",
+            "wanita"
+        ].includes(gender)
+    ) {
+        return "perempuan";
+    }
+
+    return "lainnya";
+}
+
+
+function isKepalaKeluarga(
+    value
+) {
+    const text =
+        String(value || "")
+            .trim()
+            .toLowerCase();
+
+    return (
+        text ===
+            "kepala keluarga" ||
+        text ===
+            "kepala_keluarga" ||
+        text === "kk"
+    );
+}
+
+
+function renderGrafikWarga(
+    filter
+) {
+    const rows =
+        window.sidatDashboardResidents ||
+        [];
+
+    const canvas =
+        document.getElementById(
+            "ageChart"
+        );
+
+    const empty =
+        document.getElementById(
+            "ageChartEmpty"
+        );
+
+    if (!canvas) return;
+
+    let filtered =
+        rows.filter(
+            function (row) {
+                return (
+                    row.is_active !==
+                    false
+                );
+            }
+        );
+
+    if (filter === "kk") {
+        filtered =
+            filtered.filter(
+                function (row) {
+                    return isKepalaKeluarga(
+                        row.family_status
+                    );
+                }
+            );
+    }
+
+    if (filter === "laki") {
+        filtered =
+            filtered.filter(
+                function (row) {
+                    return (
+                        normalizeGender(
+                            row.gender
+                        ) ===
+                        "laki"
+                    );
+                }
+            );
+    }
+
+    if (
+        filter ===
+        "perempuan"
+    ) {
+        filtered =
+            filtered.filter(
+                function (row) {
+                    return (
+                        normalizeGender(
+                            row.gender
+                        ) ===
+                        "perempuan"
+                    );
+                }
+            );
+    }
+
+    const groups = {
+        "0–5": 0,
+        "6–12": 0,
+        "13–17": 0,
+        "18–30": 0,
+        "31–45": 0,
+        "46–60": 0,
+        "61+": 0
+    };
+
+    filtered.forEach(
+        function (row) {
+            const age =
+                hitungUmur(
+                    row.birth_date
+                );
+
+            if (
+                age === null ||
+                age < 0
+            ) {
+                return;
+            }
+
+            if (age <= 5) {
+                groups["0–5"]++;
+            } else if (age <= 12) {
+                groups["6–12"]++;
+            } else if (age <= 17) {
+                groups["13–17"]++;
+            } else if (age <= 30) {
+                groups["18–30"]++;
+            } else if (age <= 45) {
+                groups["31–45"]++;
+            } else if (age <= 60) {
+                groups["46–60"]++;
+            } else {
+                groups["61+"]++;
+            }
+        }
+    );
+
+    const values =
+        Object.values(groups);
+
+    if (empty) {
+        empty.style.display =
+            values.some(
+                function (value) {
+                    return value > 0;
+                }
+            )
+                ? "none"
+                : "block";
+    }
+
+    if (!window.Chart) return;
+
+    if (ageChart) {
+        ageChart.destroy();
+    }
+
+    ageChart =
+        new Chart(
+            canvas,
+            {
+                type: "bar",
+
+                data: {
+                    labels:
+                        Object.keys(
+                            groups
+                        ),
+
+                    datasets: [
+                        {
+                            label:
+                                "Jumlah Warga",
+
+                            data:
+                                values,
+
+                            borderWidth:
+                                1,
+
+                            borderRadius:
+                                8,
+
+                            backgroundColor:
+                                "#15803d"
+                        }
+                    ]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio:
+                        false,
+
+                    plugins: {
+                        legend: {
+                            display:
+                                false
+                        }
+                    },
+
+                    scales: {
+                        y: {
+                            beginAtZero:
+                                true,
+
+                            ticks: {
+                                precision:
+                                    0
+                            }
+                        }
+                    }
+                }
+            }
+        );
+}
+
+
+function pasangFilterGrafikWarga() {
+    document
+        .querySelectorAll(
+            "#filterGrafikWarga [data-filter]"
+        )
+        .forEach(
+            function (
+                button
+            ) {
+                button.onclick =
+                    function () {
+                        document
+                            .querySelectorAll(
+                                "#filterGrafikWarga [data-filter]"
+                            )
+                            .forEach(
+                                function (
+                                    item
+                                ) {
+                                    item.classList.toggle(
+                                        "active",
+                                        item ===
+                                            button
+                                    );
+                                }
+                            );
+
+                        renderGrafikWarga(
+                            button.dataset
+                                .filter
+                        );
+                    };
+            }
+        );
+}
+
+
+/* =====================================================
+   GRAFIK KEUANGAN
+   ===================================================== */
+
+async function loadGrafikKeuangan() {
+    try {
+        const rows =
+            await supabaseGet(
+                "cash_transactions",
+                "select=*&order=created_at.asc"
+            );
+
+        window.sidatDashboardCash =
+            Array.isArray(rows)
+                ? rows
+                : [];
+
+        renderGrafikKeuangan(
+            30
+        );
+
+        pasangFilterGrafikKeuangan();
+    } catch (error) {
+        console.error(
+            "SIDAT grafik keuangan:",
+            error
+        );
+    }
+}
+
+
+function getTransactionDate(
+    row
+) {
+    return (
+        row.transaction_date ||
+        row.date ||
+        row.created_at ||
+        null
+    );
+}
+
+
+function renderGrafikKeuangan(
+    days
+) {
+    const rows =
+        window.sidatDashboardCash ||
+        [];
+
+    const canvas =
+        document.getElementById(
+            "financeChart"
+        );
+
+    const empty =
+        document.getElementById(
+            "financeChartEmpty"
+        );
+
+    if (!canvas) return;
+
+    const now =
+        getJakartaDate();
+
+    const start =
+        new Date(now);
+
+    start.setDate(
+        start.getDate() -
+            Number(days)
+    );
+
+    const grouped = {};
+
+    rows.forEach(
+        function (row) {
+            const dateValue =
+                getTransactionDate(
+                    row
+                );
+
+            if (!dateValue) return;
+
+            const date =
+                new Date(
+                    dateValue
+                );
+
+            if (
+                Number.isNaN(
+                    date.getTime()
+                ) ||
+                date < start
+            ) {
+                return;
+            }
+
+            const key =
+                date.toLocaleDateString(
+                    "id-ID",
+                    {
+                        day: "2-digit",
+                        month: "2-digit"
+                    }
+                );
+
+            if (!grouped[key]) {
+                grouped[key] = {
+                    income: 0,
+                    expense: 0
+                };
+            }
+
+            const type =
+                String(
+                    row.transaction_type ||
+                        ""
+                ).toLowerCase();
+
+            const amount =
+                Number(
+                    row.amount ||
+                        0
+                );
+
+            if (
+                [
+                    "masuk",
+                    "income",
+                    "pemasukan",
+                    "jimpitan_transfer"
+                ].includes(type)
+            ) {
+                grouped[key]
+                    .income +=
+                    amount;
+            }
+
+            if (
+                [
+                    "keluar",
+                    "expense",
+                    "pengeluaran"
+                ].includes(type)
+            ) {
+                grouped[key]
+                    .expense +=
+                    amount;
+            }
+        }
+    );
+
+    const labels =
+        Object.keys(grouped);
+
+    if (empty) {
+        empty.style.display =
+            labels.length
+                ? "none"
+                : "block";
+    }
+
+    if (!window.Chart) return;
+
+    if (financeChart) {
+        financeChart.destroy();
+    }
+
+    financeChart =
+        new Chart(
+            canvas,
+            {
+                type: "line",
+
+                data: {
+                    labels,
+
+                    datasets: [
+                        {
+                            label:
+                                "Pemasukan",
+
+                            data:
+                                labels.map(
+                                    function (
+                                        label
+                                    ) {
+                                        return grouped[
+                                            label
+                                        ].income;
+                                    }
+                                ),
+
+                            borderColor:
+                                "#15803d",
+
+                            backgroundColor:
+                                "rgba(21,128,61,.12)",
+
+                            fill: true,
+
+                            tension:
+                                .3
+                        },
+
+                        {
+                            label:
+                                "Pengeluaran",
+
+                            data:
+                                labels.map(
+                                    function (
+                                        label
+                                    ) {
+                                        return grouped[
+                                            label
+                                        ].expense;
+                                    }
+                                ),
+
+                            borderColor:
+                                "#dc2626",
+
+                            backgroundColor:
+                                "rgba(220,38,38,.08)",
+
+                            fill: true,
+
+                            tension:
+                                .3
+                        }
+                    ]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio:
+                        false,
+
+                    interaction: {
+                        mode:
+                            "index",
+
+                        intersect:
+                            false
+                    },
+
+                    scales: {
+                        y: {
+                            beginAtZero:
+                                true,
+
+                            ticks: {
+                                callback:
+                                    function (
+                                        value
+                                    ) {
+                                        return formatRupiah(
+                                            value
+                                        );
+                                    }
+                            }
+                        }
+                    }
+                }
+            }
+        );
+}
+
+
+function pasangFilterGrafikKeuangan() {
+    document
+        .querySelectorAll(
+            "#filterGrafikKeuangan [data-days]"
+        )
+        .forEach(
+            function (
+                button
+            ) {
+                button.onclick =
+                    function () {
+                        document
+                            .querySelectorAll(
+                                "#filterGrafikKeuangan [data-days]"
+                            )
+                            .forEach(
+                                function (
+                                    item
+                                ) {
+                                    item.classList.toggle(
+                                        "active",
+                                        item ===
+                                            button
+                                    );
+                                }
+                            );
+
+                        renderGrafikKeuangan(
+                            Number(
+                                button.dataset
+                                    .days
+                            )
+                        );
+                    };
+            }
+        );
+}
+
+
+/* =====================================================
+   NAVIGASI
+   ===================================================== */
+
+function pasangNavigasi() {
+    const profile =
+        document.getElementById(
+            "profileButton"
+        );
+
+    const announcement =
         document.getElementById(
             "btnLihatPengumuman"
         );
 
-
-    if (!tombol) {
-
-        return;
-
-    }
-
-
-    tombol.addEventListener(
-        "click",
-        function() {
-
-            window.location.href =
-                "pengumuman.html";
-
-        }
-    );
-
-}
-
-
-// ==========================================
-// MENU PROFIL
-// ==========================================
-
-function bukaProfil() {
-
-    window.location.href =
-        "profil.html";
-
-}
-
-
-// ==========================================
-// DATA WARGA
-// ==========================================
-
-function bukaDataWarga() {
-
-    window.location.href =
-        "data-warga.html";
-
-}
-
-
-// ==========================================
-// RIWAYAT JIMPITAN
-// ==========================================
-
-function bukaRiwayatJimpitan() {
-
-    window.location.href =
-        "riwayat-jimpitan.html";
-
-}
-
-
-// ==========================================
-// SCAN QR
-// ==========================================
-
-function bukaScanQR() {
-
-    window.location.href =
-        "scan-jimpitan.html";
-
-}
-
-
-// ==========================================
-// LAPORAN
-// ==========================================
-
-function bukaLaporan() {
-
-    window.location.href =
-        "laporan.html";
-
-}
-
-
-// ==========================================
-// KAS
-// ==========================================
-
-function bukaSaldoKas() {
-
-    window.location.href =
-        "kas.html";
-
-}
-
-
-// ==========================================
-// LOGOUT
-// ==========================================
-
-async function logoutWarga() {
-
-    localStorage.removeItem(
-        "sidat_access_token"
-    );
-
-
-    localStorage.removeItem(
-        "sidat_user"
-    );
-
-
-    localStorage.removeItem(
-        "sidat_warga"
-    );
-
-
-    localStorage.removeItem(
-        "sidat_wilayah_data"
-    );
-
-
-    window.location.href =
-        "../index.html";
-
-}
-
-
-// ==========================================
-// PASANG EVENT LOGOUT
-// ==========================================
-
-function pasangEventLogout() {
-
-    const tombol =
-        document.querySelectorAll(
-            '[onclick*="logoutWarga"]'
+    const notification =
+        document.getElementById(
+            "btnLihatNotifikasi"
         );
 
+    if (profile) {
+        profile.onclick =
+            function () {
+                window.location.href =
+                    "profil.html";
+            };
+    }
 
-    tombol.forEach(
-        button => {
+    if (announcement) {
+        announcement.onclick =
+            function () {
+                window.location.href =
+                    "pengumuman.html";
+            };
+    }
 
-            button.addEventListener(
-                "click",
-                function(event) {
-
-                    event.preventDefault();
-
-                    logoutWarga();
-
-                }
-            );
-
-        }
-    );
-
+    if (notification) {
+        notification.onclick =
+            function () {
+                window.location.href =
+                    "notifikasi.html";
+            };
+    }
 }
 
 
-// ==========================================
-// INIT DASHBOARD
-// ==========================================
+/* =====================================================
+   LOADING
+   ===================================================== */
+
+function tutupLoading() {
+    const loading =
+        document.getElementById(
+            "loadingScreen"
+        );
+
+    if (!loading) return;
+
+    loading.classList.add(
+        "hidden"
+    );
+
+    loading.style.pointerEvents =
+        "none";
+}
+
+
+/* =====================================================
+   INIT
+   ===================================================== */
 
 async function initDashboard() {
 
-    console.log(
-        "Memuat Dashboard SIDAT..."
-    );
+    try {
 
+        pasangNavigasi();
 
-    // ======================================
-    // DATA WARGA
-    // ======================================
+        tampilkanProfilWarga(
+            warga
+        );
 
-    tampilkanDataWarga();
+        initBannerSlider();
 
+        if (
+            typeof window.mulaiPopupNotifikasi ===
+            "function"
+        ) {
+            try {
+                window.mulaiPopupNotifikasi();
+            } catch (error) {
+                console.warn(
+                    "Popup notifikasi tidak dimulai.",
+                    error
+                );
+            }
+        }
+pasangEventBanner();
+        await Promise.allSettled([
+            loadProfilWarga(),
+            loadWilayah(),
+            loadBannerData(),
+            loadPengumuman(),
+            loadNotifikasi(),
+            loadJadwalRonda(),
+            loadStatistikWarga(),
+            loadSaldoJimpitan(),
+            loadSaldoKas(),
+            loadGrafikWarga(),
+            loadGrafikKeuangan()
+        ]);
 
-    await loadProfilTerbaru();
+    } catch (error) {
 
-    // ======================================
-    // POPUP NOTIFIKASI
-    // ======================================
+        console.error(
+            "SIDAT dashboard:",
+            error
+        );
 
-    if (typeof mulaiPopupNotifikasi === "function") {
+    } finally {
 
-        mulaiPopupNotifikasi();
-
+        tutupLoading();
     }
-
-
-    // ======================================
-
-
-    // ======================================
-    // EVENT
-    // ======================================
-
-    pasangEventLogout();
-
-    pasangTombolPengumuman();
-
-
-    // ======================================
-    // LOAD DATA DASHBOARD
-    // ======================================
-
-    await Promise.allSettled([
-
-        loadWilayah(),
-
-        loadStatistikWarga(),
-
-        loadSaldoJimpitan(),
-
-        loadSaldoKas(),
-
-        loadPreviewPengumuman(),
-
-        loadBadgeIkonNotifikasi()
-
-    ]);
-
-
-    console.log(
-        "SIDAT: Dashboard Warga siap."
-    );
-
 }
 
 
-// ==========================================
-// START
-// ==========================================
+/* =====================================================
+   START
+   ===================================================== */
 
 if (
     document.readyState ===
     "loading"
 ) {
-
     document.addEventListener(
         "DOMContentLoaded",
         initDashboard
     );
-
 } else {
-
     initDashboard();
-
 }
+
+})();

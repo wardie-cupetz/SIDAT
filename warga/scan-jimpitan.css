@@ -1,53 +1,454 @@
+/* =========================================================
+   SIDAT - SCAN JIMPITAN
+   Versi Mobile / APK
+   Menggunakan warga-menu.js + warga-menu.css
+   ========================================================= */
+
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+:root {
+    --sidat-green: #15803d;
+    --sidat-green-dark: #14532d;
+    --sidat-green-soft: #f0fdf4;
+    --sidat-green-border: #bbf7d0;
+
+    --sidat-text: #1e293b;
+    --sidat-muted: #64748b;
+    --sidat-border: #e2e8f0;
+
+    /*
+     * warga-menu.css terbaru:
+     * copyright berada di bawah bottom navbar.
+     *
+     * Nilai ini harus mengikuti tinggi footer
+     * yang digunakan warga-menu.css.
+     */
+    --sidat-warga-bottom-safe: 125px;
+}
+
+html {
+    min-height: 100%;
+    background: #f1f5f9;
+}
 
 body {
+    min-height: 100vh;
 
     font-family:
         Arial,
         Helvetica,
         sans-serif;
 
-    background:
-        #f1f5f9;
+    background: #f1f5f9;
+    color: var(--sidat-text);
 
-    color:
-        #1e293b;
-
-    min-height:
-        100vh;
-}
-
-
-.page-container {
-
-    width:
-        100%;
-
-    max-width:
-        520px;
-
-    min-height:
-        100vh;
-
-    margin:
-        auto;
-
-    background:
-        #f8fafc;
+    overflow-x: hidden;
 
     padding-bottom:
-        30px;
+        calc(
+            var(--sidat-warga-bottom-safe)
+            + env(safe-area-inset-bottom)
+        );
 }
 
+/* =========================================================
+   CONTAINER
+   ========================================================= */
 
-/* HEADER */
+.page-container {
+    width: 100%;
+    max-width: 520px;
+    min-height: 100vh;
+
+    margin: 0 auto;
+
+    background: #f8fafc;
+
+    padding-bottom: 20px;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
 
 .page-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding:
+        12px 15px;
+
+    background: rgba(255, 255, 255, 0.97);
+
+    border-bottom:
+        1px solid var(--sidat-border);
+
+    box-shadow:
+        0 2px 8px rgba(15, 23, 42, 0.04);
+
+    backdrop-filter:
+        blur(10px);
+
+    -webkit-backdrop-filter:
+        blur(10px);
+}
+
+.back-button {
+    width: 40px;
+    height: 40px;
+
+    flex: 0 0 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 11px;
+
+    background: #f1f5f9;
+
+    color: #334155;
+
+    cursor: pointer;
+
+    -webkit-tap-highlight-color: transparent;
+}
+
+.back-button svg {
+    width: 21px;
+    height: 21px;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 2;
+
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.back-button:active {
+    transform: scale(0.95);
+}
+
+.page-header-text {
+    min-width: 0;
+}
+
+.page-header h1 {
+    font-size: 17px;
+    font-weight: 800;
+
+    color:
+        var(--sidat-green-dark);
+
+    line-height: 1.25;
+
+    margin-bottom: 3px;
+}
+
+.page-header span {
+    display: block;
+
+    font-size: 10px;
+
+    color:
+        var(--sidat-muted);
+
+    line-height: 1.3;
+}
+
+/* =========================================================
+   SCANNER CARD
+   ========================================================= */
+
+.scanner-card {
+    margin: 15px;
+
+    padding: 15px;
+
+    background: #ffffff;
+
+    border:
+        1px solid var(--sidat-border);
+
+    border-radius: 16px;
+
+    text-align: center;
+
+    box-shadow:
+        0 4px 14px rgba(15, 23, 42, 0.04);
+}
+
+.reader {
+    width: 100%;
+
+    overflow: hidden;
+
+    border-radius: 12px;
+
+    background:
+        #0f172a;
+
+    min-height: 220px;
+}
+
+#reader video {
+    display: block;
+
+    width: 100% !important;
+    height: auto !important;
+
+    border-radius: 12px;
+}
+
+#reader img {
+    max-width: 100%;
+}
+
+#reader__dashboard_section_csr {
+    margin-top: 8px;
+}
+
+#reader__dashboard_section_csr button,
+#reader__dashboard_section_csr select {
+    max-width: 100%;
+}
+
+.scanner-card p {
+    margin-top: 10px;
+
+    font-size: 11px;
+
+    color:
+        var(--sidat-muted);
+
+    line-height: 1.45;
+}
+
+/* =========================================================
+   TOMBOL SENTER
+   ========================================================= */
+
+.scanner-controls {
+    display: flex;
+
+    justify-content: center;
+
+    margin:
+        14px 0 10px;
+}
+
+#btnTorch {
+    width: 100%;
+    max-width: 320px;
+
+    min-height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 9px;
+
+    padding:
+        11px 18px;
+
+    border: none;
+
+    border-radius: 13px;
+
+    background:
+        #166534;
+
+    color:
+        #ffffff;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 10px rgba(22, 101, 52, 0.20);
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        opacity 0.15s ease;
+
+    -webkit-tap-highlight-color: transparent;
+}
+
+#btnTorch svg {
+    width: 20px;
+    height: 20px;
+
+    flex: 0 0 20px;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 2;
+
+    stroke-linecap: round;
+
+    stroke-linejoin: round;
+}
+
+#btnTorch:active {
+    transform:
+        scale(0.97);
+
+    box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+#btnTorch:hover {
+    transform:
+        translateY(-1px);
+
+    box-shadow:
+        0 6px 14px rgba(22, 101, 52, 0.24);
+}
+
+#btnTorch:disabled {
+    opacity: 0.55;
+
+    cursor:
+        not-allowed;
+
+    transform:
+        none;
+}
+
+/* =========================================================
+   MANUAL ID WARGA
+   ========================================================= */
+
+.manual-code-section {
+    margin:
+        0 15px 15px;
+
+    padding:
+        14px;
+
+    background:
+        #ffffff;
+
+    border:
+        1px solid var(--sidat-border);
+
+    border-radius:
+        14px;
+
+    box-shadow:
+        0 3px 12px rgba(15, 23, 42, 0.03);
+}
+
+.manual-title {
+    font-size: 12px;
+
+    font-weight: 800;
+
+    color:
+        #334155;
+}
+
+.manual-code-section p {
+    margin-top: 4px;
+
+    font-size: 9px;
+
+    color:
+        var(--sidat-muted);
+
+    line-height:
+        1.45;
+}
+
+.manual-input-row {
+    display: flex;
+
+    gap: 8px;
+
+    margin-top: 10px;
+}
+
+.manual-input-row input {
+    flex: 1;
+
+    min-width: 0;
+
+    height: 43px;
+
+    padding:
+        0 11px;
+
+    border:
+        1px solid #cbd5e1;
+
+    border-radius:
+        9px;
+
+    outline:
+        none;
+
+    background:
+        #ffffff;
+
+    color:
+        #0f172a;
+
+    font-size:
+        12px;
+
+    font-weight:
+        600;
+
+    text-transform:
+        uppercase;
+}
+
+.manual-input-row input::placeholder {
+    color:
+        #94a3b8;
+
+    font-weight:
+        400;
+
+    text-transform:
+        none;
+}
+
+.manual-input-row input:focus {
+    border-color:
+        var(--sidat-green);
+
+    box-shadow:
+        0 0 0 3px rgba(21, 128, 61, 0.10);
+}
+
+.manual-input-row button {
+    min-width:
+        78px;
+
+    height:
+        43px;
 
     display:
         flex;
@@ -55,144 +456,73 @@ body {
     align-items:
         center;
 
+    justify-content:
+        center;
+
     gap:
-        12px;
+        6px;
 
     padding:
-        17px;
-
-    background:
-        white;
-
-    border-bottom:
-        1px solid #e2e8f0;
-
-    position:
-        sticky;
-
-    top:
-        0;
-
-    z-index:
-        10;
-}
-
-
-.back-button {
-
-    width:
-        40px;
-
-    height:
-        40px;
+        0 12px;
 
     border:
         none;
 
     border-radius:
-        11px;
+        9px;
 
     background:
-        #f1f5f9;
+        var(--sidat-green);
 
     color:
-        #334155;
+        #ffffff;
 
     font-size:
-        28px;
+        10px;
+
+    font-weight:
+        700;
 
     cursor:
         pointer;
+
+    -webkit-tap-highlight-color:
+        transparent;
 }
 
-
-.page-header h1 {
-
-    font-size:
+.manual-input-row button svg {
+    width:
         17px;
 
-    color:
-        #14532d;
+    height:
+        17px;
 
-    margin-bottom:
-        3px;
+    fill:
+        none;
+
+    stroke:
+        currentColor;
+
+    stroke-width:
+        2;
+
+    stroke-linecap:
+        round;
+
+    stroke-linejoin:
+        round;
 }
 
-
-.page-header span {
-
-    font-size:
-        10px;
-
-    color:
-        #64748b;
+.manual-input-row button:active {
+    transform:
+        scale(0.97);
 }
 
-
-/* SCANNER */
-
-.scanner-card {
-
-    margin:
-        15px;
-
-    padding:
-        15px;
-
-    background:
-        white;
-
-    border:
-        1px solid #e2e8f0;
-
-    border-radius:
-        16px;
-
-    text-align:
-        center;
-}
-
-
-.reader {
-
-    width:
-        100%;
-
-    overflow:
-        hidden;
-
-    border-radius:
-        12px;
-}
-
-
-#reader video {
-
-    width:
-        100% !important;
-
-    border-radius:
-        12px;
-}
-
-
-.scanner-card p {
-
-    margin-top:
-        10px;
-
-    font-size:
-        11px;
-
-    color:
-        #64748b;
-}
-
-
-/* RESULT */
+/* =========================================================
+   RESULT CARD
+   ========================================================= */
 
 .result-card {
-
     margin:
         0 15px 15px;
 
@@ -200,24 +530,24 @@ body {
         17px;
 
     background:
-        white;
+        #ffffff;
 
     border:
-        1px solid #bbf7d0;
+        1px solid var(--sidat-green-border);
 
     border-radius:
         16px;
-}
 
+    box-shadow:
+        0 4px 14px rgba(21, 128, 61, 0.06);
+}
 
 .hidden {
     display:
         none !important;
 }
 
-
 .result-title {
-
     margin-bottom:
         12px;
 
@@ -228,12 +558,14 @@ body {
         800;
 
     color:
-        #15803d;
+        var(--sidat-green);
 }
 
+/* =========================================================
+   DATA WARGA HASIL SCAN
+   ========================================================= */
 
 .resident-box {
-
     display:
         flex;
 
@@ -250,20 +582,24 @@ body {
         15px;
 
     background:
-        #f0fdf4;
+        var(--sidat-green-soft);
+
+    border:
+        1px solid #dcfce7;
 
     border-radius:
         11px;
 }
 
-
 .resident-icon {
-
     width:
         40px;
 
     height:
         40px;
+
+    flex:
+        0 0 40px;
 
     display:
         flex;
@@ -280,13 +616,34 @@ body {
     background:
         #dcfce7;
 
-    font-size:
-        18px;
+    color:
+        var(--sidat-green);
 }
 
+.resident-icon svg {
+    width:
+        22px;
+
+    height:
+        22px;
+
+    fill:
+        none;
+
+    stroke:
+        currentColor;
+
+    stroke-width:
+        1.8;
+
+    stroke-linecap:
+        round;
+
+    stroke-linejoin:
+        round;
+}
 
 .resident-box span {
-
     display:
         block;
 
@@ -294,12 +651,10 @@ body {
         9px;
 
     color:
-        #64748b;
+        var(--sidat-muted);
 }
 
-
 .resident-box strong {
-
     display:
         block;
 
@@ -310,14 +665,17 @@ body {
         14px;
 
     color:
-        #14532d;
+        var(--sidat-green-dark);
+
+    line-height:
+        1.3;
 }
 
-
-/* INPUT */
+/* =========================================================
+   FORM INPUT
+   ========================================================= */
 
 .result-card label {
-
     display:
         block;
 
@@ -334,9 +692,7 @@ body {
         #334155;
 }
 
-
 .amount-input {
-
     display:
         flex;
 
@@ -353,12 +709,18 @@ body {
         hidden;
 
     background:
-        white;
+        #ffffff;
 }
 
+.amount-input:focus-within {
+    border-color:
+        var(--sidat-green);
+
+    box-shadow:
+        0 0 0 3px rgba(21, 128, 61, 0.10);
+}
 
 .amount-input span {
-
     padding:
         0 11px;
 
@@ -369,14 +731,15 @@ body {
         700;
 
     color:
-        #64748b;
+        var(--sidat-muted);
 }
 
-
 .amount-input input {
-
     flex:
         1;
+
+    width:
+        100%;
 
     height:
         45px;
@@ -387,6 +750,12 @@ body {
     outline:
         none;
 
+    background:
+        transparent;
+
+    color:
+        #0f172a;
+
     font-size:
         18px;
 
@@ -394,9 +763,7 @@ body {
         700;
 }
 
-
 textarea {
-
     width:
         100%;
 
@@ -418,26 +785,55 @@ textarea {
     outline:
         none;
 
+    background:
+        #ffffff;
+
+    color:
+        #0f172a;
+
     font-family:
         inherit;
 
     font-size:
         11px;
+
+    line-height:
+        1.5;
 }
 
+textarea:focus {
+    border-color:
+        var(--sidat-green);
 
-/* BUTTON */
+    box-shadow:
+        0 0 0 3px rgba(21, 128, 61, 0.10);
+}
+
+/* =========================================================
+   TOMBOL SIMPAN
+   ========================================================= */
 
 .save-button {
-
     width:
         100%;
 
-    height:
+    min-height:
         45px;
 
     margin-top:
         15px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        8px;
 
     border:
         none;
@@ -446,10 +842,10 @@ textarea {
         10px;
 
     background:
-        #15803d;
+        var(--sidat-green);
 
     color:
-        white;
+        #ffffff;
 
     font-size:
         12px;
@@ -459,29 +855,78 @@ textarea {
 
     cursor:
         pointer;
+
+    box-shadow:
+        0 4px 10px rgba(21, 128, 61, 0.16);
+
+    -webkit-tap-highlight-color:
+        transparent;
 }
 
+.save-button svg {
+    width:
+        18px;
+
+    height:
+        18px;
+
+    fill:
+        none;
+
+    stroke:
+        currentColor;
+
+    stroke-width:
+        2;
+
+    stroke-linecap:
+        round;
+
+    stroke-linejoin:
+        round;
+}
+
+.save-button:active {
+    transform:
+        scale(0.98);
+}
 
 .save-button:disabled {
-
     opacity:
         0.6;
 
     cursor:
         not-allowed;
+
+    transform:
+        none;
 }
 
+/* =========================================================
+   TOMBOL SCAN ULANG
+   ========================================================= */
 
 .cancel-button {
-
     width:
         100%;
 
-    height:
+    min-height:
         40px;
 
     margin-top:
         8px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        7px;
 
     border:
         1px solid #cbd5e1;
@@ -490,7 +935,7 @@ textarea {
         10px;
 
     background:
-        white;
+        #ffffff;
 
     color:
         #475569;
@@ -500,13 +945,50 @@ textarea {
 
     font-weight:
         700;
+
+    cursor:
+        pointer;
+
+    -webkit-tap-highlight-color:
+        transparent;
 }
 
+.cancel-button svg {
+    width:
+        17px;
 
-/* INFO */
+    height:
+        17px;
+
+    fill:
+        none;
+
+    stroke:
+        currentColor;
+
+    stroke-width:
+        2;
+
+    stroke-linecap:
+        round;
+
+    stroke-linejoin:
+        round;
+}
+
+.cancel-button:active {
+    transform:
+        scale(0.98);
+
+    background:
+        #f8fafc;
+}
+
+/* =========================================================
+   INFO
+   ========================================================= */
 
 .info-card {
-
     margin:
         0 15px 15px;
 
@@ -532,200 +1014,189 @@ textarea {
         1.6;
 }
 
-
-.info-card strong {
-
-    display:
-        block;
-
-    margin-bottom:
-        7px;
-
-    font-size:
-        12px;
-}
-
-
-.info-card ol {
-
-    padding-left:
-        18px;
-}
-
-
-/* FOOTER */
-
-footer {
-
-    margin-top:
-        25px;
-
+.info-card-title {
     display:
         flex;
-
-    flex-direction:
-        column;
 
     align-items:
         center;
 
     gap:
-        4px;
+        7px;
 
-    color:
-        #94a3b8;
+    margin-bottom:
+        7px;
+}
+
+.info-card-title svg {
+    width:
+        18px;
+
+    height:
+        18px;
+
+    flex:
+        0 0 18px;
+
+    fill:
+        none;
+
+    stroke:
+        currentColor;
+
+    stroke-width:
+        1.8;
+
+    stroke-linecap:
+        round;
+
+    stroke-linejoin:
+        round;
+}
+
+.info-card-title strong {
+    display:
+        block;
+
+    margin:
+        0;
 
     font-size:
-        10px;
+        12px;
 }
 
-
-footer strong {
-
-    color:
-        #64748b;
-}
-.manual-code-section {
-
-    margin-top: 15px;
-
-    padding: 14px;
-
-    background: #ffffff;
-
-    border: 1px solid #e2e8f0;
-
-    border-radius: 14px;
+.info-card ol {
+    padding-left:
+        18px;
 }
 
-
-.manual-title {
-
-    font-size: 12px;
-
-    font-weight: 700;
-
-    color: #334155;
+.info-card li {
+    padding-left:
+        2px;
 }
 
+/* =========================================================
+   HILANGKAN FOOTER LAMA
+   Footer SIDAT sekarang dibuat warga-menu.js.
+   ========================================================= */
 
-.manual-code-section p {
-
-    margin-top: 4px;
-
-    font-size: 9px;
-
-    color: #64748b;
-
-    line-height: 1.4;
+footer {
+    display:
+        none !important;
 }
 
+/* =========================================================
+   KOMPATIBILITAS DENGAN WARGA MENU
+   Konten harus berhenti sebelum copyright + bottom bar.
+   ========================================================= */
 
-.manual-input-row {
-
-    display: flex;
-
-    gap: 8px;
-
-    margin-top: 10px;
+.page-container {
+    padding-bottom:
+        calc(
+            var(--sidat-warga-bottom-safe)
+            + env(safe-area-inset-bottom)
+        );
 }
 
+/*
+ * Jika warga-menu.css menggunakan tinggi footer yang berbeda,
+ * CSS global warga-menu.css tetap menjadi sumber utama.
+ * Nilai berikut hanya menjaga halaman Scan Jimpitan
+ * tidak tertutup oleh navigasi.
+ */
 
-.manual-input-row input {
-
-    flex: 1;
-
-    min-width: 0;
-
-    padding: 11px;
-
-    border: 1px solid #cbd5e1;
-
-    border-radius: 9px;
-
-    outline: none;
-
-    font-size: 10px;
-
-    text-transform: uppercase;
+.sidat-warga-bottom-nav {
+    z-index:
+        8990;
 }
 
-
-.manual-input-row input:focus {
-
-    border-color: #15803d;
+.sidat-warga-footer {
+    z-index:
+        8980;
 }
 
+/* =========================================================
+   ANDROID / APK SAFE AREA
+   ========================================================= */
 
-.manual-input-row button {
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
 
-    padding: 0 15px;
+    body {
+        padding-bottom:
+            calc(
+                var(--sidat-warga-bottom-safe)
+                + env(safe-area-inset-bottom)
+            );
+    }
 
-    border: none;
-
-    border-radius: 9px;
-
-    background: #15803d;
-
-    color: white;
-
-    font-size: 10px;
-
-    font-weight: 700;
-}
-/* ==========================================
-   TOMBOL SENTER
-   ========================================== */
-
-.scanner-controls {
-    display: flex;
-    justify-content: center;
-    margin: 14px 0 10px;
+    .page-container {
+        padding-bottom:
+            calc(
+                var(--sidat-warga-bottom-safe)
+                + env(safe-area-inset-bottom)
+            );
+    }
 }
 
+/* =========================================================
+   LAYAR KECIL
+   ========================================================= */
 
-#btnTorch {
-    width: 100%;
-    max-width: 320px;
-    min-height: 52px;
+@media (max-width: 360px) {
 
-    padding: 13px 20px;
+    .page-header {
+        padding:
+            11px 12px;
+    }
 
-    border: none;
-    border-radius: 14px;
+    .scanner-card,
+    .manual-code-section,
+    .result-card,
+    .info-card {
+        margin-left:
+            12px;
 
-    font-size: 16px;
-    font-weight: 700;
+        margin-right:
+            12px;
+    }
 
-    cursor: pointer;
+    .manual-input-row {
+        gap:
+            6px;
+    }
 
-    box-shadow:
-        0 4px 10px rgba(0, 0, 0, 0.12);
+    .manual-input-row button {
+        min-width:
+            70px;
 
-    transition:
-        transform 0.15s ease,
-        box-shadow 0.15s ease,
-        opacity 0.15s ease;
+        padding:
+            0 9px;
+    }
+
+    .manual-input-row button span {
+        font-size:
+            9px;
+    }
+
+    #btnTorch {
+        font-size:
+            12px;
+    }
 }
 
+/* =========================================================
+   LAYAR BESAR
+   ========================================================= */
 
-#btnTorch:active {
-    transform: scale(0.97);
+@media (min-width: 521px) {
 
-    box-shadow:
-        0 2px 6px rgba(0, 0, 0, 0.15);
-}
+    body {
+        background:
+            #e2e8f0;
+    }
 
-
-#btnTorch:hover {
-    transform: translateY(-1px);
-
-    box-shadow:
-        0 6px 14px rgba(0, 0, 0, 0.16);
-}
-
-
-#btnTorch:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
+    .page-container {
+        box-shadow:
+            0 0 30px rgba(15, 23, 42, 0.08);
+    }
 }

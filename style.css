@@ -1,6 +1,72 @@
-/* =========================================
-   RESET
-========================================= */
+/* =========================================================
+   SIDAT — MASTER GLOBAL CSS V2
+   Mobile First / Android
+========================================================= */
+
+
+/* =========================================================
+   1. DESIGN SYSTEM
+========================================================= */
+
+:root {
+
+    --sidat-green: #15803d;
+    --sidat-green-dark: #166534;
+    --sidat-green-deep: #14532d;
+    --sidat-green-light: #dcfce7;
+    --sidat-green-soft: #f0fdf4;
+
+    --sidat-white: #ffffff;
+    --sidat-black: #111827;
+
+    --sidat-text: #1f2937;
+    --sidat-text-soft: #64748b;
+    --sidat-text-muted: #94a3b8;
+
+    --sidat-border: #dfe7e2;
+    --sidat-border-strong: #cbd8d0;
+
+    --sidat-bg: #f5f8f6;
+    --sidat-card: #ffffff;
+
+    --sidat-danger: #dc2626;
+    --sidat-danger-soft: #fee2e2;
+
+    --sidat-warning: #d97706;
+    --sidat-warning-soft: #fef3c7;
+
+    --sidat-info: #2563eb;
+    --sidat-info-soft: #dbeafe;
+
+    --sidat-success: #15803d;
+    --sidat-success-soft: #dcfce7;
+
+    --sidat-radius-sm: 8px;
+    --sidat-radius-md: 14px;
+    --sidat-radius-lg: 18px;
+    --sidat-radius-xl: 24px;
+
+    --sidat-shadow-sm:
+        0 2px 8px rgba(15, 23, 42, 0.07);
+
+    --sidat-shadow-md:
+        0 5px 16px rgba(15, 23, 42, 0.10);
+
+    --sidat-shadow-lg:
+        0 10px 28px rgba(15, 23, 42, 0.15);
+
+    --sidat-topbar-height: 76px;
+    --sidat-bottom-height: 76px;
+    --sidat-footer-height: 58px;
+
+    --sidat-content-max: 680px;
+
+}
+
+
+/* =========================================================
+   2. RESET
+========================================================= */
 
 * {
     box-sizing: border-box;
@@ -8,485 +74,787 @@
     padding: 0;
 }
 
+html {
+    width: 100%;
+    min-height: 100%;
+    background: var(--sidat-bg);
+    -webkit-text-size-adjust: 100%;
+}
 
 body {
+
+    width: 100%;
+    min-height: 100vh;
+
+    margin: 0;
+
+    background: var(--sidat-bg);
+
+    color: var(--sidat-text);
+
     font-family:
-        Arial,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
         Helvetica,
+        Arial,
         sans-serif;
 
-    background:
-        linear-gradient(
-            160deg,
-            #ecfdf5,
-            #f8fafc
-        );
-
-    color: #1f2937;
-
-    min-height: 100vh;
-}
-
-
-/* =========================================
-   APP CONTAINER
-========================================= */
-
-.app-container {
-    width: 100%;
-    max-width: 480px;
-    min-height: 100vh;
-
-    margin: auto;
-
-    padding:
-        35px
-        22px
-        25px;
-
-    display: flex;
-    flex-direction: column;
-}
-
-
-/* =========================================
-   WELCOME
-========================================= */
-
-.welcome-section {
-    text-align: center;
-
-    margin-bottom: 35px;
-}
-
-
-.logo-wrapper {
-    display: flex;
-
-    justify-content: center;
-
-    margin-bottom: 18px;
-}
-
-
-.logo-placeholder {
-    width: 82px;
-    height: 82px;
-
-    border-radius: 50%;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background:
-        linear-gradient(
-            135deg,
-            #15803d,
-            #22c55e
-        );
-
-    color: white;
-
-    font-size: 25px;
-    font-weight: 800;
-
-    box-shadow:
-        0 10px 25px
-        rgba(21, 128, 61, 0.25);
-}
-
-
-.welcome-section h1 {
-    font-size: 25px;
-
-    color: #14532d;
-
-    margin-bottom: 8px;
-}
-
-
-.welcome-section p {
-    color: #64748b;
-
-    font-size: 14px;
-
-    line-height: 1.5;
-}
-
-
-/* =========================================
-   LOGIN CHOICE
-========================================= */
-
-.login-choice {
-    animation:
-        fadeIn 0.3s ease;
-}
-
-
-.login-choice h2 {
-    font-size: 21px;
-
-    margin-bottom: 6px;
-}
-
-
-.subtitle {
-    color: #64748b;
-
-    font-size: 14px;
-
-    margin-bottom: 20px;
-}
-
-
-/* =========================================
-   LOGIN CARD
-========================================= */
-
-.login-card {
-    width: 100%;
-
-    display: flex;
-    align-items: center;
-
-    gap: 14px;
-
-    padding: 17px;
-
-    margin-bottom: 14px;
-
-    border: 1px solid #e2e8f0;
-
-    border-radius: 16px;
-
-    background: white;
-
-    text-align: left;
-
-    cursor: pointer;
-
-    transition:
-        transform 0.2s,
-        box-shadow 0.2s;
-}
-
-
-.login-card:active {
-    transform: scale(0.98);
-}
-
-
-.login-card:hover {
-    box-shadow:
-        0 8px 20px
-        rgba(15, 23, 42, 0.08);
-}
-
-
-.login-icon {
-    width: 48px;
-    height: 48px;
-
-    flex-shrink: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 13px;
-
-    background: #dcfce7;
-
-    font-size: 22px;
-}
-
-
-.login-card.admin .login-icon {
-    background: #dbeafe;
-}
-
-
-.login-card-text {
-    flex: 1;
-
-    display: flex;
-    flex-direction: column;
-
-    gap: 5px;
-}
-
-
-.login-card-text strong {
     font-size: 16px;
 
-    color: #1e293b;
+    line-height: 1.55;
+
+    -webkit-tap-highlight-color: transparent;
+
+    overscroll-behavior-y: none;
+
 }
 
-
-.login-card-text span {
-    font-size: 12px;
-
-    color: #64748b;
+body.sidat-menu-open {
+    overflow: hidden;
 }
 
-
-.arrow {
-    font-size: 28px;
-
-    color: #94a3b8;
+button,
+input,
+select,
+textarea {
+    font: inherit;
 }
 
-
-/* =========================================
-   LOGIN FORM
-========================================= */
-
-.login-form-section {
-    animation:
-        slideIn 0.3s ease;
+button {
+    border: 0;
+    cursor: pointer;
 }
 
+img {
+    max-width: 100%;
+    display: block;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
 
 .hidden {
     display: none !important;
 }
 
 
-.back-button {
-    border: none;
+/* =========================================================
+   3. APP
+========================================================= */
 
-    background: transparent;
+.sidat-app,
+.sidat-page {
 
-    color: #15803d;
+    position: relative;
 
-    font-size: 14px;
-
-    font-weight: 600;
-
-    cursor: pointer;
-
-    padding: 5px 0;
-
-    margin-bottom: 25px;
-}
-
-
-.form-header {
-    text-align: center;
-
-    margin-bottom: 28px;
-}
-
-
-.form-icon {
-    width: 64px;
-    height: 64px;
-
-    margin:
-        0
-        auto
-        14px;
-
-    border-radius: 18px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    font-size: 27px;
-}
-
-
-.warga-icon {
-    background: #dcfce7;
-}
-
-
-.admin-icon {
-    background: #dbeafe;
-}
-
-
-.form-header h2 {
-    font-size: 22px;
-
-    margin-bottom: 6px;
-}
-
-
-.form-header p {
-    font-size: 13px;
-
-    color: #64748b;
-}
-
-
-/* =========================================
-   INPUT
-========================================= */
-
-.input-group {
-    margin-bottom: 18px;
-}
-
-
-.input-group label {
-    display: block;
-
-    font-size: 13px;
-
-    font-weight: 600;
-
-    color: #334155;
-
-    margin-bottom: 7px;
-}
-
-
-.input-group input {
     width: 100%;
 
-    height: 48px;
+    min-height: 100vh;
+
+}
+
+
+/* =========================================================
+   4. TOP BAR — FIXED
+========================================================= */
+
+.sidat-topbar {
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+    right: 0;
+
+    z-index: 1000;
+
+    width: 100%;
+
+    height:
+        calc(
+            var(--sidat-topbar-height)
+            + env(safe-area-inset-top)
+        );
 
     padding:
-        0
-        14px;
+        calc(
+            8px +
+            env(safe-area-inset-top)
+        )
+        14px
+        8px;
 
-    border:
-        1px solid
-        #cbd5e1;
+    display: flex;
 
-    border-radius: 11px;
+    align-items: center;
 
-    background: white;
+    justify-content: space-between;
 
-    font-size: 15px;
-
-    outline: none;
-
-    transition:
-        border-color 0.2s,
-        box-shadow 0.2s;
-}
-
-
-.input-group input:focus {
-    border-color: #16a34a;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(22, 163, 74, 0.1);
-}
-
-
-.pin-wrapper {
-    position: relative;
-}
-
-
-.pin-wrapper input {
-    padding-right: 50px;
-}
-
-
-.show-pin {
-    position: absolute;
-
-    right: 5px;
-    top: 5px;
-
-    width: 38px;
-    height: 38px;
-
-    border: none;
-
-    background: transparent;
-
-    cursor: pointer;
-
-    font-size: 17px;
-}
-
-
-/* =========================================
-   BUTTON
-========================================= */
-
-.primary-button {
-    width: 100%;
-
-    height: 49px;
-
-    border: none;
-
-    border-radius: 11px;
+    gap: 10px;
 
     background:
         linear-gradient(
             135deg,
-            #15803d,
-            #16a34a
+            var(--sidat-green),
+            var(--sidat-green-dark)
         );
 
-    color: white;
-
-    font-size: 14px;
-
-    font-weight: 700;
-
-    cursor: pointer;
+    color: var(--sidat-white);
 
     box-shadow:
-        0 7px 16px
-        rgba(22, 163, 74, 0.2);
+        0 3px 12px
+        rgba(0, 0, 0, 0.16);
+
 }
 
 
-.primary-button:active {
-    transform: scale(0.98);
+/* =========================================================
+   5. BRAND
+========================================================= */
+
+.sidat-brand {
+
+    min-width: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+}
+
+.sidat-brand-text {
+
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    line-height: 1.2;
+
+}
+
+.sidat-brand-text strong {
+
+    color: var(--sidat-white);
+
+    font-size: 20px;
+
+    font-weight: 900;
+
+    letter-spacing: 0.4px;
+
+}
+
+.sidat-brand-text span {
+
+    margin-top: 4px;
+
+    color:
+        rgba(255, 255, 255, 0.88);
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    max-width: 215px;
+
 }
 
 
-.primary-button:disabled {
-    opacity: 0.6;
+/* =========================================================
+   6. LOGO RT / SIDAT — BULAT
+========================================================= */
 
-    cursor: not-allowed;
-}
+.sidat-logo-circle {
 
+    width: 50px;
+    height: 50px;
 
-/* =========================================
-   ERROR
-========================================= */
+    flex: 0 0 50px;
 
-.error-message {
-    background: #fef2f2;
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    overflow: hidden;
+
+    border-radius: 50%;
 
     border:
-        1px solid
-        #fecaca;
+        3px solid
+        rgba(255, 255, 255, 0.95);
 
-    color: #b91c1c;
+    background: var(--sidat-white);
 
-    padding: 11px;
+    box-shadow:
+        0 3px 10px
+        rgba(0, 0, 0, 0.18);
 
-    border-radius: 9px;
+}
+
+.sidat-logo-circle img {
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+
+}
+
+
+/* =========================================================
+   7. PROFILE MINI
+========================================================= */
+
+.sidat-profile-mini {
+
+    min-width: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 4px;
+
+    border-radius: 14px;
+
+    background: transparent;
+
+    color: var(--sidat-white);
+
+}
+
+.sidat-profile-mini:active {
+
+    background:
+        rgba(255, 255, 255, 0.15);
+
+}
+
+
+/* =========================================================
+   8. FOTO PROFIL — BULAT
+========================================================= */
+
+.sidat-profile-photo-circle {
+
+    width: 44px;
+    height: 44px;
+
+    flex: 0 0 44px;
+
+    overflow: hidden;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    border:
+        3px solid
+        rgba(255, 255, 255, 0.95);
+
+    background:
+        rgba(255, 255, 255, 0.20);
+
+    box-shadow:
+        0 3px 9px
+        rgba(0, 0, 0, 0.16);
+
+}
+
+.sidat-profile-photo-circle img {
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+
+}
+
+.sidat-profile-name {
+
+    max-width: 105px;
+
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    line-height: 1.2;
+
+}
+
+.sidat-profile-name strong {
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    color: var(--sidat-white);
 
     font-size: 13px;
 
-    margin-bottom: 15px;
+    font-weight: 800;
+
+}
+
+.sidat-profile-name span {
+
+    margin-top: 3px;
+
+    color:
+        rgba(255, 255, 255, 0.80);
+
+    font-size: 10px;
+
+    font-weight: 700;
+
 }
 
 
-/* =========================================
-   FOOTER
-========================================= */
+/* =========================================================
+   9. MAIN CONTENT SPACE
+========================================================= */
 
-footer {
-    margin-top: auto;
+.sidat-main {
 
-    padding-top: 30px;
+    width: 100%;
+
+    min-height: 100vh;
+
+    padding-top:
+        calc(
+            var(--sidat-topbar-height)
+            + env(safe-area-inset-top)
+        );
+
+    padding-bottom:
+        calc(
+            var(--sidat-bottom-height)
+            + var(--sidat-footer-height)
+            + 28px
+            + env(safe-area-inset-bottom)
+        );
+
+}
+
+.sidat-content {
+
+    width: 100%;
+
+    max-width: var(--sidat-content-max);
+
+    margin: 0 auto;
+
+    padding: 18px 16px 10px;
+
+}
+
+
+/* =========================================================
+   10. PAGE HEADING
+========================================================= */
+
+.sidat-page-heading {
+
+    margin-bottom: 18px;
+
+}
+
+.sidat-page-heading .eyebrow {
+
+    color: var(--sidat-green);
+
+    font-size: 12px;
+
+    font-weight: 900;
+
+    letter-spacing: 0.8px;
+
+    text-transform: uppercase;
+
+}
+
+.sidat-page-heading h1 {
+
+    margin-top: 3px;
+
+    color: var(--sidat-text);
+
+    font-size: 25px;
+
+    line-height: 1.25;
+
+    font-weight: 900;
+
+}
+
+.sidat-page-heading p {
+
+    margin-top: 5px;
+
+    color: var(--sidat-text-soft);
+
+    font-size: 14px;
+
+}
+
+
+/* =========================================================
+   11. SECTION
+========================================================= */
+
+.dashboard-section {
+
+    margin-bottom: 18px;
+
+}
+
+.dashboard-section-header {
+
+    margin-bottom: 11px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+}
+
+.dashboard-section-kicker {
+
+    color: var(--sidat-green);
+
+    font-size: 11px;
+
+    font-weight: 900;
+
+    letter-spacing: 0.9px;
+
+}
+
+.dashboard-section-header h2 {
+
+    margin-top: 2px;
+
+    color: var(--sidat-text);
+
+    font-size: 19px;
+
+    font-weight: 900;
+
+}
+
+
+/* =========================================================
+   12. CARD GLOBAL
+========================================================= */
+
+.sidat-card {
+
+    background: var(--sidat-card);
+
+    border:
+        1px solid
+        var(--sidat-border);
+
+    border-radius:
+        var(--sidat-radius-lg);
+
+    box-shadow:
+        var(--sidat-shadow-sm);
+
+}
+
+.sidat-card-body {
+
+    padding: 17px;
+
+}
+
+
+/* =========================================================
+   13. STAT CARD
+========================================================= */
+
+.dashboard-card-grid {
+
+    width: 100%;
+
+    display: grid;
+
+    gap: 13px;
+
+}
+
+.dashboard-card-grid.two-column {
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+}
+
+.dashboard-stat-card {
+
+    position: relative;
+
+    min-width: 0;
+
+    padding: 16px;
+
+    background:
+        var(--sidat-card);
+
+    border:
+        1px solid
+        var(--sidat-border);
+
+    border-left:
+        4px solid
+        var(--sidat-green);
+
+    border-radius:
+        var(--sidat-radius-lg);
+
+    box-shadow:
+        var(--sidat-shadow-md);
+
+}
+
+.dashboard-stat-card::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: 14px;
+    right: 14px;
+
+    bottom: 8px;
+
+    height: 1px;
+
+    background:
+        var(--sidat-border-light);
+
+    opacity: 0.8;
+
+}
+
+
+/* =========================================================
+   14. DECORATIVE ICON
+========================================================= */
+
+.dashboard-card-icon,
+.sidat-decor-icon {
+
+    width: 46px;
+    height: 46px;
+
+    margin-bottom: 10px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 15px;
+
+    border:
+        1px solid
+        rgba(21, 128, 61, 0.15);
+
+    background:
+        linear-gradient(
+            145deg,
+            var(--sidat-green-light),
+            var(--sidat-green-soft)
+        );
+
+    color:
+        var(--sidat-green-dark);
+
+    box-shadow:
+        0 3px 8px
+        rgba(21, 128, 61, 0.08);
+
+}
+
+.dashboard-card-icon span,
+.sidat-decor-icon span {
+
+    font-size: 23px;
+
+    line-height: 1;
+
+}
+
+
+/* =========================================================
+   15. STAT TYPOGRAPHY
+========================================================= */
+
+.dashboard-card-label {
+
+    color:
+        var(--sidat-text-soft);
+
+    font-size: 12px;
+
+    font-weight: 900;
+
+    letter-spacing: 0.45px;
+
+}
+
+.dashboard-card-value {
+
+    margin-top: 4px;
+
+    color:
+        var(--sidat-green-dark);
+
+    font-size: 21px;
+
+    font-weight: 900;
+
+    line-height: 1.25;
+
+    word-break: break-word;
+
+}
+
+.dashboard-card-number {
+
+    margin-top: 3px;
+
+    color:
+        var(--sidat-text);
+
+    font-size: 31px;
+
+    font-weight: 900;
+
+    line-height: 1.1;
+
+}
+
+.dashboard-card-note {
+
+    margin-top: 6px;
+
+    color:
+        var(--sidat-text-muted);
+
+    font-size: 11px;
+
+}
+
+
+/* =========================================================
+   16. BANNER
+========================================================= */
+
+.warga-banner-section {
+
+    width: 100%;
+
+    margin-bottom: 16px;
+
+}
+
+.warga-banner-slider {
+
+    position: relative;
+
+    width: 100%;
+
+    aspect-ratio: 2 / 1;
+
+    overflow: hidden;
+
+    border-radius:
+        var(--sidat-radius-lg);
+
+    background:
+        var(--sidat-green-light);
+
+    border:
+        1px solid
+        var(--sidat-border);
+
+    box-shadow:
+        var(--sidat-shadow-md);
+
+}
+
+.warga-banner-slide {
+
+    position: absolute;
+
+    inset: 0;
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    transition:
+        opacity 0.35s ease;
+
+}
+
+.warga-banner-slide.active {
+
+    opacity: 1;
+
+    visibility: visible;
+
+}
+
+.warga-banner-slide img {
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+}
+
+.warga-banner-placeholder {
+
+    width: 100%;
+    height: 100%;
 
     display: flex;
 
@@ -494,69 +862,1804 @@ footer {
 
     align-items: center;
 
-    gap: 5px;
+    justify-content: center;
 
-    color: #94a3b8;
+    gap: 6px;
+
+    padding: 20px;
+
+    text-align: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--sidat-green),
+            var(--sidat-green-dark)
+        );
+
+    color:
+        var(--sidat-white);
+
+}
+
+.banner-placeholder-logo {
+
+    width: 58px;
+    height: 58px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    border:
+        3px solid
+        rgba(255, 255, 255, 0.9);
+
+    background:
+        rgba(255, 255, 255, 0.15);
+
+    font-size: 15px;
+
+    font-weight: 900;
+
+}
+
+.warga-banner-placeholder strong {
+
+    font-size: 19px;
+
+}
+
+.warga-banner-placeholder span {
+
+    font-size: 13px;
+
+    opacity: 0.88;
+
+}
+
+
+/* =========================================================
+   17. BANNER DOTS
+========================================================= */
+
+.warga-banner-dots {
+
+    margin-top: 9px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 7px;
+
+}
+
+.banner-dot {
+
+    width: 8px;
+    height: 8px;
+
+    padding: 0;
+
+    border-radius: 50%;
+
+    background:
+        #cbd5d1;
+
+}
+
+.banner-dot.active {
+
+    width: 21px;
+
+    border-radius: 10px;
+
+    background:
+        var(--sidat-green);
+
+}
+
+
+/* =========================================================
+   18. PENGUMUMAN
+========================================================= */
+
+.warga-announcement-section {
+
+    margin-bottom: 18px;
+
+}
+
+.warga-announcement-card {
+
+    overflow: hidden;
+
+    background:
+        var(--sidat-card);
+
+    border:
+        1px solid
+        var(--sidat-border);
+
+    border-left:
+        4px solid
+        var(--sidat-green);
+
+    border-radius:
+        var(--sidat-radius-lg);
+
+    box-shadow:
+        var(--sidat-shadow-md);
+
+}
+
+.warga-announcement-header {
+
+    padding:
+        14px
+        15px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    border-bottom:
+        1px solid
+        var(--sidat-border);
+
+}
+
+.warga-announcement-title {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+}
+
+.warga-announcement-icon {
+
+    width: 43px;
+    height: 43px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 14px;
+
+    border:
+        1px solid
+        rgba(21, 128, 61, 0.15);
+
+    background:
+        var(--sidat-green-light);
+
+    color:
+        var(--sidat-green-dark);
+
+    font-size: 22px;
+
+}
+
+.warga-announcement-title span {
+
+    display: block;
+
+    color:
+        var(--sidat-green);
+
+    font-size: 10px;
+
+    font-weight: 900;
+
+    letter-spacing: 0.8px;
+
+}
+
+.warga-announcement-title h2 {
+
+    margin-top: 2px;
+
+    color:
+        var(--sidat-text);
+
+    font-size: 18px;
+
+    font-weight: 900;
+
+}
+
+.warga-announcement-more {
+
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        var(--sidat-green-soft);
+
+    color:
+        var(--sidat-green);
+
+    font-size: 28px;
+
+}
+
+.warga-announcement-content {
+
+    padding:
+        14px
+        15px;
+
+}
+
+.announcement-loading {
+
+    min-height: 55px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    color:
+        var(--sidat-text-muted);
+
+    font-size: 13px;
+
+}
+
+
+/* =========================================================
+   19. NOTIFIKASI
+========================================================= */
+
+.warga-notification-section {
+
+    margin-bottom: 18px;
+
+}
+
+.warga-notification-card {
+
+    overflow: hidden;
+
+    background:
+        var(--sidat-card);
+
+    border:
+        1px solid
+        var(--sidat-border);
+
+    border-left:
+        4px solid
+        var(--sidat-info);
+
+    border-radius:
+        var(--sidat-radius-lg);
+
+    box-shadow:
+        var(--sidat-shadow-md);
+
+}
+
+.warga-notification-header {
+
+    padding:
+        14px
+        15px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    border-bottom:
+        1px solid
+        var(--sidat-border);
+
+}
+
+.warga-notification-title {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+}
+
+.warga-notification-icon {
+
+    position: relative;
+
+    width: 43px;
+    height: 43px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background:
+        var(--sidat-info-soft);
+
+    color:
+        var(--sidat-info);
+
+    font-size: 22px;
+
+}
+
+.warga-notification-badge {
+
+    position: absolute;
+
+    top: -4px;
+    right: -4px;
+
+    min-width: 19px;
+    height: 19px;
+
+    padding:
+        0 5px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 20px;
+
+    background:
+        var(--sidat-danger);
+
+    color:
+        var(--sidat-white);
+
+    border:
+        2px solid
+        var(--sidat-white);
+
+    font-size: 9px;
+
+    font-weight: 900;
+
+}
+
+.warga-notification-title span {
+
+    display: block;
+
+    color:
+        var(--sidat-info);
+
+    font-size: 10px;
+
+    font-weight: 900;
+
+    letter-spacing: 0.8px;
+
+}
+
+.warga-notification-title h2 {
+
+    margin-top: 2px;
+
+    color:
+        var(--sidat-text);
+
+    font-size: 18px;
+
+    font-weight: 900;
+
+}
+
+.warga-notification-more {
+
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        #eff6ff;
+
+    color:
+        var(--sidat-info);
+
+    font-size: 27px;
+
+}
+
+.warga-notification-content {
+
+    padding:
+        14px
+        15px;
+
+}
+
+.notification-empty {
+
+    min-height: 55px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    color:
+        var(--sidat-text-muted);
+
+    font-size: 13px;
+
+}
+
+
+/* =========================================================
+   20. CHART
+========================================================= */
+
+.dashboard-chart-section {
+
+    margin-bottom: 20px;
+
+}
+
+.dashboard-chart-card {
+
+    padding: 15px;
+
+    background:
+        var(--sidat-card);
+
+    border:
+        1px solid
+        var(--sidat-border);
+
+    border-radius:
+        var(--sidat-radius-lg);
+
+    box-shadow:
+        var(--sidat-shadow-md);
+
+}
+
+.dashboard-chart-container {
+
+    position: relative;
+
+    width: 100%;
+
+    min-height: 270px;
+
+}
+
+.dashboard-chart-container canvas {
+
+    width: 100% !important;
+
+    max-height: 290px;
+
+}
+
+.chart-empty-state {
+
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    color:
+        var(--sidat-text-muted);
+
+    font-size: 13px;
+
+    text-align: center;
+
+}
+
+
+/* =========================================================
+   21. BOTTOM NAVBAR — FIXED
+========================================================= */
+
+.sidat-bottom-nav {
+
+    position: fixed;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    z-index: 1200;
+
+    width: 100%;
+
+    height:
+        calc(
+            var(--sidat-bottom-height)
+            + env(safe-area-inset-bottom)
+        );
+
+    padding:
+        6px
+        12px
+        calc(
+            6px +
+            env(safe-area-inset-bottom)
+        );
+
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-around;
+
+    background:
+        rgba(255, 255, 255, 0.98);
+
+    border-top:
+        1px solid
+        var(--sidat-border-strong);
+
+    box-shadow:
+        0 -5px 18px
+        rgba(15, 23, 42, 0.10);
+
+    backdrop-filter:
+        blur(12px);
+
+}
+
+.sidat-nav-item {
+
+    min-width: 75px;
+
+    height: 56px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 4px;
+
+    border-radius: 13px;
+
+    background: transparent;
+
+    color:
+        var(--sidat-text-muted);
+
+}
+
+.sidat-nav-item:active {
+
+    background:
+        var(--sidat-green-soft);
+
+}
+
+.sidat-nav-icon {
+
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    font-size: 21px;
+
+}
+
+.sidat-nav-label {
 
     font-size: 11px;
 
+    font-weight: 900;
+
+    letter-spacing: 0.2px;
+
+}
+
+.sidat-nav-item.active {
+
+    color:
+        var(--sidat-green);
+
+}
+
+
+/* =========================================================
+   22. SCAN BUTTON
+========================================================= */
+
+.sidat-nav-scan {
+
+    position: relative;
+
+    width: 66px;
+    height: 66px;
+
+    margin-top: -28px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 2px;
+
+    border-radius: 50%;
+
+    border:
+        4px solid
+        var(--sidat-white);
+
+    background:
+        var(--sidat-green);
+
+    color:
+        var(--sidat-white);
+
+    box-shadow:
+        0 6px 18px
+        rgba(21, 128, 61, 0.32);
+
+}
+
+.sidat-nav-scan:active {
+
+    transform: scale(0.95);
+
+}
+
+.sidat-nav-scan-icon {
+
+    font-size: 24px;
+
+    line-height: 1;
+
+}
+
+.sidat-nav-scan-label {
+
+    font-size: 9px;
+
+    font-weight: 900;
+
+}
+
+
+/* =========================================================
+   23. FOOTER — FIXED
+========================================================= */
+
+.sidat-footer {
+
+    position: fixed;
+
+    left: 0;
+    right: 0;
+    bottom:
+        calc(
+            var(--sidat-bottom-height)
+            + env(safe-area-inset-bottom)
+        );
+
+    z-index: 1190;
+
+    width: 100%;
+
+    height: var(--sidat-footer-height);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        var(--sidat-bg);
+
+    border-top:
+        1px solid
+        var(--sidat-border);
+
+}
+
+.sidat-footer-inner {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 1px;
+
+    line-height: 1.2;
+
+}
+
+.sidat-footer-author {
+
+    color:
+        var(--sidat-text-soft);
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+}
+
+.sidat-footer-year {
+
+    color:
+        var(--sidat-text-muted);
+
+    font-size: 10px;
+
+}
+
+
+/* =========================================================
+   24. MENU OVERLAY
+========================================================= */
+
+.sidat-menu-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1300;
+
+    background:
+        rgba(0, 0, 0, 0.40);
+
+    backdrop-filter:
+        blur(2px);
+
+}
+
+
+/* =========================================================
+   25. MENU SHEET
+========================================================= */
+
+.sidat-sheet {
+
+    position: fixed;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    z-index: 1310;
+
+    width: 100%;
+
+    max-width: 680px;
+
+    margin: 0 auto;
+
+    padding:
+        9px
+        16px
+        calc(
+            20px +
+            env(safe-area-inset-bottom)
+        );
+
+    background:
+        var(--sidat-white);
+
+    border-radius:
+        24px
+        24px
+        0
+        0;
+
+    box-shadow:
+        var(--sidat-shadow-lg);
+
+}
+
+.sidat-sheet-handle {
+
+    width: 42px;
+    height: 5px;
+
+    margin:
+        2px auto 13px;
+
+    border-radius: 10px;
+
+    background:
+        #cbd5e1;
+
+}
+
+.sidat-sheet-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 15px;
+
+}
+
+.sidat-sheet-header strong {
+
+    color:
+        var(--sidat-text);
+
+    font-size: 18px;
+
+    font-weight: 900;
+
+}
+
+.sidat-sheet-header button {
+
+    width: 38px;
+    height: 38px;
+
+    border-radius: 50%;
+
+    background:
+        var(--sidat-bg);
+
+    color:
+        var(--sidat-text-soft);
+
+    font-size: 25px;
+
+}
+
+.sidat-menu-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 10px;
+
+}
+
+.sidat-menu-grid button {
+
+    min-height: 92px;
+
+    padding: 11px 8px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    border:
+        1px solid
+        var(--sidat-border);
+
+    border-radius:
+        var(--sidat-radius-md);
+
+    background:
+        var(--sidat-white);
+
+    color:
+        var(--sidat-text);
+
+    box-shadow:
+        var(--sidat-shadow-sm);
+
+}
+
+.sidat-menu-grid button span {
+
+    font-size: 25px;
+
+}
+
+.sidat-menu-grid button strong {
+
+    font-size: 12px;
+
     text-align: center;
-}
-
-
-/* =========================================
-   ANIMATION
-========================================= */
-
-@keyframes fadeIn {
-
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
 
 }
 
 
-@keyframes slideIn {
+/* =========================================================
+   26. FORM GLOBAL
+========================================================= */
 
-    from {
-        opacity: 0;
-        transform: translateX(15px);
+.input-group {
+
+    margin-bottom: 16px;
+
+}
+
+.input-group label {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    color:
+        var(--sidat-text);
+
+    font-size: 14px;
+
+    font-weight: 800;
+
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea {
+
+    width: 100%;
+
+    min-height: 50px;
+
+    padding:
+        12px
+        14px;
+
+    border:
+        1px solid
+        var(--sidat-border-strong);
+
+    border-radius:
+        var(--sidat-radius-md);
+
+    outline: none;
+
+    background:
+        var(--sidat-white);
+
+    color:
+        var(--sidat-text);
+
+    font-size: 15px;
+
+}
+
+.input-group textarea {
+
+    min-height: 120px;
+
+    resize: vertical;
+
+}
+
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+
+    border-color:
+        var(--sidat-green);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(21, 128, 61, 0.10);
+
+}
+
+
+/* =========================================================
+   27. BUTTON
+========================================================= */
+
+.primary-button {
+
+    width: 100%;
+
+    min-height: 50px;
+
+    padding:
+        12px
+        17px;
+
+    border-radius:
+        var(--sidat-radius-md);
+
+    background:
+        var(--sidat-green);
+
+    color:
+        var(--sidat-white);
+
+    font-size: 15px;
+
+    font-weight: 900;
+
+}
+
+.primary-button:active {
+
+    transform: scale(0.98);
+
+}
+
+.primary-button:disabled {
+
+    opacity: 0.55;
+
+}
+
+
+/* =========================================================
+   28. ALERT
+========================================================= */
+
+.error-message {
+
+    margin-bottom: 14px;
+
+    padding:
+        11px
+        13px;
+
+    border-radius:
+        var(--sidat-radius-md);
+
+    background:
+        var(--sidat-danger-soft);
+
+    color:
+        var(--sidat-danger);
+
+    font-size: 13px;
+
+}
+
+.success-message {
+
+    margin-bottom: 14px;
+
+    padding:
+        11px
+        13px;
+
+    border-radius:
+        var(--sidat-radius-md);
+
+    background:
+        var(--sidat-success-soft);
+
+    color:
+        var(--sidat-success);
+
+    font-size: 13px;
+
+}
+
+
+/* =========================================================
+   29. LOGIN COMPATIBILITY
+========================================================= */
+
+.app-container {
+
+    width: 100%;
+    min-height: 100vh;
+
+    display: flex;
+
+    justify-content: center;
+
+}
+
+.welcome-section,
+.login-form-section {
+
+    width: 100%;
+
+    max-width: 480px;
+
+    min-height: 100vh;
+
+    padding:
+        28px
+        20px;
+
+}
+
+.welcome-section {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+
+}
+
+.logo-wrapper {
+
+    width: 92px;
+    height: 92px;
+
+    margin-bottom: 15px;
+
+    overflow: hidden;
+
+    border-radius: 50%;
+
+    border:
+        3px solid
+        var(--sidat-green);
+
+    background:
+        var(--sidat-white);
+
+    box-shadow:
+        var(--sidat-shadow-md);
+
+}
+
+.logo-wrapper img {
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+
+}
+
+.logo-placeholder {
+
+    width: 100%;
+    height: 100%;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        var(--sidat-green);
+
+    color:
+        var(--sidat-white);
+
+    font-size: 36px;
+
+    font-weight: 900;
+
+}
+
+.welcome-section h1 {
+
+    color:
+        var(--sidat-green-dark);
+
+    font-size: 30px;
+
+    font-weight: 900;
+
+}
+
+.welcome-section > p {
+
+    margin-top: 3px;
+
+    color:
+        var(--sidat-text-soft);
+
+    font-size: 14px;
+
+}
+
+.login-choice {
+
+    width: 100%;
+
+    margin-top: 30px;
+
+}
+
+.login-choice h2 {
+
+    font-size: 21px;
+
+    font-weight: 900;
+
+}
+
+.login-choice .subtitle {
+
+    margin-top: 4px;
+    margin-bottom: 17px;
+
+    color:
+        var(--sidat-text-soft);
+
+    font-size: 13px;
+
+}
+
+.login-card {
+
+    width: 100%;
+
+    min-height: 82px;
+
+    margin-bottom: 11px;
+
+    padding:
+        13px
+        15px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    text-align: left;
+
+    border:
+        1px solid
+        var(--sidat-border);
+
+    border-radius:
+        var(--sidat-radius-lg);
+
+    background:
+        var(--sidat-white);
+
+    box-shadow:
+        var(--sidat-shadow-sm);
+
+}
+
+.login-icon {
+
+    width: 48px;
+    height: 48px;
+
+    flex: 0 0 48px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 15px;
+
+    background:
+        var(--sidat-green-light);
+
+    font-size: 23px;
+
+}
+
+.login-card-text {
+
+    min-width: 0;
+    flex: 1;
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+.login-card-text strong {
+
+    color:
+        var(--sidat-text);
+
+    font-size: 15px;
+
+}
+
+.login-card-text span {
+
+    margin-top: 3px;
+
+    color:
+        var(--sidat-text-soft);
+
+    font-size: 12px;
+
+}
+
+.arrow {
+
+    color:
+        var(--sidat-text-muted);
+
+    font-size: 28px;
+
+}
+
+.login-form-section {
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+}
+
+.back-button {
+
+    align-self: flex-start;
+
+    margin-bottom: 30px;
+
+    padding: 8px 0;
+
+    background: transparent;
+
+    color:
+        var(--sidat-green);
+
+    font-size: 14px;
+
+    font-weight: 800;
+
+}
+
+.form-header {
+
+    margin-bottom: 25px;
+
+    text-align: center;
+
+}
+
+.form-icon {
+
+    width: 64px;
+    height: 64px;
+
+    margin:
+        0 auto 13px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 19px;
+
+    background:
+        var(--sidat-green-light);
+
+    font-size: 29px;
+
+}
+
+.form-header h2 {
+
+    color:
+        var(--sidat-text);
+
+    font-size: 25px;
+
+    font-weight: 900;
+
+}
+
+.form-header p {
+
+    margin-top: 4px;
+
+    color:
+        var(--sidat-text-soft);
+
+    font-size: 13px;
+
+}
+
+.pin-wrapper {
+
+    position: relative;
+
+}
+
+.pin-wrapper input {
+
+    padding-right: 50px;
+
+}
+
+.show-pin {
+
+    position: absolute;
+
+    top: 50%;
+    right: 8px;
+
+    width: 40px;
+    height: 40px;
+
+    transform:
+        translateY(-50%);
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: transparent;
+
+    color:
+        var(--sidat-text-muted);
+
+}
+
+
+/* =========================================================
+   30. RESPONSIVE
+========================================================= */
+
+@media (max-width: 380px) {
+
+    :root {
+
+        --sidat-topbar-height: 72px;
+
     }
 
-    to {
-        opacity: 1;
-        transform: translateX(0);
+    .sidat-brand-text span {
+
+        max-width: 145px;
+
+    }
+
+    .sidat-profile-name {
+
+        display: none;
+
+    }
+
+    .dashboard-card-value {
+
+        font-size: 18px;
+
+    }
+
+    .dashboard-card-number {
+
+        font-size: 27px;
+
+    }
+
+    .sidat-nav-item {
+
+        min-width: 65px;
+
+    }
+
+}
+
+@media (min-width: 700px) {
+
+    .sidat-content {
+
+        padding:
+            22px
+            20px
+            12px;
+
+    }
+
+    .sidat-topbar {
+
+        padding-left:
+            max(
+                14px,
+                calc(
+                    (100% - var(--sidat-content-max))
+                    / 2
+                    + 20px
+                )
+            );
+
+        padding-right:
+            max(
+                14px,
+                calc(
+                    (100% - var(--sidat-content-max))
+                    / 2
+                    + 20px
+                )
+            );
+
     }
 
 }
 
 
-/* =========================================
-   DESKTOP
-========================================= */
+/* =========================================================
+   31. REDUCED MOTION
+========================================================= */
 
-@media (min-width: 600px) {
+@media (prefers-reduced-motion: reduce) {
 
-    body {
-        padding: 30px 0;
+    *,
+    *::before,
+    *::after {
+
+        scroll-behavior: auto !important;
+
+        transition-duration:
+            0.01ms !important;
+
+        animation-duration:
+            0.01ms !important;
+
+        animation-iteration-count:
+            1 !important;
+
     }
 
+}
+/* =========================================================
+   32. LOGIN SVG ICON
+   Pengganti ikon emoji pada halaman login
+========================================================= */
 
-    .app-container {
-        min-height: 700px;
 
-        border-radius: 25px;
+/* ---------------------------------------------------------
+   ICON LOGIN WARGA / PENGELOLA
+--------------------------------------------------------- */
 
-        background: #f8fafc;
+.login-icon svg {
 
-        box-shadow:
-            0 20px 50px
-            rgba(15, 23, 42, 0.08);
+    width: 25px;
+    height: 25px;
+
+    display: block;
+
+    flex: 0 0 auto;
+
+}
+
+.login-icon.warga-icon {
+
+    color:
+        var(--sidat-green-dark);
+
+}
+
+.login-icon.admin-icon {
+
+    color:
+        var(--sidat-green-dark);
+
+}
+
+
+/* ---------------------------------------------------------
+   ICON HEADER FORM
+--------------------------------------------------------- */
+
+.form-icon svg {
+
+    width: 34px;
+    height: 34px;
+
+    display: block;
+
+    flex: 0 0 auto;
+
+}
+
+.form-icon.warga-icon {
+
+    color:
+        var(--sidat-green-dark);
+
+}
+
+.form-icon.admin-icon {
+
+    color:
+        var(--sidat-green-dark);
+
+}
+
+
+/* ---------------------------------------------------------
+   ICON MATA — TAMPILKAN PIN / PASSWORD
+--------------------------------------------------------- */
+
+.show-pin {
+
+    color:
+        var(--sidat-text-muted);
+
+}
+
+.show-pin:active {
+
+    color:
+        var(--sidat-green);
+
+}
+
+.show-pin .eye-icon {
+
+    width: 22px;
+    height: 22px;
+
+    display: block;
+
+}
+
+
+/* ---------------------------------------------------------
+   ICON PANAH LOGIN CARD
+--------------------------------------------------------- */
+
+.login-card .arrow {
+
+    width: 26px;
+    height: 26px;
+
+    flex: 0 0 26px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    color:
+        var(--sidat-text-muted);
+
+}
+
+.login-card .arrow svg {
+
+    width: 21px;
+    height: 21px;
+
+    display: block;
+
+}
+
+
+/* ---------------------------------------------------------
+   TOMBOL KEMBALI
+--------------------------------------------------------- */
+
+.back-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+}
+
+.back-button svg {
+
+    width: 19px;
+    height: 19px;
+
+    display: block;
+
+    flex: 0 0 auto;
+
+}
+
+
+/* ---------------------------------------------------------
+   PERBAIKAN IKON PADA LAYAR KECIL
+--------------------------------------------------------- */
+
+@media (max-width: 380px) {
+
+    .login-icon {
+
+        width: 46px;
+        height: 46px;
+
+        flex-basis: 46px;
+
+    }
+
+    .login-icon svg {
+
+        width: 23px;
+        height: 23px;
+
+    }
+
+    .form-icon svg {
+
+        width: 32px;
+        height: 32px;
+
+    }
+
+    .show-pin .eye-icon {
+
+        width: 21px;
+        height: 21px;
+
     }
 
 }

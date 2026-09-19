@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    >
+
+    <meta
+        name="theme-color"
+        content="#15803d"
+    >
+
+    <title>SIDAT - Notula Rapat</title>
+
+    <link
+        rel="stylesheet"
+        href="notula.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="warga-menu.css"
+    >
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+    <!-- ==================================================
+         HEADER
+    =================================================== -->
+
+    <header class="page-header">
+
+        <div class="header-left">
+
+            <button
+                type="button"
+                class="back-button"
+                id="btnBack"
+                aria-label="Kembali"
+            >
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path d="M15 18l-6-6 6-6"></path>
+                </svg>
+
+            </button>
+
+
+            <div class="header-text">
+
+                <h1>Notula Rapat</h1>
+
+                <span>
+                    Catatan dan hasil rapat RT
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="header-icon" aria-hidden="true">
+
+            <svg
+                viewBox="0 0 24 24"
+            >
+                <path
+                    d="M6 3h9l4 4v14H6z"
+                ></path>
+
+                <path
+                    d="M15 3v5h5"
+                ></path>
+
+                <path
+                    d="M9 12h6M9 16h6"
+                ></path>
+            </svg>
+
+        </div>
+
+    </header>
+
+
+    <!-- ==================================================
+         CONTENT
+    =================================================== -->
+
+    <main class="content">
+
+        <!-- PAGE MESSAGE -->
+
+        <div
+            id="pageMessage"
+            class="page-message hidden"
+        ></div>
+
+
+        <!-- ==================================================
+             INTRO
+        =================================================== -->
+
+        <section class="intro-card">
+
+            <div class="intro-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M6 3h9l4 4v14H6z"
+                    ></path>
+
+                    <path
+                        d="M15 3v5h5"
+                    ></path>
+
+                    <path
+                        d="M9 12h6M9 16h5"
+                    ></path>
+                </svg>
+
+            </div>
+
+
+            <div>
+
+                <strong>
+                    Arsip Notula Rapat
+                </strong>
+
+                <p>
+                    Lihat catatan pembahasan,
+                    peserta, keputusan, dan tindak lanjut
+                    hasil rapat RT.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             SEARCH
+        =================================================== -->
+
+        <section class="search-section">
+
+            <div class="search-box">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="m21 21-4.35-4.35
+                           M10.5 18a7.5 7.5 0 1 1 0-15
+                           7.5 7.5 0 0 1 0 15Z"
+                    ></path>
+                </svg>
+
+
+                <input
+                    type="search"
+                    id="notulaSearch"
+                    placeholder="Cari judul atau lokasi rapat..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             LOADING
+        =================================================== -->
+
+        <div
+            id="notulaLoading"
+            class="loading-state"
+        >
+
+            <div class="loading-spinner"></div>
+
+            <span>
+                Memuat arsip notula...
+            </span>
+
+        </div>
+
+
+        <!-- ==================================================
+             EMPTY
+        =================================================== -->
+
+        <div
+            id="notulaEmpty"
+            class="empty-state hidden"
+        >
+
+            <div class="empty-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M6 3h9l4 4v14H6z"
+                    ></path>
+
+                    <path
+                        d="M15 3v5h5"
+                    ></path>
+
+                    <path
+                        d="M9 12h6M9 16h6"
+                    ></path>
+                </svg>
+
+            </div>
+
+            <strong>
+                Belum ada notula
+            </strong>
+
+            <span>
+                Arsip notula rapat belum tersedia.
+            </span>
+
+        </div>
+
+
+        <!-- ==================================================
+             LIST NOTULA
+        =================================================== -->
+
+        <section
+            id="notulaListSection"
+            class="list-section"
+        >
+
+            <div
+                id="notulaList"
+                class="notula-list"
+            ></div>
+
+        </section>
+
+
+        <!-- ==================================================
+             DETAIL NOTULA
+        =================================================== -->
+
+        <section
+            id="notulaDetailSection"
+            class="detail-section hidden"
+        >
+
+            <button
+                type="button"
+                id="btnBackToList"
+                class="back-list-button"
+            >
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M15 18l-6-6 6-6"
+                    ></path>
+                </svg>
+
+                <span>
+                    Kembali ke Arsip Notula
+                </span>
+
+            </button>
+
+
+            <!-- DETAIL HEADER -->
+
+            <div class="detail-header-card">
+
+                <span
+                    id="detailType"
+                    class="detail-type"
+                >
+                    Rapat RT
+                </span>
+
+
+                <h2 id="detailTitle">
+                    Detail Notula
+                </h2>
+
+
+                <div class="detail-meta-list">
+
+                    <div class="detail-meta">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <rect
+                                x="3"
+                                y="4"
+                                width="18"
+                                height="17"
+                                rx="2"
+                            ></rect>
+
+                            <path
+                                d="M16 2v4M8 2v4M3 9h18"
+                            ></path>
+                        </svg>
+
+                        <span id="detailDate">
+                            -
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail-meta">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <circle
+                                cx="12"
+                                cy="12"
+                                r="9"
+                            ></circle>
+
+                            <path
+                                d="M12 7v5l3 2"
+                            ></path>
+                        </svg>
+
+                        <span id="detailTime">
+                            -
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail-meta">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z"
+                            ></path>
+
+                            <circle
+                                cx="12"
+                                cy="10"
+                                r="2.5"
+                            ></circle>
+                        </svg>
+
+                        <span id="detailLocation">
+                            -
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==================================================
+                 DATA RAPAT
+            =================================================== -->
+
+            <section class="detail-card">
+
+                <div class="detail-card-title">
+
+                    <span class="section-number">
+                        A
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Data Rapat
+                        </strong>
+
+                        <span>
+                            Informasi pelaksanaan rapat
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="info-grid">
+
+                    <div class="info-item">
+
+                        <span>
+                            Pimpinan Rapat
+                        </span>
+
+                        <strong id="detailChairman">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="info-item">
+
+                        <span>
+                            Notulis
+                        </span>
+
+                        <strong id="detailSecretary">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="info-item">
+
+                        <span>
+                            Status
+                        </span>
+
+                        <strong id="detailStatus">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==================================================
+                 PESERTA
+            =================================================== -->
+
+            <section class="detail-card">
+
+                <div class="detail-card-title">
+
+                    <span class="section-number">
+                        B
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Peserta Rapat
+                        </strong>
+
+                        <span>
+                            Daftar peserta dan kehadiran
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="detailAttendees"
+                    class="detail-content"
+                ></div>
+
+            </section>
+
+
+            <!-- ==================================================
+                 PEMBAHASAN
+            =================================================== -->
+
+            <section class="detail-card">
+
+                <div class="detail-card-title">
+
+                    <span class="section-number">
+                        C
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Pembahasan
+                        </strong>
+
+                        <span>
+                            Pokok pembahasan rapat
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="detailDiscussions"
+                    class="detail-content"
+                ></div>
+
+            </section>
+
+
+            <!-- ==================================================
+                 KEPUTUSAN
+            =================================================== -->
+
+            <section class="detail-card">
+
+                <div class="detail-card-title">
+
+                    <span class="section-number">
+                        D
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Hasil Keputusan
+                        </strong>
+
+                        <span>
+                            Keputusan dan tindak lanjut
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="detailDecisions"
+                    class="detail-content"
+                ></div>
+
+            </section>
+
+
+            <!-- ==================================================
+                 CATATAN PEMBUKA
+            =================================================== -->
+
+            <section
+                id="detailOpeningBlock"
+                class="detail-card hidden"
+            >
+
+                <div class="detail-card-title">
+
+                    <span class="section-number">
+                        E
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Catatan Pembuka
+                        </strong>
+
+                        <span>
+                            Catatan awal rapat
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="detailOpeningNotes"
+                    class="text-content"
+                ></div>
+
+            </section>
+
+
+            <!-- ==================================================
+                 CATATAN PENUTUP
+            =================================================== -->
+
+            <section
+                id="detailClosingBlock"
+                class="detail-card hidden"
+            >
+
+                <div class="detail-card-title">
+
+                    <span class="section-number">
+                        F
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Catatan Penutup
+                        </strong>
+
+                        <span>
+                            Catatan akhir rapat
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="detailClosingNotes"
+                    class="text-content"
+                ></div>
+
+            </section>
+
+
+            <!-- ==================================================
+                 FOOTER DETAIL
+            =================================================== -->
+
+            <div class="detail-footer-note">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M12 3a9 9 0 1 0 9 9"
+                    ></path>
+
+                    <path
+                        d="M12 7v5l3 2"
+                    ></path>
+                </svg>
+
+                <span>
+                    Data notula bersumber dari arsip rapat RT.
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <div class="content-bottom-space"></div>
+
+    </main>
+
+
+    <!-- ==================================================
+         SUPABASE
+    =================================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+
+    <!-- ==================================================
+         SIDAT CONFIG
+    =================================================== -->
+
+    <script
+        src="../js/supabase-config.js"
+    ></script>
+
+
+    <!-- ==================================================
+         WARGA MENU
+    =================================================== -->
+
+    <script
+        src="./warga-menu.js"
+    ></script>
+
+
+    <!-- ==================================================
+         NOTULA JS
+    =================================================== -->
+
+    <script
+        src="notula.js"
+    ></script>
+
+</div>
+
+</body>
+
+</html>

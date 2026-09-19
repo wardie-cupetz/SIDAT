@@ -1,1745 +1,1078 @@
-/* ==========================================
-   SIDAT
-   KAS RT
-   Dibuat oleh Suwardi
-========================================== */
-
-
-/* ==========================================
-   RESET
-========================================== */
-
 * {
-
-    box-sizing:
-        border-box;
-
-}
-
+  box-sizing: border-box;
+  }
 
 html {
-
-    background:
-        #f3f7f4;
-
+background: #f3f7f4;
 }
-
 
 body {
-
-    margin:
-        0;
-
-    min-height:
-        100vh;
-
-    font-family:
-        Arial,
-        sans-serif;
-
-    background:
-        #f3f7f4;
-
-    color:
-        #1f2937;
-
+margin: 0;
+min-height: 100vh;
+font-family: Arial, sans-serif;
+background: #f3f7f4;
+color: #1f2937;
+padding-bottom: env(safe-area-inset-bottom);
 }
 
-
-/* ==========================================
-   CONTAINER
-========================================== */
+button,
+select,
+input {
+font: inherit;
+}
 
 .kas-container {
-
-    width:
-        100%;
-
-    max-width:
-        700px;
-
-    min-height:
-        100vh;
-
-    margin:
-        0 auto;
-
-    padding:
-        16px;
-
+width: 100%;
+max-width: 700px;
+min-height: 100vh;
+margin: 0 auto;
+padding:
+calc(12px + env(safe-area-inset-top))
+12px
+calc(105px + env(safe-area-inset-bottom));
 }
 
-
-/* ==========================================
-   HEADER
-========================================== */
+/* =========================================================
+HEADER
+========================================================= */
 
 .top-header {
+position: relative;
+overflow: hidden;
 
-    display:
-        flex;
+display: flex;
+align-items: center;
+gap: 12px;
 
-    align-items:
-        center;
+min-height: 76px;
+margin-bottom: 16px;
+padding: 12px;
 
-    gap:
-        12px;
+border-radius: 22px;
 
-    margin-bottom:
-        20px;
+background:
+    linear-gradient(
+        135deg,
+        #15803d,
+        #166534
+    );
+
+color: #ffffff;
+
+box-shadow:
+    0 12px 28px
+    rgba(21, 128, 61, 0.18);
 
 }
 
+.top-header::before {
+content: "";
+
+position: absolute;
+
+width: 145px;
+height: 145px;
+
+top: -78px;
+right: -48px;
+
+border-radius: 50%;
+
+background:
+    rgba(255, 255, 255, 0.10);
+
+pointer-events: none;
+
+}
+
+.top-header::after {
+content: "";
+
+position: absolute;
+
+width: 72px;
+height: 72px;
+
+right: 52px;
+bottom: -43px;
+
+border-radius: 50%;
+
+background:
+    rgba(255, 255, 255, 0.07);
+
+pointer-events: none;
+
+}
 
 .back-button {
+position: relative;
+z-index: 2;
 
-    width:
-        46px;
+width: 44px;
+height: 44px;
+flex: 0 0 44px;
 
-    height:
-        46px;
+display: flex;
+align-items: center;
+justify-content: center;
 
-    flex:
-        0 0 46px;
+border: 0;
+border-radius: 14px;
 
-    display:
-        flex;
+background:
+    rgba(255, 255, 255, 0.16);
 
-    align-items:
-        center;
+color: #ffffff;
 
-    justify-content:
-        center;
-
-    border:
-        none;
-
-    border-radius:
-        15px;
-
-    background:
-        #ffffff;
-
-    color:
-        #166534;
-
-    font-size:
-        28px;
-
-    line-height:
-        1;
-
-    cursor:
-        pointer;
-
-    box-shadow:
-        0 4px 15px
-        rgba(
-            0,
-            0,
-            0,
-            0.06
-        );
-
-    transition:
-        0.2s;
+cursor: pointer;
 
 }
 
+.back-button svg {
+width: 23px;
+height: 23px;
+}
 
 .back-button:active {
-
-    transform:
-        scale(
-            0.94
-        );
-
+transform: scale(0.94);
 }
-
 
 .header-title {
+position: relative;
+z-index: 2;
 
-    display:
-        flex;
+display: flex;
+align-items: center;
+gap: 11px;
 
-    align-items:
-        center;
-
-    gap:
-        11px;
-
-    min-width:
-        0;
+min-width: 0;
 
 }
-
 
 .header-icon {
+width: 44px;
+height: 44px;
+flex: 0 0 44px;
 
-    width:
-        46px;
+display: flex;
+align-items: center;
+justify-content: center;
 
-    height:
-        46px;
+border-radius: 14px;
 
-    flex:
-        0 0 46px;
+background:
+    rgba(255, 255, 255, 0.15);
 
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    border-radius:
-        15px;
-
-    background:
-        #dcfce7;
-
-    font-size:
-        22px;
+color: #ffffff;
 
 }
 
+.header-icon svg {
+width: 25px;
+height: 25px;
+}
 
 .header-title > div:last-child {
-
-    min-width:
-        0;
-
+min-width: 0;
 }
-
 
 .header-title h1 {
+margin: 0;
 
-    margin:
-        0;
+font-size: 21px;
+font-weight: 800;
 
-    font-size:
-        21px;
-
-    font-weight:
-        800;
-
-    color:
-        #14532d;
+color: #ffffff;
 
 }
-
 
 .header-title span {
+display: block;
 
-    display:
-        block;
+margin-top: 4px;
 
-    margin-top:
-        4px;
+font-size: 12px;
 
-    font-size:
-        13px;
-
-    color:
-        #64748b;
+color:
+    rgba(255, 255, 255, 0.78);
 
 }
 
-
-/* ==========================================
-   SALDO UTAMA
-========================================== */
+/* =========================================================
+SALDO
+========================================================= */
 
 .saldo-card {
+position: relative;
+overflow: hidden;
 
-    position:
-        relative;
+padding: 25px 21px;
 
-    overflow:
-        hidden;
+border-radius: 24px;
 
-    padding:
-        25px 24px;
+color: #ffffff;
 
-    border-radius:
-        24px;
+background:
+    linear-gradient(
+        135deg,
+        #15803d,
+        #166534
+    );
 
-    color:
-        #ffffff;
-
-    background:
-        linear-gradient(
-            135deg,
-            #15803d,
-            #166534
-        );
-
-    box-shadow:
-        0 14px 32px
-        rgba(
-            21,
-            128,
-            61,
-            0.22
-        );
+box-shadow:
+    0 14px 32px
+    rgba(21, 128, 61, 0.20);
 
 }
-
 
 .saldo-card::before {
+content: "";
 
-    content:
-        "";
+position: absolute;
 
-    position:
-        absolute;
+width: 180px;
+height: 180px;
 
-    width:
-        180px;
+top: -80px;
+right: -65px;
 
-    height:
-        180px;
+border-radius: 50%;
 
-    top:
-        -80px;
-
-    right:
-        -65px;
-
-    border-radius:
-        50%;
-
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            0.08
-        );
+background:
+    rgba(255, 255, 255, 0.08);
 
 }
-
 
 .saldo-card::after {
+content: "";
 
-    content:
-        "";
+position: absolute;
 
-    position:
-        absolute;
+width: 90px;
+height: 90px;
 
-    width:
-        90px;
+right: 45px;
+bottom: -45px;
 
-    height:
-        90px;
+border-radius: 50%;
 
-    bottom:
-        -45px;
-
-    right:
-        45px;
-
-    border-radius:
-        50%;
-
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            0.05
-        );
+background:
+    rgba(255, 255, 255, 0.05);
 
 }
 
+.saldo-label,
+.saldo-value,
+.saldo-caption {
+position: relative;
+z-index: 1;
+}
 
 .saldo-label {
-
-    position:
-        relative;
-
-    z-index:
-        1;
-
-    font-size:
-        14px;
-
-    font-weight:
-        500;
-
-    opacity:
-        0.9;
-
+font-size: 13px;
+font-weight: 600;
+opacity: 0.88;
 }
-
 
 .saldo-value {
+margin-top: 9px;
 
-    position:
-        relative;
+font-size: 32px;
+line-height: 1.2;
+font-weight: 800;
 
-    z-index:
-        1;
+letter-spacing: -0.6px;
 
-    margin-top:
-        10px;
-
-    font-size:
-        34px;
-
-    font-weight:
-        800;
-
-    letter-spacing:
-        -0.7px;
-
-    word-break:
-        break-word;
+word-break: break-word;
 
 }
 
+.saldo-value.saldo-negative {
+color: #fecaca;
+}
 
 .saldo-caption {
+margin-top: 10px;
 
-    position:
-        relative;
+font-size: 11px;
+line-height: 1.5;
 
-    z-index:
-        1;
-
-    margin-top:
-        10px;
-
-    font-size:
-        12px;
-
-    line-height:
-        1.5;
-
-    opacity:
-        0.78;
+opacity: 0.76;
 
 }
 
-
-/* ==========================================
-   RINGKASAN
-========================================== */
+/* =========================================================
+SUMMARY
+========================================================= */
 
 .summary-grid {
+display: grid;
 
-    display:
-        grid;
+grid-template-columns:
+    repeat(
+        2,
+        minmax(0, 1fr)
+    );
 
-    grid-template-columns:
-        repeat(
-            2,
-            minmax(
-                0,
-                1fr
-            )
-        );
+gap: 11px;
 
-    gap:
-        12px;
-
-    margin:
-        15px 0 20px;
+margin: 14px 0 16px;
 
 }
-
 
 .summary-card {
+display: flex;
+align-items: center;
 
-    display:
-        flex;
+gap: 9px;
 
-    align-items:
-        center;
+min-width: 0;
 
-    gap:
-        11px;
+padding: 14px 12px;
 
-    min-width:
-        0;
+border-radius: 18px;
 
-    padding:
-        16px;
+background: #ffffff;
 
-    border-radius:
-        19px;
-
-    background:
-        #ffffff;
-
-    box-shadow:
-        0 4px 18px
-        rgba(
-            0,
-            0,
-            0,
-            0.05
-        );
+box-shadow:
+    0 4px 18px
+    rgba(0, 0, 0, 0.05);
 
 }
-
 
 .summary-icon {
+width: 40px;
+height: 40px;
+flex: 0 0 40px;
 
-    width:
-        42px;
+display: flex;
+align-items: center;
+justify-content: center;
 
-    height:
-        42px;
-
-    flex:
-        0 0 42px;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    border-radius:
-        14px;
-
-    font-size:
-        22px;
-
-    font-weight:
-        700;
+border-radius: 13px;
 
 }
 
-
-.summary-card.masuk
-.summary-icon {
-
-    background:
-        #dcfce7;
-
-    color:
-        #15803d;
-
+.summary-icon svg {
+width: 22px;
+height: 22px;
 }
 
-
-.summary-card.keluar
-.summary-icon {
-
-    background:
-        #fee2e2;
-
-    color:
-        #dc2626;
-
+.summary-card.masuk .summary-icon {
+background: #dcfce7;
+color: #15803d;
 }
 
+.summary-card.keluar .summary-icon {
+background: #fee2e2;
+color: #dc2626;
+}
 
 .summary-card > div:last-child {
-
-    min-width:
-        0;
-
+min-width: 0;
 }
-
 
 .summary-card span {
+display: block;
 
-    display:
-        block;
+font-size: 10px;
 
-    font-size:
-        11px;
-
-    color:
-        #64748b;
+color: #64748b;
 
 }
-
 
 .summary-card strong {
+display: block;
 
-    display:
-        block;
+margin-top: 4px;
 
-    margin-top:
-        5px;
+overflow: hidden;
 
-    overflow:
-        hidden;
+font-size: 14px;
+font-weight: 800;
 
-    font-size:
-        15px;
+color: #1f2937;
 
-    font-weight:
-        800;
-
-    color:
-        #1f2937;
-
-    text-overflow:
-        ellipsis;
-
-    white-space:
-        nowrap;
+text-overflow: ellipsis;
+white-space: nowrap;
 
 }
-
 
 .summary-card small {
+display: block;
 
-    display:
-        block;
+margin-top: 3px;
 
-    margin-top:
-        4px;
+font-size: 9px;
 
-    font-size:
-        10px;
-
-    color:
-        #94a3b8;
+color: #94a3b8;
 
 }
 
-
-/* ==========================================
-   FILTER CARD
-========================================== */
+/* =========================================================
+FILTER
+========================================================= */
 
 .filter-card {
+margin-bottom: 16px;
 
-    margin-bottom:
-        16px;
+padding: 18px;
 
-    padding:
-        19px;
+border-radius: 21px;
 
-    border-radius:
-        21px;
+background: #ffffff;
 
-    background:
-        #ffffff;
-
-    box-shadow:
-        0 4px 18px
-        rgba(
-            0,
-            0,
-            0,
-            0.05
-        );
+box-shadow:
+    0 4px 18px
+    rgba(0, 0, 0, 0.05);
 
 }
-
 
 .section-title {
+display: flex;
+align-items: center;
 
-    display:
-        flex;
+gap: 11px;
 
-    align-items:
-        center;
-
-    gap:
-        11px;
-
-    margin-bottom:
-        18px;
+margin-bottom: 17px;
 
 }
 
+.section-title-icon {
+width: 42px;
+height: 42px;
+flex: 0 0 42px;
 
-.section-title > span {
+display: flex;
+align-items: center;
+justify-content: center;
 
-    width:
-        42px;
+border-radius: 13px;
 
-    height:
-        42px;
+background: #f0fdf4;
 
-    flex:
-        0 0 42px;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    border-radius:
-        13px;
-
-    background:
-        #f0fdf4;
-
-    font-size:
-        20px;
+color: #15803d;
 
 }
 
-
-.section-title > div {
-
-    min-width:
-        0;
-
+.section-title-icon svg {
+width: 22px;
+height: 22px;
 }
-
 
 .section-title h2 {
+margin: 0;
 
-    margin:
-        0;
+font-size: 17px;
+font-weight: 800;
 
-    font-size:
-        17px;
-
-    font-weight:
-        800;
-
-    color:
-        #1f2937;
+color: #1f2937;
 
 }
-
 
 .section-title p {
+margin: 4px 0 0;
 
-    margin:
-        4px 0 0;
+font-size: 11px;
 
-    font-size:
-        12px;
-
-    color:
-        #64748b;
+color: #64748b;
 
 }
-
-
-/* ==========================================
-   FILTER
-========================================== */
 
 .filter-row {
+display: grid;
 
-    display:
-        grid;
+grid-template-columns:
+    repeat(
+        2,
+        minmax(0, 1fr)
+    );
 
-    grid-template-columns:
-        repeat(
-            2,
-            minmax(
-                0,
-                1fr
-            )
-        );
-
-    gap:
-        11px;
+gap: 11px;
 
 }
-
 
 .filter-field {
-
-    min-width:
-        0;
-
+min-width: 0;
 }
-
 
 .filter-field label {
+display: block;
 
-    display:
-        block;
+margin-bottom: 7px;
 
-    margin-bottom:
-        7px;
+font-size: 11px;
+font-weight: 600;
 
-    font-size:
-        11px;
-
-    font-weight:
-        600;
-
-    color:
-        #64748b;
+color: #64748b;
 
 }
-
 
 .filter-field select,
-
 .filter-field input {
+width: 100%;
+height: 44px;
 
-    width:
-        100%;
+padding: 0 11px;
 
-    height:
-        45px;
+border: 1px solid #e2e8f0;
+border-radius: 12px;
 
-    padding:
-        0 11px;
+outline: none;
 
-    border:
-        1px solid
-        #e2e8f0;
+background: #f8fafc;
+color: #334155;
 
-    border-radius:
-        12px;
-
-    outline:
-        none;
-
-    background:
-        #f8fafc;
-
-    color:
-        #334155;
-
-    font-family:
-        inherit;
-
-    font-size:
-        12px;
+font-size: 12px;
 
 }
-
-
-.filter-field select {
-
-    cursor:
-        pointer;
-
-}
-
 
 .filter-field select:focus,
-
 .filter-field input:focus {
+border-color: #22c55e;
 
-    border-color:
-        #22c55e;
+background: #ffffff;
 
-    background:
-        #ffffff;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(
-            34,
-            197,
-            94,
-            0.1
-        );
+box-shadow:
+    0 0 0 3px
+    rgba(34, 197, 94, 0.10);
 
 }
-
 
 .reset-filter {
+width: 100%;
+height: 44px;
 
-    width:
-        100%;
+display: flex;
+align-items: center;
+justify-content: center;
 
-    height:
-        45px;
+gap: 7px;
 
-    margin-top:
-        13px;
+margin-top: 12px;
 
-    border:
-        none;
+border: 0;
+border-radius: 13px;
 
-    border-radius:
-        13px;
+background: #dcfce7;
+color: #166534;
 
-    background:
-        #dcfce7;
+font-size: 12px;
+font-weight: 700;
 
-    color:
-        #166534;
-
-    font-family:
-        inherit;
-
-    font-size:
-        13px;
-
-    font-weight:
-        700;
-
-    cursor:
-        pointer;
-
-    transition:
-        0.2s;
+cursor: pointer;
 
 }
 
+.reset-filter svg {
+width: 17px;
+height: 17px;
+}
 
 .reset-filter:active {
-
-    transform:
-        scale(
-            0.98
-        );
-
+transform: scale(0.98);
 }
 
-
-/* ==========================================
-   LIST TRANSAKSI
-========================================== */
+/* =========================================================
+TRANSACTIONS
+========================================================= */
 
 .transaction-list {
+display: flex;
+flex-direction: column;
 
-    display:
-        flex;
-
-    flex-direction:
-        column;
-
-    gap:
-        11px;
+gap: 11px;
 
 }
-
-
-/* ==========================================
-   ITEM TRANSAKSI
-========================================== */
 
 .transaction-item {
+position: relative;
 
-    position:
-        relative;
+overflow: hidden;
 
-    overflow:
-        hidden;
+padding: 16px 15px 16px 17px;
 
-    padding:
-        16px 15px 16px 19px;
+border:
+    1px solid
+    #edf1ef;
 
-    border:
-        1px solid
-        #edf1ef;
+border-radius: 18px;
 
-    border-radius:
-        18px;
+background: #ffffff;
 
-    background:
-        #ffffff;
-
-    box-shadow:
-        0 3px 14px
-        rgba(
-            0,
-            0,
-            0,
-            0.035
-        );
+box-shadow:
+    0 3px 14px
+    rgba(0, 0, 0, 0.035);
 
 }
-
 
 .transaction-item::before {
+content: "";
 
-    content:
-        "";
+position: absolute;
 
-    position:
-        absolute;
+top: 15px;
+bottom: 15px;
+left: 0;
 
-    top:
-        15px;
+width: 5px;
 
-    bottom:
-        15px;
+border-radius:
+    0 5px 5px 0;
 
-    left:
-        0;
-
-    width:
-        5px;
-
-    border-radius:
-        0 5px 5px 0;
-
-    background:
-        #94a3b8;
+background: #94a3b8;
 
 }
 
-
-/* PEMASUKAN */
-
-.transaction-item:has(
-    .income
-)::before {
-
-    background:
-        #22c55e;
-
+.transaction-item[data-type="income"]::before {
+background: #22c55e;
 }
 
-
-/* PENGELUARAN */
-
-.transaction-item:has(
-    .expense
-)::before {
-
-    background:
-        #ef4444;
-
+.transaction-item[data-type="expense"]::before {
+background: #ef4444;
 }
 
-
-/* TRANSFER JIMPITAN */
-
-.transaction-item:has(
-    .transfer
-)::before {
-
-    background:
-        #f59e0b;
-
+.transaction-item[data-type="transfer"]::before {
+background: #f59e0b;
 }
-
-
-/* ==========================================
-   BAGIAN ATAS TRANSAKSI
-========================================== */
 
 .tx-top {
+display: flex;
+align-items: flex-start;
+justify-content: space-between;
 
-    display:
-        flex;
-
-    align-items:
-        flex-start;
-
-    justify-content:
-        space-between;
-
-    gap:
-        14px;
+gap: 12px;
 
 }
-
 
 .tx-title {
+display: flex;
+align-items: center;
 
-    flex:
-        1;
+gap: 9px;
 
-    min-width:
-        0;
-
-    font-size:
-        15px;
-
-    font-weight:
-        750;
-
-    line-height:
-        1.4;
-
-    color:
-        #1e293b;
-
-    word-break:
-        break-word;
+flex: 1;
+min-width: 0;
 
 }
 
+.tx-title > div:last-child {
+min-width: 0;
+}
+
+.tx-title strong {
+display: block;
+
+font-size: 14px;
+line-height: 1.4;
+
+color: #1e293b;
+
+word-break: break-word;
+
+}
+
+.tx-title span {
+display: block;
+
+margin-top: 3px;
+
+font-size: 10px;
+
+color: #64748b;
+
+}
+
+.tx-category-icon {
+width: 36px;
+height: 36px;
+flex: 0 0 36px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+border-radius: 11px;
+
+background: #f1f5f9;
+
+color: #64748b;
+
+}
+
+.tx-category-icon svg {
+width: 19px;
+height: 19px;
+}
 
 .tx-amount {
+flex: 0 0 auto;
 
-    flex:
-        0 0 auto;
+font-size: 14px;
+font-weight: 800;
 
-    font-size:
-        15px;
+text-align: right;
 
-    font-weight:
-        800;
-
-    text-align:
-        right;
-
-    white-space:
-        nowrap;
+white-space: nowrap;
 
 }
-
 
 .tx-amount.income {
-
-    color:
-        #16a34a;
-
+color: #16a34a;
 }
-
 
 .tx-amount.expense {
-
-    color:
-        #dc2626;
-
+color: #dc2626;
 }
-
 
 .tx-amount.transfer {
-
-    color:
-        #d97706;
-
+color: #d97706;
 }
-
-
-/* ==========================================
-   META TRANSAKSI
-========================================== */
 
 .tx-meta {
+display: flex;
+flex-wrap: wrap;
 
-    display:
-        flex;
+gap: 6px;
 
-    flex-wrap:
-        wrap;
-
-    gap:
-        7px;
-
-    margin-top:
-        9px;
-
-    font-size:
-        11px;
-
-    color:
-        #64748b;
+margin-top: 9px;
 
 }
-
-
-.tx-category {
-
-    display:
-        inline-flex;
-
-    align-items:
-        center;
-
-    padding:
-        4px 8px;
-
-    border-radius:
-        8px;
-
-    background:
-        #f1f5f9;
-
-    color:
-        #475569;
-
-    font-size:
-        10px;
-
-    font-weight:
-        600;
-
-}
-
 
 .tx-date {
+display: inline-flex;
+align-items: center;
 
-    display:
-        inline-flex;
+gap: 5px;
 
-    align-items:
-        center;
+padding: 4px 8px;
 
-    padding:
-        4px 8px;
+border-radius: 8px;
 
-    border-radius:
-        8px;
+background: #f8fafc;
 
-    background:
-        #f8fafc;
+color: #64748b;
 
-    color:
-        #64748b;
-
-    font-size:
-        10px;
+font-size: 10px;
 
 }
 
-
-/* ==========================================
-   DESKRIPSI TRANSAKSI
-========================================== */
+.tx-date svg {
+width: 13px;
+height: 13px;
+}
 
 .tx-desc {
+margin-top: 10px;
 
-    margin-top:
-        10px;
+padding: 10px 11px;
 
-    padding:
-        10px 11px;
+border-radius: 11px;
 
-    border-radius:
-        11px;
+background: #f8fafc;
 
-    background:
-        #f8fafc;
+color: #475569;
 
-    color:
-        #475569;
+font-size: 11px;
+line-height: 1.55;
 
-    font-size:
-        12px;
-
-    line-height:
-        1.55;
-
-    word-break:
-        break-word;
+word-break: break-word;
 
 }
 
-
-/* ==========================================
-   LOADING
-========================================== */
+/* =========================================================
+LOADING
+========================================================= */
 
 .loading-state {
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
 
-    display:
-        flex;
+gap: 11px;
 
-    flex-direction:
-        column;
+min-height: 170px;
 
-    align-items:
-        center;
+padding: 30px 15px;
 
-    justify-content:
-        center;
+text-align: center;
 
-    gap:
-        12px;
+color: #64748b;
 
-    min-height:
-        180px;
-
-    padding:
-        30px 15px;
-
-    text-align:
-        center;
-
-    color:
-        #64748b;
-
-    font-size:
-        13px;
+font-size: 12px;
 
 }
-
 
 .spinner {
+width: 36px;
+height: 36px;
 
-    width:
-        38px;
+border: 4px solid #dcfce7;
 
-    height:
-        38px;
+border-top-color: #15803d;
 
-    border:
-        4px solid
-        #dcfce7;
+border-radius: 50%;
 
-    border-top-color:
-        #15803d;
-
-    border-radius:
-        50%;
-
-    animation:
-        sidat-spin
-        0.8s
-        linear
-        infinite;
+animation:
+    sidat-spin
+    0.8s
+    linear
+    infinite;
 
 }
-
 
 @keyframes sidat-spin {
-
-    to {
-
-        transform:
-            rotate(
-                360deg
-            );
-
-    }
-
+to {
+transform: rotate(360deg);
+}
 }
 
-
-/* ==========================================
-   EMPTY STATE
-========================================== */
+/* =========================================================
+EMPTY
+========================================================= */
 
 .empty-state {
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
 
-    display:
-        flex;
+gap: 8px;
 
-    flex-direction:
-        column;
+min-height: 190px;
 
-    align-items:
-        center;
+padding: 28px 20px;
 
-    justify-content:
-        center;
+border-radius: 21px;
 
-    gap:
-        8px;
+background: #ffffff;
 
-    min-height:
-        200px;
+text-align: center;
 
-    padding:
-        30px 20px;
-
-    border-radius:
-        21px;
-
-    background:
-        #ffffff;
-
-    text-align:
-        center;
-
-    box-shadow:
-        0 4px 18px
-        rgba(
-            0,
-            0,
-            0,
-            0,
-            0.05
-        );
+box-shadow:
+    0 4px 18px
+    rgba(0, 0, 0, 0.05);
 
 }
-
 
 .empty-icon {
+width: 56px;
+height: 56px;
 
-    width:
-        58px;
+display: flex;
+align-items: center;
+justify-content: center;
 
-    height:
-        58px;
+margin-bottom: 3px;
 
-    display:
-        flex;
+border-radius: 17px;
 
-    align-items:
-        center;
+background: #f0fdf4;
 
-    justify-content:
-        center;
-
-    margin-bottom:
-        4px;
-
-    border-radius:
-        18px;
-
-    background:
-        #f0fdf4;
-
-    font-size:
-        28px;
+color: #15803d;
 
 }
 
+.empty-icon svg {
+width: 28px;
+height: 28px;
+}
 
 .empty-state strong {
+color: #334155;
 
-    color:
-        #334155;
-
-    font-size:
-        15px;
+font-size: 14px;
 
 }
-
 
 .empty-state span {
+max-width: 250px;
 
-    max-width:
-        250px;
+color: #94a3b8;
 
-    color:
-        #94a3b8;
+font-size: 11px;
 
-    font-size:
-        12px;
-
-    line-height:
-        1.5;
+line-height: 1.5;
 
 }
 
-
-
-/* ==========================================
-   ERROR STATE
-========================================== */
+/* =========================================================
+ERROR
+========================================================= */
 
 .error-state {
+display: flex;
+flex-direction: column;
+align-items: center;
 
-    display:
-        flex;
+gap: 8px;
 
-    flex-direction:
-        column;
+padding: 28px 20px;
 
-    align-items:
-        center;
+border:
+    1px solid
+    #fee2e2;
 
-    gap:
-        9px;
+border-radius: 21px;
 
-    padding:
-        30px 20px;
+background: #fff7f7;
 
-    border-radius:
-        21px;
-
-    background:
-        #fff7f7;
-
-    border:
-        1px solid
-        #fee2e2;
-
-    text-align:
-        center;
+text-align: center;
 
 }
 
+.error-icon {
+width: 48px;
+height: 48px;
 
-.error-state > div {
+display: flex;
+align-items: center;
+justify-content: center;
 
-    font-size:
-        32px;
+border-radius: 15px;
+
+background: #fee2e2;
+
+color: #dc2626;
 
 }
 
+.error-icon svg {
+width: 25px;
+height: 25px;
+}
 
 .error-state strong {
+color: #b91c1c;
 
-    color:
-        #b91c1c;
-
-    font-size:
-        15px;
+font-size: 14px;
 
 }
-
 
 .error-state p {
+margin: 0;
 
-    margin:
-        0;
+color: #64748b;
 
-    color:
-        #64748b;
+font-size: 11px;
 
-    font-size:
-        12px;
-
-    line-height:
-        1.5;
+line-height: 1.5;
 
 }
-
 
 .error-state button {
+height: 41px;
 
-    height:
-        42px;
+margin-top: 4px;
 
-    margin-top:
-        5px;
+padding: 0 18px;
 
-    padding:
-        0 18px;
+border: 0;
+border-radius: 12px;
 
-    border:
-        none;
+background: #dc2626;
+color: #ffffff;
 
-    border-radius:
-        12px;
+font-size: 12px;
+font-weight: 700;
 
-    background:
-        #dc2626;
-
-    color:
-        #ffffff;
-
-    font-family:
-        inherit;
-
-    font-size:
-        12px;
-
-    font-weight:
-        700;
-
-    cursor:
-        pointer;
+cursor: pointer;
 
 }
 
-
-/* ==========================================
-   HIDDEN
-========================================== */
+/* =========================================================
+HIDDEN
+========================================================= */
 
 .hidden {
+display: none !important;
+}
 
-    display:
-        none !important;
+/* =========================================================
+WARGA MENU / FOOTER COMPATIBILITY
+========================================================= */
+
+.kas-container {
+position: relative;
+z-index: 1;
+}
+
+/*
+Ruang bawah disediakan agar transaksi terakhir
+tidak tertutup bottom navigation WARGA.
+*/
+
+.sidat-warga-bottom-nav {
+z-index: 1000;
+}
+
+.sidat-warga-footer {
+z-index: 999;
+}
+
+/* =========================================================
+RESPONSIVE
+========================================================= */
+
+@media (max-width: 430px) {
+
+.kas-container {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.saldo-card {
+    padding: 22px 19px;
+}
+
+.saldo-value {
+    font-size: 29px;
+}
+
+.summary-card {
+    padding: 13px 10px;
+    gap: 8px;
+}
+
+.summary-icon {
+    width: 37px;
+    height: 37px;
+    flex-basis: 37px;
+}
+
+.summary-card strong {
+    font-size: 13px;
+}
+
+.filter-card {
+    padding: 16px;
+}
 
 }
 
+@media (max-width: 360px) {
 
-/* ==========================================
-   FOOTER
-========================================== */
-
-footer {
-
-    display:
-        flex;
-
-    flex-direction:
-        column;
-
-    align-items:
-        center;
-
-    gap:
-        4px;
-
-    padding:
-        28px 0 14px;
-
-    text-align:
-        center;
-
-    color:
-        #94a3b8;
-
-    font-size:
-        12px;
-
+.summary-grid {
+    grid-template-columns: 1fr;
 }
 
-
-footer strong {
-
-    color:
-        #166534;
-
-    font-size:
-        15px;
-
-    font-weight:
-        800;
-
+.filter-row {
+    grid-template-columns: 1fr;
 }
 
-
-footer span {
-
-    color:
-        #64748b;
-
+.saldo-value {
+    font-size: 27px;
 }
 
-
-footer small {
-
-    margin-top:
-        2px;
-
-    font-size:
-        11px;
-
+.tx-top {
+    flex-direction: column;
+    gap: 7px;
 }
 
-
-/* ==========================================
-   RESPONSIVE HP
-========================================== */
-
-@media (
-    max-width:
-    430px
-) {
-
-    .kas-container {
-
-        padding:
-            12px;
-
-    }
-
-
-    .saldo-card {
-
-        padding:
-            23px 20px;
-
-    }
-
-
-    .saldo-value {
-
-        font-size:
-            29px;
-
-    }
-
-
-    .summary-card {
-
-        padding:
-            13px 10px;
-
-        gap:
-            8px;
-
-    }
-
-
-    .summary-icon {
-
-        width:
-            38px;
-
-        height:
-            38px;
-
-        flex-basis:
-            38px;
-
-        border-radius:
-            12px;
-
-        font-size:
-            19px;
-
-    }
-
-
-    .summary-card strong {
-
-        font-size:
-            13px;
-
-    }
-
-
-    .summary-card span {
-
-        font-size:
-            10px;
-
-    }
-
-
-    .filter-card {
-
-        padding:
-            16px;
-
-    }
-
+.tx-amount {
+    text-align: left;
 }
-
-
-@media (
-    max-width:
-    360px
-) {
-
-    .summary-grid {
-
-        grid-template-columns:
-            1fr;
-
-    }
-
-
-    .filter-row {
-
-        grid-template-columns:
-            1fr;
-
-    }
-
-
-    .saldo-value {
-
-        font-size:
-            27px;
-
-    }
-
-
-    .tx-top {
-
-        flex-direction:
-            column;
-
-        gap:
-            6px;
-
-    }
-
-
-    .tx-amount {
-
-        text-align:
-            left;
-
-    }
 
 }

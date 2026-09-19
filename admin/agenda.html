@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#15803d"
+    >
+
+    <title>SIDAT - Agenda</title>
+
+    <link
+        rel="stylesheet"
+        href="agenda.css"
+    >
+  <link
+        rel="stylesheet"
+        href="admin-menu.css"
+    >
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- ==================================================
+         HEADER
+    =================================================== -->
+
+    <header class="header">
+
+        <div class="header-left">
+
+            <button
+                type="button"
+                class="back-button"
+                id="btnBack"
+                aria-label="Kembali"
+            >
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M15 18l-6-6 6-6"
+                    />
+                </svg>
+            </button>
+
+            <div>
+                <h1>Agenda</h1>
+
+                <span>
+                    Agenda kegiatan dan jadwal ronda
+                </span>
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- ==================================================
+         CONTENT
+    =================================================== -->
+
+    <main class="content">
+
+        <!-- ==================================================
+             PESAN
+        =================================================== -->
+
+        <div
+            id="pageMessage"
+            class="page-message hidden"
+        ></div>
+
+
+        <!-- ==================================================
+             AGENDA KEGIATAN
+        =================================================== -->
+
+        <section class="section">
+
+            <div class="section-header">
+
+                <div>
+                    <span class="section-label">
+                        KEGIATAN RT
+                    </span>
+
+                    <h2>
+                        Agenda Kegiatan
+                    </h2>
+
+                    <p>
+                        Kelola kegiatan dan agenda warga.
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    id="btnTambahAgenda"
+                    class="btn-primary"
+                >
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+
+                    <span>Tambah Agenda</span>
+                </button>
+
+            </div>
+
+
+            <div
+                id="agendaLoading"
+                class="loading"
+            >
+                Memuat agenda...
+            </div>
+
+
+            <div
+                id="agendaEmpty"
+                class="empty-state hidden"
+            >
+                Belum ada agenda kegiatan.
+            </div>
+
+
+            <div
+                id="agendaList"
+                class="agenda-list"
+            ></div>
+
+        </section>
+
+
+        <!-- ==================================================
+             JADWAL RONDA
+        =================================================== -->
+
+        <section class="section ronda-section">
+
+            <div class="section-header">
+
+                <div>
+                    <span class="section-label">
+                        KEAMANAN LINGKUNGAN
+                    </span>
+
+                    <h2>
+                        Jadwal Ronda
+                    </h2>
+
+                    <p>
+                        Jadwal ronda berulang setiap minggu.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div
+                id="rondaLoading"
+                class="loading"
+            >
+                Memuat jadwal ronda...
+            </div>
+
+
+            <div
+                id="rondaEmpty"
+                class="empty-state hidden"
+            >
+                Belum ada jadwal ronda.
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table class="ronda-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Hari</th>
+                            <th>Peserta Ronda</th>
+                            <th>Jam Ronda</th>
+                            <th>Aksi</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="rondaTableBody"></tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ==================================================
+         MODAL AGENDA
+    =================================================== -->
+
+    <div
+        id="agendaModal"
+        class="modal hidden"
+    >
+
+        <div class="modal-overlay"></div>
+
+        <div
+            class="modal-content"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="agendaModalTitle"
+        >
+
+            <div class="modal-header">
+
+                <div>
+
+                    <span class="section-label">
+                        AGENDA KEGIATAN
+                    </span>
+
+                    <h2 id="agendaModalTitle">
+                        Tambah Agenda
+                    </h2>
+
+                </div>
+
+                <button
+                    type="button"
+                    id="btnCloseAgendaModal"
+                    class="modal-close"
+                    aria-label="Tutup"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <form id="agendaForm">
+
+                <input
+                    type="hidden"
+                    id="agendaId"
+                >
+
+
+                <div class="form-group">
+
+                    <label for="agendaTitle">
+                        Judul Agenda
+                    </label>
+
+                    <input
+                        type="text"
+                        id="agendaTitle"
+                        placeholder="Contoh: Rapat RT Bulanan"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label for="agendaType">
+                            Jenis Kegiatan
+                        </label>
+
+                        <select
+                            id="agendaType"
+                            required
+                        >
+                            <option value="rapat_rt">
+                                Rapat RT
+                            </option>
+
+                            <option value="kerja_bakti">
+                                Kerja Bakti
+                            </option>
+
+                            <option value="pertemuan_warga">
+                                Pertemuan Warga
+                            </option>
+
+                            <option value="kegiatan_sosial">
+                                Kegiatan Sosial
+                            </option>
+
+                            <option value="lainnya">
+                                Lainnya
+                            </option>
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="agendaDate">
+                            Tanggal
+                        </label>
+
+                        <input
+                            type="date"
+                            id="agendaDate"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="agendaStatus">
+                        Status
+                    </label>
+
+                    <select id="agendaStatus">
+
+                        <option value="scheduled">
+                            Terjadwal
+                        </option>
+
+                        <option value="completed">
+                            Selesai
+                        </option>
+
+                        <option value="cancelled">
+                            Dibatalkan
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label for="agendaStartTime">
+                            Jam Mulai
+                        </label>
+
+                        <input
+                            type="time"
+                            id="agendaStartTime"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="agendaEndTime">
+                            Jam Selesai
+                        </label>
+
+                        <input
+                            type="time"
+                            id="agendaEndTime"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="agendaLocation">
+                        Lokasi
+                    </label>
+
+                    <input
+                        type="text"
+                        id="agendaLocation"
+                        placeholder="Contoh: Balai RT"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="agendaDescription">
+                        Keterangan
+                    </label>
+
+                    <textarea
+                        id="agendaDescription"
+                        rows="4"
+                        placeholder="Keterangan agenda..."
+                    ></textarea>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="agendaTargetType">
+                        Target Peserta
+                    </label>
+
+                    <select id="agendaTargetType">
+
+                        <option value="all">
+                            Semua Warga
+                        </option>
+
+                        <option value="user">
+                            Warga Tertentu
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div
+                    id="agendaTargetUserGroup"
+                    class="form-group hidden"
+                >
+
+                    <label for="agendaTargetUser">
+                        Warga Tertentu
+                    </label>
+
+                    <select id="agendaTargetUser">
+
+                        <option value="">
+                            Pilih Warga
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div
+                    id="agendaFormMessage"
+                    class="form-message"
+                ></div>
+
+
+                <div class="modal-actions">
+
+                    <button
+                        type="button"
+                        id="btnCancelAgenda"
+                        class="btn-secondary"
+                    >
+                        Batal
+                    </button>
+
+                    <button
+                        type="submit"
+                        id="btnSaveAgenda"
+                        class="btn-primary"
+                    >
+                        Simpan Agenda
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==================================================
+         MODAL RONDA
+    =================================================== -->
+
+    <div
+        id="rondaModal"
+        class="modal hidden"
+    >
+
+        <div class="modal-overlay"></div>
+
+        <div
+            class="modal-content"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="rondaModalTitle"
+        >
+
+            <div class="modal-header">
+
+                <div>
+
+                    <span class="section-label">
+                        JADWAL RONDA
+                    </span>
+
+                    <h2 id="rondaModalTitle">
+                        Tambah Jadwal Ronda
+                    </h2>
+
+                    <p id="rondaDayLabel">
+                        Senin
+                    </p>
+
+                </div>
+
+                <button
+                    type="button"
+                    id="btnCloseRondaModal"
+                    class="modal-close"
+                    aria-label="Tutup"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <form id="rondaForm">
+
+                <input
+                    type="hidden"
+                    id="rondaId"
+                >
+
+                <input
+                    type="hidden"
+                    id="rondaDay"
+                >
+
+
+                <div class="form-group">
+
+                    <label for="rondaResidentSearch">
+                        Cari Warga
+                    </label>
+
+                    <input
+                        type="search"
+                        id="rondaResidentSearch"
+                        placeholder="Cari nama atau ID warga..."
+                        autocomplete="off"
+                    >
+
+                    <small class="form-help">
+                        Hanya Kepala Keluarga yang memiliki akun WARGA.
+                    </small>
+
+                </div>
+
+
+                <div
+                    id="rondaResidentResults"
+                    class="resident-search-results"
+                ></div>
+
+
+                <input
+                    type="hidden"
+                    id="rondaResidentId"
+                >
+
+
+                <div
+                    id="selectedRondaResident"
+                    class="selected-resident hidden"
+                ></div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label for="rondaStartTime">
+                            Jam Mulai
+                        </label>
+
+                        <input
+                            type="time"
+                            id="rondaStartTime"
+                            value="20:00"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="rondaEndTime">
+                            Jam Selesai
+                        </label>
+
+                        <input
+                            type="time"
+                            id="rondaEndTime"
+                            value="23:00"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="rondaFormMessage"
+                    class="form-message"
+                ></div>
+
+
+                <div class="modal-actions">
+
+                    <button
+                        type="button"
+                        id="btnCancelRonda"
+                        class="btn-secondary"
+                    >
+                        Batal
+                    </button>
+
+                    <button
+                        type="submit"
+                        id="btnSaveRonda"
+                        class="btn-primary"
+                    >
+                        Simpan Jadwal
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+   
+<!-- ==================================================
+     SUPABASE LIBRARY
+=================================================== -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+
+<!-- ==================================================
+     SIDAT SUPABASE CONFIG
+=================================================== -->
+
+<script
+    src="../js/supabase-config.js"
+></script>
+
+
+<!-- =====================================================
+     MENU ROLE-AWARE
+     =====================================================
+
+     ADMIN:
+         admin-menu.js
+
+     KETUA RT:
+         ../ketua-rt/ketua-rt-menu.js
+
+     NOTULA:
+         notula-menu.js
+
+     BENDAHARA / KOPERASI:
+         menggunakan menu masing-masing
+
+     Tidak memanggil lebih dari satu role menu.
+     ===================================================== -->
+
+<script>
+(function () {
+
+    "use strict";
+
+
+    console.log(
+        "[SIDAT] Role menu loader dimulai..."
+    );
+
+
+    const ACCESS_TOKEN =
+        localStorage.getItem(
+            "sidat_access_token"
+        );
+
+
+    if (!ACCESS_TOKEN) {
+
+        console.error(
+            "[SIDAT] Access token tidak ditemukan."
+        );
+
+        return;
+    }
+
+
+    /* =====================================================
+       AMBIL USER AKTIF
+       ===================================================== */
+
+    async function getCurrentUser() {
+
+        const response =
+            await fetch(
+                SUPABASE_URL +
+                "/auth/v1/user",
+                {
+                    method: "GET",
+
+                    headers: {
+                        "apikey":
+                            SUPABASE_KEY,
+
+                        "Authorization":
+                            "Bearer " +
+                            ACCESS_TOKEN,
+
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            throw new Error(
+                "Gagal mengambil user aktif: " +
+                errorText
+            );
+        }
+
+
+        return await response.json();
+
+    }
+
+
+    /* =====================================================
+       AMBIL ROLE PROFILE
+       ===================================================== */
+
+    async function getUserRole(
+        userId
+    ) {
+
+        const response =
+            await fetch(
+                SUPABASE_URL +
+                "/rest/v1/profiles" +
+                "?select=role" +
+                "&user_id=eq." +
+                encodeURIComponent(
+                    userId
+                ) +
+                "&limit=1",
+                {
+                    method: "GET",
+
+                    headers: {
+                        "apikey":
+                            SUPABASE_KEY,
+
+                        "Authorization":
+                            "Bearer " +
+                            ACCESS_TOKEN,
+
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            throw new Error(
+                "Gagal mengambil role profile: " +
+                errorText
+            );
+        }
+
+
+        const profiles =
+            await response.json();
+
+
+        if (
+            !Array.isArray(profiles) ||
+            profiles.length === 0
+        ) {
+
+            throw new Error(
+                "Profile pengguna tidak ditemukan."
+            );
+        }
+
+
+        return String(
+            profiles[0].role || ""
+        )
+        .trim()
+        .toLowerCase();
+
+    }
+
+
+    /* =====================================================
+       LOAD SCRIPT
+       ===================================================== */
+
+    function loadScript(
+        src
+    ) {
+
+        return new Promise(
+            function (
+                resolve,
+                reject
+            ) {
+
+                const script =
+                    document.createElement(
+                        "script"
+                    );
+
+
+                script.src = src;
+
+
+                script.dataset.sidatRoleMenu =
+                    "true";
+
+
+                script.onload =
+                    function () {
+
+                        console.log(
+                            "[SIDAT] Menu berhasil dimuat:",
+                            src
+                        );
+
+                        resolve();
+
+                    };
+
+
+                script.onerror =
+                    function () {
+
+                        reject(
+                            new Error(
+                                "Gagal memuat script: " +
+                                src
+                            )
+                        );
+
+                    };
+
+
+                document.body.appendChild(
+                    script
+                );
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       ROLE MENU
+       ===================================================== */
+
+    async function initRoleMenu() {
+
+        try {
+
+            const user =
+                await getCurrentUser();
+
+
+            if (!user?.id) {
+
+                throw new Error(
+                    "ID user aktif tidak ditemukan."
+                );
+
+            }
+
+
+            console.log(
+                "[SIDAT] User aktif:",
+                user.id
+            );
+
+
+            const role =
+                await getUserRole(
+                    user.id
+                );
+
+
+            console.log(
+                "[SIDAT] Role aktif:",
+                role
+            );
+
+
+            /* =================================================
+               ADMIN
+               ================================================= */
+
+            if (
+                role === "admin"
+            ) {
+
+                await loadScript(
+                    "admin-menu.js"
+                );
+
+                return;
+            }
+
+
+            /* =================================================
+               KETUA RT
+               ================================================= */
+
+            if (
+                role === "ketua_rt"
+            ) {
+
+                await loadScript(
+                    "../ketua-rt/ketua-rt-menu.js"
+                );
+
+                return;
+            }
+
+
+            /* =================================================
+               NOTULA
+               ================================================= */
+
+            if (
+                role === "notula"
+            ) {
+
+                await loadScript(
+                    "../notula/notula-menu.js"
+                );
+
+                return;
+            }
+
+
+            /* =================================================
+               ROLE LAIN
+               ================================================= */
+
+            console.warn(
+                "[SIDAT] Role",
+                role,
+                "tidak menggunakan role menu ini."
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "[SIDAT] Gagal menentukan menu role:",
+                error
+            );
+
+        }
+
+    }
+
+
+    /* =====================================================
+       START
+       ===================================================== */
+
+    initRoleMenu();
+
+})();
+</script>
+
+
+<!-- ==================================================
+     AGENDA JS
+=================================================== -->
+
+<script
+    src="agenda.js"
+></script>
+
+</body>
+</html>

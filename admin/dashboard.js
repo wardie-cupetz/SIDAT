@@ -1,1154 +1,1773 @@
-/* ==========================================
-SIDAT
-DASHBOARD ADMIN
-Dibuat oleh Suwardi
-========================================== */
+/* =========================================================
+SIDAT - ADMIN DASHBOARD
+Versi: Final Dashboard Admin
+========================================================= */
 
-console.log(
-"SIDAT: Dashboard Admin memuat..."
-);
+(function () {
+"use strict";
 
-/* ==========================================
-SUPABASE CLIENT KHUSUS DASHBOARD
-========================================== */
+/* =====================================================
+   KONFIGURASI
+   ===================================================== */
 
-let sidatDashboardClient = null;
+const ACCESS_TOKEN_KEY = "sidat_access_token";
+const ADMIN_USER_KEY = "sidat_admin_user";
 
-/* ==========================================
-INIT SUPABASE
-========================================== */
+const token = localStorage.getItem(ACCESS_TOKEN_KEY);
 
-function initDashboardSupabase() {
-
-if (
-    typeof SUPABASE_URL === "undefined" ||
-    typeof SUPABASE_KEY === "undefined"
-) {
-
-    throw new Error(
-        "Konfigurasi Supabase tidak ditemukan."
-    );
-
+if (!token) {
+    window.location.href = "../index.html";
+    return;
 }
 
 
-if (
-    typeof supabase === "undefined" ||
-    !supabase.createClient
-) {
+/* =====================================================
+   HELPER DOM
+   ===================================================== */
 
-    throw new Error(
-        "Library Supabase belum dimuat."
-    );
-
-}
+const $ = (id) => document.getElementById(id);
 
 
-sidatDashboardClient =
-    supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-    );
+/* =====================================================
+   DOM
+   ===================================================== */
+
+const loadingScreen = $("loadingScreen");
+
+const namaAplikasi = $("namaAplikasi");
+const detailWilayah = $("detailWilayah");
+
+const rtLogo = $("rtLogo");
+
+const adminName = $("adminName");
+const adminNameTop = $("adminNameTop");
+
+const profileButton = $("profileButton");
+const profileImage = $("profileImage");
+const profilePlaceholder = $("profilePlaceholder");
+
+const totalWarga = $("totalWarga");
+const totalKK = $("totalKK");
+
+const saldoKas = $("saldoKas");
+const saldoJimpitan = $("saldoJimpitan");
+
+const activityList = $("activityList");
+
+const menuOverlay = $("menuOverlay");
+const menuSheet = $("menuSheet");
+const closeMenuButton = $("closeMenuButton");
 
 
-console.log(
-    "SIDAT: Supabase Dashboard siap."
-);
+/* =====================================================
+   SUPABASE
+   ===================================================== */
 
-}
+const SUPABASE_BASE_URL =
+    typeof SUPABASE_URL !== "undefined"
+        ? SUPABASE_URL
+        : "";
 
-/* ==========================================
-CEK CLIENT
-========================================== */
+const SUPABASE_ANON_KEY =
+    typeof SUPABASE_KEY !== "undefined"
+        ? SUPABASE_KEY
+        : "";
 
-function pastikanDashboardClient() {
 
-if (
-    !sidatDashboardClient ||
-    typeof sidatDashboardClient.rpc !==
-        "function" ||
-    typeof sidatDashboardClient.from !==
-        "function"
-) {
+/* =====================================================
+   FETCH SUPABASE
+   ===================================================== */
 
-    throw new Error(
-        "Supabase Client Dashboard belum siap."
-    );
+async function supabaseGet(path) {
 
-}
-
-}
-
-function bukaNotifikasiAdmin() {
-
-    window.location.href =
-        "notifikasi-admin.html";
-
-}
-
-window.bukaNotifikasiAdmin =
-    bukaNotifikasiAdmin;
-
-/* ==========================================
-FORMAT RUPIAH
-========================================== */
-
-function formatRupiah(
-nominal
-) {
-
-return new Intl.NumberFormat(
-    "id-ID",
-    {
-        style:
-            "currency",
-
-        currency:
-            "IDR",
-
-        maximumFractionDigits:
-            0
+    if (!SUPABASE_BASE_URL || !SUPABASE_ANON_KEY) {
+        throw new Error(
+            "Konfigurasi Supabase tidak ditemukan."
+        );
     }
-).format(
-    Number(nominal) || 0
-);
 
-}
-
-// ==========================================
-// LOAD WILAYAH SIDAT
-// ==========================================
-
-async function loadWilayah() {
-
-    console.log(
-        "SIDAT: Memuat identitas wilayah..."
+    const response = await fetch(
+        `${SUPABASE_BASE_URL}${path}`,
+        {
+            method: "GET",
+            headers: {
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        }
     );
 
+    if (!response.ok) {
+
+        let errorText = "";
+
+        try {
+            errorText = await response.text();
+        } catch (_) {
+            errorText = "";
+        }
+
+        throw new Error(
+            `Supabase GET ${response.status}: ${errorText}`
+        );
+    }
+
+    return response.json();
+}
+
+
+/* =====================================================
+   SUPABASE RPC
+   ===================================================== */
+
+async function supabaseRpc(functionName, body = {}) {
+
+    if (!SUPABASE_BASE_URL || !SUPABASE_ANON_KEY) {
+        throw new Error(
+            "Konfigurasi Supabase tidak ditemukan."
+        );
+    }
+
+    const response = await fetch(
+        `${SUPABASE_BASE_URL}/rest/v1/rpc/${functionName}`,
+        {
+            method: "POST",
+            headers: {
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+        }
+    );
+
+    if (!response.ok) {
+
+        let errorText = "";
+
+        try {
+            errorText = await response.text();
+        } catch (_) {
+            errorText = "";
+        }
+
+        throw new Error(
+            `Supabase RPC ${functionName} ${response.status}: ${errorText}`
+        );
+    }
+
+    return response.json();
+}
+
+
+/* =====================================================
+   FORMAT RUPIAH
+   ===================================================== */
+
+function formatRupiah(value) {
+
+    const number = Number(value || 0);
+
+    return new Intl.NumberFormat(
+        "id-ID",
+        {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }
+    ).format(number);
+}
+
+
+/* =====================================================
+   FORMAT TANGGAL
+   ===================================================== */
+
+function formatTanggalWaktu(value) {
+
+    if (!value) {
+        return "-";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "-";
+    }
+
+    return new Intl.DateTimeFormat(
+        "id-ID",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    ).format(date);
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+   ===================================================== */
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* =====================================================
+   AMBIL USER AUTH
+   ===================================================== */
+
+async function loadAuthUser() {
+
+    const response = await fetch(
+        `${SUPABASE_BASE_URL}/auth/v1/user`,
+        {
+            method: "GET",
+            headers: {
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization": `Bearer ${token}`
+            }
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(
+            "Sesi admin tidak valid."
+        );
+    }
+
+    return response.json();
+}
+
+
+/* =====================================================
+   LOAD PROFIL ADMIN
+   ===================================================== */
+
+async function loadProfilAdmin() {
 
     try {
 
-        // ======================================
-        // AMBIL TOKEN LANGSUNG
-        // ======================================
+        const authUser = await loadAuthUser();
 
-        const token =
-            localStorage.getItem(
-                "sidat_access_token"
-            );
+        const userId = authUser?.id;
 
-
-        if (!token) {
-
+        if (!userId) {
             throw new Error(
-                "Access token SIDAT tidak ditemukan."
+                "ID user admin tidak ditemukan."
             );
-
         }
 
 
-        // ======================================
-        // AMBIL DATA WILAYAH
-        // ======================================
-
-        const response =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/wilayah?select=id,nama_aplikasi,nama_dusun,nama_desa,rt,rw,nama_ketua_rt,kecamatan,kabupaten,provinsi,logo_url,warna_tema&limit=1`,
-                {
-
-                    method:
-                        "GET",
-
-                    headers: {
-
-                        "apikey":
-                            SUPABASE_KEY,
-
-                        "Authorization":
-                            `Bearer ${token}`,
-
-                        "Content-Type":
-                            "application/json"
-
-                    }
-
-                }
-            );
-
-
-        if (!response.ok) {
-
-            const errorText =
-                await response.text();
-
-            throw new Error(
-                errorText ||
-                `HTTP ${response.status}`
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        console.log(
-            "SIDAT DATA WILAYAH:",
-            data
+        const profiles = await supabaseGet(
+            `/rest/v1/profiles?select=id,user_id,role,resident_id&user_id=eq.${encodeURIComponent(userId)}&limit=1`
         );
+
+        const profile =
+            Array.isArray(profiles)
+                ? profiles[0]
+                : null;
+
+
+        if (!profile) {
+
+            console.warn(
+                "Profile admin tidak ditemukan."
+            );
+
+            tampilkanNamaAdmin(
+                authUser?.user_metadata?.full_name ||
+                authUser?.user_metadata?.name ||
+                "Admin SIDAT"
+            );
+
+            return;
+        }
 
 
         if (
-            !Array.isArray(data) ||
-            data.length === 0
+            profile.role &&
+            profile.role !== "admin"
         ) {
 
             console.warn(
-                "SIDAT: Data wilayah kosong."
+                "User yang sedang membuka dashboard bukan role admin."
             );
-
-
-            const wilayahInfo =
-                document.getElementById(
-                    "wilayahInfo"
-                );
-
-
-            if (wilayahInfo) {
-
-                wilayahInfo.textContent =
-                    "Informasi wilayah belum diatur.";
-
-            }
-
-
-            return;
-
         }
 
 
-        const wilayah =
-            data[0];
+        let resident = null;
 
+        if (profile.resident_id) {
 
-        // ======================================
-        // JUDUL / KETUA RT
-        // ======================================
-
-        const wilayahTitle =
-            document.getElementById(
-                "wilayahTitle"
+            const residents = await supabaseGet(
+                `/rest/v1/residents?select=*&id=eq.${encodeURIComponent(profile.resident_id)}&limit=1`
             );
 
-
-        if (wilayahTitle) {
-
-            wilayahTitle.textContent =
-                wilayah.nama_ketua_rt
-                    ? `Selamat datang, ${wilayah.nama_ketua_rt}`
-                    : "Selamat datang, Admin";
-
+            if (
+                Array.isArray(residents) &&
+                residents.length > 0
+            ) {
+                resident = residents[0];
+            }
         }
 
 
-        // ======================================
-        // INFORMASI WILAYAH
-        // ======================================
-
-        const wilayahInfo =
-            document.getElementById(
-                "wilayahInfo"
-            );
-
-
-        if (wilayahInfo) {
-
-            const bagian =
-                [];
-
-
-            if (wilayah.rt) {
-
-                bagian.push(
-                    `RT ${wilayah.rt}`
-                );
-
-            }
-
-
-            if (wilayah.rw) {
-
-                bagian.push(
-                    `RW ${wilayah.rw}`
-                );
-
-            }
-
-
-            if (wilayah.nama_dusun) {
-
-                bagian.push(
-                    `Dusun ${wilayah.nama_dusun}`
-                );
-
-            }
-
-
-            if (wilayah.nama_desa) {
-
-                bagian.push(
-                    `Desa ${wilayah.nama_desa}`
-                );
-
-            }
-
-
-            if (wilayah.kecamatan) {
-
-                bagian.push(
-                    `Kec. ${wilayah.kecamatan}`
-                );
-
-            }
-
-
-            if (wilayah.kabupaten) {
-
-                bagian.push(
-                    wilayah.kabupaten
-                );
-
-            }
-
-
-            if (wilayah.provinsi) {
-
-                bagian.push(
-                    wilayah.provinsi
-                );
-
-            }
-
-
-            wilayahInfo.textContent =
-                bagian.length
-                    ? bagian.join(" • ")
-                    : "Informasi wilayah belum diatur.";
-
-        }
-
-
-        // ======================================
-        // NAMA APLIKASI
-        // ======================================
-
-        const namaAplikasi =
-            document.getElementById(
-                "namaAplikasi"
-            );
-
-
-        if (namaAplikasi) {
-
-            namaAplikasi.textContent =
-                wilayah.nama_aplikasi ||
-                "SIDAT";
-
-        }
-
-
-// ======================================
-// LOGO RT
-// ======================================
-
-const logoRT =
-    document.getElementById(
-        "logoRT"
-    );
-
-const logoDefault =
-    document.getElementById(
-        "logoDefault"
-    );
-
-
-console.log(
-    "SIDAT LOGO URL:",
-    wilayah.logo_url
-);
-
-
-if (
-    logoRT &&
-    wilayah.logo_url
-) {
-
-    logoRT.src =
-        wilayah.logo_url;
-
-    logoRT.alt =
-        wilayah.nama_aplikasi ||
-        "Logo RT";
-
-
-    logoRT.classList.remove(
-        "hidden"
-    );
-
-
-    if (logoDefault) {
-
-        logoDefault.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    // ==================================
-    // JIKA GAMBAR GAGAL DIMUAT
-    // ==================================
-
-    logoRT.onerror =
-        function () {
-
-            console.warn(
-                "SIDAT: Logo RT gagal dimuat:",
-                wilayah.logo_url
-            );
-
-
-            logoRT.classList.add(
-                "hidden"
-            );
-
-
-            if (logoDefault) {
-
-                logoDefault.classList.remove(
-                    "hidden"
-                );
-
-            }
-
+        const nama =
+            resident?.name ||
+            authUser?.user_metadata?.full_name ||
+            authUser?.user_metadata?.name ||
+            "Admin SIDAT";
+
+        tampilkanNamaAdmin(nama);
+
+
+        const photoUrl =
+            resident?.photo_url ||
+            authUser?.user_metadata?.avatar_url ||
+            authUser?.user_metadata?.picture ||
+            "";
+
+        tampilkanFotoAdmin(photoUrl);
+
+
+        const adminData = {
+            user_id: userId,
+            profile_id: profile.id || null,
+            resident_id: profile.resident_id || null,
+            role: profile.role || "admin",
+            name: nama,
+            photo_url: photoUrl
         };
 
-} else {
-
-    // ==================================
-    // TIDAK ADA LOGO
-    // ==================================
-
-    if (logoRT) {
-
-        logoRT.removeAttribute(
-            "src"
-        );
-
-        logoRT.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    if (logoDefault) {
-
-        logoDefault.classList.remove(
-            "hidden"
-        );
-
-    }
-
-}
-
-
-        // ======================================
-        // WARNA TEMA
-        // ======================================
-
-        const warna =
-            wilayah.warna_tema ||
-            "#15803d";
-
-
-        document.documentElement
-            .style
-            .setProperty(
-                "--primary-color",
-                warna
-            );
-
-
-        document.documentElement
-            .style
-            .setProperty(
-                "--theme-color",
-                warna
-            );
-
-
-        // ======================================
-        // THEME COLOR HP
-        // ======================================
-
-        const metaTheme =
-            document.querySelector(
-                'meta[name="theme-color"]'
-            );
-
-
-        if (metaTheme) {
-
-            metaTheme.setAttribute(
-                "content",
-                warna
-            );
-
-        }
-
-
-        // ======================================
-        // CACHE WILAYAH
-        // ======================================
-
         localStorage.setItem(
-            "sidat_wilayah_data",
-            JSON.stringify(
-                wilayah
-            )
+            ADMIN_USER_KEY,
+            JSON.stringify(adminData)
         );
-
-
-        console.log(
-            "SIDAT: Identitas wilayah berhasil diterapkan."
-        );
-
 
     } catch (error) {
 
         console.error(
-            "SIDAT LOAD WILAYAH ERROR:",
+            "Gagal memuat profil admin:",
             error
         );
 
+        try {
 
-        const wilayahInfo =
-            document.getElementById(
-                "wilayahInfo"
-            );
+            const saved =
+                JSON.parse(
+                    localStorage.getItem(
+                        ADMIN_USER_KEY
+                    ) || "null"
+                );
+
+            if (saved) {
+
+                tampilkanNamaAdmin(
+                    saved.name ||
+                    "Admin SIDAT"
+                );
+
+                tampilkanFotoAdmin(
+                    saved.photo_url || ""
+                );
+
+                return;
+            }
+
+        } catch (_) {}
+
+        tampilkanNamaAdmin(
+            "Admin SIDAT"
+        );
+    }
+}
 
 
-        if (wilayahInfo) {
+/* =====================================================
+   TAMPILKAN NAMA ADMIN
+   ===================================================== */
 
-            wilayahInfo.textContent =
-                "Informasi wilayah belum tersedia.";
+function tampilkanNamaAdmin(nama) {
 
+    const safeName =
+        nama ||
+        "Admin SIDAT";
+
+    if (adminName) {
+        adminName.textContent =
+            safeName;
+    }
+
+    if (adminNameTop) {
+        adminNameTop.textContent =
+            safeName;
+    }
+}
+
+
+/* =====================================================
+   TAMPILKAN FOTO ADMIN
+   ===================================================== */
+
+function tampilkanFotoAdmin(photoUrl) {
+
+    if (!profileImage) {
+        return;
+    }
+
+    if (
+        photoUrl &&
+        typeof photoUrl === "string"
+    ) {
+
+        profileImage.src = photoUrl;
+
+        profileImage.style.display =
+            "block";
+
+        if (profilePlaceholder) {
+            profilePlaceholder.style.display =
+                "none";
         }
 
-    }
+        profileImage.onerror = function () {
 
+            profileImage.onerror = null;
+
+            profileImage.removeAttribute(
+                "src"
+            );
+
+            profileImage.style.display =
+                "none";
+
+            if (profilePlaceholder) {
+                profilePlaceholder.style.display =
+                    "block";
+            }
+        };
+
+    } else {
+
+        profileImage.removeAttribute(
+            "src"
+        );
+
+        profileImage.style.display =
+            "none";
+
+        if (profilePlaceholder) {
+            profilePlaceholder.style.display =
+                "block";
+        }
+    }
 }
-// ==========================================
-// LOAD BADGE NOTIFIKASI ADMIN
-// ==========================================
-
-async function loadBadgeNotifikasiAdmin() {
-
-    const badge =
-        document.getElementById(
-            "adminNotificationBadge"
-        );
 
 
-    if (!badge) {
+/* =====================================================
+   LOAD WILAYAH
+   ===================================================== */
 
-        console.log(
-            "SIDAT: Badge notifikasi admin tidak ditemukan."
-        );
-
-        return;
-
-    }
-
+async function loadWilayah() {
 
     try {
 
-        const token =
-            localStorage.getItem(
-                "sidat_access_token"
-            );
+        let wilayahData = null;
 
 
-        if (!token) {
+        const wilayahResult = await supabaseGet(
+            "/rest/v1/wilayah?select=*&limit=1"
+        );
 
-            console.log(
-                "SIDAT: Session admin tidak ditemukan."
-            );
-
-            return;
-
+        if (
+            Array.isArray(wilayahResult) &&
+            wilayahResult.length > 0
+        ) {
+            wilayahData =
+                wilayahResult[0];
         }
 
 
-        // ==================================
-        // AMBIL NOTIFIKASI ADMIN
-        // YANG BELUM DIBACA
-        // ==================================
+        if (!wilayahData) {
 
-        const response =
-            await fetch(
+            try {
 
-                `${SUPABASE_URL}` +
-                `/rest/v1/notifications` +
-                `?select=id` +
-                `&target_type=eq.admin` +
-                `&is_read=eq.false`,
+                const settingsResult =
+                    await supabaseGet(
+                        "/rest/v1/settings?select=*&limit=1"
+                    );
 
-                {
+                if (
+                    Array.isArray(settingsResult) &&
+                    settingsResult.length > 0
+                ) {
 
-                    method:
-                        "GET",
+                    const settings =
+                        settingsResult[0];
 
-                    headers: {
+                    wilayahData = {
+                        nama_aplikasi:
+                            settings.rt_name ||
+                            "SIDAT",
 
-                        "apikey":
-                            SUPABASE_KEY,
+                        nama_dusun:
+                            settings.dusun ||
+                            settings.dusunn ||
+                            "",
 
-                        "Authorization":
-                            `Bearer ${token}`,
+                        nama_desa:
+                            settings.village ||
+                            "",
 
-                        "Accept":
-                            "application/json"
+                        rt:
+                            settings.rt_name ||
+                            settings.rt ||
+                            "",
 
-                    }
+                        rw:
+                            settings.rw_name ||
+                            settings.rw ||
+                            "",
 
+                        nama_ketua_rt:
+                            settings.chairman_name ||
+                            "",
+
+                        kecamatan:
+                            settings.district ||
+                            "",
+
+                        kabupaten:
+                            settings.regency ||
+                            "",
+
+                        provinsi:
+                            settings.province ||
+                            "Jawa Tengah",
+
+                        logo_url:
+                            settings.logo_url ||
+                            ""
+                    };
                 }
 
-            );
+            } catch (fallbackError) {
+
+                console.warn(
+                    "Fallback settings gagal:",
+                    fallbackError
+                );
+            }
+        }
 
 
-        console.log(
-            "SIDAT STATUS NOTIFIKASI ADMIN:",
-            response.status
-        );
+        if (!wilayahData) {
 
-
-        if (!response.ok) {
-
-            const errorText =
-                await response.text();
-
-
-            console.error(
-                "SIDAT ERROR NOTIFIKASI ADMIN:",
-                errorText
-            );
+            tampilkanWilayahDefault();
 
             return;
-
         }
 
 
-        const data =
-            await response.json();
+        const aplikasi =
+            wilayahData.nama_aplikasi ||
+            "SIDAT";
+
+        if (namaAplikasi) {
+            namaAplikasi.textContent =
+                aplikasi;
+        }
 
 
-        const jumlah =
-            Array.isArray(data)
-                ? data.length
-                : 0;
+        const logoUrl =
+            wilayahData.logo_url ||
+            "";
 
-
-        console.log(
-            "SIDAT: Notifikasi admin belum dibaca:",
-            jumlah
+        tampilkanLogoRT(
+            logoUrl
         );
 
 
-        // ==================================
-        // TAMPILKAN BADGE
-        // ==================================
-
-        if (jumlah > 0) {
-
-            badge.textContent =
-                jumlah > 99
-                    ? "99+"
-                    : jumlah;
+        renderDetailWilayah(
+            wilayahData
+        );
 
 
-            badge.classList.remove(
-                "hidden"
+        try {
+
+            localStorage.setItem(
+                "sidat_wilayah_admin",
+                JSON.stringify(
+                    wilayahData
+                )
             );
 
-        }
+        } catch (_) {}
 
-        else {
-
-            badge.textContent =
-                "0";
-
-
-            badge.classList.add(
-                "hidden"
-            );
-
-        }
-
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
-            "SIDAT: Gagal memuat badge admin:",
+            "Gagal memuat wilayah:",
             error
         );
 
-    }
 
+        try {
+
+            const cached =
+                JSON.parse(
+                    localStorage.getItem(
+                        "sidat_wilayah_admin"
+                    ) || "null"
+                );
+
+            if (cached) {
+
+                const aplikasi =
+                    cached.nama_aplikasi ||
+                    "SIDAT";
+
+                if (namaAplikasi) {
+                    namaAplikasi.textContent =
+                        aplikasi;
+                }
+
+                tampilkanLogoRT(
+                    cached.logo_url || ""
+                );
+
+                renderDetailWilayah(
+                    cached
+                );
+
+                return;
+            }
+
+        } catch (_) {}
+
+
+        tampilkanWilayahDefault();
+    }
 }
 
-/* ==========================================
-LOAD STATISTIK WARGA
-========================================== */
+
+/* =====================================================
+   RENDER DETAIL WILAYAH
+   ===================================================== */
+
+function renderDetailWilayah(data) {
+
+    if (!detailWilayah) {
+        return;
+    }
+
+    const rt =
+        bersihkan(data.rt);
+
+    const rw =
+        bersihkan(data.rw);
+
+    const dusun =
+        bersihkan(data.nama_dusun);
+
+    const desa =
+        bersihkan(data.nama_desa);
+
+    const kecamatan =
+        bersihkan(data.kecamatan);
+
+    const kabupaten =
+        bersihkan(data.kabupaten);
+
+    const provinsi =
+        bersihkan(data.provinsi);
+
+    const rtValue =
+        rt.replace(/^RT\s*/i, "");
+
+    const rwValue =
+        rw.replace(/^RW\s*/i, "");
+
+    const bagianBaris1 = [];
+
+    if (rtValue || rwValue) {
+
+        const rtText =
+            rtValue
+                ? `RT ${rtValue}`
+                : "";
+
+        const rwText =
+            rwValue
+                ? `RW ${rwValue}`
+                : "";
+
+        bagianBaris1.push(
+            [rtText, rwText]
+                .filter(Boolean)
+                .join(" • ")
+        );
+    }
+
+    if (dusun) {
+        bagianBaris1.push(
+            dusun
+        );
+    }
+
+    if (desa) {
+        bagianBaris1.push(
+            desa
+        );
+    }
+
+    const bagianBaris2 = [];
+
+    if (kecamatan) {
+        bagianBaris2.push(
+            kecamatan
+        );
+    }
+
+    if (kabupaten) {
+        bagianBaris2.push(
+            kabupaten
+        );
+    }
+
+    if (provinsi) {
+        bagianBaris2.push(
+            provinsi
+        );
+    }
+
+    const baris1 =
+        bagianBaris1.length
+            ? bagianBaris1.join(" • ")
+            : "";
+
+    const baris2 =
+        bagianBaris2.length
+            ? bagianBaris2.join(" • ")
+            : "";
+
+    detailWilayah.innerHTML = `
+        ${
+            baris1
+                ? `<span class="wilayah-line">${escapeHtml(baris1)}</span>`
+                : ""
+        }
+
+        ${
+            baris2
+                ? `<span class="wilayah-line">${escapeHtml(baris2)}</span>`
+                : ""
+        }
+    `;
+}
+
+
+/* =====================================================
+   BERSIHKAN TEXT
+   ===================================================== */
+
+function bersihkan(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+        return "";
+    }
+
+    return String(value)
+        .trim()
+        .replace(/\s+/g, " ");
+}
+
+
+/* =====================================================
+   DEFAULT WILAYAH
+   ===================================================== */
+
+function tampilkanWilayahDefault() {
+
+    if (namaAplikasi) {
+        namaAplikasi.textContent =
+            "SIDAT";
+    }
+
+    if (detailWilayah) {
+
+        detailWilayah.innerHTML = `
+            <span class="wilayah-line">
+                RT 03 • RW 02 • Morangan
+            </span>
+
+            <span class="wilayah-line">
+                Karanganom
+            </span>
+
+            <span class="wilayah-line">
+                Klaten Utara • Klaten
+            </span>
+
+            <span class="wilayah-line">
+                Jawa Tengah
+            </span>
+        `;
+    }
+}
+
+
+/* =====================================================
+   TAMPILKAN LOGO RT
+   ===================================================== */
+
+function tampilkanLogoRT(logoUrl) {
+
+    if (!rtLogo) {
+        return;
+    }
+
+    if (
+        logoUrl &&
+        typeof logoUrl === "string"
+    ) {
+
+        rtLogo.innerHTML = `
+            <img
+                src="${escapeHtml(logoUrl)}"
+                alt="Logo RT"
+                class="rt-logo-image"
+            >
+        `;
+
+        const image =
+            rtLogo.querySelector(
+                ".rt-logo-image"
+            );
+
+        if (image) {
+
+            image.addEventListener(
+                "error",
+                function () {
+
+                    tampilkanLogoDefault();
+
+                },
+                {
+                    once: true
+                }
+            );
+        }
+
+    } else {
+
+        tampilkanLogoDefault();
+    }
+}
+
+
+/* =====================================================
+   LOGO DEFAULT
+   ===================================================== */
+
+function tampilkanLogoDefault() {
+
+    if (!rtLogo) {
+        return;
+    }
+
+    rtLogo.innerHTML = `
+        <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+        >
+            <path d="M3 21h18"></path>
+            <path d="M5 21V8l7-5 7 5v13"></path>
+            <path d="M9 21v-7h6v7"></path>
+            <path d="M9 10h.01M15 10h.01"></path>
+        </svg>
+    `;
+}
+
+
+/* =====================================================
+   LOAD STATISTIK WARGA
+   ===================================================== */
 
 async function loadStatistikWarga() {
 
-try {
+    try {
 
-    pastikanDashboardClient();
+        const result =
+            await supabaseRpc(
+                "get_resident_statistics"
+            );
 
+        let data = result;
 
-    const {
-        data,
-        error
-    } = await sidatDashboardClient
-        .rpc(
-            "get_resident_statistics"
+        if (Array.isArray(result)) {
+            data =
+                result[0] ||
+                {};
+        }
+
+        if (
+            result &&
+            typeof result === "object" &&
+            !Array.isArray(result)
+        ) {
+            data = result;
+        }
+
+        const jumlahWarga =
+            Number(
+                data?.total_warga ??
+                data?.total_residents ??
+                data?.warga ??
+                0
+            );
+
+        const jumlahKK =
+            Number(
+                data?.total_kk ??
+                data?.total_households ??
+                data?.kk ??
+                0
+            );
+
+        if (totalWarga) {
+
+            totalWarga.textContent =
+                jumlahWarga.toLocaleString(
+                    "id-ID"
+                );
+        }
+
+        if (totalKK) {
+
+            totalKK.textContent =
+                jumlahKK.toLocaleString(
+                    "id-ID"
+                );
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Gagal memuat statistik warga:",
+            error
         );
 
+        if (totalWarga) {
+            totalWarga.textContent =
+                "0";
+        }
 
-    console.log(
-        "Statistik warga:",
-        data
-    );
-
-
-    if (error) {
-
-        throw error;
-
+        if (totalKK) {
+            totalKK.textContent =
+                "0";
+        }
     }
-
-
-    let statistik =
-        data;
-
-
-    if (
-        Array.isArray(
-            data
-        )
-    ) {
-
-        statistik =
-            data[0] || {};
-
-    }
-
-
-    document.getElementById(
-        "totalWarga"
-    ).textContent =
-        Number(
-            statistik?.total_warga
-        ) || 0;
-
-
-    document.getElementById(
-        "totalKK"
-    ).textContent =
-        Number(
-            statistik?.total_kk
-        ) || 0;
-
-
-} catch (error) {
-
-    console.error(
-        "Gagal memuat statistik warga:",
-        error
-    );
-
-
-    document.getElementById(
-        "totalWarga"
-    ).textContent =
-        "0";
-
-
-    document.getElementById(
-        "totalKK"
-    ).textContent =
-        "0";
-
 }
 
-}
 
-/* ==========================================
-LOAD SALDO KAS
-========================================== */
+/* =====================================================
+   LOAD SALDO KAS
+   ===================================================== */
 
 async function loadSaldoKas() {
 
-try {
+    try {
 
-    pastikanDashboardClient();
+        const transactions =
+            await supabaseGet(
+                "/rest/v1/cash_transactions?select=transaction_type,amount,created_at&order=created_at.desc"
+            );
 
+        let saldo = 0;
 
-    const {
-        data,
-        error
-    } = await sidatDashboardClient
-        .rpc(
-            "get_cash_balance"
+        if (Array.isArray(transactions)) {
+
+            for (
+                const item
+                of transactions
+            ) {
+
+                const amount =
+                    Number(
+                        item.amount || 0
+                    );
+
+                const type =
+                    String(
+                        item.transaction_type ||
+                        ""
+                    )
+                        .toLowerCase()
+                        .trim();
+
+                if (
+                    type === "masuk" ||
+                    type === "income" ||
+                    type === "pemasukan" ||
+                    type === "jimpitan_transfer"
+                ) {
+
+                    saldo += amount;
+
+                } else if (
+                    type === "keluar" ||
+                    type === "expense" ||
+                    type === "pengeluaran"
+                ) {
+
+                    saldo -= amount;
+
+                } else {
+
+                    saldo += amount;
+                }
+            }
+        }
+
+        if (saldoKas) {
+
+            saldoKas.textContent =
+                formatRupiah(
+                    saldo
+                );
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Gagal memuat saldo kas:",
+            error
         );
 
+        if (saldoKas) {
 
-    console.log(
-        "Saldo kas Dashboard:",
-        data
-    );
-
-
-    if (error) {
-
-        throw error;
-
+            saldoKas.textContent =
+                formatRupiah(0);
+        }
     }
-
-
-    let saldoData =
-        data;
-
-
-    /*
-     * Beberapa RPC SIDAT
-     * mengembalikan object langsung.
-     * Jika dibungkus data, tangani juga.
-     */
-
-    if (
-        saldoData?.data
-    ) {
-
-        saldoData =
-            saldoData.data;
-
-    }
-
-
-    if (
-        Array.isArray(
-            saldoData
-        )
-    ) {
-
-        saldoData =
-            saldoData[0] ||
-            {};
-
-    }
-
-
-    document.getElementById(
-        "saldoKas"
-    ).textContent =
-        formatRupiah(
-            saldoData?.balance
-        );
-
-
-} catch (error) {
-
-    console.error(
-        "Gagal memuat saldo kas:",
-        error
-    );
-
-
-    document.getElementById(
-        "saldoKas"
-    ).textContent =
-        "Rp 0";
-
 }
 
-}
 
-/* ==========================================
-LOAD SALDO JIMPITAN
-========================================== */
+/* =====================================================
+   LOAD SALDO JIMPITAN
+   ===================================================== */
 
 async function loadSaldoJimpitan() {
 
-try {
+    try {
 
-    pastikanDashboardClient();
+        const result =
+            await supabaseRpc(
+                "get_jimpitan_balance"
+            );
 
+        let saldo = 0;
 
-    const {
-        data,
-        error
-    } = await sidatDashboardClient
-        .rpc(
-            "get_jimpitan_balance"
+        if (
+            typeof result === "number"
+        ) {
+
+            saldo = result;
+
+        } else if (
+            Array.isArray(result)
+        ) {
+
+            const first =
+                result[0];
+
+            if (
+                typeof first === "number"
+            ) {
+
+                saldo = first;
+
+            } else {
+
+                saldo =
+                    Number(
+                        first?.balance ??
+                        first?.saldo ??
+                        first?.total ??
+                        first?.jimpitan_balance ??
+                        0
+                    );
+            }
+
+        } else if (
+            result &&
+            typeof result === "object"
+        ) {
+
+            saldo =
+                Number(
+                    result.balance ??
+                    result.saldo ??
+                    result.total ??
+                    result.jimpitan_balance ??
+                    0
+                );
+        }
+
+        if (saldoJimpitan) {
+
+            saldoJimpitan.textContent =
+                formatRupiah(
+                    saldo
+                );
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Gagal memuat saldo jimpitan:",
+            error
         );
 
+        if (saldoJimpitan) {
 
-    console.log(
-        "Saldo jimpitan Dashboard:",
-        data
-    );
+            saldoJimpitan.textContent =
+                formatRupiah(0);
+        }
+    }
+}
 
 
-    if (error) {
+/* =====================================================
+   LOAD LOG AKTIVITAS
+   ===================================================== */
 
-        throw error;
+async function loadLogAktivitas() {
 
+    if (!activityList) {
+        return;
     }
 
+    try {
 
-    let saldo =
-        data;
+        const notifications =
+            await supabaseGet(
+                "/rest/v1/notifications?select=id,title,message,created_by,created_at,target_type&order=created_at.desc&limit=5"
+            );
 
+        if (
+            !Array.isArray(notifications) ||
+            notifications.length === 0
+        ) {
 
-    if (
-        saldo?.data
-    ) {
+            renderActivityEmpty();
 
-        saldo =
-            saldo.data;
+            return;
+        }
 
-    }
+        activityList.innerHTML =
+            notifications
+                .map(
+                    (item) => {
 
+                        const title =
+                            escapeHtml(
+                                item.title ||
+                                "Aktivitas"
+                            );
 
-    if (
-        Array.isArray(
-            saldo
-        )
-    ) {
+                        const message =
+                            escapeHtml(
+                                item.message ||
+                                ""
+                            );
 
-        saldo =
-            saldo[0];
+                        const date =
+                            formatTanggalWaktu(
+                                item.created_at
+                            );
 
-        saldo =
-            saldo?.get_jimpitan_balance ??
-            saldo?.balance ??
-            0;
+                        return `
+                            <article class="activity-item">
 
-    }
+                                <div class="activity-icon">
 
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <path
+                                            d="M12 4v16"
+                                        ></path>
 
-    if (
-        typeof saldo ===
-        "object"
-    ) {
+                                        <path
+                                            d="M5 12h14"
+                                        ></path>
+                                    </svg>
 
-        saldo =
-            saldo?.balance ??
-            saldo?.saldo ??
-            0;
+                                </div>
 
-    }
+                                <div class="activity-content">
 
+                                    <strong>
+                                        ${title}
+                                    </strong>
 
-    document.getElementById(
-        "saldoJimpitan"
-    ).textContent =
-        formatRupiah(
-            saldo
+                                    <span>
+                                        ${message}
+                                    </span>
+
+                                    <small>
+                                        ${escapeHtml(date)}
+                                    </small>
+
+                                </div>
+
+                            </article>
+                        `;
+                    }
+                )
+                .join("");
+
+    } catch (error) {
+
+        console.error(
+            "Gagal memuat log aktivitas:",
+            error
         );
 
-
-} catch (error) {
-
-    console.error(
-        "Gagal memuat saldo jimpitan:",
-        error
-    );
-
-
-    document.getElementById(
-        "saldoJimpitan"
-    ).textContent =
-        "Rp 0";
-
+        renderActivityEmpty();
+    }
 }
 
+
+/* =====================================================
+   EMPTY ACTIVITY
+   ===================================================== */
+
+function renderActivityEmpty() {
+
+    if (!activityList) {
+        return;
+    }
+
+    activityList.innerHTML = `
+        <div class="activity-empty">
+
+            <div class="empty-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M5 4h14v16H5z"
+                    ></path>
+
+                    <path
+                        d="M8 8h8M8 12h8M8 16h5"
+                    ></path>
+                </svg>
+
+            </div>
+
+            <strong>
+                Belum ada aktivitas
+            </strong>
+
+            <span>
+                Aktivitas terbaru akan tampil di sini.
+            </span>
+
+        </div>
+    `;
 }
 
-/* ==========================================
-MENU
-========================================== */
 
-function bukaDataWarga() {
+/* =====================================================
+   NAVIGASI MENU
+   ===================================================== */
 
-window.location.href =
-    "data-warga.html";
+function bukaMenuItem(menu) {
 
+    closeMenu();
+
+    const routes = {
+        "akun-warga": "data-warga.html",
+        "arus-kas": "kas.html",
+        "jimpitan": "jimpitan-transfer.html",
+        "generate-qr": "generate-qr.html",
+        "laporan": "admin-laporan.html",
+        "pengumuman": "pengumuman.html",
+        "agenda": "agenda.html",
+        "notula": "notula.html"
+    };
+
+    const target =
+        routes[menu];
+
+    if (!target) {
+
+        console.warn(
+            "Menu belum memiliki tujuan:",
+            menu
+        );
+
+        return;
+    }
+
+    window.location.href =
+        target;
 }
 
-function bukaArusKas() {
 
-window.location.href =
-    "kas.html";
+/* =====================================================
+   BUKA BERANDA
+   ===================================================== */
 
+function bukaBeranda() {
+
+    closeMenu();
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 }
 
-function bukaJimpitan() {
 
-window.location.href =
-    "jimpitan-transfer.html";
-
-}
-
-function bukaGenerateQR() {
-
-window.location.href =
-    "generate-qr.html";
-
-}
-
-function bukaPengumuman() {
-    window.location.href = "pengumuman.html";
-}
-
-function bukaLaporan() {
-
-window.location.href =
-    "admin-laporan.html";
-
-}
+/* =====================================================
+   PENGATURAN
+   ===================================================== */
 
 function bukaPengaturan() {
 
-window.location.href =
-    "pengaturan.html";
+    closeMenu();
 
+    window.location.href =
+        "pengaturan.html";
 }
 
-/* ==========================================
-LOGOUT
-========================================== */
 
-async function logoutAdmin() {
+/* =====================================================
+   PROFIL ADMIN
+   ===================================================== */
 
-try {
+function bukaProfilAdmin() {
 
-    if (
-        sidatDashboardClient &&
-        sidatDashboardClient.auth
-    ) {
+    closeMenu();
 
-        await sidatDashboardClient
-            .auth
-            .signOut();
+    window.location.href =
+        "profil-admin.html";
+}
 
+
+/* =====================================================
+   OPEN MENU
+   ===================================================== */
+
+function openMenu() {
+
+    if (!menuOverlay || !menuSheet) {
+        return;
     }
 
-} catch (error) {
-
-    console.error(
-        "Logout error:",
-        error
+    menuOverlay.classList.add(
+        "show"
     );
 
+    menuOverlay.classList.add(
+        "active"
+    );
+
+    menuOverlay.style.display =
+        "block";
+
+    menuOverlay.style.visibility =
+        "visible";
+
+    menuOverlay.style.opacity =
+        "1";
+
+    menuOverlay.style.pointerEvents =
+        "auto";
+
+
+    menuSheet.classList.add(
+        "show"
+    );
+
+    menuSheet.classList.add(
+        "active"
+    );
+
+    menuSheet.style.display =
+        "block";
+
+    menuSheet.style.visibility =
+        "visible";
+
+    menuSheet.style.opacity =
+        "1";
+
+    menuSheet.style.pointerEvents =
+        "auto";
+
+    menuSheet.style.transform =
+        "translateX(-50%) translateY(0)";
+
+
+    menuOverlay.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+    menuSheet.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+    document.body.classList.add(
+        "menu-open"
+    );
 }
 
 
-localStorage.removeItem(
-    "sidat_access_token"
-);
+/* =====================================================
+   CLOSE MENU
+   ===================================================== */
+
+function closeMenu() {
+
+    if (!menuOverlay || !menuSheet) {
+        return;
+    }
+
+    menuOverlay.classList.remove(
+        "show"
+    );
+
+    menuOverlay.classList.remove(
+        "active"
+    );
+
+    menuOverlay.style.display =
+        "";
+
+    menuOverlay.style.visibility =
+        "";
+
+    menuOverlay.style.opacity =
+        "";
+
+    menuOverlay.style.pointerEvents =
+        "";
 
 
-localStorage.removeItem(
-    "sidat_refresh_token"
-);
+    menuSheet.classList.remove(
+        "show"
+    );
+
+    menuSheet.classList.remove(
+        "active"
+    );
+
+    menuSheet.style.display =
+        "";
+
+    menuSheet.style.visibility =
+        "";
+
+    menuSheet.style.opacity =
+        "";
+
+    menuSheet.style.pointerEvents =
+        "";
+
+    menuSheet.style.transform =
+        "";
 
 
-localStorage.removeItem(
-    "sidat_user"
-);
+    menuOverlay.setAttribute(
+        "aria-hidden",
+        "true"
+    );
 
+    menuSheet.setAttribute(
+        "aria-hidden",
+        "true"
+    );
 
-window.location.href =
-    "../index.html";
-
+    document.body.classList.remove(
+        "menu-open"
+    );
 }
 
-/* ==========================================
-LOAD DASHBOARD
-========================================== */
+
+/* =====================================================
+   EVENT MENU
+   ===================================================== */
+
+function pasangEventMenu() {
+
+    if (menuOverlay) {
+
+        menuOverlay.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target ===
+                    menuOverlay
+                ) {
+
+                    closeMenu();
+                }
+            }
+        );
+    }
+
+
+    if (closeMenuButton) {
+
+        closeMenuButton.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+
+                closeMenu();
+            }
+        );
+    }
+
+
+    document
+        .querySelectorAll(
+            "[data-menu]"
+        )
+        .forEach(
+            function (button) {
+
+                button.addEventListener(
+                    "click",
+                    function (event) {
+
+                        event.preventDefault();
+
+                        const menu =
+                            button.getAttribute(
+                                "data-menu"
+                            );
+
+                        bukaMenuItem(
+                            menu
+                        );
+                    }
+                );
+            }
+        );
+
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key ===
+                "Escape"
+            ) {
+
+                closeMenu();
+            }
+        }
+    );
+}
+
+
+/* =====================================================
+   EVENT FOTO PROFIL
+   ===================================================== */
+
+function pasangEventProfil() {
+
+    if (!profileButton) {
+        return;
+    }
+
+    profileButton.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            bukaProfilAdmin();
+        }
+    );
+}
+
+
+/* =====================================================
+   LOGOUT
+   ===================================================== */
+
+function logoutAdmin() {
+
+    localStorage.removeItem(
+        ACCESS_TOKEN_KEY
+    );
+
+    localStorage.removeItem(
+        ADMIN_USER_KEY
+    );
+
+    window.location.href =
+        "../index.html";
+}
+
+
+/* =====================================================
+   LOADING SCREEN
+   ===================================================== */
+
+function hideLoadingScreen() {
+
+    if (!loadingScreen) {
+        return;
+    }
+
+    loadingScreen.classList.add(
+        "hidden"
+    );
+
+    setTimeout(
+        function () {
+
+            if (loadingScreen) {
+
+                loadingScreen.style.display =
+                    "none";
+            }
+
+        },
+        350
+    );
+}
+
+
+/* =====================================================
+   LOAD DASHBOARD
+   ===================================================== */
 
 async function loadDashboard() {
 
-try {
+    try {
 
-    initDashboardSupabase();
-    loadBadgeNotifikasiAdmin();
+        await Promise.allSettled([
+
+            loadProfilAdmin(),
+
+            loadWilayah(),
+
+            loadStatistikWarga(),
+
+            loadSaldoKas(),
+
+            loadSaldoJimpitan(),
+
+            loadLogAktivitas()
+
+        ]);
+
+    } catch (error) {
+
+        console.error(
+            "Dashboard admin error:",
+            error
+        );
+
+    } finally {
+
+        hideLoadingScreen();
+    }
+}
 
 
-    await Promise.all([
+/* =====================================================
+   GLOBAL FUNCTION
+   ===================================================== */
 
-        loadWilayah(),
+window.openMenu =
+    openMenu;
 
-        loadStatistikWarga(),
+window.closeMenu =
+    closeMenu;
 
-        loadSaldoKas(),
+window.bukaMenuItem =
+    bukaMenuItem;
 
-        loadSaldoJimpitan()
+window.bukaBeranda =
+    bukaBeranda;
 
-    ]);
+window.bukaPengaturan =
+    bukaPengaturan;
+
+window.bukaProfilAdmin =
+    bukaProfilAdmin;
+
+window.logoutAdmin =
+    logoutAdmin;
 
 
-    console.log(
-        "SIDAT: Dashboard Admin siap."
+/* =====================================================
+   INIT
+   ===================================================== */
+
+function initDashboard() {
+
+    pasangEventMenu();
+
+    pasangEventProfil();
+
+    loadDashboard();
+}
+
+
+/* =====================================================
+   DOM READY
+   ===================================================== */
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initDashboard
     );
 
+} else {
 
-} catch (error) {
-
-    console.error(
-        "Dashboard init error:",
-        error
-    );
-
+    initDashboard();
 }
 
-}
-
-/* ==========================================
-START
-========================================== */
-
-document.addEventListener(
-"DOMContentLoaded",
-loadDashboard
-);
-window.loadBadgeNotifikasiAdmin =
-    loadBadgeNotifikasiAdmin;
-    
-    
-    function bukaBackupRestore() {
-
-    window.location.href =
-        "backup-restore.html";
-
-}
-
-window.bukaBackupRestore =
-    bukaBackupRestore;
+})();

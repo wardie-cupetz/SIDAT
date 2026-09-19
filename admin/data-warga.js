@@ -1,8352 +1,5429 @@
-// ==========================================
-// SIDAT
-// DATA WARGA ADMIN
-// ==========================================
-//
-// KONSEP FINAL:
-//
-// 1 KK = 1 KEPALA KELUARGA
-// 1 KK = 1 AKUN LOGIN
-// 1 KK = 1 QR JIMPITAN
-// 1 KK = 1 SALDO JIMPITAN
-//
-// Catatan:
-// Saldo jimpitan TIDAK ditampilkan di halaman
-// Data Warga. Saldo ditampilkan pada dashboard/
-// halaman jimpitan.
-//
-// ==========================================
+/* =========================================================
+   SIDAT — DATA WARGA
+   File : admin/data-warga.js
+   Versi: Rebuild Data Warga Final
+          + Preview Import Fix
+          + Auto Account WARGA Fix
 
-// ==========================================
-// DATA IMPORT WARGA
-// ==========================================
+   Catatan:
+   - Dashboard tidak disentuh.
+   - admin-menu.js tetap menjadi pengelola menu bawah.
+   - Fungsi simpan utama: saveResident()
+   - Kepala Keluarga mendapatkan akun WARGA otomatis.
+   - Preview import tidak menulis database.
+   ========================================================= */
 
-let dataImportWarga = [];
+(function () {
+    "use strict";
 
-// ==========================================
-// SESSION
-// ==========================================
+    /* =====================================================
+       STATE
+       ===================================================== */
 
-const accessToken =
-    localStorage.getItem(
-        "sidat_access_token"
-    );
+    const state = {
+        client: null,
 
+        residents: [],
+        households: [],
 
-if (!accessToken) {
+        filteredHeads: [],
 
-    window.location.href =
-        "../index.html";
+        editingResident: null,
+        familyHead: null,
+        familyMembers: [],
 
-}
+        importRows: [],
+        importValidated: false,
+        importResult: null,
 
-
-// ==========================================
-// DATA GLOBAL
-// ==========================================
-
-let semuaWarga = [];
-
-let semuaKK = [];
-
-let wargaTerpilih = null;
-
-let kkTerpilih = null;
-
-let filterAktif = "all";
-
-
-// ==========================================
-// HEADER SUPABASE
-// ==========================================
-
-function headersSupabase() {
-
-    return {
-
-        "apikey":
-            SUPABASE_KEY,
-
-        "Authorization":
-            `Bearer ${accessToken}`,
-
-        "Content-Type":
-            "application/json",
-
-        "Prefer":
-            "return=representation"
-
+        isLoading: false
     };
 
-}
 
+    /* =====================================================
+       ELEMENT HELPER
+       ===================================================== */
 
-// ==========================================
-// REQUEST SUPABASE
-// ==========================================
+    function $(id) {
+        return document.getElementById(id);
+    }
 
-async function supabaseRequest(
-    url,
-    options = {}
-) {
-
-    const response =
-        await fetch(
-            url,
-            {
-                ...options,
-
-                headers: {
-                    ...headersSupabase(),
-                    ...(options.headers || {})
-                }
-
-            }
-        );
-
-
-    if (!response.ok) {
-
-        const text =
-            await response.text();
-
-        throw new Error(
-            text ||
-            `HTTP ${response.status}`
-        );
-
+    function qs(selector, parent) {
+        return (parent || document).querySelector(selector);
     }
 
 
-    const text =
-        await response.text();
+    /* =====================================================
+       ESCAPE HTML
+       ===================================================== */
 
+    function escapeHtml(value) {
 
-    if (!text) {
-
-        return null;
-
-    }
-
-
-    try {
-
-        return JSON.parse(
-            text
-        );
-
-    } catch {
-
-        return text;
-
-    }
-
-}
-
-
-// ==========================================
-// LOAD DATA UTAMA
-// ==========================================
-
-async function loadDataWarga() {
-
-    const loading =
-        document.getElementById(
-            "loading"
-        );
-
-    const list =
-        document.getElementById(
-            "householdList"
-        );
-
-    const empty =
-        document.getElementById(
-            "emptyState"
-        );
-
-
-    if (loading) {
-
-        loading.classList.remove(
-            "hidden"
-        );
-
-    }
-
-
-    if (list) {
-
-        list.innerHTML = "";
-
-    }
-
-
-    if (empty) {
-
-        empty.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    try {
-
-        await Promise.all([
-
-            loadResidents(),
-
-            loadHouseholds()
-
-        ]);
-
-
-        updateSummary();
-
-        tampilkanKK();
-
-
-    } catch (error) {
-
-        console.error(
-            "Gagal memuat data warga:",
-            error
-        );
-
-
-        if (loading) {
-
-            loading.classList.add(
-                "hidden"
-            );
-
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return "";
         }
 
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
 
-        if (list) {
 
-            list.innerHTML = `
+    /* =====================================================
+       FATAL ERROR
+       ===================================================== */
 
-                <div class="empty-state">
+    function showFatalError(message) {
 
-                    <div>
-                        ⚠️
-                    </div>
+        const container =
+            $("keluargaList");
 
-                    <strong>
-                        Gagal memuat data
-                    </strong>
+        if (!container) {
+            return;
+        }
 
-                    <span>
-                        ${escapeHtml(
-                            error.message
-                        )}
-                    </span>
+        container.innerHTML = `
+            <div class="sidat-error-state">
 
+                <div class="sidat-error-icon">
+                    ⚠️
                 </div>
 
-            `;
-
-        }
-
-    } finally {
-
-        if (loading) {
-
-            loading.classList.add(
-                "hidden"
-            );
-
-        }
-
-    }
-
-}
-
-
-// ==========================================
-// LOAD RESIDENTS
-// ==========================================
-
-async function loadResidents() {
-
-    const url =
-        `${SUPABASE_URL}/rest/v1/residents` +
-        `?select=` +
-        `id,` +
-        `resident_code,` +
-        `nik,` +
-        `kk_number,` +
-        `name,` +
-        `birth_place,` +
-        `birth_date,` +
-        `gender,` +
-        `address,` +
-        `phone,` +
-        `family_status,` +
-        `photo_url,` +
-        `qr_token,` +
-        `jimpitan_balance,` +
-        `is_active,` +
-        `auth_email,` +
-        `auth_id,` +
-        `account_created,` +
-        `created_at,` +
-        `updated_at` +
-        `&order=resident_code.asc`;
-
-
-    semuaWarga =
-        await supabaseRequest(
-            url
-        );
-
-
-    if (
-        !Array.isArray(
-            semuaWarga
-        )
-    ) {
-
-        semuaWarga = [];
-
-    }
-
-}
-
-
-// ==========================================
-// LOAD HOUSEHOLDS
-// ==========================================
-
-async function loadHouseholds() {
-
-    const url =
-        `${SUPABASE_URL}/rest/v1/households` +
-        `?select=` +
-        `id,` +
-`kk_number,` +
-`head_resident_id,` +
-`qr_token,` +
-`address,` +
-`created_at` +
-        `&order=kk_number.asc`;
-
-
-    semuaKK =
-        await supabaseRequest(
-            url
-        );
-
-
-    if (
-        !Array.isArray(
-            semuaKK
-        )
-    ) {
-
-        semuaKK = [];
-
-    }
-
-}
-
-
-// ==========================================
-// UPDATE SUMMARY
-// ==========================================
-
-function updateSummary() {
-
-    const jumlahWarga =
-        document.getElementById(
-            "jumlahWarga"
-        );
-
-    const jumlahKK =
-        document.getElementById(
-            "jumlahKK"
-        );
-
-    const jumlahKepala =
-        document.getElementById(
-            "jumlahKepala"
-        );
-
-
-    if (jumlahWarga) {
-
-        jumlahWarga.textContent =
-            semuaWarga.length;
-
-    }
-
-
-    if (jumlahKK) {
-
-        jumlahKK.textContent =
-            semuaKK.length;
-
-    }
-
-
-    const jumlahKepalaKeluarga =
-        semuaKK.filter(
-            kk =>
-                !!kk.head_resident_id
-        ).length;
-
-
-    if (jumlahKepala) {
-
-        jumlahKepala.textContent =
-            jumlahKepalaKeluarga;
-
-    }
-
-}
-
-
-// ==========================================
-// GET KEPALA KK
-// ==========================================
-
-function getKepalaKK(
-    kk
-) {
-
-    if (!kk) {
-
-        return null;
-
-    }
-
-
-    return semuaWarga.find(
-        warga =>
-            warga.id ===
-            kk.head_resident_id
-    ) || null;
-
-}
-
-
-// ==========================================
-// GET ANGGOTA KK
-// ==========================================
-
-function getAnggotaKK(
-    kk
-) {
-
-    if (!kk) {
-
-        return [];
-
-    }
-
-
-    return semuaWarga.filter(
-        warga =>
-            String(
-                warga.kk_number || ""
-            ).trim()
-            ===
-            String(
-                kk.kk_number || ""
-            ).trim()
-    );
-
-}
-
-
-// ==========================================
-// GABUNGKAN INFORMASI KK
-// ==========================================
-
-function buatDataKK(
-    kk
-) {
-
-    const kepala =
-        getKepalaKK(
-            kk
-        );
-
-
-    const anggota =
-        getAnggotaKK(
-            kk
-        );
-
-
-    return {
-
-        ...kk,
-
-        kepala,
-
-        anggota,
-
-        jumlahAnggota:
-            anggota.length,
-
-        memilikiKepala:
-            !!kepala
-
-    };
-
-}
-
-
-// ==========================================
-// TAMPILKAN KK
-// ==========================================
-
-function tampilkanKK() {
-
-    const list =
-        document.getElementById(
-            "householdList"
-        );
-
-    const empty =
-        document.getElementById(
-            "emptyState"
-        );
-
-
-    if (!list) {
-
-        return;
-
-    }
-
-
-    list.innerHTML = "";
-
-
-    let data =
-        semuaKK.map(
-            buatDataKK
-        );
-
-
-    const keyword =
-        (
-            document.getElementById(
-                "searchInput"
-            )?.value ||
-            ""
-        )
-        .trim()
-        .toLowerCase();
-
-
-    if (keyword) {
-
-        data =
-            data.filter(
-                kk => {
-
-                    const nomorKK =
-                        String(
-                            kk.kk_number ||
-                            ""
-                        )
-                        .toLowerCase();
-
-
-                    const namaKepala =
-                        String(
-                            kk.kepala?.name ||
-                            ""
-                        )
-                        .toLowerCase();
-
-
-                    const anggota =
-                        kk.anggota
-                            .map(
-                                warga =>
-                                    String(
-                                        warga.name ||
-                                        ""
-                                    )
-                                    .toLowerCase()
-                            )
-                            .join(" ");
-
-
-                    return (
-
-                        nomorKK.includes(
-                            keyword
-                        )
-
-                        ||
-
-                        namaKepala.includes(
-                            keyword
-                        )
-
-                        ||
-
-                        anggota.includes(
-                            keyword
-                        )
-
-                    );
-
-                }
-            );
-
-    }
-
-
-    if (
-        filterAktif ===
-        "lengkap"
-    ) {
-
-        data =
-            data.filter(
-                kk =>
-                    kk.memilikiKepala
-            );
-
-    }
-
-
-    if (
-        filterAktif ===
-        "tanpa-kepala"
-    ) {
-
-        data =
-            data.filter(
-                kk =>
-                    !kk.memilikiKepala
-            );
-
-    }
-
-
-    if (
-        data.length ===
-        0
-    ) {
-
-        if (empty) {
-
-            empty.classList.remove(
-                "hidden"
-            );
-
-        }
-
-        return;
-
-    }
-
-
-    if (empty) {
-
-        empty.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    data.forEach(
-        kk => {
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-
-            card.className =
-                "household-card";
-
-
-            const kepala =
-                kk.kepala;
-
-
-            const initial =
-                kepala?.name
-                    ?.trim()
-                    ?.charAt(0)
-                    ?.toUpperCase()
-                ||
-                "?";
-
-
-            const statusClass =
-                kk.memilikiKepala
-                    ? "active"
-                    : "inactive";
-
-
-            const statusText =
-                kk.memilikiKepala
-                    ? "ADA KEPALA"
-                    : "TANPA KEPALA";
-
-
-            card.innerHTML = `
-
-                <div class="household-header">
-
-                    <div class="household-title">
-
-                        <span>
-                            KARTU KELUARGA
-                        </span>
-
-                        <strong>
-                            KK ${escapeHtml(
-                                kk.kk_number ||
-                                "-"
-                            )}
-                        </strong>
-
-                    </div>
-
-                    <span
-                        class="status ${statusClass}"
-                    >
-                        ${statusText}
-                    </span>
-
-                </div>
-
-
-                <div class="household-body">
-
-                    <div class="head-resident">
-
-                        <div
-                            class="head-resident-card"
-                        >
-
-                            <div
-                                class="head-resident-avatar"
-                            >
-                                ${escapeHtml(
-                                    initial
-                                )}
-                            </div>
-
-
-                            <div
-                                class="head-resident-info"
-                            >
-
-                                <strong>
-                                    ${
-                                        kepala
-                                            ? escapeHtml(
-                                                kepala.name
-                                            )
-                                            : "Kepala keluarga belum ditentukan"
-                                    }
-                                </strong>
-
-                                <span>
-                                    ${
-                                        kepala
-                                            ? `ID: ${escapeHtml(
-                                                kepala.resident_code ||
-                                                "-"
-                                            )}`
-                                            : "Belum ada kepala keluarga"
-                                    }
-                                </span>
-
-                                <span>
-                                    ${escapeHtml(
-                                        kk.address ||
-                                        kepala?.address ||
-                                        "-"
-                                    )}
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="household-summary">
-
-                        <span>
-                            👥
-                        </span>
-
-                        <strong>
-                            ${kk.jumlahAnggota}
-                        </strong>
-
-                        <small>
-                            Anggota
-                        </small>
-
-                    </div>
-
-
-                    <div class="household-actions">
-
-    <button
-    type="button"
-    class="btn-primary"
-    onclick="lihatKK(
-        '${escapeAttribute(
-            kk.id
-        )}'
-    )"
->
-    👥 Lihat Anggota
-</button>
-
-
-<button
-    type="button"
-    class="btn-secondary"
-    onclick="bukaQR(
-        '${escapeAttribute(
-            kk.id
-        )}'
-    )"
->
-    📱 QR Jimpitan
-</button>
-
-
-${
-    kepala
-        ? (
-            kepala.account_created === true ||
-            !!kepala.auth_id
-
-                ? `
-
-                    <!-- ==========================
-                         UBAH PIN
-                    =========================== -->
-
-                    <button
-                        type="button"
-                        class="btn-primary"
-                        onclick="bukaModalUbahPin(
-                            '${escapeAttribute(
-                                kepala.id
-                            )}',
-                            '${escapeAttribute(
-                                kepala.name ||
-                                "Kepala Keluarga"
-                            )}'
-                        )"
-                    >
-                        🔑 Ubah PIN
-                    </button>
-
-
-                    <!-- ==========================
-                         STATUS AKUN
-                    =========================== -->
-
-                    <button
-                        type="button"
-                        class="btn-secondary"
-                        disabled
-                    >
-                        ✅ Akun Aktif
-                    </button>
-
-                `
-
-                : `
-
-                    <!-- ==========================
-                         BUAT AKUN
-                    =========================== -->
-
-                    <button
-                        type="button"
-                        class="btn-primary"
-                        onclick="bukaModalBuatAkun(
-                            '${escapeAttribute(
-                                kepala.id
-                            )}',
-                            '${escapeAttribute(
-                                kepala.name ||
-                                "Kepala Keluarga"
-                            )}'
-                        )"
-                    >
-                        🔐 Buat Akun
-                    </button>
-
-                `
-        )
-        : ""
-}
-
-</div>
-
-                </div>
-
-            `;
-
-
-            list.appendChild(
-                card
-            );
-
-        }
-    );
-
-}
-
-
-// ==========================================
-// SEARCH
-// ==========================================
-
-const searchInput =
-    document.getElementById(
-        "searchInput"
-    );
-
-
-if (searchInput) {
-
-    searchInput.addEventListener(
-        "input",
-        function () {
-
-            tampilkanKK();
-
-        }
-    );
-
-}
-
-
-// ==========================================
-// FILTER KK
-// ==========================================
-
-function filterKK(
-    filter
-) {
-
-    filterAktif =
-        filter;
-
-
-    document
-        .querySelectorAll(
-            ".filter-btn"
-        )
-        .forEach(
-            button => {
-
-                button.classList.toggle(
-                    "active",
-                    button.dataset.filter ===
-                    filter
-                );
-
-            }
-        );
-
-
-    tampilkanKK();
-
-}
-// ==========================================
-// MODAL BUAT AKUN KEPALA KELUARGA
-// ==========================================
-
-function bukaModalBuatAkun(
-    residentId,
-    nama
-) {
-
-    const existing =
-        document.getElementById(
-            "modalBuatAkun"
-        );
-
-    if (existing) {
-
-        existing.remove();
-
-    }
-
-
-    const modal =
-        document.createElement(
-            "div"
-        );
-
-    modal.id =
-        "modalBuatAkun";
-
-    modal.className =
-        "modal-overlay";
-
-
-    modal.innerHTML = `
-
-        <div class="modal-card">
-
-            <div class="modal-header">
-
-                <div>
-
-                    <strong>
-                        🔐 Buat Akun Warga
-                    </strong>
-
-                    <span>
-                        ${escapeHtml(
-                            nama
-                        )}
-                    </span>
-
-                </div>
-
-                <button
-                    type="button"
-                    class="modal-close"
-                    onclick="tutupModalBuatAkun()"
-                >
-                    ✕
-                </button>
-
-            </div>
-
-
-            <div class="modal-body">
-
-                <input
-                    type="hidden"
-                    id="akunResidentId"
-                    value="${escapeAttribute(
-                        residentId
-                    )}"
-                >
-
-
-                <label
-                    for="akunPin"
-                >
-                    PIN Login
-                </label>
-
-
-                <input
-                    type="password"
-                    id="akunPin"
-                    inputmode="numeric"
-                    maxlength="6"
-                    placeholder="Masukkan PIN 4-6 digit"
-                    autocomplete="new-password"
-                >
-
-
-                <small>
-                    PIN harus terdiri dari 4 sampai 6 digit.
-                </small>
-
-
-                <div
-                    id="akunBuatError"
-                    class="modal-error hidden"
-                ></div>
-
-            </div>
-
-
-            <div class="modal-footer">
-
-                <button
-                    type="button"
-                    class="btn-secondary"
-                    onclick="tutupModalBuatAkun()"
-                >
-                    Batal
-                </button>
-
+                <h3>
+                    Data Warga tidak dapat dimuat
+                </h3>
+
+                <p>
+                    ${escapeHtml(message)}
+                </p>
 
                 <button
                     type="button"
                     class="btn-primary"
-                    id="btnSimpanAkun"
-                    onclick="buatAkunKepalaKK()"
+                    id="btnRetryDataWarga"
                 >
-                    🔐 Buat Akun
+                    Coba Lagi
+                </button>
+
+            </div>
+        `;
+
+        $("btnRetryDataWarga")
+            ?.addEventListener(
+                "click",
+                loadData
+            );
+    }
+
+
+    /* =====================================================
+       INIT SUPABASE
+       ===================================================== */
+
+    function initSupabase() {
+
+        if (
+            typeof window.supabase === "undefined" ||
+            typeof window.supabase.createClient !== "function"
+        ) {
+
+            console.error(
+                "SIDAT Supabase Client Error: Supabase SDK belum tersedia."
+            );
+
+            showFatalError(
+                "Supabase SDK belum tersedia. Pastikan supabase-js dimuat sebelum data-warga.js."
+            );
+
+            return false;
+        }
+
+        if (
+            typeof SUPABASE_URL !== "string" ||
+            !SUPABASE_URL
+        ) {
+
+            console.error(
+                "SIDAT Supabase Client Error: SUPABASE_URL tidak tersedia."
+            );
+
+            showFatalError(
+                "SUPABASE_URL tidak tersedia."
+            );
+
+            return false;
+        }
+
+        if (
+            typeof SUPABASE_KEY !== "string" ||
+            !SUPABASE_KEY
+        ) {
+
+            console.error(
+                "SIDAT Supabase Client Error: SUPABASE_KEY tidak tersedia."
+            );
+
+            showFatalError(
+                "SUPABASE_KEY tidak tersedia."
+            );
+
+            return false;
+        }
+
+        if (
+            window.supabaseClient &&
+            typeof window.supabaseClient.from === "function"
+        ) {
+
+            state.client =
+                window.supabaseClient;
+
+            return true;
+        }
+
+        try {
+
+            state.client =
+                window.supabase.createClient(
+                    SUPABASE_URL,
+                    SUPABASE_KEY
+                );
+
+            window.supabaseClient =
+                state.client;
+
+            return true;
+
+        } catch (error) {
+
+            console.error(
+                "SIDAT Supabase Client Error:",
+                error
+            );
+
+            showFatalError(
+                "Gagal membuat koneksi Supabase."
+            );
+
+            return false;
+        }
+    }
+
+
+    /* =====================================================
+       SESSION
+       ===================================================== */
+
+    async function checkSession() {
+
+        const {
+            data,
+            error
+        } = await state.client.auth.getSession();
+
+        if (error) {
+            throw error;
+        }
+
+        if (
+            !data ||
+            !data.session
+        ) {
+
+            window.location.href =
+                "../index.html";
+
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /* =====================================================
+       LOAD DATA
+       ===================================================== */
+
+    async function loadData() {
+
+        if (state.isLoading) {
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+
+            const sessionOK =
+                await checkSession();
+
+            if (!sessionOK) {
+                return;
+            }
+
+            await Promise.all([
+                loadResidents(),
+                loadHouseholds()
+            ]);
+
+            updateSummary();
+
+            state.filteredHeads =
+                state.residents.filter(
+                    function (resident) {
+
+                        return (
+                            resident.family_status ===
+                            "Kepala Keluarga"
+                        );
+                    }
+                );
+
+            renderHeadList();
+
+        } catch (error) {
+
+            console.error(
+                "Data Warga load error:",
+                error
+            );
+
+            showFatalError(
+                error?.message ||
+                "Terjadi kesalahan saat mengambil data warga."
+            );
+
+        } finally {
+
+            setLoading(false);
+        }
+    }
+
+
+    /* =====================================================
+       LOAD RESIDENTS
+       ===================================================== */
+
+    async function loadResidents() {
+
+        const {
+            data,
+            error
+        } = await state.client
+            .from("residents")
+            .select(`
+                id,
+                resident_code,
+                nik,
+                kk_number,
+                name,
+                birth_place,
+                birth_date,
+                gender,
+                address,
+                house_number,
+                phone,
+                family_status,
+                photo_url,
+                jimpitan_balance,
+                qr_token,
+                is_active,
+                created_at,
+                updated_at,
+                auth_email,
+                account_created,
+                auth_id,
+                must_change_pin
+            `)
+            .eq("is_active", true)
+            .order("name", {
+                ascending: true
+            });
+
+        if (error) {
+            throw error;
+        }
+
+        state.residents =
+            data || [];
+    }
+
+
+    /* =====================================================
+       LOAD HOUSEHOLDS
+       ===================================================== */
+
+    async function loadHouseholds() {
+
+        const {
+            data,
+            error
+        } = await state.client
+            .from("households")
+            .select(`
+                id,
+                kk_number,
+                head_resident_id,
+                address,
+                jimpitan_balance,
+                qr_token,
+                created_at
+            `)
+            .order("kk_number", {
+                ascending: true
+            });
+
+        if (error) {
+            throw error;
+        }
+
+        state.households =
+            data || [];
+    }
+
+
+    /* =====================================================
+       SUMMARY
+       ===================================================== */
+
+    function updateSummary() {
+
+        const heads =
+            state.residents.filter(
+                function (resident) {
+
+                    return (
+                        resident.family_status ===
+                        "Kepala Keluarga"
+                    );
+                }
+            );
+
+        const kkNumbers =
+            new Set();
+
+        state.residents.forEach(
+            function (resident) {
+
+                if (resident.kk_number) {
+
+                    kkNumbers.add(
+                        resident.kk_number
+                    );
+                }
+            }
+        );
+
+        if ($("totalKepalaKeluarga")) {
+
+            $("totalKepalaKeluarga")
+                .textContent =
+                heads.length;
+        }
+
+        if ($("totalWarga")) {
+
+            $("totalWarga")
+                .textContent =
+                state.residents.length;
+        }
+
+        if ($("totalKK")) {
+
+            $("totalKK")
+                .textContent =
+                kkNumbers.size;
+        }
+    }
+
+
+    /* =====================================================
+       SEARCH
+       ===================================================== */
+
+    function filterHeads() {
+
+        const input =
+            $("searchWarga");
+
+        const keyword =
+            input
+                ? input.value
+                    .trim()
+                    .toLowerCase()
+                : "";
+
+        const heads =
+            state.residents.filter(
+                function (resident) {
+
+                    return (
+                        resident.family_status ===
+                        "Kepala Keluarga"
+                    );
+                }
+            );
+
+        if (!keyword) {
+
+            state.filteredHeads =
+                heads;
+
+            renderHeadList();
+
+            return;
+        }
+
+        state.filteredHeads =
+            heads.filter(
+                function (resident) {
+
+                    const text = [
+                        resident.name,
+                        resident.nik,
+                        resident.kk_number,
+                        resident.resident_code,
+                        resident.address,
+                        resident.phone
+                    ]
+                        .filter(Boolean)
+                        .join(" ")
+                        .toLowerCase();
+
+                    return text.includes(
+                        keyword
+                    );
+                }
+            );
+
+        renderHeadList();
+    }
+
+
+    /* =====================================================
+       RENDER HEAD LIST
+       ===================================================== */
+
+    function renderHeadList() {
+
+        const container =
+            $("keluargaList");
+
+        if (!container) {
+            return;
+        }
+
+        let heads =
+            state.filteredHeads;
+
+        if (!Array.isArray(heads)) {
+            heads = [];
+        }
+
+        if (!heads.length) {
+
+            heads =
+                state.residents.filter(
+                    function (resident) {
+
+                        return (
+                            resident.family_status ===
+                            "Kepala Keluarga"
+                        );
+                    }
+                );
+        }
+
+        if (!heads.length) {
+
+            container.innerHTML = `
+                <div class="sidat-empty-state">
+
+                    <div class="sidat-empty-icon">
+                        👨‍👩‍👧‍👦
+                    </div>
+
+                    <h3>
+                        Belum ada Kepala Keluarga
+                    </h3>
+
+                    <p>
+                        Tambahkan data warga untuk mulai
+                        membangun data keluarga.
+                    </p>
+
+                    <button
+                        type="button"
+                        class="btn-primary"
+                        id="btnEmptyTambah"
+                    >
+                        Tambah Warga
+                    </button>
+
+                </div>
+            `;
+
+            $("btnEmptyTambah")
+                ?.addEventListener(
+                    "click",
+                    openAddResident
+                );
+
+            return;
+        }
+
+        container.innerHTML =
+            heads
+                .map(renderHeadCard)
+                .join("");
+
+        container
+            .querySelectorAll(
+                "[data-head-id]"
+            )
+            .forEach(
+                function (card) {
+
+                    card.addEventListener(
+                        "click",
+                        function () {
+
+                            const id =
+                                card.getAttribute(
+                                    "data-head-id"
+                                );
+
+                            if (id) {
+                                openFamily(id);
+                            }
+                        }
+                    );
+                }
+            );
+    }
+
+
+    /* =====================================================
+       HEAD CARD
+       ===================================================== */
+
+    function renderHeadCard(head) {
+
+        const memberCount =
+            state.residents.filter(
+                function (resident) {
+
+                    return (
+                        resident.kk_number &&
+                        resident.kk_number ===
+                        head.kk_number
+                    );
+                }
+            ).length;
+
+        const household =
+            state.households.find(
+                function (item) {
+
+                    return (
+                        item.kk_number ===
+                        head.kk_number
+                    );
+                }
+            );
+
+        const address =
+            head.address ||
+            household?.address ||
+            "-";
+
+        const accountStatus =
+            head.account_created
+                ? "Akun WARGA aktif"
+                : "Akun WARGA belum dibuat";
+
+        return `
+            <article
+                class="keluarga-card"
+                data-head-id="${escapeHtml(head.id)}"
+            >
+
+                <div class="keluarga-card-main">
+
+                    <div class="keluarga-avatar">
+                        ${getInitials(head.name)}
+                    </div>
+
+                    <div class="keluarga-info">
+
+                        <div class="keluarga-name">
+                            ${escapeHtml(head.name)}
+                        </div>
+
+                        <div class="keluarga-meta">
+                            KK
+                            ${escapeHtml(
+                                head.kk_number || "-"
+                            )}
+                        </div>
+
+                        <div class="keluarga-address">
+                            ${escapeHtml(address)}
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="keluarga-card-footer">
+
+                    <span>
+                        👨‍👩‍👧‍👦
+                        ${memberCount} anggota
+                    </span>
+
+                    <span>
+                        ${escapeHtml(accountStatus)}
+                    </span>
+
+                    <span class="keluarga-arrow">
+                        ›
+                    </span>
+
+                </div>
+
+            </article>
+        `;
+    }
+
+
+    /* =====================================================
+       INITIALS
+       ===================================================== */
+
+    function getInitials(name) {
+
+        if (!name) {
+            return "?";
+        }
+
+        const parts =
+            String(name)
+                .trim()
+                .split(/\s+/)
+                .filter(Boolean);
+
+        if (!parts.length) {
+            return "?";
+        }
+
+        if (parts.length === 1) {
+
+            return parts[0]
+                .substring(0, 2)
+                .toUpperCase();
+        }
+
+        return (
+            parts[0][0] +
+            parts[parts.length - 1][0]
+        ).toUpperCase();
+    }
+
+
+    /* =====================================================
+       OPEN FAMILY
+       ===================================================== */
+
+    function openFamily(headId) {
+
+        const head =
+            state.residents.find(
+                function (resident) {
+
+                    return resident.id === headId;
+                }
+            );
+
+        if (!head) {
+
+            console.warn(
+                "SIDAT: Kepala Keluarga tidak ditemukan:",
+                headId
+            );
+
+            return;
+        }
+
+        state.familyHead =
+            head;
+
+        state.familyMembers =
+            state.residents
+                .filter(
+                    function (resident) {
+
+                        return (
+                            resident.kk_number &&
+                            resident.kk_number ===
+                            head.kk_number
+                        );
+                    }
+                )
+                .sort(
+                    function (a, b) {
+
+                        if (
+                            a.family_status ===
+                            "Kepala Keluarga"
+                        ) {
+                            return -1;
+                        }
+
+                        if (
+                            b.family_status ===
+                            "Kepala Keluarga"
+                        ) {
+                            return 1;
+                        }
+
+                        return String(
+                            a.name || ""
+                        ).localeCompare(
+                            String(
+                                b.name || ""
+                            ),
+                            "id"
+                        );
+                    }
+                );
+
+        renderFamilyModal();
+
+        showModal(
+            "familyModal"
+        );
+    }
+
+
+    /* =====================================================
+       FAMILY MODAL
+       ===================================================== */
+
+    function renderFamilyModal() {
+
+        const content =
+            $("familyModalContent");
+
+        if (
+            !content ||
+            !state.familyHead
+        ) {
+            return;
+        }
+
+        const head =
+            state.familyHead;
+
+        const modalTitle =
+            $("familyModalTitle");
+
+        if (modalTitle) {
+
+            modalTitle.textContent =
+                "Keluarga " +
+                head.name;
+        }
+
+        content.innerHTML = `
+
+            <div class="family-summary">
+
+                <div>
+                    <span>Nomor KK</span>
+                    <strong>
+                        ${escapeHtml(
+                            head.kk_number || "-"
+                        )}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Kepala Keluarga</span>
+                    <strong>
+                        ${escapeHtml(
+                            head.name
+                        )}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Anggota</span>
+                    <strong>
+                        ${state.familyMembers.length}
+                    </strong>
+                </div>
+
+            </div>
+
+            <div class="family-actions">
+
+                <button
+                    type="button"
+                    class="btn-primary"
+                    id="familyEditHead"
+                >
+                    Edit KK
+                </button>
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    id="familyAddMember"
+                >
+                    + Tambah Anggota
+                </button>
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    id="familyQr"
+                >
+                    QR Token
+                </button>
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    id="familyPin"
+                >
+                    Ubah PIN
+                </button>
+
+            </div>
+
+            <div class="family-members">
+
+                ${
+                    state.familyMembers.length
+                        ? state.familyMembers
+                            .map(
+                                renderFamilyMember
+                            )
+                            .join("")
+                        : `
+                            <div class="family-empty">
+                                Belum ada anggota keluarga.
+                            </div>
+                        `
+                }
+
+            </div>
+        `;
+
+        $("familyEditHead")
+            ?.addEventListener(
+                "click",
+                function () {
+
+                    closeModal(
+                        "familyModal"
+                    );
+
+                    openEditResident(
+                        head.id
+                    );
+                }
+            );
+
+        $("familyAddMember")
+            ?.addEventListener(
+                "click",
+                function () {
+
+                    closeModal(
+                        "familyModal"
+                    );
+
+                    openAddMember(
+                        head
+                    );
+                }
+            );
+
+        $("familyQr")
+            ?.addEventListener(
+                "click",
+                function () {
+
+                    showQrToken(
+                        head
+                    );
+                }
+            );
+
+        $("familyPin")
+            ?.addEventListener(
+                "click",
+                function () {
+
+                    openChangePin(
+                        head
+                    );
+                }
+            );
+
+        content
+            .querySelectorAll(
+                "[data-member-action]"
+            )
+            .forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        "click",
+                        handleMemberAction
+                    );
+                }
+            );
+    }
+
+
+    /* =====================================================
+       FAMILY MEMBER
+       ===================================================== */
+
+    function renderFamilyMember(member) {
+
+        const isHead =
+            member.family_status ===
+            "Kepala Keluarga";
+
+        return `
+            <div class="family-member">
+
+                <div class="family-member-avatar">
+                    ${getInitials(member.name)}
+                </div>
+
+                <div class="family-member-info">
+
+                    <strong>
+                        ${escapeHtml(
+                            member.name
+                        )}
+                    </strong>
+
+                    <span>
+                        ${escapeHtml(
+                            member.family_status ||
+                            "-"
+                        )}
+                    </span>
+
+                    <small>
+                        ${escapeHtml(
+                            member.resident_code ||
+                            ""
+                        )}
+                    </small>
+
+                </div>
+
+                <div class="family-member-actions">
+
+                    <button
+                        type="button"
+                        data-member-action="edit"
+                        data-id="${escapeHtml(member.id)}"
+                    >
+                        Edit
+                    </button>
+
+                    ${
+                        isHead
+                            ? ""
+                            : `
+                                <button
+                                    type="button"
+                                    data-member-action="move"
+                                    data-id="${escapeHtml(member.id)}"
+                                >
+                                    Pindah KK
+                                </button>
+
+                                <button
+                                    type="button"
+                                    data-member-action="delete"
+                                    data-id="${escapeHtml(member.id)}"
+                                >
+                                    Hapus
+                                </button>
+                            `
+                    }
+
+                </div>
+
+            </div>
+        `;
+    }
+
+
+    /* =====================================================
+       MEMBER ACTION
+       ===================================================== */
+
+    function handleMemberAction(event) {
+
+        event.stopPropagation();
+
+        const button =
+            event.currentTarget;
+
+        const action =
+            button.getAttribute(
+                "data-member-action"
+            );
+
+        const id =
+            button.getAttribute(
+                "data-id"
+            );
+
+        if (!id) {
+            return;
+        }
+
+        if (action === "edit") {
+
+            closeModal(
+                "familyModal"
+            );
+
+            openEditResident(id);
+
+            return;
+        }
+
+        if (action === "move") {
+
+            openMoveResident(id);
+
+            return;
+        }
+
+        if (action === "delete") {
+
+            deleteResident(id);
+
+            return;
+        }
+    }
+
+
+    /* =====================================================
+       ADD RESIDENT
+       ===================================================== */
+
+    function openAddResident() {
+
+        state.editingResident =
+            null;
+
+        openResidentForm({
+            mode: "add",
+            resident: null,
+            head: null
+        });
+    }
+
+
+    /* =====================================================
+       ADD MEMBER
+       ===================================================== */
+
+    function openAddMember(head) {
+
+        if (!head) {
+            return;
+        }
+
+        state.editingResident =
+            null;
+
+        openResidentForm({
+            mode: "add-member",
+            resident: null,
+            head: head
+        });
+    }
+
+
+    /* =====================================================
+       EDIT RESIDENT
+       ===================================================== */
+
+    function openEditResident(id) {
+
+        const resident =
+            state.residents.find(
+                function (item) {
+
+                    return item.id === id;
+                }
+            );
+
+        if (!resident) {
+            return;
+        }
+
+        state.editingResident =
+            resident;
+
+        let head =
+            null;
+
+        if (
+            resident.family_status ===
+            "Kepala Keluarga"
+        ) {
+
+            head =
+                resident;
+
+        } else if (
+            resident.kk_number
+        ) {
+
+            head =
+                state.residents.find(
+                    function (item) {
+
+                        return (
+                            item.kk_number ===
+                            resident.kk_number &&
+                            item.family_status ===
+                            "Kepala Keluarga"
+                        );
+                    }
+                ) || null;
+        }
+
+        openResidentForm({
+            mode: "edit",
+            resident: resident,
+            head: head
+        });
+    }
+
+
+    /* =====================================================
+   RESIDENT FORM
+   ===================================================== */
+
+function openResidentForm(options) {
+
+    const form =
+        $("residentForm");
+
+    if (!form) {
+        return;
+    }
+
+    const resident =
+        options.resident;
+
+    const head =
+        options.head;
+
+    const title =
+        $("residentModalTitle");
+
+    if (title) {
+
+        if (
+            options.mode ===
+            "edit"
+        ) {
+
+            title.textContent =
+                "Edit Data Warga";
+
+        } else if (
+            options.mode ===
+            "add-member"
+        ) {
+
+            title.textContent =
+                "Tambah Anggota Keluarga";
+
+        } else {
+
+            title.textContent =
+                "Tambah Warga";
+        }
+    }
+
+    setValue(
+        "residentId",
+        resident?.id || ""
+    );
+
+    setValue(
+        "residentName",
+        resident?.name || ""
+    );
+
+    setValue(
+        "residentNik",
+        resident?.nik || ""
+    );
+
+    setValue(
+        "residentGender",
+        resident?.gender || ""
+    );
+
+    /*
+     * Status keluarga:
+     *
+     * EDIT:
+     *   gunakan status warga yang sudah ada.
+     *
+     * TAMBAH ANGGOTA:
+     *   default Anak jika belum ada status.
+     *
+     * TAMBAH WARGA:
+     *   default Kepala Keluarga.
+     */
+    setValue(
+        "residentFamilyStatus",
+        resident?.family_status ||
+        (
+            options.mode ===
+            "add-member"
+                ? "Anak"
+                : "Kepala Keluarga"
+        )
+    );
+
+    setValue(
+        "residentKk",
+        resident?.kk_number ||
+        head?.kk_number ||
+        ""
+    );
+
+    setValue(
+        "residentBirthPlace",
+        resident?.birth_place ||
+        ""
+    );
+
+    setValue(
+        "residentBirthDate",
+        resident?.birth_date ||
+        ""
+    );
+
+    setValue(
+        "residentAddress",
+        resident?.address ||
+        head?.address ||
+        ""
+    );
+
+    setValue(
+        "residentHouseNumber",
+        resident?.house_number ||
+        ""
+    );
+
+    setValue(
+        "residentPhone",
+        resident?.phone ||
+        ""
+    );
+
+    /*
+     * STATUS KELUARGA TIDAK DIKUNCI.
+     *
+     * Sebelumnya:
+     *
+     * status.disabled =
+     *     options.mode === "add-member" &&
+     *     !!head;
+     *
+     * Baris tersebut menyebabkan dropdown
+     * Status Keluarga terkunci saat Tambah Anggota.
+     *
+     * Sekarang dropdown selalu aktif.
+     */
+    const status =
+        $("residentFamilyStatus");
+
+    if (status) {
+
+        status.disabled = false;
+
+    }
+
+    const accountInfo =
+        $("accountInfo");
+
+    const accountInfoText =
+        $("accountInfoText");
+
+    if (
+        accountInfo &&
+        accountInfoText
+    ) {
+
+        if (
+            resident &&
+            resident.family_status ===
+            "Kepala Keluarga"
+        ) {
+
+            accountInfo.hidden =
+                false;
+
+            accountInfoText.textContent =
+                resident.account_created
+                    ? "Akun WARGA sudah tersedia."
+                    : "Akun WARGA akan dibuat otomatis setelah data disimpan.";
+
+        } else {
+
+            accountInfo.hidden =
+                true;
+        }
+    }
+
+    showModal(
+        "residentModal"
+    );
+}
+
+    /* =====================================================
+       SAVE RESIDENT
+       ===================================================== */
+
+    async function saveResident(event) {
+
+        event.preventDefault();
+
+        if (!state.client) {
+            return;
+        }
+
+        const id =
+            getValue(
+                "residentId"
+            );
+
+        const name =
+            getValue(
+                "residentName"
+            ).trim();
+
+        const nik =
+            getValue(
+                "residentNik"
+            ).trim();
+
+        const gender =
+            getValue(
+                "residentGender"
+            );
+
+        const familyStatus =
+            getValue(
+                "residentFamilyStatus"
+            );
+
+        const kkNumber =
+            getValue(
+                "residentKk"
+            ).trim();
+
+        const birthPlace =
+            getValue(
+                "residentBirthPlace"
+            ).trim();
+
+        const birthDate =
+            getValue(
+                "residentBirthDate"
+            ) || null;
+
+        const address =
+            getValue(
+                "residentAddress"
+            ).trim();
+
+        const houseNumber =
+            getValue(
+                "residentHouseNumber"
+            ).trim();
+
+        const phone =
+            getValue(
+                "residentPhone"
+            ).trim();
+
+        if (!name) {
+
+            alert(
+                "Nama warga wajib diisi."
+            );
+
+            return;
+        }
+
+        if (
+            familyStatus ===
+            "Kepala Keluarga" &&
+            !kkNumber
+        ) {
+
+            alert(
+                "Nomor KK wajib diisi."
+            );
+
+            return;
+        }
+
+        const payload = {
+            name:
+                name,
+
+            nik:
+                nik || null,
+
+            kk_number:
+                kkNumber || null,
+
+            birth_place:
+                birthPlace || null,
+
+            birth_date:
+                birthDate,
+
+            gender:
+                gender || null,
+
+            address:
+                address || null,
+
+            house_number:
+                houseNumber || null,
+
+            phone:
+                phone || null,
+
+            family_status:
+                familyStatus || null
+        };
+
+        const button =
+            $("btnSaveResident");
+
+        setButtonLoading(
+            button,
+            true,
+            "Menyimpan..."
+        );
+
+        try {
+
+            let residentId =
+                id;
+
+            if (id) {
+
+                const {
+                    data,
+                    error
+                } = await state.client
+                    .from("residents")
+                    .update(payload)
+                    .eq("id", id)
+                    .select()
+                    .single();
+
+                if (error) {
+                    throw error;
+                }
+
+                residentId =
+                    data.id;
+
+            } else {
+
+                const {
+                    data,
+                    error
+                } = await state.client
+                    .from("residents")
+                    .insert(payload)
+                    .select()
+                    .single();
+
+                if (error) {
+                    throw error;
+                }
+
+                residentId =
+                    data.id;
+            }
+
+            if (
+                familyStatus ===
+                "Kepala Keluarga"
+            ) {
+
+                await ensureHousehold(
+                    kkNumber,
+                    residentId,
+                    address
+                );
+            }
+
+            let accountWarning =
+                "";
+
+            if (
+                familyStatus ===
+                "Kepala Keluarga"
+            ) {
+
+                const resident =
+                    await getResidentById(
+                        residentId
+                    );
+
+                if (
+                    resident &&
+                    !resident.account_created
+                ) {
+
+                    try {
+
+                        await createResidentAccount(
+                            resident
+                        );
+
+                    } catch (accountError) {
+
+                        console.error(
+                            "Create resident account error:",
+                            accountError
+                        );
+
+                        accountWarning =
+                            "\n\nData warga berhasil disimpan, tetapi akun WARGA belum berhasil dibuat.\n\n" +
+                            getFunctionErrorMessage(
+                                accountError
+                            );
+                    }
+                }
+            }
+
+            closeModal(
+                "residentModal"
+            );
+
+            await reloadData();
+
+            if (accountWarning) {
+
+                alert(
+                    "Data warga berhasil disimpan." +
+                    accountWarning
+                );
+
+            } else {
+
+                alert(
+                    "Data warga berhasil disimpan."
+                );
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Save resident error:",
+                error
+            );
+
+            alert(
+                "Gagal menyimpan data warga:\n\n" +
+                (
+                    error?.message ||
+                    "Terjadi kesalahan."
+                )
+            );
+
+        } finally {
+
+            setButtonLoading(
+                button,
+                false,
+                "Simpan"
+            );
+        }
+    }
+
+
+    /* =====================================================
+       GET RESIDENT
+       ===================================================== */
+
+    async function getResidentById(id) {
+
+        const {
+            data,
+            error
+        } = await state.client
+            .from("residents")
+            .select("*")
+            .eq("id", id)
+            .single();
+
+        if (error) {
+            throw error;
+        }
+
+        return data;
+    }
+
+
+    /* =====================================================
+       ENSURE HOUSEHOLD
+       ===================================================== */
+
+    async function ensureHousehold(
+        kkNumber,
+        headResidentId,
+        address
+    ) {
+
+        if (!kkNumber) {
+            return null;
+        }
+
+        const {
+            data: existing,
+            error: findError
+        } = await state.client
+            .from("households")
+            .select("*")
+            .eq(
+                "kk_number",
+                kkNumber
+            )
+            .maybeSingle();
+
+        if (findError) {
+            throw findError;
+        }
+
+        if (existing) {
+
+            const updatePayload = {
+                head_resident_id:
+                    headResidentId
+            };
+
+            if (address) {
+
+                updatePayload.address =
+                    address;
+            }
+
+            const {
+                data,
+                error
+            } = await state.client
+                .from("households")
+                .update(
+                    updatePayload
+                )
+                .eq(
+                    "id",
+                    existing.id
+                )
+                .select()
+                .single();
+
+            if (error) {
+                throw error;
+            }
+
+            return data;
+        }
+
+        const {
+            data,
+            error
+        } = await state.client
+            .from("households")
+            .insert({
+                kk_number:
+                    kkNumber,
+
+                head_resident_id:
+                    headResidentId,
+
+                address:
+                    address || null
+            })
+            .select()
+            .single();
+
+        if (error) {
+            throw error;
+        }
+
+        return data;
+    }
+
+
+    /* =====================================================
+       CREATE RESIDENT ACCOUNT
+       ===================================================== */
+
+    async function createResidentAccount(
+        resident
+    ) {
+
+        if (!resident) {
+            return null;
+        }
+
+        if (
+            resident.family_status !==
+            "Kepala Keluarga"
+        ) {
+            return null;
+        }
+
+        if (
+            resident.account_created
+        ) {
+            return null;
+        }
+
+        console.log(
+            "SIDAT: Membuat akun WARGA otomatis:",
+            resident.name,
+            resident.id
+        );
+
+        const {
+            data,
+            error
+        } = await state.client
+            .functions
+            .invoke(
+                "create-resident-account",
+                {
+                    body: {
+                        resident_id:
+                            resident.id
+                    }
+                }
+            );
+
+        if (error) {
+            throw error;
+        }
+
+        if (
+            data &&
+            data.success === false
+        ) {
+
+            throw new Error(
+                data.message ||
+                "Akun WARGA gagal dibuat."
+            );
+        }
+
+        console.log(
+            "SIDAT: Akun WARGA berhasil dibuat:",
+            resident.name
+        );
+
+        return data;
+    }
+
+
+    /* =====================================================
+       EDGE FUNCTION ERROR READER
+       ===================================================== */
+
+    function getFunctionErrorMessage(
+        error
+    ) {
+
+        if (!error) {
+            return "Error tidak diketahui.";
+        }
+
+        return (
+            error.message ||
+            "Edge Function gagal."
+        );
+    }
+
+
+    /* =====================================================
+       CHANGE PIN
+       ===================================================== */
+
+    function openChangePin(head) {
+
+        if (!head) {
+            return;
+        }
+
+        if (!head.account_created) {
+
+            alert(
+                "Kepala Keluarga belum memiliki akun WARGA."
+            );
+
+            return;
+        }
+
+        const newPin =
+            prompt(
+                "Masukkan PIN baru 4–6 digit:"
+            );
+
+        if (newPin === null) {
+            return;
+        }
+
+        const pin =
+            newPin.trim();
+
+        if (
+            !/^\d{4,6}$/.test(pin)
+        ) {
+
+            alert(
+                "PIN harus terdiri dari 4–6 digit."
+            );
+
+            return;
+        }
+
+        if (pin === "123456") {
+
+            alert(
+                "PIN baru tidak boleh 123456."
+            );
+
+            return;
+        }
+
+        resetResidentPin(
+            head.id,
+            pin
+        );
+    }
+
+
+    /* =====================================================
+   RESET PIN
+   ===================================================== */
+
+async function resetResidentPin(
+    residentId,
+    newPin
+) {
+
+    try {
+
+        const {
+            data,
+            error
+        } = await state.client
+            .functions
+.invoke(
+    "reset-resident-pin",
+    {
+        body: {
+            resident_id: residentId,
+            pin: newPin
+        }
+    }
+);
+        if (error) {
+            throw error;
+        }
+
+        if (
+            data &&
+            data.success === false
+        ) {
+            throw new Error(
+                data.message ||
+                "PIN gagal diubah."
+            );
+        }
+
+        alert(
+            "PIN WARGA berhasil diubah."
+        );
+
+        await reloadData();
+
+    } catch (error) {
+
+        console.error(
+            "Reset PIN error:",
+            error
+        );
+
+        alert(
+            "Gagal mengubah PIN:\n\n" +
+            (
+                error?.message ||
+                "Terjadi kesalahan."
+            )
+        );
+    }
+}
+    /* =====================================================
+   QR JIMPITAN
+   ===================================================== */
+
+/**
+ * Menampilkan QR Jimpitan Kepala Keluarga.
+ *
+ * PAYLOAD QR:
+ *   residents.resident_code
+ *
+ * Contoh:
+ *   RT001
+ *   RT002
+ *   RT004
+ *
+ * BUKAN:
+ *   residents.id       -> UUID panjang
+ *   residents.qr_token
+ *   households.qr_token
+ */
+async function showQrToken(head) {
+
+    if (!head) {
+        alert(
+            "Data Kepala Keluarga tidak ditemukan."
+        );
+        return;
+    }
+
+    /*
+     * ID Warga untuk QR Jimpitan adalah
+     * resident_code, contoh RT001.
+     */
+    const residentCode =
+        head.resident_code
+            ? String(head.resident_code).trim()
+            : "";
+
+    if (!residentCode) {
+        alert(
+            "ID Warga tidak tersedia.\n\n" +
+            "QR Jimpitan tidak dapat dibuat."
+        );
+        return;
+    }
+
+    /*
+     * Pastikan library QRCode tersedia.
+     */
+    try {
+
+        await loadQrCodeLibrary();
+
+    } catch (error) {
+
+        console.error(
+            "SIDAT QR Jimpitan library error:",
+            error
+        );
+
+        alert(
+            "Library QR Jimpitan gagal dimuat.\n\n" +
+            "Periksa koneksi internet kemudian coba lagi."
+        );
+
+        return;
+    }
+
+    /*
+     * Hapus modal QR lama jika masih ada.
+     */
+    const oldModal =
+        document.getElementById(
+            "sidatQrJimpitanModal"
+        );
+
+    if (oldModal) {
+        oldModal.remove();
+    }
+
+    /*
+     * Buat modal QR Jimpitan.
+     */
+    const modal =
+        document.createElement("div");
+
+    modal.id =
+        "sidatQrJimpitanModal";
+
+    modal.className =
+        "sidat-qr-jimpitan-modal";
+
+    modal.setAttribute(
+        "role",
+        "dialog"
+    );
+
+    modal.setAttribute(
+        "aria-modal",
+        "true"
+    );
+
+    modal.setAttribute(
+        "aria-labelledby",
+        "sidatQrJimpitanTitle"
+    );
+
+    modal.innerHTML = `
+        <div class="sidat-qr-jimpitan-backdrop"></div>
+
+        <div class="sidat-qr-jimpitan-dialog">
+
+            <div class="sidat-qr-jimpitan-header">
+
+                <div>
+                    <h2 id="sidatQrJimpitanTitle">
+                        QR Jimpitan
+                    </h2>
+
+                    <p>
+                        Scan QR untuk transaksi jimpitan
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    class="sidat-qr-jimpitan-close"
+                    id="sidatQrJimpitanClose"
+                    aria-label="Tutup"
+                >
+                    ×
+                </button>
+
+            </div>
+
+            <div class="sidat-qr-jimpitan-body">
+
+                <div
+                    class="sidat-qr-jimpitan-code"
+                    id="sidatQrJimpitanCode"
+                ></div>
+
+                <div class="sidat-qr-jimpitan-info">
+
+                    <div class="sidat-qr-jimpitan-label">
+                        Nama Warga
+                    </div>
+
+                    <div class="sidat-qr-jimpitan-name">
+                        ${escapeHtml(
+                            head.name || "-"
+                        )}
+                    </div>
+
+                    <div class="sidat-qr-jimpitan-label">
+                        ID Warga
+                    </div>
+
+                    <div class="sidat-qr-jimpitan-id">
+                        ${escapeHtml(
+                            residentCode
+                        )}
+                    </div>
+
+                </div>
+
+                <div class="sidat-qr-jimpitan-note">
+                    QR ini menggunakan ID Warga
+                    sebagai identitas transaksi jimpitan.
+                </div>
+
+            </div>
+
+            <div class="sidat-qr-jimpitan-footer">
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    id="sidatQrJimpitanCloseBottom"
+                >
+                    Tutup
                 </button>
 
             </div>
 
         </div>
-
     `;
 
+    document.body.appendChild(modal);
 
-    document.body.appendChild(
-        modal
-    );
+    ensureQrJimpitanStyles();
 
+    requestAnimationFrame(function () {
+        modal.classList.add("active");
+    });
 
-    const pin =
+    const qrContainer =
         document.getElementById(
-            "akunPin"
+            "sidatQrJimpitanCode"
         );
 
-
-    if (pin) {
-
-        pin.focus();
-
-
-        pin.addEventListener(
-            "input",
-            function () {
-
-                this.value =
-                    this.value.replace(
-                        /\D/g,
-                        ""
-                    );
-
-            }
-        );
-
-    }
-
-}
-
-
-// ==========================================
-// TUTUP MODAL BUAT AKUN
-// ==========================================
-
-function tutupModalBuatAkun() {
-
-    const modal =
-        document.getElementById(
-            "modalBuatAkun"
-        );
-
-
-    if (modal) {
-
-        modal.remove();
-
-    }
-
-}
-// ==========================================
-// BUAT AKUN KEPALA KELUARGA
-// ==========================================
-
-async function buatAkunKepalaKK() {
-
-    const residentId =
-        document.getElementById(
-            "akunResidentId"
-        )?.value;
-
-
-    const pinInput =
-        document.getElementById(
-            "akunPin"
-        );
-
-
-    const button =
-        document.getElementById(
-            "btnSimpanAkun"
-        );
-
-
-    const errorBox =
-        document.getElementById(
-            "akunBuatError"
-        );
-
-
-    const pin =
-        pinInput?.value
-            ?.trim() ||
-        "";
-
-
-    if (!residentId) {
-
-        alert(
-            "ID warga tidak ditemukan."
-        );
-
+    if (!qrContainer) {
         return;
-
     }
 
-
-    if (
-        !/^\d{4,6}$/.test(
-            pin
-        )
-    ) {
-
-        if (errorBox) {
-
-            errorBox.textContent =
-                "PIN harus terdiri dari 4 sampai 6 digit.";
-
-            errorBox.classList.remove(
-                "hidden"
-            );
-
-        } else {
-
-            alert(
-                "PIN harus terdiri dari 4 sampai 6 digit."
-            );
-
-        }
-
-        return;
-
-    }
-
-
-    const accessToken =
-        localStorage.getItem(
-            "sidat_access_token"
-        );
-
-
-    if (!accessToken) {
-
-        alert(
-            "Session admin tidak ditemukan. Silakan login kembali."
-        );
-
-        return;
-
-    }
-
-
-    if (button) {
-
-        button.disabled =
-            true;
-
-        button.textContent =
-            "⏳ Membuat Akun...";
-
-    }
-
-
-    if (errorBox) {
-
-        errorBox.classList.add(
-            "hidden"
-        );
-
-        errorBox.textContent =
-            "";
-
-    }
-
-
+    /*
+     * =================================================
+     * PENTING
+     *
+     * Isi QR = resident_code
+     *
+     * Contoh:
+     * RT001
+     *
+     * BUKAN UUID residents.id.
+     * =================================================
+     */
     try {
 
-        const response =
-            await fetch(
-                `${SUPABASE_URL}/functions/v1/create-resident-account`,
-                {
-                    method:
-                        "POST",
+        new QRCode(
+            qrContainer,
+            {
+                text: residentCode,
 
-                    headers: {
+                width: 240,
 
-                        "Authorization":
-                            `Bearer ${accessToken}`,
+                height: 240,
 
+                colorDark: "#111827",
 
-                        "Content-Type":
-                            "application/json"
+                colorLight: "#ffffff",
 
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            resident_id:
-                                residentId,
-
-                            pin:
-                                pin
-
-                        })
-
-                }
-            );
-
-
-        const result =
-            await response.json()
-                .catch(
-                    () => ({})
-                );
-
-
-        if (
-            !response.ok ||
-            !result.success
-        ) {
-
-            throw new Error(
-                result.message ||
-                "Gagal membuat akun warga."
-            );
-
-        }
-
-
-        // ==========================================
-        // BERHASIL
-        // ==========================================
-
-        tutupModalBuatAkun();
-
-
-        alert(
-            "Akun kepala keluarga berhasil dibuat."
+                correctLevel:
+                    QRCode.CorrectLevel.H
+            }
         );
-
-
-        // Muat ulang data warga
-        // agar tombol berubah menjadi
-        // "Akun Aktif"
-
-        await loadDataWarga();
-
 
     } catch (error) {
 
         console.error(
-            "Gagal membuat akun warga:",
+            "SIDAT QR Jimpitan render error:",
             error
         );
 
-
-        if (errorBox) {
-
-            errorBox.textContent =
-                error.message ||
-                "Gagal membuat akun warga.";
-
-            errorBox.classList.remove(
-                "hidden"
-            );
-
-        } else {
-
-            alert(
-                error.message ||
-                "Gagal membuat akun warga."
-            );
-
-        }
-
-
-        if (button) {
-
-            button.disabled =
-                false;
-
-            button.textContent =
-                "🔐 Buat Akun";
-
-        }
-
+        qrContainer.innerHTML = `
+            <div
+                style="
+                    padding:20px;
+                    text-align:center;
+                    color:#dc2626;
+                    font-size:14px;
+                "
+            >
+                QR gagal dibuat.
+            </div>
+        `;
     }
 
-}
+    function closeQrModal() {
 
+        modal.classList.remove(
+            "active"
+        );
 
-// ==========================================
-// GENERATE RESIDENT CODE
-// ==========================================
-
-function generateResidentCode() {
-
-    let terbesar =
-        0;
-
-
-    semuaWarga.forEach(
-        warga => {
-
-            const code =
-                String(
-                    warga.resident_code ||
-                    ""
-                );
-
-
-            const match =
-                code.match(
-                    /^RT(\d+)$/
-                );
-
-
-            if (match) {
-
-                const nomor =
-                    parseInt(
-                        match[1],
-                        10
-                    );
-
+        setTimeout(
+            function () {
 
                 if (
-                    nomor >
-                    terbesar
+                    modal &&
+                    modal.parentNode
                 ) {
-
-                    terbesar =
-                        nomor;
-
+                    modal.remove();
                 }
 
-            }
-
-        }
-    );
-
-
-    return (
-        "RT" +
-        String(
-            terbesar + 1
-        )
-        .padStart(
-            3,
-            "0"
-        )
-    );
-
-}
-
-
-// ==========================================
-// BUKA TAMBAH WARGA
-// ==========================================
-
-function bukaTambahWarga(
-    kkNumber = ""
-) {
-
-    const modal =
-        document.getElementById(
-            "wargaModal"
+            },
+            180
         );
-
-
-    if (!modal) {
-
-        return;
-
     }
-
-
-    wargaTerpilih =
-        null;
-
-
-    resetFormWarga();
-
-
-    const radioManual =
-        document.querySelector(
-            'input[name="sumberData"][value="manual"]'
-        );
-
-
-    if (radioManual) {
-
-        radioManual.checked =
-            true;
-
-    }
-
-
-    ubahSumberData(
-        "manual"
-    );
-
-
-    isiPilihanKK(
-        kkNumber
-    );
-
-
-    modal.classList.remove(
-        "hidden"
-    );
-
-}
-
-
-// ==========================================
-// TAMBAH ANGGOTA DARI KK
-// ==========================================
-
-function tambahAnggotaDariKK() {
-
-    if (!kkTerpilih) {
-
-        return;
-
-    }
-
-
-    tutupDetailKK();
-
-
-    bukaTambahWarga(
-        kkTerpilih.kk_number
-    );
-
-
-    const status =
-        document.getElementById(
-            "wargaFamilyStatus"
-        );
-
-
-    if (status) {
-
-        status.value =
-            "Anggota Keluarga";
-
-    }
-
-
-    ubahStatusKeluarga();
-
-}
-
-
-// ==========================================
-// RESET FORM WARGA
-// ==========================================
-
-function resetFormWarga() {
-
-    const ids = [
-
-        "wargaNama",
-
-        "wargaNik",
-
-        "wargaPhone",
-
-        "wargaBirthPlace",
-
-        "wargaBirthDate",
-
-        "wargaGender",
-
-        "wargaFamilyStatus",
-
-        "wargaKK",
-
-        "wargaKKManual",
-
-        "wargaAddress",
-
-        "selectedResidentId",
-
-        "existingResidentSearch"
-
-    ];
-
-
-    ids.forEach(
-        id => {
-
-            const element =
-                document.getElementById(
-                    id
-                );
-
-
-            if (element) {
-
-                element.value =
-                    "";
-
-            }
-
-        }
-    );
-
-
-    const error =
-        document.getElementById(
-            "wargaFormError"
-        );
-
-
-    if (error) {
-
-        error.textContent =
-            "";
-
-        error.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    const existingList =
-        document.getElementById(
-            "existingResidentList"
-        );
-
-
-    if (existingList) {
-
-        existingList.innerHTML =
-            "";
-
-    }
-
-
-    const manualSection =
-        document.getElementById(
-            "manualResidentSection"
-        );
-
-
-    if (manualSection) {
-
-        manualSection.classList.remove(
-            "hidden"
-        );
-
-    }
-
-
-    const existingSection =
-        document.getElementById(
-            "existingResidentSection"
-        );
-
-
-    if (existingSection) {
-
-        existingSection.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    const manualKK =
-        document.getElementById(
-            "kkManualSection"
-        );
-
-
-    if (manualKK) {
-
-        manualKK.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    const selectKK =
-        document.getElementById(
-            "kkSelectSection"
-        );
-
-
-    if (selectKK) {
-
-        selectKK.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    const accountInfo =
-        document.getElementById(
-            "accountInfo"
-        );
-
-
-    if (accountInfo) {
-
-        accountInfo.classList.remove(
-            "hidden"
-        );
-
-    }
-
-}
-
-
-// ==========================================
-// UBAH SUMBER DATA
-// ==========================================
-
-function ubahSumberData(
-    sumber
-) {
-
-    const manual =
-        document.getElementById(
-            "manualResidentSection"
-        );
-
-    const existing =
-        document.getElementById(
-            "existingResidentSection"
-        );
-
-
-    if (
-        sumber ===
-        "existing"
-    ) {
-
-        if (manual) {
-
-            manual.classList.add(
-                "hidden"
-            );
-
-        }
-
-
-        if (existing) {
-
-            existing.classList.remove(
-                "hidden"
-            );
-
-        }
-
-
-        tampilkanPilihanWarga();
-
-    } else {
-
-        if (manual) {
-
-            manual.classList.remove(
-                "hidden"
-            );
-
-        }
-
-
-        if (existing) {
-
-            existing.classList.add(
-                "hidden"
-            );
-
-        }
-
-    }
-
-}
-
-
-// ==========================================
-// TAMPILKAN PILIHAN WARGA
-// ==========================================
-
-function tampilkanPilihanWarga(
-    keyword = ""
-) {
-
-    const list =
-        document.getElementById(
-            "existingResidentList"
-        );
-
-
-    if (!list) {
-
-        return;
-
-    }
-
-
-    const kata =
-        String(
-            keyword
-        )
-        .trim()
-        .toLowerCase();
-
-
-    let data =
-        semuaWarga.filter(
-            warga =>
-                warga.is_active !== false
-        );
-
-
-    if (kata) {
-
-        data =
-            data.filter(
-                warga => {
-
-                    const nama =
-                        String(
-                            warga.name ||
-                            ""
-                        )
-                        .toLowerCase();
-
-
-                    const id =
-                        String(
-                            warga.resident_code ||
-                            ""
-                        )
-                        .toLowerCase();
-
-
-                    const nik =
-                        String(
-                            warga.nik ||
-                            ""
-                        )
-                        .toLowerCase();
-
-
-                    return (
-
-                        nama.includes(
-                            kata
-                        )
-
-                        ||
-
-                        id.includes(
-                            kata
-                        )
-
-                        ||
-
-                        nik.includes(
-                            kata
-                        )
-
-                    );
-
-                }
-            );
-
-    }
-
-
-    list.innerHTML =
-        "";
-
-
-    if (
-        data.length ===
-        0
-    ) {
-
-        list.innerHTML = `
-
-            <div class="empty-state">
-
-                <strong>
-                    Warga tidak ditemukan
-                </strong>
-
-                <span>
-                    Coba gunakan nama, NIK, atau ID.
-                </span>
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    data.forEach(
-        warga => {
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-
-            card.className =
-                "existing-resident-card";
-
-
-            const sudahPunyaKK =
-                !!warga.kk_number;
-
-
-            card.innerHTML = `
-
-                <div
-                    class="existing-resident-info"
-                >
-
-                    <strong>
-                        ${escapeHtml(
-                            warga.name ||
-                            "Tanpa Nama"
-                        )}
-                    </strong>
-
-                    <span>
-                        ID:
-                        ${escapeHtml(
-                            warga.resident_code ||
-                            "-"
-                        )}
-                    </span>
-
-                    <span>
-                        ${
-                            sudahPunyaKK
-                                ? `KK: ${escapeHtml(
-                                    warga.kk_number
-                                )}`
-                                : "Belum masuk KK"
-                        }
-                    </span>
-
-                </div>
-
-
-                <button
-                    type="button"
-                    onclick="pilihWargaExisting(
-                        '${escapeAttribute(
-                            warga.id
-                        )}'
-                    )"
-                >
-                    Pilih
-                </button>
-
-            `;
-
-
-            list.appendChild(
-                card
-            );
-
-        }
-    );
-
-}
-
-// ==========================================
-// SEARCH EXISTING RESIDENT
-// ==========================================
-
-const existingSearch =
-    document.getElementById(
-        "existingResidentSearch"
-    );
-
-
-if (existingSearch) {
-
-    existingSearch.addEventListener(
-        "input",
-        function () {
-
-            tampilkanPilihanWarga(
-                this.value
-            );
-
-        }
-    );
-
-}
-
-
-// ==========================================
-// PILIH WARGA EXISTING
-// ==========================================
-
-function pilihWargaExisting(
-    id
-) {
-
-    const warga =
-        semuaWarga.find(
-            item =>
-                item.id ===
-                id
-        );
-
-
-    if (!warga) {
-
-        alert(
-            "Data warga tidak ditemukan."
-        );
-
-        return;
-
-    }
-
-
-    document.getElementById(
-        "selectedResidentId"
-    ).value =
-        warga.id;
-
-
-    const nama =
-        document.getElementById(
-            "wargaNama"
-        );
-
-
-    const nik =
-        document.getElementById(
-            "wargaNik"
-        );
-
-
-    const phone =
-        document.getElementById(
-            "wargaPhone"
-        );
-
-
-    const birthPlace =
-        document.getElementById(
-            "wargaBirthPlace"
-        );
-
-
-    const birthDate =
-        document.getElementById(
-            "wargaBirthDate"
-        );
-
-
-    const gender =
-        document.getElementById(
-            "wargaGender"
-        );
-
-
-    const address =
-        document.getElementById(
-            "wargaAddress"
-        );
-
-
-    if (nama) {
-
-        nama.value =
-            warga.name || "";
-
-    }
-
-
-    if (nik) {
-
-        nik.value =
-            warga.nik || "";
-
-    }
-
-
-    if (phone) {
-
-        phone.value =
-            warga.phone || "";
-
-    }
-
-
-    if (birthPlace) {
-
-        birthPlace.value =
-            warga.birth_place || "";
-
-    }
-
-
-    if (birthDate) {
-
-        birthDate.value =
-            warga.birth_date || "";
-
-    }
-
-
-    if (gender) {
-
-        gender.value =
-            warga.gender || "";
-
-    }
-
-
-    if (address) {
-
-        address.value =
-            warga.address || "";
-
-    }
-
-
-    const search =
-        document.getElementById(
-            "existingResidentSearch"
-        );
-
-
-    if (search) {
-
-        search.value =
-            warga.name || "";
-
-    }
-
-
-    alert(
-        `${warga.name} dipilih.`
-    );
-
-}
-
-
-// ==========================================
-// ISI PILIHAN KK
-// ==========================================
-
-function isiPilihanKK(
-    selectedKK = ""
-) {
-
-    const select =
-        document.getElementById(
-            "wargaKK"
-        );
-
-
-    if (!select) {
-
-        return;
-
-    }
-
-
-    select.innerHTML = `
-
-        <option value="">
-            Pilih KK
-        </option>
-
-    `;
-
-
-    semuaKK.forEach(
-        kk => {
-
-            const kepala =
-                getKepalaKK(
-                    kk
-                );
-
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-
-            option.value =
-                kk.kk_number;
-
-
-            option.textContent =
-                kepala
-
-                    ? `${kk.kk_number} - ${kepala.name}`
-
-                    : `${kk.kk_number} - Tanpa Kepala`;
-
-
-            select.appendChild(
-                option
-            );
-
-        }
-    );
-
-
-    select.value =
-        selectedKK || "";
-
-}
-
-
-// ==========================================
-// UBAH STATUS KELUARGA
-// ==========================================
-
-function ubahStatusKeluarga() {
-
-    const status =
-        document.getElementById(
-            "wargaFamilyStatus"
-        )?.value;
-
-
-    const manualKK =
-        document.getElementById(
-            "kkManualSection"
-        );
-
-
-    const selectKK =
-        document.getElementById(
-            "kkSelectSection"
-        );
-
-
-    if (
-        status ===
-        "Kepala Keluarga"
-    ) {
-
-        if (manualKK) {
-
-            manualKK.classList.remove(
-                "hidden"
-            );
-
-        }
-
-
-        if (selectKK) {
-
-            selectKK.classList.add(
-                "hidden"
-            );
-
-        }
-
-    } else {
-
-        if (manualKK) {
-
-            manualKK.classList.add(
-                "hidden"
-            );
-
-        }
-
-
-        if (selectKK) {
-
-            selectKK.classList.remove(
-                "hidden"
-            );
-
-        }
-
-    }
-
-}
-// ==========================================
-// TUTUP MODAL WARGA
-// ==========================================
-
-function tutupWargaModal() {
 
     document
         .getElementById(
-            "wargaModal"
+            "sidatQrJimpitanClose"
         )
-        ?.classList.add(
-            "hidden"
+        ?.addEventListener(
+            "click",
+            closeQrModal
         );
 
+    document
+        .getElementById(
+            "sidatQrJimpitanCloseBottom"
+        )
+        ?.addEventListener(
+            "click",
+            closeQrModal
+        );
+
+    const backdrop =
+        modal.querySelector(
+            ".sidat-qr-jimpitan-backdrop"
+        );
+
+    backdrop?.addEventListener(
+        "click",
+        closeQrModal
+    );
+
+    function handleQrEscape(event) {
+
+        if (
+            event.key === "Escape"
+        ) {
+
+            closeQrModal();
+
+            document.removeEventListener(
+                "keydown",
+                handleQrEscape
+            );
+        }
+    }
+
+    document.addEventListener(
+        "keydown",
+        handleQrEscape
+    );
 }
 
 
-// ==========================================
-// SIMPAN FORM WARGA
-// ==========================================
+/* =====================================================
+   LOAD QR CODE LIBRARY
+   ===================================================== */
 
-async function simpanFormWarga() {
+function loadQrCodeLibrary() {
 
-    const errorBox =
-        document.getElementById(
-            "wargaFormError"
-        );
-
-
-    const button =
-        document.getElementById(
-            "btnSimpanWarga"
-        );
-
-
-    function tampilkanError(
-        message
+    if (
+        typeof window.QRCode !==
+        "undefined"
     ) {
-
-        if (errorBox) {
-
-            errorBox.textContent =
-                message;
-
-            errorBox.classList.remove(
-                "hidden"
-            );
-
-        }
-
+        return Promise.resolve();
     }
 
+    if (
+        window.__SIDAT_QR_LIBRARY_PROMISE__
+    ) {
+        return window
+            .__SIDAT_QR_LIBRARY_PROMISE__;
+    }
 
-    if (errorBox) {
+    window.__SIDAT_QR_LIBRARY_PROMISE__ =
+        new Promise(
+            function (
+                resolve,
+                reject
+            ) {
 
-        errorBox.textContent =
+                const existingScript =
+                    document.querySelector(
+                        'script[data-sidat-qrcode="true"]'
+                    );
+
+                if (existingScript) {
+
+                    existingScript.addEventListener(
+                        "load",
+                        function () {
+
+                            if (
+                                typeof window.QRCode !==
+                                "undefined"
+                            ) {
+
+                                resolve();
+
+                            } else {
+
+                                reject(
+                                    new Error(
+                                        "QRCode library tidak tersedia."
+                                    )
+                                );
+                            }
+
+                        },
+                        {
+                            once: true
+                        }
+                    );
+
+                    existingScript.addEventListener(
+                        "error",
+                        function () {
+
+                            reject(
+                                new Error(
+                                    "QRCode library gagal dimuat."
+                                )
+                            );
+
+                        },
+                        {
+                            once: true
+                        }
+                    );
+
+                    return;
+                }
+
+                const script =
+                    document.createElement(
+                        "script"
+                    );
+
+                script.src =
+                    "https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js";
+
+                script.async = true;
+
+                script.dataset.sidatQrcode =
+                    "true";
+
+                script.onload =
+                    function () {
+
+                        if (
+                            typeof window.QRCode !==
+                            "undefined"
+                        ) {
+
+                            resolve();
+
+                        } else {
+
+                            reject(
+                                new Error(
+                                    "QRCode library berhasil dimuat tetapi objek QRCode tidak tersedia."
+                                )
+                            );
+                        }
+                    };
+
+                script.onerror =
+                    function () {
+
+                        reject(
+                            new Error(
+                                "Gagal memuat QRCode library."
+                            )
+                        );
+                    };
+
+                document.head.appendChild(
+                    script
+                );
+            }
+        );
+
+    return window
+        .__SIDAT_QR_LIBRARY_PROMISE__;
+}
+
+
+/* =====================================================
+   QR JIMPITAN STYLE
+   ===================================================== */
+
+function ensureQrJimpitanStyles() {
+
+    if (
+        document.getElementById(
+            "sidatQrJimpitanStyles"
+        )
+    ) {
+        return;
+    }
+
+    const style =
+        document.createElement(
+            "style"
+        );
+
+    style.id =
+        "sidatQrJimpitanStyles";
+
+    style.textContent = `
+        .sidat-qr-jimpitan-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding:
+                max(16px, env(safe-area-inset-top))
+                16px
+                max(16px, env(safe-area-inset-bottom))
+                16px;
+            box-sizing: border-box;
+            opacity: 0;
+            visibility: hidden;
+            transition:
+                opacity .18s ease,
+                visibility .18s ease;
+        }
+
+        .sidat-qr-jimpitan-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidat-qr-jimpitan-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(
+                15,
+                23,
+                42,
+                .62
+            );
+            backdrop-filter: blur(3px);
+        }
+
+        .sidat-qr-jimpitan-dialog {
+            position: relative;
+            z-index: 1;
+            width: min(
+                100%,
+                390px
+            );
+            max-height: calc(
+                100vh - 32px
+            );
+            overflow-y: auto;
+            background: #ffffff;
+            border-radius: 22px;
+            box-shadow:
+                0 24px 70px
+                rgba(
+                    15,
+                    23,
+                    42,
+                    .28
+                );
+            transform:
+                translateY(14px)
+                scale(.97);
+            transition:
+                transform .18s ease;
+        }
+
+        .sidat-qr-jimpitan-modal.active
+        .sidat-qr-jimpitan-dialog {
+            transform:
+                translateY(0)
+                scale(1);
+        }
+
+        .sidat-qr-jimpitan-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 17px 17px 14px;
+            background:
+                linear-gradient(
+                    135deg,
+                    #15803d,
+                    #166534
+                );
+            color: #ffffff;
+        }
+
+        .sidat-qr-jimpitan-header > div:first-child {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .sidat-qr-jimpitan-header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .sidat-qr-jimpitan-header p {
+            margin: 4px 0 0;
+            font-size: 11px;
+            line-height: 1.4;
+            opacity: .88;
+        }
+
+        .sidat-qr-jimpitan-close {
+            width: 38px;
+            height: 38px;
+            flex: 0 0 38px;
+            border: 0;
+            border-radius: 12px;
+            background: rgba(
+                255,
+                255,
+                255,
+                .16
+            );
+            color: #ffffff;
+            font-size: 28px;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidat-qr-jimpitan-body {
+            padding: 20px 18px 16px;
+            text-align: center;
+        }
+
+        .sidat-qr-jimpitan-code {
+            width: 260px;
+            height: 260px;
+            max-width: 100%;
+            margin: 0 auto 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            box-sizing: border-box;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+        }
+
+        .sidat-qr-jimpitan-code img {
+            display: block;
+            width: 240px;
+            height: 240px;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .sidat-qr-jimpitan-code canvas {
+            display: block;
+            width: 240px;
+            height: 240px;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .sidat-qr-jimpitan-info {
+            padding: 13px 14px;
+            border-radius: 15px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            text-align: left;
+        }
+
+        .sidat-qr-jimpitan-label {
+            margin-top: 7px;
+            color: #64748b;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .sidat-qr-jimpitan-label:first-child {
+            margin-top: 0;
+        }
+
+        .sidat-qr-jimpitan-name {
+            margin-top: 3px;
+            color: #172033;
+            font-size: 15px;
+            font-weight: 800;
+            line-height: 1.35;
+        }
+
+        .sidat-qr-jimpitan-id {
+            margin-top: 3px;
+            color: #166534;
+            font-family:
+                ui-monospace,
+                SFMono-Regular,
+                Menlo,
+                Monaco,
+                Consolas,
+                monospace;
+            font-size: 11px;
+            font-weight: 700;
+            word-break: break-all;
+        }
+
+        .sidat-qr-jimpitan-note {
+            margin-top: 12px;
+            color: #64748b;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .sidat-qr-jimpitan-footer {
+            display: flex;
+            justify-content: center;
+            padding: 0 18px 18px;
+        }
+
+        .sidat-qr-jimpitan-footer button {
+            width: 100%;
+            min-height: 44px;
+        }
+
+        @media (max-width: 380px) {
+
+            .sidat-qr-jimpitan-dialog {
+                border-radius: 18px;
+            }
+
+            .sidat-qr-jimpitan-code {
+                width: 235px;
+                height: 235px;
+            }
+
+            .sidat-qr-jimpitan-code img,
+            .sidat-qr-jimpitan-code canvas {
+                width: 215px;
+                height: 215px;
+            }
+        }
+    `;
+
+    document.head.appendChild(
+        style
+    );
+}
+
+
+    /* =====================================================
+       MOVE RESIDENT
+       ===================================================== */
+
+    function openMoveResident(id) {
+
+        const resident =
+            state.residents.find(
+                function (item) {
+
+                    return item.id === id;
+                }
+            );
+
+        if (!resident) {
+            return;
+        }
+
+        const currentKK =
+            resident.kk_number ||
             "";
 
-        errorBox.classList.add(
-            "hidden"
-        );
+        const newKK =
+            prompt(
+                "Masukkan nomor KK tujuan:",
+                currentKK
+            );
 
-    }
+        if (newKK === null) {
+            return;
+        }
 
+        const kk =
+            newKK.trim();
 
-    const nama =
-        document.getElementById(
-            "wargaNama"
-        )
-        ?.value
-        .trim();
+        if (!kk) {
 
-
-    const gender =
-        document.getElementById(
-            "wargaGender"
-        )?.value;
-
-
-    const familyStatus =
-        document.getElementById(
-            "wargaFamilyStatus"
-        )?.value;
-
-
-    const selectedResidentId =
-        document.getElementById(
-            "selectedResidentId"
-        )?.value;
-
-
-    const nomorKK =
-        document.getElementById(
-            "wargaKK"
-        )?.value;
-
-
-    const nomorKKBaru =
-        document.getElementById(
-            "wargaKKManual"
-        )?.value
-        .trim();
-
-
-    const sumber =
-        document.querySelector(
-            'input[name="sumberData"]:checked'
-        )?.value
-        ||
-        "manual";
-
-
-    if (!nama) {
-
-        tampilkanError(
-            "Nama lengkap wajib diisi."
-        );
-
-        return;
-
-    }
-
-
-    if (
-        gender !== "L" &&
-        gender !== "P"
-    ) {
-
-        tampilkanError(
-            "Jenis kelamin wajib dipilih."
-        );
-
-        return;
-
-    }
-
-
-    if (!familyStatus) {
-
-        tampilkanError(
-            "Status dalam keluarga wajib dipilih."
-        );
-
-        return;
-
-    }
-
-
-    if (
-        familyStatus ===
-        "Kepala Keluarga"
-    ) {
-
-        if (!nomorKKBaru) {
-
-            tampilkanError(
-                "Nomor KK baru wajib diisi untuk Kepala Keluarga."
+            alert(
+                "Nomor KK tujuan wajib diisi."
             );
 
             return;
-
         }
-
 
         if (
-            !/^\d{16}$/.test(
-                nomorKKBaru
-            )
+            kk === currentKK
         ) {
 
-            tampilkanError(
-                "Nomor KK harus terdiri dari 16 digit."
+            alert(
+                "Warga sudah berada pada KK tersebut."
             );
 
             return;
-
         }
 
-
-        const sudahAda =
-            semuaKK.some(
-                kk =>
-                    String(
-                        kk.kk_number
-                    )
-                    .trim()
-                    ===
-                    nomorKKBaru
-            );
-
-
-        if (sudahAda) {
-
-            tampilkanError(
-                "Nomor KK tersebut sudah terdaftar."
-            );
-
-            return;
-
-        }
-
-    } else {
-
-        if (!nomorKK) {
-
-            tampilkanError(
-                "Silakan pilih KK yang sudah terdaftar."
-            );
-
-            return;
-
-        }
-
+        moveResident(
+            resident,
+            kk
+        );
     }
 
 
-    if (
-        sumber ===
-        "existing" &&
-        !selectedResidentId
+    /* =====================================================
+       MOVE PROCESS
+       ===================================================== */
+
+    async function moveResident(
+        resident,
+        newKK
     ) {
 
-        tampilkanError(
-            "Silakan pilih warga yang sudah ada."
-        );
+        try {
 
-        return;
+            const {
+                data: targetHousehold,
+                error: householdError
+            } = await state.client
+                .from("households")
+                .select("*")
+                .eq(
+                    "kk_number",
+                    newKK
+                )
+                .maybeSingle();
 
+            if (householdError) {
+                throw householdError;
+            }
+
+            if (!targetHousehold) {
+
+                alert(
+                    "KK tujuan belum terdaftar."
+                );
+
+                return;
+            }
+
+            const {
+                error
+            } = await state.client
+                .from("residents")
+                .update({
+                    kk_number:
+                        newKK,
+
+                    address:
+                        targetHousehold.address ||
+                        resident.address ||
+                        null
+                })
+                .eq(
+                    "id",
+                    resident.id
+                );
+
+            if (error) {
+                throw error;
+            }
+
+            alert(
+                "Warga berhasil dipindahkan."
+            );
+
+            await reloadData();
+
+        } catch (error) {
+
+            console.error(
+                "Move resident error:",
+                error
+            );
+
+            alert(
+                "Gagal memindahkan warga:\n\n" +
+                (
+                    error?.message ||
+                    "Terjadi kesalahan."
+                )
+            );
+        }
     }
 
 
-    if (button) {
+    /* =====================================================
+       DELETE RESIDENT
+       ===================================================== */
 
-        button.disabled =
-            true;
+    async function deleteResident(id) {
 
-        button.textContent =
-            "Menyimpan...";
+        const resident =
+            state.residents.find(
+                function (item) {
 
-    }
+                    return item.id === id;
+                }
+            );
 
-
-    try {
-
-        let residentId =
-            selectedResidentId ||
-            null;
-
-
-        // ==================================
-        // JIKA WARGA BARU
-        // ==================================
-
-        if (!residentId) {
-
-            residentId =
-                await buatWargaBaru();
-
+        if (!resident) {
+            return;
         }
 
+        if (
+            resident.family_status ===
+            "Kepala Keluarga"
+        ) {
 
-        // ==================================
-        // UPDATE DATA WARGA
-        // ==================================
+            alert(
+                "Kepala Keluarga tidak dapat dihapus dari menu anggota."
+            );
 
-        await updateDataWarga(
-            residentId
+            return;
+        }
+
+        const confirmed =
+            confirm(
+                "Hapus warga berikut?\n\n" +
+                resident.name +
+                "\n\n" +
+                "Tindakan ini tidak dapat dibatalkan."
+            );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+
+            const {
+                error
+            } = await state.client
+                .from("residents")
+                .update({
+                    is_active:
+                        false
+                })
+                .eq(
+                    "id",
+                    id
+                );
+
+            if (error) {
+                throw error;
+            }
+
+            alert(
+                "Data warga berhasil dihapus."
+            );
+
+            await reloadData();
+
+            if (
+                state.familyHead
+            ) {
+
+                const head =
+                    state.residents.find(
+                        function (item) {
+
+                            return (
+                                item.id ===
+                                state.familyHead.id
+                            );
+                        }
+                    );
+
+                if (head) {
+
+                    openFamily(
+                        head.id
+                    );
+                }
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Delete resident error:",
+                error
+            );
+
+            alert(
+                "Gagal menghapus warga:\n\n" +
+                (
+                    error?.message ||
+                    "Terjadi kesalahan."
+                )
+            );
+        }
+    }
+
+
+    /* =====================================================
+       IMPORT EXCEL
+       ===================================================== */
+
+    function chooseExcel() {
+
+        const input =
+            $("excelFile");
+
+        if (!input) {
+            return;
+        }
+
+        input.click();
+    }
+
+
+    async function handleExcelFile(
+        event
+    ) {
+
+        const file =
+            event.target.files &&
+            event.target.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        updateSelectedFileInfo(
+            file
         );
 
+        try {
 
-        // ==================================
-        // JIKA KEPALA KELUARGA
-        // BUAT HOUSEHOLD
-        // ==================================
+            await loadXlsxLibrary();
+
+            const rows =
+                await readExcelFile(
+                    file
+                );
+
+            state.importRows =
+                rows;
+
+            state.importValidated =
+                false;
+
+            state.importResult =
+                null;
+
+            renderImportPreview();
+
+        } catch (error) {
+
+            console.error(
+                "Excel read error:",
+                error
+            );
+
+            alert(
+                "Gagal membaca file Excel:\n\n" +
+                (
+                    error?.message ||
+                    "Format file tidak dapat dibaca."
+                )
+            );
+        }
+    }
+
+
+    /* =====================================================
+       XLSX LOADER
+       ===================================================== */
+
+    function loadXlsxLibrary() {
+
+        if (window.XLSX) {
+            return Promise.resolve();
+        }
+
+        return new Promise(
+            function (
+                resolve,
+                reject
+            ) {
+
+                const script =
+                    document.createElement(
+                        "script"
+                    );
+
+                script.src =
+                    "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";
+
+                script.onload =
+                    function () {
+
+                        resolve();
+                    };
+
+                script.onerror =
+                    function () {
+
+                        reject(
+                            new Error(
+                                "Library Excel XLSX gagal dimuat."
+                            )
+                        );
+                    };
+
+                document.head.appendChild(
+                    script
+                );
+            }
+        );
+    }
+
+
+    /* =====================================================
+       READ EXCEL
+       ===================================================== */
+
+    function readExcelFile(
+        file
+    ) {
+
+        return new Promise(
+            function (
+                resolve,
+                reject
+            ) {
+
+                const reader =
+                    new FileReader();
+
+                reader.onload =
+                    function (event) {
+
+                        try {
+
+                            const workbook =
+                                XLSX.read(
+                                    event.target.result,
+                                    {
+                                        type:
+                                            "array"
+                                    }
+                                );
+
+                            const firstSheet =
+                                workbook.Sheets[
+                                    workbook.SheetNames[0]
+                                ];
+
+                            const rows =
+                                XLSX.utils.sheet_to_json(
+                                    firstSheet,
+                                    {
+                                        defval:
+                                            ""
+                                    }
+                                );
+
+                            resolve(
+                                rows
+                            );
+
+                        } catch (error) {
+
+                            reject(
+                                error
+                            );
+                        }
+                    };
+
+                reader.onerror =
+                    function () {
+
+                        reject(
+                            new Error(
+                                "File tidak dapat dibaca."
+                            )
+                        );
+                    };
+
+                reader.readAsArrayBuffer(
+                    file
+                );
+            }
+        );
+    }
+
+
+    /* =====================================================
+       IMPORT PREVIEW
+       FIX:
+       #previewTable adalah <tbody>
+       sehingga hanya boleh berisi <tr>.
+       ===================================================== */
+
+    function renderImportPreview() {
+
+        const rows =
+            state.importRows || [];
+
+        const total =
+            rows.length;
+
+        if ($("previewTotal")) {
+
+            $("previewTotal")
+                .textContent =
+                total;
+        }
+
+        if ($("previewNew")) {
+
+            $("previewNew")
+                .textContent =
+                total;
+        }
+
+        if ($("previewUpdate")) {
+
+            $("previewUpdate")
+                .textContent =
+                0;
+        }
+
+        const tableBody =
+            $("previewTable");
+
+        if (!tableBody) {
+            return;
+        }
+
+        if (!rows.length) {
+
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5">
+                        Tidak ada data pada file.
+                    </td>
+                </tr>
+            `;
+
+            showImportStep(
+                "preview"
+            );
+
+            return;
+        }
+
+        const columns =
+            Object.keys(
+                rows[0]
+            );
+
+        /*
+         * Gunakan kolom penting jika tersedia.
+         * Jika tidak, gunakan seluruh kolom.
+         */
+
+        const preferredColumns = [
+            "Nama",
+            "nama",
+            "NIK",
+            "nik",
+            "Nomor KK",
+            "KK",
+            "kk",
+            "Status Keluarga",
+            "family_status",
+            "Status",
+            "status"
+        ];
+
+        const selectedColumns =
+            [];
+
+        preferredColumns.forEach(
+            function (column) {
+
+                if (
+                    columns.includes(column) &&
+                    !selectedColumns.includes(column)
+                ) {
+
+                    selectedColumns.push(
+                        column
+                    );
+                }
+            }
+        );
+
+        /*
+         * Jika kolom standar tidak lengkap,
+         * tetap tampilkan maksimal 8 kolom
+         * dari file.
+         */
+
+        if (
+            selectedColumns.length <
+            3
+        ) {
+
+            selectedColumns.length =
+                0;
+
+            columns
+                .slice(
+                    0,
+                    8
+                )
+                .forEach(
+                    function (column) {
+
+                        selectedColumns.push(
+                            column
+                        );
+                    }
+                );
+        }
+
+        /*
+         * Header mengikuti data file.
+         */
+
+        const header =
+            selectedColumns
+                .map(
+                    function (column) {
+
+                        return `
+                            <th>
+                                ${escapeHtml(
+                                    column
+                                )}
+                            </th>
+                        `;
+                    }
+                )
+                .join("");
+
+        /*
+         * Isi preview.
+         * Tidak lagi membuat <div>/<table>
+         * di dalam tbody.
+         */
+
+        const body =
+            rows
+                .slice(
+                    0,
+                    100
+                )
+                .map(
+                    function (
+                        row,
+                        index
+                    ) {
+
+                        return `
+                            <tr>
+
+                                <td>
+                                    ${index + 1}
+                                </td>
+
+                                ${selectedColumns
+                                    .map(
+                                        function (
+                                            column
+                                        ) {
+
+                                            return `
+                                                <td>
+                                                    ${escapeHtml(
+                                                        row[
+                                                            column
+                                                        ]
+                                                    )}
+                                                </td>
+                                            `;
+                                        }
+                                    )
+                                    .join("")}
+
+                            </tr>
+                        `;
+                    }
+                )
+                .join("");
+
+        /*
+         * Karena HTML awal sudah menyediakan
+         * <table> + <thead> + <tbody id="previewTable">,
+         * kita perlu mengisi struktur tabel
+         * secara aman.
+         */
+
+        const table =
+            tableBody.closest(
+                "table"
+            );
+
+        if (table) {
+
+            const thead =
+                table.querySelector(
+                    "thead"
+                );
+
+            if (thead) {
+
+                thead.innerHTML = `
+                    <tr>
+                        <th>No</th>
+                        ${header}
+                    </tr>
+                `;
+            }
+        }
+
+        tableBody.innerHTML =
+            body;
+
+        showImportStep(
+            "preview"
+        );
+    }
+
+
+    /* =====================================================
+       VALIDATE IMPORT
+       ===================================================== */
+
+    async function validateImport() {
+
+        const rows =
+            state.importRows || [];
+
+        if (!rows.length) {
+
+            alert(
+                "Tidak ada data untuk divalidasi."
+            );
+
+            return;
+        }
+
+        const results =
+            [];
+
+        const existingNik =
+            new Set(
+                state.residents
+                    .filter(
+                        function (item) {
+
+                            return !!item.nik;
+                        }
+                    )
+                    .map(
+                        function (item) {
+
+                            return String(
+                                item.nik
+                            ).trim();
+                        }
+                    )
+            );
+
+        const existingKK =
+            new Set(
+                state.households
+                    .filter(
+                        function (item) {
+
+                            return !!item.kk_number;
+                        }
+                    )
+                    .map(
+                        function (item) {
+
+                            return String(
+                                item.kk_number
+                            ).trim();
+                        }
+                    )
+            );
+
+        const nikInFile =
+            new Map();
+
+        rows.forEach(
+            function (
+                row,
+                index
+            ) {
+
+                const name =
+                    normalizeImportValue(
+                        row.Nama ||
+                        row.nama ||
+                        row.NAME ||
+                        row["Nama Warga"]
+                    );
+
+                const nik =
+                    normalizeImportValue(
+                        row.NIK ||
+                        row.nik
+                    );
+
+                const kk =
+                    normalizeImportValue(
+                        row.KK ||
+                        row.kk ||
+                        row["Nomor KK"] ||
+                        row["KK Number"]
+                    );
+
+                const status =
+                    normalizeImportValue(
+                        row["Status Keluarga"] ||
+                        row.family_status ||
+                        row.Status ||
+                        row.status
+                    ) ||
+                    "Anggota Keluarga";
+
+                const errors =
+                    [];
+
+                if (!name) {
+
+                    errors.push(
+                        "Nama kosong"
+                    );
+                }
+
+                if (
+                    nik &&
+                    !/^\d{16}$/.test(nik)
+                ) {
+
+                    errors.push(
+                        "NIK harus 16 digit"
+                    );
+                }
+
+                if (
+                    kk &&
+                    !/^\d{16}$/.test(kk)
+                ) {
+
+                    errors.push(
+                        "Nomor KK harus 16 digit"
+                    );
+                }
+
+                if (
+                    status ===
+                    "Kepala Keluarga" &&
+                    !kk
+                ) {
+
+                    errors.push(
+                        "Nomor KK kosong"
+                    );
+                }
+
+                if (nik) {
+
+                    if (
+                        nikInFile.has(
+                            nik
+                        )
+                    ) {
+
+                        errors.push(
+                            "NIK duplikat di file"
+                        );
+
+                    } else {
+
+                        nikInFile.set(
+                            nik,
+                            index
+                        );
+                    }
+                }
+
+                let action =
+                    "new";
+
+                if (
+                    nik &&
+                    existingNik.has(
+                        nik
+                    )
+                ) {
+
+                    action =
+                        "update";
+                }
+
+                if (
+                    status ===
+                    "Kepala Keluarga" &&
+                    kk &&
+                    existingKK.has(
+                        kk
+                    )
+                ) {
+
+                    action =
+                        "update";
+                }
+
+                results.push({
+                    row:
+                        index + 2,
+
+                    name:
+                        name,
+
+                    nik:
+                        nik,
+
+                    kk:
+                        kk,
+
+                    status:
+                        status,
+
+                    action:
+                        action,
+
+                    errors:
+                        errors,
+
+                    valid:
+                        errors.length === 0
+                });
+            }
+        );
+
+        state.importResult =
+            results;
+
+        state.importValidated =
+            true;
+
+        renderValidationResults();
+
+        showImportStep(
+            "validation"
+        );
+    }
+
+
+    /* =====================================================
+       NORMALIZE IMPORT VALUE
+       ===================================================== */
+
+    function normalizeImportValue(
+        value
+    ) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return "";
+        }
+
+        return String(
+            value
+        ).trim();
+    }
+
+
+    /* =====================================================
+       VALIDATION RESULT
+       ===================================================== */
+
+    function renderValidationResults() {
+
+        const results =
+            state.importResult || [];
+
+        const valid =
+            results.filter(
+                function (item) {
+
+                    return item.valid;
+                }
+            ).length;
+
+        const invalid =
+            results.length -
+            valid;
+
+        const newCount =
+            results.filter(
+                function (item) {
+
+                    return (
+                        item.valid &&
+                        item.action ===
+                        "new"
+                    );
+                }
+            ).length;
+
+        const updateCount =
+            results.filter(
+                function (item) {
+
+                    return (
+                        item.valid &&
+                        item.action ===
+                        "update"
+                    );
+                }
+            ).length;
+
+        if ($("previewNew")) {
+
+            $("previewNew")
+                .textContent =
+                newCount;
+        }
+
+        if ($("previewUpdate")) {
+
+            $("previewUpdate")
+                .textContent =
+                updateCount;
+        }
+
+        const summary =
+            $("validationSummary");
+
+        if (summary) {
+
+            summary.innerHTML = `
+                <div>
+                    <strong>
+                        ${results.length}
+                    </strong>
+                    Total
+                </div>
+
+                <div>
+                    <strong>
+                        ${valid}
+                    </strong>
+                    Valid
+                </div>
+
+                <div>
+                    <strong>
+                        ${newCount}
+                    </strong>
+                    Baru
+                </div>
+
+                <div>
+                    <strong>
+                        ${updateCount}
+                    </strong>
+                    Update
+                </div>
+
+                <div>
+                    <strong>
+                        ${invalid}
+                    </strong>
+                    Bermasalah
+                </div>
+            `;
+        }
+
+        const container =
+            $("validationResults");
+
+        if (!container) {
+            return;
+        }
+
+        container.innerHTML =
+            results
+                .map(
+                    function (item) {
+
+                        const actionText =
+                            item.action ===
+                            "update"
+                                ? "UPDATE"
+                                : "BARU";
+
+                        return `
+                            <div
+                                class="import-validation-row ${
+                                    item.valid
+                                        ? "valid"
+                                        : "invalid"
+                                }"
+                            >
+
+                                <div>
+                                    Baris
+                                    ${item.row}
+                                </div>
+
+                                <div>
+                                    ${escapeHtml(
+                                        item.name ||
+                                        "(tanpa nama)"
+                                    )}
+                                </div>
+
+                                <div>
+                                    ${
+                                        item.valid
+                                            ? `✓ Valid — ${actionText}`
+                                            : escapeHtml(
+                                                item.errors.join(
+                                                    ", "
+                                                )
+                                            )
+                                    }
+                                </div>
+
+                            </div>
+                        `;
+                    }
+                )
+                .join("");
+
+        const text =
+            $("importConfirmText");
+
+        if (text) {
+
+            text.textContent =
+                invalid > 0
+                    ? "Masih ada data bermasalah. Perbaiki file sebelum import."
+                    : `Semua ${valid} data valid. ${newCount} data baru dan ${updateCount} data akan diperbarui.`;
+        }
+    }
+
+
+    /* =====================================================
+       IMPORT TO DATABASE
+       ===================================================== */
+
+    async function executeImport() {
+
+        if (
+            !state.importValidated ||
+            !state.importResult
+        ) {
+
+            alert(
+                "Validasi data terlebih dahulu."
+            );
+
+            return;
+        }
+
+        const invalid =
+            state.importResult.filter(
+                function (item) {
+
+                    return !item.valid;
+                }
+            );
+
+        if (invalid.length) {
+
+            alert(
+                "Import dibatalkan karena masih ada data bermasalah."
+            );
+
+            return;
+        }
+
+        const confirmed =
+            confirm(
+                "Semua data valid.\n\n" +
+                "Lanjutkan import ke database?"
+            );
+
+        if (!confirmed) {
+            return;
+        }
+
+        showImportStep(
+            "import"
+        );
+
+        const rows =
+            state.importRows || [];
+
+        let success =
+            0;
+
+        let failed =
+            0;
+
+        let accountCreated =
+            0;
+
+        let accountFailed =
+            0;
+
+        const errors =
+            [];
+
+        for (
+            let index = 0;
+            index < rows.length;
+            index++
+        ) {
+
+            const row =
+                rows[index];
+
+            try {
+
+                const result =
+                    await importOneRow(
+                        row
+                    );
+
+                success++;
+
+                if (
+                    result &&
+                    result.accountCreated
+                ) {
+
+                    accountCreated++;
+                }
+
+                if (
+                    result &&
+                    result.accountFailed
+                ) {
+
+                    accountFailed++;
+                }
+
+            } catch (error) {
+
+                failed++;
+
+                errors.push({
+                    row:
+                        index + 2,
+
+                    error:
+                        error?.message ||
+                        String(error)
+                });
+            }
+        }
+
+        const message =
+            $("importStepImport");
+
+        if (message) {
+
+            message.innerHTML = `
+                <div class="import-finished">
+
+                    <div class="import-success-icon">
+                        ${
+                            failed
+                                ? "⚠️"
+                                : "✓"
+                        }
+                    </div>
+
+                    <h3>
+                        Import selesai
+                    </h3>
+
+                    <p>
+                        Data berhasil:
+                        <strong>
+                            ${success}
+                        </strong>
+                    </p>
+
+                    <p>
+                        Data gagal:
+                        <strong>
+                            ${failed}
+                        </strong>
+                    </p>
+
+                    <p>
+                        Akun WARGA dibuat:
+                        <strong>
+                            ${accountCreated}
+                        </strong>
+                    </p>
+
+                    <p>
+                        Akun WARGA belum dibuat:
+                        <strong>
+                            ${accountFailed}
+                        </strong>
+                    </p>
+
+                    ${
+                        errors.length
+                            ? `
+                                <div class="import-errors">
+
+                                    ${errors
+                                        .map(
+                                            function (
+                                                item
+                                            ) {
+
+                                                return `
+                                                    <div>
+                                                        Baris
+                                                        ${item.row}:
+                                                        ${escapeHtml(
+                                                            item.error
+                                                        )}
+                                                    </div>
+                                                `;
+                                            }
+                                        )
+                                        .join("")}
+
+                                </div>
+                            `
+                            : ""
+                    }
+
+                </div>
+            `;
+        }
+
+        await reloadData();
+    }
+
+
+    /* =====================================================
+       IMPORT ONE ROW
+       ===================================================== */
+
+    async function importOneRow(
+        row
+    ) {
+
+        const name =
+            normalizeImportValue(
+                row.Nama ||
+                row.nama ||
+                row.NAME ||
+                row["Nama Warga"]
+            );
+
+        const nik =
+            normalizeImportValue(
+                row.NIK ||
+                row.nik
+            );
+
+        const kk =
+            normalizeImportValue(
+                row.KK ||
+                row.kk ||
+                row["Nomor KK"] ||
+                row["KK Number"]
+            );
+
+        const birthPlace =
+            normalizeImportValue(
+                row["Tempat Lahir"] ||
+                row.birth_place
+            );
+
+        const birthDate =
+            normalizeImportValue(
+                row["Tanggal Lahir"] ||
+                row.birth_date
+            );
+
+        const gender =
+            normalizeImportValue(
+                row.Gender ||
+                row.gender
+            );
+
+        const address =
+            normalizeImportValue(
+                row.Alamat ||
+                row.address
+            );
+
+        const houseNumber =
+            normalizeImportValue(
+                row["No Rumah"] ||
+                row.house_number
+            );
+
+        const phone =
+            normalizeImportValue(
+                row.Telepon ||
+                row.Phone ||
+                row.phone
+            );
+
+        const familyStatus =
+            normalizeImportValue(
+                row["Status Keluarga"] ||
+                row.family_status ||
+                row.Status ||
+                row.status
+            ) ||
+            "Anggota Keluarga";
+
+        if (!name) {
+
+            throw new Error(
+                "Nama warga kosong."
+            );
+        }
+
+        if (
+            nik &&
+            !/^\d{16}$/.test(nik)
+        ) {
+
+            throw new Error(
+                "NIK harus terdiri dari 16 digit."
+            );
+        }
+
+        if (
+            kk &&
+            !/^\d{16}$/.test(kk)
+        ) {
+
+            throw new Error(
+                "Nomor KK harus terdiri dari 16 digit."
+            );
+        }
+
+        if (
+            familyStatus ===
+            "Kepala Keluarga" &&
+            !kk
+        ) {
+
+            throw new Error(
+                "Kepala Keluarga wajib memiliki Nomor KK."
+            );
+        }
+
+        const payload = {
+
+            name:
+                name,
+
+            nik:
+                nik || null,
+
+            kk_number:
+                kk || null,
+
+            birth_place:
+                birthPlace || null,
+
+            birth_date:
+                birthDate || null,
+
+            gender:
+                gender || null,
+
+            address:
+                address || null,
+
+            house_number:
+                houseNumber || null,
+
+            phone:
+                phone || null,
+
+            family_status:
+                familyStatus,
+
+            is_active:
+                true
+        };
+
+        let resident =
+            null;
+
+        let action =
+            "insert";
+
+        /*
+         * Cek NIK terlebih dahulu.
+         */
+
+        if (nik) {
+
+            const {
+                data: existingByNik,
+                error: nikError
+            } = await state.client
+                .from("residents")
+                .select("*")
+                .eq(
+                    "nik",
+                    nik
+                )
+                .maybeSingle();
+
+            if (nikError) {
+                throw nikError;
+            }
+
+            if (existingByNik) {
+
+                const {
+                    data,
+                    error
+                } = await state.client
+                    .from("residents")
+                    .update(
+                        payload
+                    )
+                    .eq(
+                        "id",
+                        existingByNik.id
+                    )
+                    .select()
+                    .single();
+
+                if (error) {
+                    throw error;
+                }
+
+                resident =
+                    data;
+
+                action =
+                    "update";
+            }
+        }
+
+        /*
+         * Jika belum ada berdasarkan NIK,
+         * insert baru.
+         */
+
+        if (!resident) {
+
+            const {
+                data,
+                error
+            } = await state.client
+                .from("residents")
+                .insert(
+                    payload
+                )
+                .select()
+                .single();
+
+            if (error) {
+                throw error;
+            }
+
+            resident =
+                data;
+
+            action =
+                "insert";
+        }
+
+        /*
+         * Kepala Keluarga:
+         * pastikan household ada.
+         */
 
         if (
             familyStatus ===
             "Kepala Keluarga"
         ) {
 
-            await buatHouseholdBaru(
-                residentId,
-                nomorKKBaru
+            await ensureHousehold(
+                kk,
+                resident.id,
+                address
             );
 
-        }
+            /*
+             * Ambil ulang data warga
+             * setelah proses penyimpanan.
+             *
+             * Ini penting karena account_created
+             * bisa berubah setelah Edge Function.
+             */
 
+            resident =
+                await getResidentById(
+                    resident.id
+                );
 
-        // ==================================
-        // JIKA ANGGOTA
-        // MASUKKAN KE KK
-        // ==================================
-
-        else {
-
-            await masukkanKeKK(
-                residentId,
-                nomorKK
-            );
-
-        }
-
-
-        alert(
-            "Data warga berhasil disimpan."
-        );
-
-
-        tutupWargaModal();
-
-
-        await loadDataWarga();
-
-
-    } catch (error) {
-
-        console.error(
-            "Gagal menyimpan warga:",
-            error
-        );
-
-
-        tampilkanError(
-            "Gagal menyimpan warga: " +
-            error.message
-        );
-
-
-    } finally {
-
-        if (button) {
-
-            button.disabled =
+            let accountCreated =
                 false;
 
-            button.textContent =
-                "Simpan Warga";
-
-        }
-
-    }
-
-}
-
-// ==========================================
-// BUAT WARGA BARU
-// ==========================================
-
-async function buatWargaBaru() {
-
-    const residentCode =
-        generateResidentCode();
-
-
-    const body = {
-
-        resident_code:
-            residentCode,
-
-        name:
-            getValue(
-                "wargaNama"
-            ),
-
-        nik:
-            getValue(
-                "wargaNik"
-            ) ||
-            null,
-
-        birth_place:
-            getValue(
-                "wargaBirthPlace"
-            ) ||
-            null,
-
-        birth_date:
-            getValue(
-                "wargaBirthDate"
-            ) ||
-            null,
-
-        gender:
-            getValue(
-                "wargaGender"
-            ),
-
-        phone:
-            getValue(
-                "wargaPhone"
-            ) ||
-            null,
-
-        kk_number:
-            null,
-
-        family_status:
-            null,
-
-        address:
-            getValue(
-                "wargaAddress"
-            ) ||
-            null,
-
-        jimpitan_balance:
-            0,
-
-        is_active:
-            true,
-
-        account_created:
-            false
-
-    };
-
-
-    const data =
-        await supabaseRequest(
-            `${SUPABASE_URL}/rest/v1/residents`,
-            {
-                method:
-                    "POST",
-
-                body:
-                    JSON.stringify(
-                        body
-                    )
-            }
-        );
-
-
-    if (
-        !Array.isArray(
-            data
-        ) ||
-        !data[0]?.id
-    ) {
-
-        throw new Error(
-            "Data warga baru tidak berhasil dibuat."
-        );
-
-    }
-
-
-    return data[0].id;
-
-}
-
-
-// ==========================================
-// UPDATE DATA WARGA
-// ==========================================
-
-async function updateDataWarga(
-    residentId
-) {
-
-    const body = {
-
-        name:
-            getValue(
-                "wargaNama"
-            ),
-
-        nik:
-            getValue(
-                "wargaNik"
-            ) ||
-            null,
-
-        birth_place:
-            getValue(
-                "wargaBirthPlace"
-            ) ||
-            null,
-
-        birth_date:
-            getValue(
-                "wargaBirthDate"
-            ) ||
-            null,
-
-        gender:
-            getValue(
-                "wargaGender"
-            ),
-
-        phone:
-            getValue(
-                "wargaPhone"
-            ) ||
-            null,
-
-        family_status:
-            getValue(
-                "wargaFamilyStatus"
-            ),
-
-        address:
-            getValue(
-                "wargaAddress"
-            ) ||
-            null,
-
-        updated_at:
-            new Date().toISOString()
-
-    };
-
-
-    await supabaseRequest(
-        `${SUPABASE_URL}/rest/v1/residents?id=eq.${encodeURIComponent(
-            residentId
-        )}`,
-        {
-            method:
-                "PATCH",
-
-            body:
-                JSON.stringify(
-                    body
-                )
-        }
-    );
-
-}
-
-
-// ==========================================
-// BUAT HOUSEHOLD BARU
-// ==========================================
-
-async function buatHouseholdBaru(
-    residentId,
-    kkNumber
-) {
-
-    const address =
-        getValue(
-            "wargaAddress"
-        ) ||
-        null;
-
-
-    const response =
-        await supabaseRequest(
-            `${SUPABASE_URL}/rest/v1/households`,
-            {
-                method:
-                    "POST",
-
-                body:
-                    JSON.stringify({
-
-                        kk_number:
-                            kkNumber,
-
-                        head_resident_id:
-                            residentId,
-
-                        address:
-                            address
-
-                    })
-            }
-        );
-
-
-    const kk =
-        Array.isArray(
-            response
-        )
-            ? response[0]
-            : response;
-
-
-    // Pastikan residents punya KK
-    await supabaseRequest(
-        `${SUPABASE_URL}/rest/v1/residents?id=eq.${encodeURIComponent(
-            residentId
-        )}`,
-        {
-            method:
-                "PATCH",
-
-            body:
-                JSON.stringify({
-
-                    kk_number:
-                        kkNumber,
-
-                    family_status:
-                        "Kepala Keluarga",
-
-                    updated_at:
-                        new Date().toISOString()
-
-                })
-        }
-    );
-
-
-    return kk;
-
-}
-
-
-// ==========================================
-// MASUKKAN KE KK
-// ==========================================
-
-async function masukkanKeKK(
-    residentId,
-    kkNumber
-) {
-
-    const kk =
-        semuaKK.find(
-            item =>
-                String(
-                    item.kk_number
-                )
-                .trim()
-                ===
-                String(
-                    kkNumber
-                )
-                .trim()
-        );
-
-
-    if (!kk) {
-
-        throw new Error(
-            "Data KK tidak ditemukan."
-        );
-
-    }
-
-
-    await supabaseRequest(
-        `${SUPABASE_URL}/rest/v1/residents?id=eq.${encodeURIComponent(
-            residentId
-        )}`,
-        {
-            method:
-                "PATCH",
-
-            body:
-                JSON.stringify({
-
-                    kk_number:
-                        kk.kk_number,
-
-                    updated_at:
-                        new Date().toISOString()
-
-                })
-        }
-    );
-
-}
-
-
-// ==========================================
-// LIHAT KK
-// ==========================================
-
-function lihatKK(
-    householdId
-) {
-
-    const kk =
-        semuaKK.find(
-            item =>
-                item.id ===
-                householdId
-        );
-
-
-    if (!kk) {
-
-        alert(
-            "Data KK tidak ditemukan."
-        );
-
-        return;
-
-    }
-
-
-    kkTerpilih =
-        kk;
-
-
-    const kepala =
-        getKepalaKK(
-            kk
-        );
-
-
-    const anggota =
-        getAnggotaKK(
-            kk
-        );
-
-
-    const nomor =
-        document.getElementById(
-            "detailKKNumber"
-        );
-
-
-    const alamat =
-        document.getElementById(
-            "detailKKAddress"
-        );
-
-
-    const head =
-        document.getElementById(
-            "headResident"
-        );
-
-
-    const count =
-        document.getElementById(
-            "memberCount"
-        );
-
-
-    const memberList =
-        document.getElementById(
-            "familyMemberList"
-        );
-
-
-    if (nomor) {
-
-        nomor.textContent =
-            `KK ${kk.kk_number || "-"}`;
-
-    }
-
-
-    if (alamat) {
-
-        alamat.textContent =
-            kk.address ||
-            kepala?.address ||
-            "-";
-
-    }
-
-
-    if (count) {
-
-        count.textContent =
-            `${anggota.length} orang`;
-
-    }
-// ==================================
-    // KEPALA
-    // ==================================
-
-    if (head) {
-
-        if (kepala) {
-
-            const initial =
-                (kepala.name || "?")
-                    .trim()
-                    .charAt(0)
-                    .toUpperCase();
-
-
-            head.innerHTML = `
-
-                <div class="head-resident-card">
-
-                    <div class="head-resident-avatar">
-
-                        ${escapeHtml(
-                            initial
-                        )}
-
-                    </div>
-
-
-                    <div class="head-resident-info">
-
-                        <strong>
-
-                            ${escapeHtml(
-                                kepala.name ||
-                                "-"
-                            )}
-
-                        </strong>
-
-                        <span>
-
-                            ID:
-                            ${escapeHtml(
-                                kepala.resident_code ||
-                                "-"
-                            )}
-
-                        </span>
-
-                        <span>
-
-                            👑 Kepala Keluarga
-
-                        </span>
-
-                        <span>
-
-                            ${
-                                kepala.account_created
-                                    ? "🔐 Akun login tersedia"
-                                    : "🔐 Akun login belum dibuat"
-                            }
-
-                        </span>
-
-                    </div>
-
-
-                    <div class="head-resident-actions">
-
-                        <button
-                            type="button"
-                            class="btn-edit-small"
-                            onclick="bukaEditWarga(
-                                '${escapeAttribute(
-                                    kepala.id
-                                )}'
-                            )"
-                        >
-                            ✏️ Edit
-                        </button>
-
-                        <button
-                            type="button"
-                            class="btn-qr-small"
-                            onclick="bukaQR(
-                                '${escapeAttribute(
-                                    kk.id
-                                )}'
-                            )"
-                        >
-                            📱 QR
-                        </button>
-
-                    </div>
-
-                </div>
-
-            `;
-
-        } else {
-
-            head.innerHTML = `
-
-                <div class="head-resident-card">
-
-                    <div class="head-resident-avatar">
-                        ?
-                    </div>
-
-                    <div class="head-resident-info">
-
-                        <strong>
-                            Kepala keluarga belum ditentukan
-                        </strong>
-
-                        <span>
-                            KK ini belum memiliki kepala keluarga.
-                        </span>
-
-                    </div>
-
-                </div>
-
-            `;
-
-        }
-
-    }
-
-
-    // ==================================
-    // ANGGOTA
-    // ==================================
-
-    if (memberList) {
-
-        memberList.innerHTML =
-            "";
-
-
-        const anggotaSelainKepala =
-            anggota.filter(
-                warga =>
-                    warga.id !==
-                    kk.head_resident_id
-            );
-
-
-        if (
-            anggotaSelainKepala.length ===
-            0
-        ) {
-
-            memberList.innerHTML = `
-
-                <div class="member-empty">
-
-                    Belum ada anggota selain kepala keluarga.
-
-                </div>
-
-            `;
-
-        } else {
-
-            anggotaSelainKepala.forEach(
-                warga => {
-
-                    const item =
-                        document.createElement(
-                            "div"
-                        );
-
-
-                    item.className =
-                        "family-member-card";
-
-
-                    const initial =
-                        (warga.name || "?")
-                            .trim()
-                            .charAt(0)
-                            .toUpperCase();
-
-
-                    item.innerHTML = `
-
-                        <div
-                            class="member-avatar"
-                        >
-                            ${escapeHtml(
-                                initial
-                            )}
-                        </div>
-
-
-                        <div
-                            class="member-info"
-                        >
-
-                            <strong>
-
-                                ${escapeHtml(
-                                    warga.name ||
-                                    "-"
-                                )}
-
-                            </strong>
-
-                            <span>
-
-                                ${escapeHtml(
-                                    warga.family_status ||
-                                    "Anggota Keluarga"
-                                )}
-
-                            </span>
-
-                            <span>
-
-                                ID:
-                                ${escapeHtml(
-                                    warga.resident_code ||
-                                    "-"
-                                )}
-
-                            </span>
-
-                        </div>
-
-
-                        <div
-                            class="member-actions"
-                        >
-
-                            <button
-                                type="button"
-                                class="btn-edit-small"
-                                onclick="bukaEditWarga(
-                                    '${escapeAttribute(
-                                        warga.id
-                                    )}'
-                                )"
-                            >
-                                ✏️ Edit
-                            </button>
-
-
-                            <button
-                                type="button"
-                                class="btn-move-small"
-                                onclick="bukaPindahKK(
-                                    '${escapeAttribute(
-                                        warga.id
-                                    )}'
-                                )"
-                            >
-                                ↔️ Pindah
-                            </button>
-
-
-                            <button
-                                type="button"
-                                class="btn-delete-small"
-                                onclick="keluarkanDariKK(
-                                    '${escapeAttribute(
-                                        warga.id
-                                    )}'
-                                )"
-                            >
-                                Keluar KK
-                            </button>
-
-                        </div>
-
-                    `;
-
-
-                    memberList.appendChild(
-                        item
+            let accountFailed =
+                false;
+
+            /*
+             * Jika akun belum ada,
+             * buat otomatis.
+             */
+
+            if (
+                resident &&
+                !resident.account_created
+            ) {
+
+                try {
+
+                    console.log(
+                        "SIDAT IMPORT: Membuat akun WARGA untuk:",
+                        resident.name
                     );
 
-                }
-            );
-
-        }
-
-    }
-
-
-    document
-        .getElementById(
-            "householdModal"
-        )
-        ?.classList.remove(
-            "hidden"
-        );
-
-}
-
-
-// ==========================================
-// TUTUP DETAIL KK
-// ==========================================
-
-function tutupDetailKK() {
-
-    document
-        .getElementById(
-            "householdModal"
-        )
-        ?.classList.add(
-            "hidden"
-        );
-
-
-    kkTerpilih =
-        null;
-
-}
-
-
-// ==========================================
-// EDIT WARGA
-// ==========================================
-
-function bukaEditWarga(
-    residentId
-) {
-
-    const warga =
-        semuaWarga.find(
-            item =>
-                item.id ===
-                residentId
-        );
-
-
-    if (!warga) {
-
-        alert(
-            "Data warga tidak ditemukan."
-        );
-
-        return;
-
-    }
-
-
-    wargaTerpilih =
-        warga;
-
-
-    setValue(
-        "editResidentId",
-        warga.id
-    );
-
-
-    setValue(
-        "editNama",
-        warga.name
-    );
-
-
-    setValue(
-        "editNik",
-        warga.nik
-    );
-
-
-    setValue(
-        "editPhone",
-        warga.phone
-    );
-
-
-    setValue(
-        "editBirthPlace",
-        warga.birth_place
-    );
-
-
-    setValue(
-        "editBirthDate",
-        warga.birth_date
-    );
-
-
-    setValue(
-        "editGender",
-        warga.gender ||
-        "L"
-    );
-
-
-    setValue(
-        "editFamilyStatus",
-        warga.family_status ||
-        "Anggota Keluarga"
-    );
-
-
-    setValue(
-        "editAddress",
-        warga.address
-    );
-
-
-    const error =
-        document.getElementById(
-            "editFormError"
-        );
-
-
-    if (error) {
-
-        error.textContent =
-            "";
-
-        error.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    document
-        .getElementById(
-            "editResidentModal"
-        )
-        ?.classList.remove(
-            "hidden"
-        );
-
-}
-
-
-// ==========================================
-// TUTUP EDIT WARGA
-// ==========================================
-
-function tutupEditWarga() {
-
-    document
-        .getElementById(
-            "editResidentModal"
-        )
-        ?.classList.add(
-            "hidden"
-        );
-
-
-    wargaTerpilih =
-        null;
-
-}
-// ==========================================
-// SIMPAN EDIT WARGA
-// ==========================================
-
-async function simpanEditWarga() {
-
-    const id =
-        document.getElementById(
-            "editResidentId"
-        )?.value;
-
-
-    if (!id) {
-
-        return;
-
-    }
-
-
-    const nama =
-        getValue(
-            "editNama"
-        )
-        .trim();
-
-
-    const gender =
-        getValue(
-            "editGender"
-        );
-
-
-    const status =
-        getValue(
-            "editFamilyStatus"
-        );
-
-
-    const errorBox =
-        document.getElementById(
-            "editFormError"
-        );
-
-
-    const button =
-        document.getElementById(
-            "btnSimpanEdit"
-        );
-
-
-    function error(
-        message
-    ) {
-
-        if (errorBox) {
-
-            errorBox.textContent =
-                message;
-
-            errorBox.classList.remove(
-                "hidden"
-            );
-
-        }
-
-    }
-
-
-    if (errorBox) {
-
-        errorBox.textContent =
-            "";
-
-        errorBox.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    if (!nama) {
-
-        error(
-            "Nama lengkap wajib diisi."
-        );
-
-        return;
-
-    }
-
-
-    if (
-        gender !== "L" &&
-        gender !== "P"
-    ) {
-
-        error(
-            "Jenis kelamin tidak valid."
-        );
-
-        return;
-
-    }
-
-
-    if (button) {
-
-        button.disabled =
-            true;
-
-        button.textContent =
-            "Menyimpan...";
-
-    }
-
-
-    try {
-
-        const warga =
-            semuaWarga.find(
-                item =>
-                    item.id ===
-                    id
-            );
-
-
-        if (!warga) {
-
-            throw new Error(
-                "Data warga tidak ditemukan."
-            );
-
-        }
-
-
-        const kkSebagaiKepala =
-            semuaKK.find(
-                kk =>
-                    kk.head_resident_id ===
-                    id
-            );
-
-
-        // Kepala keluarga tidak boleh
-        // diubah menjadi anggota begitu saja
-        // karena household masih menunjuk dirinya.
-
-        if (
-            kkSebagaiKepala &&
-            status !==
-                "Kepala Keluarga"
-        ) {
-
-            error(
-                "Warga ini adalah kepala keluarga. Ubah kepala keluarga terlebih dahulu melalui pengaturan KK."
-            );
-
-            return;
-
-        }
-
-
-        // Jika warga ingin dijadikan kepala,
-        // harus sudah memiliki household.
-
-        if (
-            status ===
-            "Kepala Keluarga" &&
-            !kkSebagaiKepala
-        ) {
-
-            error(
-                "Warga belum menjadi kepala dari sebuah KK. Gunakan menu Buat KK Baru atau pindahkan warga ke KK baru."
-            );
-
-            return;
-
-        }
-
-
-        const body = {
-
-            name:
-                nama,
-
-            nik:
-                getValue(
-                    "editNik"
-                )
-                .trim()
-                ||
-                null,
-
-            phone:
-                getValue(
-                    "editPhone"
-                )
-                .trim()
-                ||
-                null,
-
-            birth_place:
-                getValue(
-                    "editBirthPlace"
-                )
-                .trim()
-                ||
-                null,
-
-            birth_date:
-                getValue(
-                    "editBirthDate"
-                )
-                ||
-                null,
-
-            gender:
-                gender,
-
-            family_status:
-                status,
-
-            address:
-                getValue(
-                    "editAddress"
-                )
-                .trim()
-                ||
-                null,
-
-            updated_at:
-                new Date().toISOString()
-
-        };
-
-
-        await supabaseRequest(
-            `${SUPABASE_URL}/rest/v1/residents?id=eq.${encodeURIComponent(
-                id
-            )}`,
-            {
-                method:
-                    "PATCH",
-
-                body:
-                    JSON.stringify(
-                        body
-                    )
-            }
-        );
-
-
-        alert(
-            "Data warga berhasil diperbarui."
-        );
-
-
-        tutupEditWarga();
-
-
-        await loadDataWarga();
-
-
-        if (kkTerpilih) {
-
-            const kkBaru =
-                semuaKK.find(
-                    kk =>
-                        kk.id ===
-                        kkTerpilih.id
-                );
-
-
-            if (kkBaru) {
-
-                lihatKK(
-                    kkBaru.id
-                );
-
-            }
-
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            "Gagal edit warga:",
-            error
-        );
-
-
-        error(
-            "Gagal memperbarui data: " +
-            error.message
-        );
-
-
-    } finally {
-
-        if (button) {
-
-            button.disabled =
-                false;
-
-            button.textContent =
-                "Simpan Perubahan";
-
-        }
-
-    }
-
-}
-// ==========================================
-// PINDAH KK
-// ==========================================
-
-function bukaPindahKK(
-    residentId
-) {
-
-    const warga =
-        semuaWarga.find(
-            item =>
-                item.id ===
-                residentId
-        );
-
-
-    if (!warga) {
-
-        alert(
-            "Data warga tidak ditemukan."
-        );
-
-        return;
-
-    }
-
-
-    // Kepala tidak dipindahkan lewat
-    // menu anggota.
-
-    const kkKepala =
-        semuaKK.find(
-            kk =>
-                kk.head_resident_id ===
-                residentId
-        );
-
-
-    if (kkKepala) {
-
-        alert(
-            "Kepala keluarga tidak dapat dipindahkan sebagai anggota. Tentukan kepala keluarga pengganti terlebih dahulu."
-        );
-
-        return;
-
-    }
-
-
-    setValue(
-        "moveResidentId",
-        residentId
-    );
-
-
-    const info =
-        document.getElementById(
-            "moveResidentInfo"
-        );
-
-
-    if (info) {
-
-        info.innerHTML = `
-
-            <div class="member-avatar">
-
-                ${escapeHtml(
-                    (
-                        warga.name ||
-                        "?"
-                    )
-                    .trim()
-                    .charAt(0)
-                    .toUpperCase()
-                )}
-
-            </div>
-
-
-            <div>
-
-                <strong>
-                    ${escapeHtml(
-                        warga.name ||
-                        "-"
-                    )}
-                </strong>
-
-                <span>
-                    ID:
-                    ${escapeHtml(
-                        warga.resident_code ||
-                        "-"
-                    )}
-                </span>
-
-            </div>
-
-        `;
-
-    }
-
-
-    isiPilihanPindahKK();
-
-
-    const existing =
-        document.querySelector(
-            'input[name="moveType"][value="existing"]'
-        );
-
-
-    if (existing) {
-
-        existing.checked =
-            true;
-
-    }
-
-
-    ubahTujuanPindah(
-        "existing"
-    );
-
-
-    const error =
-        document.getElementById(
-            "moveFormError"
-        );
-
-
-    if (error) {
-
-        error.textContent =
-            "";
-
-        error.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    document
-        .getElementById(
-            "moveResidentModal"
-        )
-        ?.classList.remove(
-            "hidden"
-        );
-
-}
-
-
-// ==========================================
-// ISI PILIHAN PINDAH KK
-// ==========================================
-
-function isiPilihanPindahKK() {
-
-    const select =
-        document.getElementById(
-            "moveKK"
-        );
-
-
-    if (!select) {
-
-        return;
-
-    }
-
-
-    select.innerHTML = `
-
-        <option value="">
-            Pilih KK tujuan
-        </option>
-
-    `;
-
-
-    const residentId =
-        getValue(
-            "moveResidentId"
-        );
-
-
-    const warga =
-        semuaWarga.find(
-            item =>
-                item.id ===
-                residentId
-        );
-
-
-    semuaKK.forEach(
-        kk => {
-
-            if (
-                warga &&
-                kk.kk_number ===
-                warga.kk_number
-            ) {
-
-                return;
-
-            }
-
-
-            const kepala =
-                getKepalaKK(
-                    kk
-                );
-
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-
-            option.value =
-                kk.kk_number;
-
-
-            option.textContent =
-                kepala
-                    ? `${kk.kk_number} - ${kepala.name}`
-                    : `${kk.kk_number} - Tanpa Kepala`;
-
-
-            select.appendChild(
-                option
-            );
-
-        }
-    );
-
-}
-// ==========================================
-// UBAH TUJUAN PINDAH
-// ==========================================
-
-function ubahTujuanPindah(
-    type
-) {
-
-    const existing =
-        document.getElementById(
-            "moveExistingSection"
-        );
-
-
-    const baru =
-        document.getElementById(
-            "moveNewSection"
-        );
-
-
-    if (
-        type ===
-        "new"
-    ) {
-
-        existing?.classList.add(
-            "hidden"
-        );
-
-        baru?.classList.remove(
-            "hidden"
-        );
-
-    } else {
-
-        existing?.classList.remove(
-            "hidden"
-        );
-
-        baru?.classList.add(
-            "hidden"
-        );
-
-    }
-
-}
-
-
-// ==========================================
-// TUTUP PINDAH KK
-// ==========================================
-
-function tutupPindahKK() {
-
-    document
-        .getElementById(
-            "moveResidentModal"
-        )
-        ?.classList.add(
-            "hidden"
-        );
-
-}
-
-
-// ==========================================
-// SIMPAN PINDAH KK
-// ==========================================
-
-async function simpanPindahKK() {
-
-    const residentId =
-        getValue(
-            "moveResidentId"
-        );
-
-
-    const type =
-        document.querySelector(
-            'input[name="moveType"]:checked'
-        )?.value
-        ||
-        "existing";
-
-
-    const errorBox =
-        document.getElementById(
-            "moveFormError"
-        );
-
-
-    const button =
-        document.getElementById(
-            "btnSimpanPindah"
-        );
-
-
-    function error(
-        message
-    ) {
-
-        if (errorBox) {
-
-            errorBox.textContent =
-                message;
-
-            errorBox.classList.remove(
-                "hidden"
-            );
-
-        }
-
-    }
-
-
-    if (!residentId) {
-
-        error(
-            "Warga yang dipindahkan belum dipilih."
-        );
-
-        return;
-
-    }
-
-
-    if (
-        type ===
-        "existing"
-    ) {
-
-        const tujuan =
-            getValue(
-                "moveKK"
-            );
-
-
-        if (!tujuan) {
-
-            error(
-                "Pilih KK tujuan."
-            );
-
-            return;
-
-        }
-
-    } else {
-
-        const kkBaru =
-            getValue(
-                "moveNewKK"
-            )
-            .trim();
-
-
-        if (
-            !/^\d{16}$/.test(
-                kkBaru
-            )
-        ) {
-
-            error(
-                "Nomor KK baru harus terdiri dari 16 digit."
-            );
-
-            return;
-
-        }
-
-
-        const sudahAda =
-            semuaKK.some(
-                kk =>
-                    String(
-                        kk.kk_number
-                    )
-                    .trim()
-                    ===
-                    kkBaru
-            );
-
-
-        if (sudahAda) {
-
-            error(
-                "Nomor KK tersebut sudah terdaftar."
-            );
-
-            return;
-
-        }
-
-    }
-
-
-    if (errorBox) {
-
-        errorBox.textContent =
-            "";
-
-        errorBox.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    if (button) {
-
-        button.disabled =
-            true;
-
-        button.textContent =
-            "Memindahkan...";
-
-    }
-
-
-    try {
-
-        if (
-            type ===
-            "existing"
-        ) {
-
-            const tujuan =
-                getValue(
-                    "moveKK"
-                );
-
-
-            await supabaseRequest(
-                `${SUPABASE_URL}/rest/v1/residents?id=eq.${encodeURIComponent(
-                    residentId
-                )}`,
-                {
-                    method:
-                        "PATCH",
-
-                    body:
-                        JSON.stringify({
-
-                            kk_number:
-                                tujuan,
-
-                            updated_at:
-                                new Date().toISOString()
-
-                        })
-
-                }
-            );
-
-
-            alert(
-                "Warga berhasil dipindahkan ke KK tujuan."
-            );
-
-        } else {
-
-            const kkBaru =
-                getValue(
-                    "moveNewKK"
-                )
-                .trim();
-
-
-            const warga =
-                semuaWarga.find(
-                    item =>
-                        item.id ===
-                        residentId
-                );
-
-
-            if (!warga) {
-
-                throw new Error(
-                    "Data warga tidak ditemukan."
-                );
-
-            }
-
-
-            // Buat KK baru
-            await supabaseRequest(
-                `${SUPABASE_URL}/rest/v1/households`,
-                {
-                    method:
-                        "POST",
-
-                    body:
-                        JSON.stringify({
-
-                            kk_number:
-                                kkBaru,
-
-                            head_resident_id:
-                                residentId,
-
-                            address:
-                                warga.address ||
-                                null
-
-                        })
-
-                }
-            );
-
-
-            // Jadikan warga kepala
-            await supabaseRequest(
-                `${SUPABASE_URL}/rest/v1/residents?id=eq.${encodeURIComponent(
-                    residentId
-                )}`,
-                {
-                    method:
-                        "PATCH",
-
-                    body:
-                        JSON.stringify({
-
-                            kk_number:
-                                kkBaru,
-
-                            family_status:
-                                "Kepala Keluarga",
-
-                            updated_at:
-                                new Date().toISOString()
-
-                        })
-
-                }
-            );
-
-
-            alert(
-                "Warga berhasil dibuatkan KK baru sebagai Kepala Keluarga."
-            );
-
-        }
-
-
-        tutupPindahKK();
-
-
-        await loadDataWarga();
-
-
-    } catch (error) {
-
-        console.error(
-            "Gagal memindahkan warga:",
-            error
-        );
-
-
-        error(
-            "Gagal memindahkan warga: " +
-            error.message
-        );
-
-
-    } finally {
-
-        if (button) {
-
-            button.disabled =
-                false;
-
-            button.textContent =
-                "Pindahkan Warga";
-
-        }
-
-    }
-
-}
-// ==========================================
-// KELUARKAN DARI KK
-// ==========================================
-//
-// Penting:
-// Data warga TIDAK DIHAPUS.
-// Hanya kk_number dan family_status
-// yang dikosongkan.
-//
-// Ini sesuai konsep:
-// warga dapat keluar dari KK
-// dan suatu saat membuat KK sendiri.
-//
-
-async function keluarkanDariKK(
-    residentId
-) {
-
-    const warga =
-        semuaWarga.find(
-            item =>
-                item.id ===
-                residentId
-        );
-
-
-    if (!warga) {
-
-        alert(
-            "Data warga tidak ditemukan."
-        );
-
-        return;
-
-    }
-
-
-    const kkSebagaiKepala =
-        semuaKK.find(
-            kk =>
-                kk.head_resident_id ===
-                residentId
-        );
-
-
-    if (kkSebagaiKepala) {
-
-        alert(
-            "Kepala keluarga tidak dapat dikeluarkan dari KK. Tentukan kepala keluarga pengganti terlebih dahulu."
-        );
-
-        return;
-
-    }
-
-
-    const yakin =
-        confirm(
-            `Keluarkan ${warga.name} dari KK ${warga.kk_number || ""}?\n\nData warga tetap tersimpan dan tidak akan dihapus.`
-        );
-
-
-    if (!yakin) {
-
-        return;
-
-    }
-
-
-    try {
-
-        await supabaseRequest(
-            `${SUPABASE_URL}/rest/v1/residents?id=eq.${encodeURIComponent(
-                residentId
-            )}`,
-            {
-                method:
-                    "PATCH",
-
-                body:
-                    JSON.stringify({
-
-                        kk_number:
-                            null,
-
-                        family_status:
-                            null,
-
-                        updated_at:
-                            new Date().toISOString()
-
-                    })
-
-            }
-        );
-
-
-        alert(
-            "Warga berhasil dikeluarkan dari KK."
-        );
-
-
-        await loadDataWarga();
-
-
-        if (kkTerpilih) {
-
-            const kk =
-                semuaKK.find(
-                    item =>
-                        item.id ===
-                        kkTerpilih.id
-                );
-
-
-            if (kk) {
-
-                lihatKK(
-                    kk.id
-                );
-
-            }
-
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            "Gagal mengeluarkan warga:",
-            error
-        );
-
-
-        alert(
-            "Gagal mengeluarkan warga: " +
-            error.message
-        );
-
-    }
-
-}
-
-
-// ==========================================
-// EDIT KEPALA KELUARGA
-// ==========================================
-//
-// Karena perubahan kepala keluarga berkaitan
-// dengan akun login, kita tidak memindahkan
-// kepala secara otomatis dari tombol ini.
-//
-// Untuk saat ini tombol membuka informasi
-// kepada admin.
-//
-
-function editKepalaKeluarga() {
-
-    if (!kkTerpilih) {
-
-        return;
-
-    }
-
-
-    const kepala =
-        getKepalaKK(
-            kkTerpilih
-        );
-
-
-    if (!kepala) {
-
-        alert(
-            "KK ini belum memiliki kepala keluarga."
-        );
-
-        return;
-
-    }
-
-
-    alert(
-        "Edit data Kepala Keluarga dilakukan melalui tombol Edit pada data kepala.\n\nPerubahan kepala keluarga akan membutuhkan proses pengaturan akun login agar tetap hanya ada 1 akun per KK."
-    );
-
-}
-
-
-// ==========================================
-// LIHAT KK DARI WARGA
-// ==========================================
-
-function lihatKKDariWarga(
-    residentId
-) {
-
-    const warga =
-        semuaWarga.find(
-            item =>
-                item.id ===
-                residentId
-        );
-
-
-    if (!warga) {
-
-        alert(
-            "Data warga tidak ditemukan."
-        );
-
-        return;
-
-    }
-
-
-    if (!warga.kk_number) {
-
-        alert(
-            "Warga ini belum masuk KK."
-        );
-
-        return;
-
-    }
-
-
-    const kk =
-        semuaKK.find(
-            item =>
-                String(
-                    item.kk_number
-                )
-                ===
-                String(
-                    warga.kk_number
-                )
-        );
-
-
-    if (!kk) {
-
-        alert(
-            "Data KK belum ditemukan."
-        );
-
-        return;
-
-    }
-
-
-    lihatKK(
-        kk.id
-    );
-
-}
-
-
-// ==========================================
-// QR DATA
-// ==========================================
-
-// ==========================================
-// QR DATA
-// ==========================================
-
-function buatQRData(
-    kk
-) {
-
-    if (!kk) {
-
-        return "";
-
-    }
-
-
-    const token =
-        String(
-            kk.qr_token ||
-            ""
-        ).trim();
-
-
-    console.log(
-        "QR TOKEN YANG DIGUNAKAN:",
-        token
-    );
-
-
-    return token;
-
-}
-
-
-// ==========================================
-// BUKA QR
-// ==========================================
-
-function bukaQR(
-    householdId
-) {
-
-    const kk =
-        semuaKK.find(
-            item =>
-                item.id ===
-                householdId
-        );
-
-
-    if (!kk) {
-
-        alert(
-            "Data KK tidak ditemukan."
-        );
-
-        return;
-
-    }
-
-
-    const kepala =
-        getKepalaKK(
-            kk
-        );
-
-
-    if (!kepala) {
-
-        alert(
-            "KK ini belum memiliki kepala keluarga."
-        );
-
-        return;
-
-    }
-
-
-    kkTerpilih =
-        kk;
-
-
-    wargaTerpilih =
-        kepala;
-
-
-    const token =
-        buatQRData(
-            kk
-        );
-        console.log(
-    "QR TOKEN YANG DIGENERATE:",
-    token
-);
-
-
-    setText(
-        "qrName",
-        kepala.name ||
-        "-"
-    );
-
-
-    setText(
-        "qrCode",
-        `KK: ${
-            kk.kk_number ||
-            "-"
-        }`
-    );
-
-
-    setText(
-        "qrToken",
-        token
-    );
-
-
-    const container =
-        document.getElementById(
-            "qrcode"
-        );
-
-
-    if (!container) {
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        "";
-
-
-    if (
-        typeof QRCode ===
-        "undefined"
-    ) {
-
-        alert(
-            "Library QR belum termuat."
-        );
-
-        return;
-
-    }
-
-
-    new QRCode(
-        container,
-        {
-
-            text:
-                token,
-
-            width:
-                200,
-
-            height:
-                200,
-
-            correctLevel:
-                QRCode.CorrectLevel.H
-
-        }
-    );
-
-
-    document
-        .getElementById(
-            "qrModal"
-        )
-        ?.classList.remove(
-            "hidden"
-        );
-
-}
-
-
-// ==========================================
-// TUTUP QR
-// ==========================================
-
-function tutupQR() {
-
-    document
-        .getElementById(
-            "qrModal"
-        )
-        ?.classList.add(
-            "hidden"
-        );
-
-
-    const qr =
-        document.getElementById(
-            "qrcode"
-        );
-
-
-    if (qr) {
-
-        qr.innerHTML =
-            "";
-
-    }
-
-
-    wargaTerpilih =
-        null;
-
-}
-
-
-// ==========================================
-// CETAK QR
-// ==========================================
-
-function cetakQR() {
-
-    if (
-        !kkTerpilih ||
-        !wargaTerpilih
-    ) {
-
-        alert(
-            "Data KK belum dipilih."
-        );
-
-        return;
-
-    }
-
-
-    const qrElement =
-        document.getElementById(
-            "qrcode"
-        );
-
-
-    const image =
-        qrElement?.querySelector(
-            "img"
-        );
-
-
-    const canvas =
-        qrElement?.querySelector(
-            "canvas"
-        );
-
-
-    let qrData =
-        "";
-
-
-    if (image) {
-
-        qrData =
-            image.src;
-
-    } else if (canvas) {
-
-        qrData =
-            canvas.toDataURL(
-                "image/png"
-            );
-
-    }
-
-
-    if (!qrData) {
-
-        alert(
-            "QR belum siap."
-        );
-
-        return;
-
-    }
-
-
-    const printWindow =
-        window.open(
-            "",
-            "_blank"
-        );
-
-
-    if (!printWindow) {
-
-        alert(
-            "Popup diblokir browser. Izinkan popup untuk mencetak QR."
-        );
-
-        return;
-
-    }
-
-
-    const nama =
-        wargaTerpilih.name ||
-        "Kepala Keluarga";
-
-
-    const nomorKK =
-        kkTerpilih.kk_number ||
-        "-";
-
-
-    const token =
-        buatQRData(
-            kkTerpilih
-        );
-
-
-    printWindow.document.write(`
-
-        <!DOCTYPE html>
-
-        <html lang="id">
-
-        <head>
-
-            <meta charset="UTF-8">
-
-            <title>
-                QR Jimpitan KK
-            </title>
-
-            <style>
-
-                body {
-
-                    font-family:
-                        Arial,
-                        sans-serif;
-
-                    text-align:
-                        center;
-
-                    padding:
-                        30px;
-
-                }
-
-
-                h1 {
-
-                    font-size:
-                        24px;
-
-                }
-
-
-                h2 {
-
-                    margin:
-                        5px 0;
-
-                }
-
-
-                p {
-
-                    margin:
-                        6px;
-
-                }
-
-
-                img {
-
-                    width:
-                        250px;
-
-                    height:
-                        250px;
-
-                    margin:
-                        20px;
-
-                }
-
-
-                .token {
-
-                    font-size:
-                        11px;
-
-                    word-break:
-                        break-all;
-
-                }
-
-
-                .footer {
-
-                    margin-top:
-                        30px;
-
-                    font-size:
-                        11px;
-
-                    color:
-                        #666;
-
-                }
-
-            </style>
-
-        </head>
-
-
-        <body>
-
-            <h1>
-                QR JIMPITAN
-            </h1>
-
-
-            <h2>
-                ${escapeHtml(
-                    nama
-                )}
-            </h2>
-
-
-            <p>
-                KK:
-                ${escapeHtml(
-                    nomorKK
-                )}
-            </p>
-
-
-            <img
-                src="${qrData}"
-                alt="QR Jimpitan"
-            >
-
-
-            <div class="token">
-
-                ${escapeHtml(
-                    token
-                )}
-
-            </div>
-
-
-            <div class="footer">
-
-                SIDAT<br>
-                Dibuat oleh Suwardi
-
-            </div>
-
-
-            <script>
-
-                window.onload =
-                    function() {
-
-                        window.print();
-
-                    };
-
-            <!-- SUPABASE -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- CONFIG -->
-           <script src="../js/supbase-config.js"></script>
-
-<!-- DATA WARGA -->
-            <script src="data-warga.js"></script>
-
-        </body>
-
-        </html>
-
-    `);
-
-
-    printWindow.document.close();
-
-}
-// ==========================================
-// SALIN TOKEN
-// ==========================================
-
-async function salinToken() {
-
-    if (!kkTerpilih) {
-
-        return;
-
-    }
-
-
-    const token =
-        buatQRData(
-            kkTerpilih
-        );
-
-
-    try {
-
-        await navigator.clipboard.writeText(
-            token
-        );
-
-
-        alert(
-            "QR Token KK berhasil disalin."
-        );
-
-
-    } catch {
-
-        alert(
-            "Token KK:\n" +
-            token
-        );
-
-    }
-
-}
-
-
-// ==========================================
-// HELPER GET VALUE
-// ==========================================
-
-function getValue(
-    id
-) {
-
-    return (
-        document.getElementById(
-            id
-        )?.value
-        ??
-        ""
-    );
-
-}
-
-
-// ==========================================
-// HELPER SET VALUE
-// ==========================================
-
-function setValue(
-    id,
-    value
-) {
-
-    const element =
-        document.getElementById(
-            id
-        );
-
-
-    if (element) {
-
-        element.value =
-            value ??
-            "";
-
-    }
-
-}
-
-
-// ==========================================
-// HELPER TEXT
-// ==========================================
-
-function setText(
-    id,
-    value
-) {
-
-    const element =
-        document.getElementById(
-            id
-        );
-
-
-    if (element) {
-
-        element.textContent =
-            value ??
-            "";
-
-    }
-
-}
-
-
-// ==========================================
-// ESCAPE HTML
-// ==========================================
-
-function escapeHtml(
-    value
-) {
-
-    return String(
-        value ??
-        ""
-    )
-
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-
-    .replace(
-        /</g,
-        "&lt;"
-    )
-
-    .replace(
-        />/g,
-        "&gt;"
-    )
-
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-
-    .replace(
-        /'/g,
-        "&#039;"
-    );
-
-}
-
-
-// ==========================================
-// ESCAPE ATTRIBUTE
-// ==========================================
-
-function escapeAttribute(
-    value
-) {
-
-    return String(
-        value ??
-        ""
-    )
-
-    .replace(
-        /\\/g,
-        "\\\\"
-    )
-
-    .replace(
-        /'/g,
-        "\\'"
-    );
-
-}
-
-
-// ==========================================
-// FORMAT RUPIAH
-// ==========================================
-
-function formatRupiah(
-    nominal
-) {
-
-    return new Intl.NumberFormat(
-        "id-ID",
-        {
-
-            style:
-                "currency",
-
-            currency:
-                "IDR",
-
-            maximumFractionDigits:
-                0
-
-        }
-
-    ).format(
-        Number(
-            nominal
-        ) ||
-        0
-    );
-
-}
-
-
-// ==========================================
-// KEMBALI DASHBOARD
-// ==========================================
-
-function kembaliDashboard() {
-
-    window.location.href =
-        "dashboard.html";
-
-}
-
-
-// ==========================================
-// EXPORT GLOBAL
-// ==========================================
-
-window.loadDataWarga =
-    loadDataWarga;
-
-window.bukaTambahWarga =
-    bukaTambahWarga;
-
-window.tutupWargaModal =
-    tutupWargaModal;
-
-window.simpanFormWarga =
-    simpanFormWarga;
-
-window.ubahSumberData =
-    ubahSumberData;
-
-window.ubahStatusKeluarga =
-    ubahStatusKeluarga;
-
-window.pilihWargaExisting =
-    pilihWargaExisting;
-
-window.filterKK =
-    filterKK;
-
-window.lihatKK =
-    lihatKK;
-
-window.lihatKKDariWarga =
-    lihatKKDariWarga;
-
-window.tutupDetailKK =
-    tutupDetailKK;
-
-window.tambahAnggotaDariKK =
-    tambahAnggotaDariKK;
-
-window.bukaEditWarga =
-    bukaEditWarga;
-
-window.tutupEditWarga =
-    tutupEditWarga;
-
-window.simpanEditWarga =
-    simpanEditWarga;
-
-window.bukaPindahKK =
-    bukaPindahKK;
-
-window.tutupPindahKK =
-    tutupPindahKK;
-
-window.ubahTujuanPindah =
-    ubahTujuanPindah;
-
-window.simpanPindahKK =
-    simpanPindahKK;
-
-window.keluarkanDariKK =
-    keluarkanDariKK;
-
-window.editKepalaKeluarga =
-    editKepalaKeluarga;
-
-window.bukaQR =
-    bukaQR;
-
-window.tutupQR =
-    tutupQR;
-
-window.cetakQR =
-    cetakQR;
-
-window.salinToken =
-    salinToken;
-
-window.kembaliDashboard =
-    kembaliDashboard;
-
-
-// ==========================================
-// START
-// ==========================================
-
-loadDataWarga();
-// ==========================================
-// SIDAT
-// EXPORT DATA WARGA
-// ==========================================
-
-function exportDataWarga() {
-
-    try {
-
-        // ==================================
-        // CEK DATA
-        // ==================================
-
-        if (
-            !Array.isArray(
-                semuaWarga
-            ) ||
-            semuaWarga.length === 0
-        ) {
-
-            alert(
-                "Belum ada data warga yang dapat di-export."
-            );
-
-            return;
-
-        }
-
-
-        // ==================================
-        // HEADER CSV
-        // ==================================
-
-        const headers = [
-
-            "resident_code",
-            "nik",
-            "kk_number",
-            "name",
-            "birth_place",
-            "birth_date",
-            "gender",
-            "address",
-            "house_number",
-            "phone",
-            "family_status",
-            "is_active"
-
-        ];
-
-
-        // ==================================
-        // ESCAPE CSV
-        // ==================================
-
-        function escapeCSV(
-            value
-        ) {
-
-            if (
-                value === null ||
-                value === undefined
-            ) {
-
-                return "";
-
-            }
-
-
-            const text =
-                String(
-                    value
-                );
-
-
-            return `"${text.replace(
-                /"/g,
-                '""'
-            )}"`;
-
-        }
-
-
-        // ==================================
-        // BUAT BARIS DATA
-        // ==================================
-
-        const rows =
-            semuaWarga.map(
-                warga => {
-
-                    return [
-
-                        warga.resident_code,
-
-                        warga.nik,
-
-                        warga.kk_number,
-
-                        warga.name,
-
-                        warga.birth_place,
-
-                        warga.birth_date,
-
-                        warga.gender,
-
-                        warga.address,
-
-                        warga.house_number,
-
-                        warga.phone,
-
-                        warga.family_status,
-
-                        warga.is_active
-
-                    ]
-                    .map(
-                        escapeCSV
-                    )
-                    .join(",");
-
-                }
-            );
-
-
-        // ==================================
-        // GABUNG CSV
-        // ==================================
-
-        const csv =
-            [
-                headers
-                    .map(
-                        escapeCSV
-                    )
-                    .join(","),
-
-                ...rows
-
-            ]
-            .join("\r\n");
-
-
-        // ==================================
-        // BOM
-        // Supaya Excel membaca UTF-8
-        // ==================================
-
-        const blob =
-            new Blob(
-                [
-                    "\uFEFF" +
-                    csv
-                ],
-                {
-                    type:
-                        "text/csv;charset=utf-8;"
-                }
-            );
-
-
-        // ==================================
-        // NAMA FILE
-        // ==================================
-
-        const sekarang =
-            new Date();
-
-
-        const tahun =
-            sekarang.getFullYear();
-
-
-        const bulan =
-            String(
-                sekarang.getMonth() + 1
-            )
-            .padStart(
-                2,
-                "0"
-            );
-
-
-        const tanggal =
-            String(
-                sekarang.getDate()
-            )
-            .padStart(
-                2,
-                "0"
-            );
-
-
-        const namaFile =
-            `SIDAT_Data_Warga_${tahun}-${bulan}-${tanggal}.csv`;
-
-
-        // ==================================
-        // DOWNLOAD
-        // ==================================
-
-        const url =
-            URL.createObjectURL(
-                blob
-            );
-
-
-        const link =
-            document.createElement(
-                "a"
-            );
-
-
-        link.href =
-            url;
-
-
-        link.download =
-            namaFile;
-
-
-        document.body.appendChild(
-            link
-        );
-
-
-        link.click();
-
-
-        link.remove();
-
-
-        URL.revokeObjectURL(
-            url
-        );
-
-
-        // ==================================
-        // INFORMASI
-        // ==================================
-
-        alert(
-            `Export berhasil.\n\n` +
-            `Jumlah warga: ${semuaWarga.length}\n` +
-            `File: ${namaFile}`
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "EXPORT DATA WARGA ERROR:",
-            error
-        );
-
-
-        alert(
-            "Gagal melakukan export data warga:\n" +
-            error.message
-        );
-
-    }
-
-}
-
-
-// ==========================================
-// EXPORT
-// ==========================================
-
-window.exportDataWarga =
-    exportDataWarga;
-    
-// ==========================================
-// EXPORT DATA WARGA - EXCEL
-// ==========================================
-
-function exportDataWargaExcel() {
-
-    try {
-
-        // ==================================
-        // CEK SHEETJS
-        // ==================================
-
-        if (
-            typeof XLSX === "undefined"
-        ) {
-
-            alert(
-                "Library Excel belum tersedia.\n\n" +
-                "Silakan refresh halaman SIDAT."
-            );
-
-            return;
-
-        }
-
-
-        // ==================================
-        // CEK DATA
-        // ==================================
-
-        if (
-            !Array.isArray(
-                semuaWarga
-            ) ||
-            semuaWarga.length === 0
-        ) {
-
-            alert(
-                "Belum ada data warga yang dapat di-export."
-            );
-
-            return;
-
-        }
-
-
-        // ==================================
-        // DATA EXCEL
-        // ==================================
-
-        const headers = [
-
-            "resident_code",
-            "nik",
-            "kk_number",
-            "name",
-            "birth_place",
-            "birth_date",
-            "gender",
-            "address",
-            "house_number",
-            "phone",
-            "family_status",
-            "is_active"
-
-        ];
-
-
-        const data = [
-
-            headers,
-
-            ...semuaWarga.map(
-                warga => [
-
-                    warga.resident_code ?? "",
-
-                    warga.nik ?? "",
-
-                    warga.kk_number ?? "",
-
-                    warga.name ?? "",
-
-                    warga.birth_place ?? "",
-
-                    warga.birth_date ?? "",
-
-                    warga.gender ?? "",
-
-                    warga.address ?? "",
-
-                    warga.house_number ?? "",
-
-                    warga.phone ?? "",
-
-                    warga.family_status ?? "",
-
-                    warga.is_active ?? ""
-
-                ]
-            )
-
-        ];
-
-
-        // ==================================
-        // BUAT WORKSHEET
-        // ==================================
-
-        const worksheet =
-            XLSX.utils.aoa_to_sheet(
-                data
-            );
-
-
-        // ==================================
-        // LEBAR KOLOM
-        // ==================================
-
-        worksheet["!cols"] = [
-
-            { wch: 16 },
-            { wch: 18 },
-            { wch: 20 },
-            { wch: 30 },
-            { wch: 20 },
-            { wch: 15 },
-            { wch: 10 },
-            { wch: 40 },
-            { wch: 15 },
-            { wch: 18 },
-            { wch: 20 },
-            { wch: 12 }
-
-        ];
-
-
-        // ==================================
-        // BUAT WORKBOOK
-        // ==================================
-
-        const workbook =
-            XLSX.utils.book_new();
-
-
-        XLSX.utils.book_append_sheet(
-            workbook,
-            worksheet,
-            "Data Warga"
-        );
-
-
-        // ==================================
-        // NAMA FILE
-        // ==================================
-
-        const sekarang =
-            new Date();
-
-
-        const tahun =
-            sekarang.getFullYear();
-
-
-        const bulan =
-            String(
-                sekarang.getMonth() + 1
-            )
-            .padStart(
-                2,
-                "0"
-            );
-
-
-        const tanggal =
-            String(
-                sekarang.getDate()
-            )
-            .padStart(
-                2,
-                "0"
-            );
-
-
-        const namaFile =
-            `SIDAT_Data_Warga_${tahun}-${bulan}-${tanggal}.xlsx`;
-
-
-        // ==================================
-        // DOWNLOAD
-        // ==================================
-
-        XLSX.writeFile(
-            workbook,
-            namaFile
-        );
-
-
-        // ==================================
-        // INFORMASI
-        // ==================================
-
-        alert(
-            `Export Excel berhasil.\n\n` +
-            `Jumlah warga: ${semuaWarga.length}\n` +
-            `File: ${namaFile}`
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "EXPORT EXCEL DATA WARGA ERROR:",
-            error
-        );
-
-
-        alert(
-            "Gagal melakukan export Excel data warga:\n" +
-            error.message
-        );
-
-    }
-
-}
-
-
-// ==========================================
-// EXPORT EXCEL
-// ==========================================
-
-window.exportDataWargaExcel =
-    exportDataWargaExcel;
-    // ==========================================
-// IMPORT DATA WARGA
-// BUKA MODAL
-// ==========================================
-
-function bukaImportWarga() {
-
-    const modal =
-        document.getElementById(
-            "importWargaModal"
-        );
-
-    if (!modal) {
-
-        console.error(
-            "Modal import warga tidak ditemukan."
-        );
-
-        return;
-
-    }
-
-
-    // Reset file
-
-    const fileInput =
-        document.getElementById(
-            "importWargaFile"
-        );
-
-    if (fileInput) {
-
-        fileInput.value = "";
-
-    }
-
-
-    // Reset status
-
-    const status =
-        document.getElementById(
-            "importStatus"
-        );
-
-    if (status) {
-
-        status.innerHTML = "";
-
-        status.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    // Reset error
-
-    const error =
-        document.getElementById(
-            "importError"
-        );
-
-    if (error) {
-
-        error.innerHTML = "";
-
-        error.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    // Reset preview
-
-    const previewSection =
-        document.getElementById(
-            "importPreviewSection"
-        );
-
-    if (previewSection) {
-
-        previewSection.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    const preview =
-        document.getElementById(
-            "importPreview"
-        );
-
-    if (preview) {
-
-        preview.innerHTML = "";
-
-    }
-
-
-    // Reset summary
-
-    const total =
-        document.getElementById(
-            "importTotal"
-        );
-
-    const valid =
-        document.getElementById(
-            "importValid"
-        );
-
-    const duplicate =
-        document.getElementById(
-            "importDuplicate"
-        );
-
-
-    if (total) {
-
-        total.textContent = "0";
-
-    }
-
-
-    if (valid) {
-
-        valid.textContent = "0";
-
-    }
-
-
-    if (duplicate) {
-
-        duplicate.textContent = "0";
-
-    }
-
-
-    // Disable tombol import
-
-    const button =
-        document.getElementById(
-            "btnProsesImport"
-        );
-
-    if (button) {
-
-        button.disabled = true;
-
-    }
-
-
-    // Buka modal
-
-    modal.classList.remove(
-        "hidden"
-    );
-
-}
-
-
-// ==========================================
-// TUTUP MODAL IMPORT
-// ==========================================
-
-function tutupImportWarga() {
-
-    const modal =
-        document.getElementById(
-            "importWargaModal"
-        );
-
-    if (!modal) {
-
-        return;
-
-    }
-
-
-    modal.classList.add(
-        "hidden"
-    );
-
-}
-
-
-// ==========================================
-// EXPORT GLOBAL
-// ==========================================
-
-window.bukaImportWarga =
-    bukaImportWarga;
-
-
-window.tutupImportWarga =
-    tutupImportWarga;
-    
-
-    // ==========================================
-// IMPORT DATA WARGA
-// FILE INPUT
-// ==========================================
-
-const importWargaFile =
-    document.getElementById(
-        "importWargaFile"
-    );
-
-
-if (importWargaFile) {
-
-    importWargaFile.addEventListener(
-        "change",
-        async function () {
-
-            const file =
-                this.files?.[0];
-
-
-            if (!file) {
-
-                return;
-
-            }
-
-
-            await bacaFileImportWarga(
-                file
-            );
-
-        }
-    );
-
-}
-
-
-// ==========================================
-// BACA FILE CSV
-// ==========================================
-
-async function bacaFileImportWarga(file) {
-
-    const errorBox =
-        document.getElementById("importError");
-
-    const statusBox =
-        document.getElementById("importStatus");
-
-    const previewSection =
-        document.getElementById("importPreviewSection");
-
-    const preview =
-        document.getElementById("importPreview");
-
-    const button =
-        document.getElementById("btnProsesImport");
-
-
-    // ==========================================
-    // RESET
-    // ==========================================
-
-    if (errorBox) {
-
-        errorBox.innerHTML = "";
-        errorBox.classList.add("hidden");
-
-    }
-
-    if (previewSection) {
-
-        previewSection.classList.add("hidden");
-
-    }
-
-    if (preview) {
-
-        preview.innerHTML = "";
-
-    }
-
-    if (button) {
-
-        button.disabled = true;
-
-    }
-
-
-    // ==========================================
-    // CEK FILE
-    // ==========================================
-
-    if (!file) {
-
-        tampilkanErrorImport(
-            "File belum dipilih."
-        );
-
-        return;
-
-    }
-
-
-    const namaFile =
-    file.name
-        .toLowerCase();
-
-const isCSV =
-    namaFile.endsWith(".csv");
-
-const isExcel =
-    namaFile.endsWith(".xlsx") ||
-    namaFile.endsWith(".xls");
-
-
-if (!isCSV && !isExcel) {
-
-    tampilkanErrorImport(
-        "File harus berformat CSV, XLSX, atau XLS."
-    );
-
-    return;
-
-}
-
-
-    try {
-
-        if (statusBox) {
-
-            statusBox.innerHTML = `
-                <strong>
-                    Membaca file...
-                </strong>
-
-                <p>
-                    ${escapeHtml(file.name)}
-                </p>
-            `;
-
-            statusBox.classList.remove("hidden");
-
-        }
-
-
-        // ==========================================
-        // BACA FILE
-        // ==========================================
-
-                // ==========================================
-        // BACA FILE
-        // CSV / EXCEL
-        // ==========================================
-
-        let rows;
-
-
-        if (isCSV) {
-
-            // ======================================
-            // CSV
-            // ======================================
-
-            const text =
-                await file.text();
-
-
-            if (!text.trim()) {
-
-                throw new Error(
-                    "File CSV kosong."
-                );
-
-            }
-
-
-            console.log(
-                "CSV RAW:",
-                text.substring(0, 1000)
-            );
-
-
-            rows =
-                parseCSV(text);
-
-
-            console.log(
-                "CSV ROWS:",
-                rows
-            );
-
-        } else {
-
-            // ======================================
-            // EXCEL
-            // ======================================
-
-            if (
-                typeof XLSX === "undefined"
-            ) {
-
-                throw new Error(
-                    "Library Excel belum tersedia. Silakan refresh halaman."
-                );
-
-            }
-
-
-            const arrayBuffer =
-                await file.arrayBuffer();
-
-
-            if (
-                !arrayBuffer ||
-                arrayBuffer.byteLength === 0
-            ) {
-
-                throw new Error(
-                    "File Excel kosong."
-                );
-
-            }
-
-
-            console.log(
-                "EXCEL FILE:",
-                file.name
-            );
-
-
-            const workbook =
-                XLSX.read(
-                    arrayBuffer,
-                    {
-                        type: "array"
-                    }
-                );
-
-
-            if (
-                !workbook.SheetNames ||
-                workbook.SheetNames.length === 0
-            ) {
-
-                throw new Error(
-                    "File Excel tidak memiliki sheet."
-                );
-
-            }
-
-
-            const namaSheet =
-                workbook.SheetNames[0];
-
-
-            const worksheet =
-                workbook.Sheets[
-                    namaSheet
-                ];
-
-
-            rows =
-                XLSX.utils.sheet_to_json(
-                    worksheet,
-                    {
-                        header: 1,
-                        defval: "",
-                        raw: false
-                    }
-                );
-
-
-            console.log(
-                "EXCEL SHEET:",
-                namaSheet
-            );
-
-
-            console.log(
-                "EXCEL ROWS:",
-                rows
-            );
-
-        }
-
-
-        // ==========================================
-        // CEK HASIL BACA
-        // ==========================================
-
-        if (
-            !rows ||
-            rows.length < 2
-        ) {
-
-            throw new Error(
-                isCSV
-                    ? "CSV tidak memiliki data warga."
-                    : "Excel tidak memiliki data warga."
-            );
-
-        }
-
-
-        // ==========================================
-        // HEADER
-        // ==========================================
-
-        const headers =
-            rows[0].map(
-                header =>
-                    String(
-                        header || ""
-                    )
-                    .replace(
-                        /^\uFEFF/,
-                        ""
-                    )
-                    .trim()
-                    .toLowerCase()
-            );
-
-
-        console.log(
-    isCSV
-        ? "CSV HEADERS:"
-        : "EXCEL HEADERS:",
-    headers
-);
-
-
-        // ==========================================
-        // HEADER WAJIB
-        // ==========================================
-
-        const requiredHeaders = [
-
-            "resident_code",
-            "kk_number",
-            "name",
-            "gender",
-            "family_status"
-
-        ];
-
-
-        const missingHeaders =
-            requiredHeaders.filter(
-                header =>
-                    !headers.includes(
-                        header
-                    )
-            );
-
-
-        if (
-            missingHeaders.length > 0
-        ) {
-
-            throw new Error(
-                "Kolom wajib tidak ditemukan: " +
-                missingHeaders.join(", ")
-            );
-
-        }
-
-
-        // ==========================================
-        // UBAH ROW MENJADI OBJECT
-        // ==========================================
-
-        const data =
-            rows
-                .slice(1)
-                .map(
-                    row => {
-
-                        const item = {};
-
-                        headers.forEach(
-                            (
-                                header,
-                                index
-                            ) => {
-
-                                item[header] =
-                                    String(
-                                        row[index] ?? ""
-                                    )
-                                    .trim();
-
-                            }
+                    await createResidentAccount(
+                        resident
+                    );
+
+                    /*
+                     * Verifikasi ulang ke database.
+                     */
+
+                    const verifiedResident =
+                        await getResidentById(
+                            resident.id
                         );
 
+                    if (
+                        verifiedResident &&
+                        verifiedResident.account_created
+                    ) {
 
-                        return item;
+                        accountCreated =
+                            true;
 
+                    } else {
+
+                        accountFailed =
+                            true;
+
+                        console.warn(
+                            "SIDAT IMPORT: Edge Function selesai tetapi account_created belum true:",
+                            resident.id
+                        );
                     }
-                )
-                .filter(
-                    item =>
-                        Object.values(item)
-                            .some(
-                                value =>
-                                    String(
-                                        value || ""
-                                    ).trim()
-                            )
-                );
 
-
-        console.log(
-            "DATA IMPORT:",
-            data
-        );
-
-
-        // ==========================================
-        // CEK DATA
-        // ==========================================
-
-        if (
-            data.length === 0
-        ) {
-
-            throw new Error(
-                "CSV berhasil dibaca tetapi tidak ditemukan baris data warga."
-            );
-
-        }
-
-
-        // ==========================================
-        // SIMPAN GLOBAL
-        // ==========================================
-
-        dataImportWarga =
-            data;
-
-
-        console.log(
-            "dataImportWarga tersimpan:",
-            dataImportWarga
-        );
-
-
-        // ==========================================
-        // VALIDASI
-        // ==========================================
-
-        const hasilValidasi =
-            validasiDataImportWarga(
-                data
-            );
-
-
-        // ==========================================
-        // PREVIEW
-        // ==========================================
-
-        tampilkanPreviewImportWarga(
-            data,
-            hasilValidasi
-        );
-
-
-        // ==========================================
-        // STATUS
-        // ==========================================
-
-        if (statusBox) {
-
-            statusBox.innerHTML = `
-                <strong>
-                    File berhasil dibaca.
-                </strong>
-
-                <p>
-                    ${data.length}
-                    data warga ditemukan.
-                </p>
-            `;
-
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            "BACA CSV ERROR:",
-            error
-        );
-
-
-        tampilkanErrorImport(
-            error.message ||
-            "Gagal membaca file CSV."
-        );
-
-    }
-
-}
-
-
-// ==========================================
-// PARSER CSV
-// ==========================================
-
-function parseCSV(
-    text
-) {
-
-    const rows = [];
-
-    let row = [];
-
-    let value = "";
-
-    let insideQuotes =
-        false;
-
-
-    for (
-        let i = 0;
-        i < text.length;
-        i++
-    ) {
-
-        const char =
-            text[i];
-
-
-        const next =
-            text[i + 1];
-
-
-        // ==================================
-        // QUOTE
-        // ==================================
-
-        if (
-            char === '"'
-        ) {
-
-            if (
-                insideQuotes &&
-                next === '"'
-            ) {
-
-                value += '"';
-
-                i++;
-
-                continue;
-
-            }
-
-
-            insideQuotes =
-                !insideQuotes;
-
-            continue;
-
-        }
-
-
-        // ==================================
-        // COMMA
-        // ==================================
-
-        if (
-            char === "," &&
-            !insideQuotes
-        ) {
-
-            row.push(
-                value
-            );
-
-            value = "";
-
-            continue;
-
-        }
-
-
-        // ==================================
-        // NEW LINE
-        // ==================================
-
-        if (
-            (
-                char === "\n" ||
-                char === "\r"
-            ) &&
-            !insideQuotes
-        ) {
-
-            if (
-                char === "\r" &&
-                next === "\n"
-            ) {
-
-                i++;
-
-            }
-
-
-            row.push(
-                value
-            );
-
-            rows.push(
-                row
-            );
-
-            row = [];
-
-            value = "";
-
-            continue;
-
-        }
-
-
-        value += char;
-
-    }
-
-
-    // ==================================
-    // BARIS TERAKHIR
-    // ==================================
-
-    if (
-        value !== "" ||
-        row.length > 0
-    ) {
-
-        row.push(
-            value
-        );
-
-        rows.push(
-            row
-        );
-
-    }
-
-
-    return rows;
-
-}
-
-
-// ==========================================
-// VALIDASI DATA IMPORT
-// ==========================================
-
-function validasiDataImportWarga(
-    data
-) {
-
-    const hasil = {
-
-        valid: 0,
-
-        duplicate: 0,
-
-        invalid: 0,
-
-        errors: [],
-
-        validRows: []
-
-    };
-
-
-    const kodeSet =
-        new Set();
-
-
-    data.forEach(
-        (
-            warga,
-            index
-        ) => {
-
-            const baris =
-                index + 2;
-
-
-            const kode =
-                String(
-                    warga.resident_code ||
-                    ""
-                )
-                .trim()
-                .toUpperCase();
-
-
-            const nama =
-                String(
-                    warga.name ||
-                    ""
-                )
-                .trim();
-
-
-            const gender =
-                String(
-                    warga.gender ||
-                    ""
-                )
-                .trim()
-                .toUpperCase();
-
-
-            const status =
-                String(
-                    warga.family_status ||
-                    ""
-                )
-                .trim();
-
-
-            // ==============================
-            // KODE WARGA
-            // ==============================
-
-            if (!kode) {
-
-                hasil.invalid++;
-
-                hasil.errors.push(
-                    `Baris ${baris}: ID warga kosong.`
-                );
-
-                return;
-
-            }
-
-
-            if (
-                kodeSet.has(
-                    kode
-                )
-            ) {
-
-                hasil.duplicate++;
-
-                hasil.errors.push(
-                    `Baris ${baris}: ID warga ${kode} duplikat dalam file.`
-                );
-
-                return;
-
-            }
-
-
-            kodeSet.add(
-                kode
-            );
-
-
-            // ==============================
-            // NAMA
-            // ==============================
-
-            if (!nama) {
-
-                hasil.invalid++;
-
-                hasil.errors.push(
-                    `Baris ${baris}: Nama warga kosong.`
-                );
-
-                return;
-
-            }
-
-
-            // ==============================
-            // GENDER
-            // ==============================
-
-            if (
-                gender !== "L" &&
-                gender !== "P"
-            ) {
-
-                hasil.invalid++;
-
-                hasil.errors.push(
-                    `Baris ${baris}: Jenis kelamin harus L atau P.`
-                );
-
-                return;
-
-            }
-
-
-            // ==============================
-            // STATUS
-            // ==============================
-
-            if (!status) {
-
-                hasil.invalid++;
-
-                hasil.errors.push(
-                    `Baris ${baris}: Status keluarga kosong.`
-                );
-
-                return;
-
-            }
-
-
-            hasil.valid++;
-
-            hasil.validRows.push(
-                warga
-            );
-
-        }
-    );
-
-
-    return hasil;
-
-}
-
-
-// ==========================================
-// TAMPILKAN PREVIEW
-// ==========================================
-
-function tampilkanPreviewImportWarga(
-    data,
-    hasil
-) {
-
-    const section =
-        document.getElementById(
-            "importPreviewSection"
-        );
-
-
-    const preview =
-        document.getElementById(
-            "importPreview"
-        );
-
-
-    const total =
-        document.getElementById(
-            "importTotal"
-        );
-
-
-    const valid =
-        document.getElementById(
-            "importValid"
-        );
-
-
-    const duplicate =
-        document.getElementById(
-            "importDuplicate"
-        );
-
-
-    const button =
-        document.getElementById(
-            "btnProsesImport"
-        );
-
-
-    if (total) {
-
-        total.textContent =
-            data.length;
-
-    }
-
-
-    if (valid) {
-
-        valid.textContent =
-            hasil.valid;
-
-    }
-
-
-    if (duplicate) {
-
-        duplicate.textContent =
-            hasil.duplicate;
-
-    }
-
-
-    // ==================================
-    // PREVIEW MAKSIMAL 50 BARIS
-    // ==================================
-
-    const previewData =
-        data.slice(
-            0,
-            50
-        );
-
-
-    let html = `
-        <table>
-
-            <thead>
-
-                <tr>
-    `;
-
-
-    const headers = [
-
-        "resident_code",
-        "nik",
-        "kk_number",
-        "name",
-        "birth_place",
-        "birth_date",
-        "gender",
-        "address",
-        "house_number",
-        "phone",
-        "family_status",
-        "is_active"
-
-    ];
-
-
-    headers.forEach(
-        header => {
-
-            html += `
-                <th>
-                    ${escapeHtml(
-                        header
-                    )}
-                </th>
-            `;
-
-        }
-    );
-
-
-    html += `
-                </tr>
-
-            </thead>
-
-            <tbody>
-    `;
-
-
-    previewData.forEach(
-        warga => {
-
-            html += `
-                <tr>
-            `;
-
-
-            headers.forEach(
-                header => {
-
-                    html += `
-                        <td>
-                            ${escapeHtml(
-                                warga[header] ||
-                                ""
-                            )}
-                        </td>
-                    `;
-
+                } catch (accountError) {
+
+                    accountFailed =
+                        true;
+
+                    console.error(
+                        "SIDAT IMPORT: Gagal membuat akun WARGA:",
+                        resident.name,
+                        accountError
+                    );
+
+                    /*
+                     * Jangan throw di sini.
+                     *
+                     * Data warga tetap dianggap
+                     * berhasil diimport.
+                     */
                 }
-            );
 
+            } else if (
+                resident &&
+                resident.account_created
+            ) {
 
-            html += `
-                </tr>
-            `;
+                /*
+                 * Akun sudah ada.
+                 * Jangan dibuat ulang.
+                 */
 
-        }
-    );
+                accountCreated =
+                    false;
 
+                accountFailed =
+                    false;
+            }
 
-    html += `
-            </tbody>
+            return {
 
-        </table>
-    `;
+                resident:
+                    resident,
 
+                action:
+                    action,
 
-    if (preview) {
+                accountCreated:
+                    accountCreated,
 
-        preview.innerHTML =
-            html;
-
-    }
-
-
-    if (section) {
-
-        section.classList.remove(
-            "hidden"
-        );
-
-    }
-
-
-    // ==================================
-    // TOMBOL IMPORT
-    // ==================================
-
-    if (button) {
-
-        button.disabled =
-            hasil.valid === 0 ||
-            hasil.invalid > 0 ||
-            hasil.duplicate > 0;
-
-    }
-
-}
-
-
-// ==========================================
-// ERROR IMPORT
-// ==========================================
-
-function tampilkanErrorImport(
-    message
-) {
-
-    const errorBox =
-        document.getElementById(
-            "importError"
-        );
-
-
-    if (!errorBox) {
-
-        return;
-
-    }
-
-
-    errorBox.innerHTML = `
-        ${escapeHtml(
-            message
-        )}
-    `;
-
-
-    errorBox.classList.remove(
-        "hidden"
-    );
-
-}
-// ==========================================
-// PROSES IMPORT DATA WARGA
-// ==========================================
-
-// ==========================================
-// PROSES IMPORT WARGA
-// ==========================================
-
-async function prosesImportWarga() {
-
-    const button =
-        document.getElementById(
-            "btnProsesImport"
-        );
-
-    const statusBox =
-        document.getElementById(
-            "importStatus"
-        );
-
-    const errorBox =
-        document.getElementById(
-            "importError"
-        );
-
-
-    // ==========================================
-    // CEK DATA
-    // ==========================================
-
-    if (
-        !Array.isArray(dataImportWarga) ||
-        dataImportWarga.length === 0
-    ) {
-
-        tampilkanErrorImport(
-            "Belum ada data yang siap diimport."
-        );
-
-        return;
-
-    }
-
-
-    // ==========================================
-    // KONFIRMASI
-    // ==========================================
-
-    if (
-        !confirm(
-            `Import ${dataImportWarga.length} data warga sekarang?`
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    // ==========================================
-    // LOADING
-    // ==========================================
-
-    if (button) {
-
-        button.disabled = true;
-
-        button.textContent =
-            "MEMPROSES...";
-
-    }
-
-
-    if (errorBox) {
-
-        errorBox.innerHTML = "";
-
-        errorBox.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    if (statusBox) {
-
-        statusBox.innerHTML = `
-            <strong>
-                Sedang mengimport data...
-            </strong>
-
-            <p>
-                Mohon jangan tutup halaman.
-            </p>
-        `;
-
-        statusBox.classList.remove(
-            "hidden"
-        );
-
-    }
-
-
-    try {
-
-        // ==========================================
-        // AMBIL TOKEN SIDAT
-        // ==========================================
-
-        const accessToken =
-            localStorage.getItem(
-                "sidat_access_token"
-            );
-
-
-        if (!accessToken) {
-
-            throw new Error(
-                "Session admin tidak ditemukan. Silakan login kembali."
-            );
-
+                accountFailed:
+                    accountFailed
+            };
         }
 
+        return {
 
-        console.log(
-            "IMPORT FUNCTION URL:",
-            `${SUPABASE_URL}/functions/v1/import-residents`
-        );
+            resident:
+                resident,
 
-        console.log(
-            "ACCESS TOKEN ADA:",
-            !!accessToken
-        );
+            action:
+                action,
 
-        console.log(
-            "DATA DIKIRIM:",
-            dataImportWarga
-        );
+            accountCreated:
+                false,
 
-
-        // ==========================================
-        // PANGGIL EDGE FUNCTION
-        // ==========================================
-
-        const response =
-            await fetch(
-                `${SUPABASE_URL}/functions/v1/import-residents`,
-                {
-                    method: "POST",
-
-                    headers: {
-
-                        "Authorization":
-                            `Bearer ${accessToken}`,
-
-                        "apikey":
-                            SUPABASE_KEY,
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-                        JSON.stringify({
-                            residents:
-                                dataImportWarga
-                        })
-
-                }
-            );
+            accountFailed:
+                false
+        };
+    }
 
 
-        console.log(
-            "IMPORT RESPONSE STATUS:",
-            response.status
-        );
+    /* =====================================================
+       EXPORT EXCEL
+       ===================================================== */
 
-
-        // ==========================================
-        // BACA RESPONSE
-        // ==========================================
-
-        const responseText =
-            await response.text();
-
-
-        console.log(
-            "IMPORT RAW RESPONSE:",
-            responseText
-        );
-
-
-        let result;
-
+    async function exportExcel() {
 
         try {
 
-            result =
-                JSON.parse(
-                    responseText
+            await loadXlsxLibrary();
+
+            const rows =
+                state.residents.map(
+                    function (
+                        resident
+                    ) {
+
+                        return {
+
+                            "Kode Warga":
+                                resident.resident_code ||
+                                "",
+
+                            "NIK":
+                                resident.nik ||
+                                "",
+
+                            "Nomor KK":
+                                resident.kk_number ||
+                                "",
+
+                            "Nama":
+                                resident.name ||
+                                "",
+
+                            "Tempat Lahir":
+                                resident.birth_place ||
+                                "",
+
+                            "Tanggal Lahir":
+                                resident.birth_date ||
+                                "",
+
+                            "Gender":
+                                resident.gender ||
+                                "",
+
+                            "Status Keluarga":
+                                resident.family_status ||
+                                "",
+
+                            "Alamat":
+                                resident.address ||
+                                "",
+
+                            "No Rumah":
+                                resident.house_number ||
+                                "",
+
+                            "Telepon":
+                                resident.phone ||
+                                "",
+
+                            "Akun WARGA":
+                                resident.account_created
+                                    ? "Ya"
+                                    : "Tidak"
+                        };
+                    }
                 );
 
-        } catch (jsonError) {
+            const worksheet =
+                XLSX.utils.json_to_sheet(
+                    rows
+                );
 
-            throw new Error(
-                "Response Edge Function bukan JSON: " +
-                responseText
+            const workbook =
+                XLSX.utils.book_new();
+
+            XLSX.utils.book_append_sheet(
+                workbook,
+                worksheet,
+                "Data Warga"
             );
 
+            XLSX.writeFile(
+                workbook,
+                "SIDAT-Data-Warga.xlsx"
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Export error:",
+                error
+            );
+
+            alert(
+                "Gagal melakukan export Excel."
+            );
         }
+    }
 
 
-        console.log(
-            "IMPORT RESULT:",
-            result
+    /* =====================================================
+       TEMPLATE EXCEL
+       ===================================================== */
+
+    async function downloadTemplate() {
+
+        try {
+
+            await loadXlsxLibrary();
+
+            const rows = [
+                {
+
+                    "Nama":
+                        "CONTOH NAMA",
+
+                    "NIK":
+                        "3300000000000000",
+
+                    "Nomor KK":
+                        "3300000000000000",
+
+                    "Tempat Lahir":
+                        "Klaten",
+
+                    "Tanggal Lahir":
+                        "1990-01-01",
+
+                    "Gender":
+                        "L",
+
+                    "Status Keluarga":
+                        "Kepala Keluarga",
+
+                    "Alamat":
+                        "Morangan",
+
+                    "No Rumah":
+                        "01",
+
+                    "Telepon":
+                        "081234567890"
+                }
+            ];
+
+            const worksheet =
+                XLSX.utils.json_to_sheet(
+                    rows
+                );
+
+            const workbook =
+                XLSX.utils.book_new();
+
+            XLSX.utils.book_append_sheet(
+                workbook,
+                worksheet,
+                "Template"
+            );
+
+            XLSX.writeFile(
+                workbook,
+                "SIDAT-Template-Import-Warga.xlsx"
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Template error:",
+                error
+            );
+
+            alert(
+                "Gagal membuat template Excel."
+            );
+        }
+    }
+
+
+    /* =====================================================
+       IMPORT STEP
+       ===================================================== */
+
+    function showImportStep(
+        step
+    ) {
+
+        const steps = [
+            "importStepSelect",
+            "importStepPreview",
+            "importStepValidation",
+            "importStepImport"
+        ];
+
+        steps.forEach(
+            function (id) {
+
+                const element =
+                    $(id);
+
+                if (element) {
+
+                    element.style.display =
+                        "none";
+
+                    element.hidden =
+                        true;
+                }
+            }
         );
 
+        const target =
+            $("importStep" +
+                capitalize(step));
 
-        // ==========================================
-        // HASIL EDGE FUNCTION
-        // ==========================================
+        if (target) {
 
-        const hasil =
-            result.data ||
-            result;
+            target.hidden =
+                false;
+
+            target.style.display =
+                "block";
+        }
+    }
 
 
-        if (!result.success) {
+    function capitalize(
+        value
+    ) {
 
-            throw new Error(
-                result.message ||
-                "Import data warga gagal."
-            );
-
+        if (!value) {
+            return "";
         }
 
-
-        // ==========================================
-        // TAMPILKAN HASIL
-        // ==========================================
-
-        if (statusBox) {
-
-            statusBox.innerHTML = `
-
-                <strong>
-                    ✅ Import selesai
-                </strong>
-
-                <p>
-                    Total data:
-                    ${hasil.total ?? dataImportWarga.length}
-                </p>
-
-                <p>
-                    Berhasil:
-                    ${hasil.berhasil ?? 0}
-                </p>
-
-                <p>
-                    Duplikat:
-                    ${hasil.duplicate ?? 0}
-                </p>
-
-                <p>
-                    Gagal:
-                    ${hasil.gagal ?? 0}
-                </p>
-
-            `;
-
-            statusBox.classList.remove(
-                "hidden"
-            );
-
-        }
+        return (
+            value.charAt(0).toUpperCase() +
+            value.slice(1)
+        );
+    }
 
 
-        // ==========================================
-        // CEK ERROR PER BARIS
-        // ==========================================
+    /* =====================================================
+       MODAL
+       ===================================================== */
 
-        if (
-            Array.isArray(
-                hasil.errors
-            ) &&
-            hasil.errors.length > 0
-        ) {
+    function getModalElements() {
+
+        return Array.from(
+            document.querySelectorAll(
+                ".data-warga-modal, .sidat-modal"
+            )
+        );
+    }
+
+
+    function showModal(id) {
+
+        const modal =
+            $(id);
+
+        if (!modal) {
 
             console.warn(
-                "DETAIL ERROR IMPORT:",
-                hasil.errors
+                "SIDAT Modal: elemen tidak ditemukan:",
+                id
             );
 
+            return;
         }
 
+        modal.hidden =
+            false;
 
-        // ==========================================
-        // RESET DATA IMPORT
-        // ==========================================
-
-        dataImportWarga = [];
-
-
-        alert(
-            "Import data warga selesai."
+        modal.classList.add(
+            "active"
         );
 
+        modal.setAttribute(
+            "aria-hidden",
+            "false"
+        );
 
-        // ==========================================
-        // REFRESH DATA WARGA
-        // ==========================================
+        document.body.classList.add(
+            "sidat-modal-open"
+        );
+    }
 
-        if (
-            typeof muatDataWarga ===
-            "function"
-        ) {
 
-            await muatDataWarga();
+    function closeModal(id) {
 
+        const modal =
+            $(id);
+
+        if (!modal) {
+            return;
         }
 
-
-    } catch (error) {
-
-        console.error(
-            "IMPORT WARGA ERROR:",
-            error
+        modal.classList.remove(
+            "active"
         );
 
-        console.error(
-            "ERROR MESSAGE:",
-            error?.message
+        modal.hidden =
+            true;
+
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
         );
 
-        console.error(
-            "ERROR STACK:",
-            error?.stack
-        );
-
-
-        tampilkanErrorImport(
-            error?.message ||
-            "Terjadi kesalahan saat import warga."
-        );
-
-
-        if (statusBox) {
-
-            statusBox.innerHTML = `
-                <strong>
-                    ❌ Import gagal
-                </strong>
-            `;
-
-            statusBox.classList.remove(
-                "hidden"
-            );
-
-        }
-
-
-    } finally {
-
-        // ==========================================
-        // KEMBALIKAN TOMBOL
-        // ==========================================
-
-        if (button) {
-
-            button.disabled = false;
-
-            button.textContent =
-                "Proses Import";
-
-        }
-
-    }
-
-}
-// ==========================================
-// UBAH PIN KEPALA KELUARGA
-// ==========================================
-
-let residentUbahPinId = null;
-
-
-// ==========================================
-// BUKA MODAL UBAH PIN
-// ==========================================
-
-function bukaModalUbahPin(
-    residentId,
-    nama
-) {
-
-    const modal =
-        document.getElementById(
-            "ubahPinModal"
-        );
-
-    const namaBox =
-        document.getElementById(
-            "ubahPinNama"
-        );
-
-    const pinInput =
-        document.getElementById(
-            "pinBaru"
-        );
-
-    const konfirmasiInput =
-        document.getElementById(
-            "pinBaruKonfirmasi"
-        );
-
-    const errorBox =
-        document.getElementById(
-            "ubahPinError"
-        );
-
-    const statusBox =
-        document.getElementById(
-            "ubahPinStatus"
-        );
-
-
-    if (!modal) {
-
-        console.error(
-            "Modal ubah PIN tidak ditemukan."
-        );
-
-        return;
-
-    }
-
-
-    // ==========================================
-    // SIMPAN ID WARGA
-    // ==========================================
-
-    residentUbahPinId =
-        residentId;
-
-
-    // ==========================================
-    // TAMPILKAN NAMA
-    // ==========================================
-
-    if (namaBox) {
-
-        namaBox.innerHTML =
-            `
-                <strong>
-                    ${escapeHtml(
-                        nama ||
-                        "Kepala Keluarga"
-                    )}
-                </strong>
-                <br>
-                <small>
-                    Masukkan PIN baru untuk akun warga.
-                </small>
-            `;
-
-    }
-
-
-    // ==========================================
-    // RESET FORM
-    // ==========================================
-
-    if (pinInput) {
-
-        pinInput.value = "";
-
-    }
-
-
-    if (konfirmasiInput) {
-
-        konfirmasiInput.value = "";
-
-    }
-
-
-    if (errorBox) {
-
-        errorBox.innerHTML = "";
-
-        errorBox.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    if (statusBox) {
-
-        statusBox.innerHTML = "";
-
-        statusBox.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    // ==========================================
-    // BUKA MODAL
-    // ==========================================
-
-    modal.classList.remove(
-        "hidden"
-    );
-
-
-    // ==========================================
-    // FOCUS
-    // ==========================================
-
-    setTimeout(
-        () => {
-
-            if (pinInput) {
-
-                pinInput.focus();
-
-            }
-
-        },
-        100
-    );
-
-}
-
-
-// ==========================================
-// TUTUP MODAL UBAH PIN
-// ==========================================
-
-function tutupModalUbahPin() {
-
-    const modal =
-        document.getElementById(
-            "ubahPinModal"
-        );
-
-
-    if (!modal) {
-
-        return;
-
-    }
-
-
-    modal.classList.add(
-        "hidden"
-    );
-
-
-    residentUbahPinId =
-        null;
-
-}
-
-
-// ==========================================
-// SIMPAN PIN BARU
-// ==========================================
-
-async function simpanPinBaru() {
-
-    const button =
-        document.getElementById(
-            "btnSimpanPin"
-        );
-
-    const pinInput =
-        document.getElementById(
-            "pinBaru"
-        );
-
-    const konfirmasiInput =
-        document.getElementById(
-            "pinBaruKonfirmasi"
-        );
-
-    const errorBox =
-        document.getElementById(
-            "ubahPinError"
-        );
-
-    const statusBox =
-        document.getElementById(
-            "ubahPinStatus"
-        );
-
-
-    // ==========================================
-    // RESET PESAN
-    // ==========================================
-
-    if (errorBox) {
-
-        errorBox.innerHTML = "";
-
-        errorBox.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    if (statusBox) {
-
-        statusBox.innerHTML = "";
-
-        statusBox.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    // ==========================================
-    // CEK RESIDENT ID
-    // ==========================================
-
-    if (!residentUbahPinId) {
-
-        tampilkanErrorUbahPin(
-            "Data Kepala Keluarga tidak ditemukan."
-        );
-
-        return;
-
-    }
-
-
-    // ==========================================
-    // AMBIL PIN
-    // ==========================================
-
-    const pin =
-        String(
-            pinInput?.value ||
-            ""
-        ).trim();
-
-
-    const konfirmasi =
-        String(
-            konfirmasiInput?.value ||
-            ""
-        ).trim();
-
-
-    // ==========================================
-    // VALIDASI PIN
-    // ==========================================
-
-    if (
-        !/^\d{4,6}$/.test(
-            pin
-        )
-    ) {
-
-        tampilkanErrorUbahPin(
-            "PIN harus terdiri dari 4 sampai 6 digit."
-        );
-
-        return;
-
-    }
-
-
-    // ==========================================
-    // KONFIRMASI PIN
-    // ==========================================
-
-    if (
-        pin !==
-        konfirmasi
-    ) {
-
-        tampilkanErrorUbahPin(
-            "Konfirmasi PIN tidak sama."
-        );
-
-        return;
-
-    }
-
-
-    // ==========================================
-    // AMBIL SESSION
-    // ==========================================
-
-    let accessToken = null;
-
-
-    try {
-
-        if (
-            typeof supabaseClient !==
-            "undefined" &&
-            supabaseClient?.auth
-        ) {
-
-            const {
-                data: sessionData,
-                error: sessionError
-            } =
-                await supabaseClient
-                    .auth
-                    .getSession();
-
-
-            if (
-                !sessionError &&
-                sessionData?.session?.access_token
-            ) {
-
-                accessToken =
-                    sessionData.session.access_token;
-
-            }
-
-        }
-
-    } catch (error) {
-
-        console.warn(
-            "Gagal mengambil session Supabase:",
-            error
-        );
-
-    }
-
-
-    // ==========================================
-    // FALLBACK LOCAL STORAGE
-    // ==========================================
-
-    if (!accessToken) {
-
-        accessToken =
-            localStorage.getItem(
-                "sidat_access_token"
-            );
-
-    }
-
-
-    if (!accessToken) {
-
-        tampilkanErrorUbahPin(
-            "Session admin tidak ditemukan. Silakan login kembali."
-        );
-
-        return;
-
-    }
-
-
-    // ==========================================
-    // CEK SUPABASE URL
-    // ==========================================
-
-    if (
-        typeof SUPABASE_URL ===
-        "undefined"
-    ) {
-
-        tampilkanErrorUbahPin(
-            "SUPABASE_URL belum tersedia."
-        );
-
-        return;
-
-    }
-
-
-    // ==========================================
-    // LOADING
-    // ==========================================
-
-    if (button) {
-
-        button.disabled = true;
-
-        button.textContent =
-            "MENYIMPAN...";
-
-    }
-
-
-    if (statusBox) {
-
-        statusBox.innerHTML =
-            `
-                <strong>
-                    Menyimpan PIN baru...
-                </strong>
-            `;
-
-        statusBox.classList.remove(
-            "hidden"
-        );
-
-    }
-
-
-    try {
-
-        // ==========================================
-        // URL EDGE FUNCTION
-        // ==========================================
-
-        const functionUrl =
-            `${SUPABASE_URL}/functions/v1/reset-resident-pin`;
-
-
-        console.log(
-            "RESET PIN FUNCTION:",
-            functionUrl
-        );
-
-
-        console.log(
-            "ACCESS TOKEN ADA:",
-            !!accessToken
-        );
-
-
-        // ==========================================
-        // REQUEST
-        // ==========================================
-
-        const response =
-            await fetch(
-                functionUrl,
-                {
-                    method: "POST",
-
-                    headers: {
-
-                        "Authorization":
-                            `Bearer ${accessToken}`,
-
-                        "apikey":
-                            SUPABASE_KEY,
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            resident_id:
-                                residentUbahPinId,
-
-                            pin:
-                                pin
-
-                        })
-
-                }
-            );
-
-
-        // ==========================================
-        // RESPONSE TEXT
-        // ==========================================
-
-        const responseText =
-            await response.text();
-
-
-        console.log(
-            "RESET PIN RESPONSE:",
-            response.status,
-            responseText
-        );
-
-
-        // ==========================================
-        // PARSE JSON
-        // ==========================================
-
-        let result;
-
-
-        try {
-
-            result =
-                JSON.parse(
-                    responseText
+        const anyOpen =
+            getModalElements()
+                .some(
+                    function (item) {
+
+                        return (
+                            item.classList.contains(
+                                "active"
+                            ) &&
+                            !item.hidden
+                        );
+                    }
                 );
 
-        } catch {
+        if (!anyOpen) {
 
-            throw new Error(
-                "Response Edge Function bukan JSON: " +
-                responseText
+            document.body.classList.remove(
+                "sidat-modal-open"
             );
-
         }
+    }
 
 
-        // ==========================================
-        // CEK HASIL
-        // ==========================================
+    /* =====================================================
+       REFRESH
+       ===================================================== */
+
+    async function reloadData() {
+
+        state.residents =
+            [];
+
+        state.households =
+            [];
+
+        state.filteredHeads =
+            [];
+
+        await loadData();
+    }
+
+
+    /* =====================================================
+       LOADING
+       ===================================================== */
+
+    function setLoading(
+        isLoading
+    ) {
+
+        state.isLoading =
+            isLoading;
+
+        const loading =
+            $("loadingState");
+
+        const list =
+            $("keluargaList");
+
+        if (loading) {
+
+            loading.style.display =
+                isLoading
+                    ? "block"
+                    : "none";
+
+            loading.hidden =
+                !isLoading;
+        }
 
         if (
-            !response.ok ||
-            !result.success
+            list &&
+            isLoading
         ) {
 
-            throw new Error(
-                result.message ||
-                "Gagal mengubah PIN."
-            );
+            list.innerHTML =
+                "";
+        }
+    }
 
+
+    /* =====================================================
+       BUTTON LOADING
+       ===================================================== */
+
+    function setButtonLoading(
+        button,
+        loading,
+        text
+    ) {
+
+        if (!button) {
+            return;
         }
 
+        if (loading) {
 
-        // ==========================================
-        // BERHASIL
-        // ==========================================
+            if (
+                button.dataset.oldText ===
+                undefined
+            ) {
 
-        if (statusBox) {
+                button.dataset.oldText =
+                    button.textContent;
+            }
 
-            statusBox.innerHTML =
-                `
-                    <strong>
-                        ✅ PIN berhasil diubah.
-                    </strong>
+            button.disabled =
+                true;
 
-                    <p>
-                        PIN baru sudah aktif dan dapat digunakan untuk login.
-                    </p>
-                `;
+            button.textContent =
+                text ||
+                "Memproses...";
 
-        }
-
-
-        alert(
-            "PIN Kepala Keluarga berhasil diubah."
-        );
-
-
-        // ==========================================
-        // TUTUP MODAL
-        // ==========================================
-
-        tutupModalUbahPin();
-
-
-    } catch (error) {
-
-        console.error(
-            "UBAH PIN ERROR:",
-            error
-        );
-
-
-        tampilkanErrorUbahPin(
-            error?.message ||
-            "Gagal mengubah PIN."
-        );
-
-
-    } finally {
-
-        // ==========================================
-        // RESTORE BUTTON
-        // ==========================================
-
-        if (button) {
+        } else {
 
             button.disabled =
                 false;
 
             button.textContent =
-                "🔑 Simpan PIN";
+                button.dataset.oldText ||
+                text ||
+                "Simpan";
+        }
+    }
 
+
+    /* =====================================================
+       FORM HELPERS
+       ===================================================== */
+
+    function getValue(
+        id
+    ) {
+
+        const element =
+            $(id);
+
+        if (!element) {
+            return "";
         }
 
-    }
-
-}
-
-
-// ==========================================
-// TAMPILKAN ERROR
-// ==========================================
-
-function tampilkanErrorUbahPin(
-    message
-) {
-
-    const errorBox =
-        document.getElementById(
-            "ubahPinError"
-        );
-
-
-    if (!errorBox) {
-
-        alert(
-            message
-        );
-
-        return;
-
+        return element.value ||
+            "";
     }
 
 
-    errorBox.innerHTML =
-        `
-            ❌
-            ${escapeHtml(
-                message ||
-                "Terjadi kesalahan."
-            )}
-        `;
+    function setValue(
+        id,
+        value
+    ) {
+
+        const element =
+            $(id);
+
+        if (!element) {
+            return;
+        }
+
+        element.value =
+            value === null ||
+            value === undefined
+                ? ""
+                : value;
+    }
 
 
-    errorBox.classList.remove(
-        "hidden"
-    );
+    /* =====================================================
+       IMPORT MODAL RESET
+       ===================================================== */
 
-}
+    function resetImport() {
+
+        state.importRows =
+            [];
+
+        state.importValidated =
+            false;
+
+        state.importResult =
+            null;
+
+        const input =
+            $("excelFile");
+
+        if (input) {
+            input.value =
+                "";
+        }
+
+        const info =
+            $("selectedFileInfo");
+
+        if (info) {
+
+            info.textContent =
+                "Belum ada file dipilih.";
+
+            info.hidden =
+                true;
+        }
+
+        showImportStep(
+            "select"
+        );
+    }
 
 
-// ==========================================
-// EXPORT GLOBAL
-// ==========================================
+    /* =====================================================
+       EVENT BINDING
+       ===================================================== */
 
-window.bukaModalUbahPin =
-    bukaModalUbahPin;
+    function bindEvents() {
+
+        /* Search */
+
+        $("searchWarga")
+            ?.addEventListener(
+                "input",
+                filterHeads
+            );
+
+        $("btnClearSearch")
+            ?.addEventListener(
+                "click",
+                function () {
+
+                    setValue(
+                        "searchWarga",
+                        ""
+                    );
+
+                    filterHeads();
+                }
+            );
 
 
-window.tutupModalUbahPin =
-    tutupModalUbahPin;
+        /* Tambah Warga */
+
+        document
+            .querySelectorAll(
+                "#btnTambahWarga, #btnEmptyTambah"
+            )
+            .forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        "click",
+                        openAddResident
+                    );
+                }
+            );
 
 
-window.simpanPinBaru =
-    simpanPinBaru;
+        /* Refresh */
+
+        $("btnRefresh")
+            ?.addEventListener(
+                "click",
+                reloadData
+            );
+
+
+        /* Export */
+
+        $("btnExport")
+            ?.addEventListener(
+                "click",
+                exportExcel
+            );
+
+
+        /* Template */
+
+        $("btnTemplate")
+            ?.addEventListener(
+                "click",
+                downloadTemplate
+            );
+
+
+        /* Import */
+
+        $("btnImport")
+            ?.addEventListener(
+                "click",
+                function () {
+
+                    resetImport();
+
+                    showModal(
+                        "importModal"
+                    );
+                }
+            );
+
+
+        /* Excel */
+
+        $("btnChooseExcel")
+            ?.addEventListener(
+                "click",
+                chooseExcel
+            );
+
+        $("excelFile")
+            ?.addEventListener(
+                "change",
+                handleExcelFile
+            );
+
+
+        /* Form */
+
+        $("residentForm")
+            ?.addEventListener(
+                "submit",
+                saveResident
+            );
+
+
+        $("btnCancelResident")
+            ?.addEventListener(
+                "click",
+                function () {
+
+                    closeModal(
+                        "residentModal"
+                    );
+                }
+            );
+
+
+        /* Family */
+
+        $("btnCloseFamilyModal")
+            ?.addEventListener(
+                "click",
+                function () {
+
+                    closeModal(
+                        "familyModal"
+                    );
+                }
+            );
+
+
+        /* Resident */
+
+        $("btnCloseResidentModal")
+            ?.addEventListener(
+                "click",
+                function () {
+
+                    closeModal(
+                        "residentModal"
+                    );
+                }
+            );
+
+
+        /* Import close */
+
+        $("btnCloseImportModal")
+            ?.addEventListener(
+                "click",
+                function () {
+
+                    closeModal(
+                        "importModal"
+                    );
+                }
+            );
+
+
+        /* Import navigation */
+
+        $("btnImportBack")
+            ?.addEventListener(
+                "click",
+                function () {
+
+                    showImportStep(
+                        "select"
+                    );
+                }
+            );
+
+        $("btnImportNext")
+            ?.addEventListener(
+                "click",
+                handleImportNext
+            );
+
+
+        /* Modal backdrop */
+
+        getModalElements()
+            .forEach(
+                function (modal) {
+
+                    modal.addEventListener(
+                        "click",
+                        function (event) {
+
+                            if (
+                                event.target ===
+                                modal
+                            ) {
+
+                                closeModal(
+                                    modal.id
+                                );
+                            }
+                        }
+                    );
+                }
+            );
+
+
+        /* Escape */
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key !==
+                    "Escape"
+                ) {
+                    return;
+                }
+
+                getModalElements()
+                    .filter(
+                        function (modal) {
+
+                            return (
+                                modal.classList.contains(
+                                    "active"
+                                ) &&
+                                !modal.hidden
+                            );
+                        }
+                    )
+                    .forEach(
+                        function (modal) {
+
+                            closeModal(
+                                modal.id
+                            );
+                        }
+                    );
+            }
+        );
+    }
+
+
+    /* =====================================================
+       IMPORT NEXT
+       ===================================================== */
+
+    async function handleImportNext() {
+
+        const select =
+            $("importStepSelect");
+
+        const preview =
+            $("importStepPreview");
+
+        const validation =
+            $("importStepValidation");
+
+        if (
+            select &&
+            !select.hidden &&
+            select.style.display !==
+            "none"
+        ) {
+
+            if (
+                !state.importRows.length
+            ) {
+
+                alert(
+                    "Pilih file Excel terlebih dahulu."
+                );
+
+                return;
+            }
+
+            renderImportPreview();
+
+            return;
+        }
+
+        if (
+            preview &&
+            !preview.hidden &&
+            preview.style.display !==
+            "none"
+        ) {
+
+            await validateImport();
+
+            return;
+        }
+
+        if (
+            validation &&
+            !validation.hidden &&
+            validation.style.display !==
+            "none"
+        ) {
+
+            await executeImport();
+
+            return;
+        }
+
+        closeModal(
+            "importModal"
+        );
+    }
+
+
+    /* =====================================================
+       SELECTED FILE INFO
+       ===================================================== */
+
+    function updateSelectedFileInfo(
+        file
+    ) {
+
+        const element =
+            $("selectedFileInfo");
+
+        if (!element) {
+            return;
+        }
+
+        if (!file) {
+
+            element.textContent =
+                "Belum ada file dipilih.";
+
+            element.hidden =
+                true;
+
+            return;
+        }
+
+        const size =
+            file.size /
+            1024;
+
+        element.textContent =
+            `${file.name} — ${size.toFixed(1)} KB`;
+
+        element.hidden =
+            false;
+    }
+
+
+    /* =====================================================
+       FILE INFO
+       ===================================================== */
+
+    function bindFileInfo() {
+
+        const input =
+            $("excelFile");
+
+        if (!input) {
+            return;
+        }
+
+        input.addEventListener(
+            "change",
+            function () {
+
+                const file =
+                    input.files &&
+                    input.files[0];
+
+                updateSelectedFileInfo(
+                    file
+                );
+            }
+        );
+    }
+
+
+    /* =====================================================
+       DOM READY
+       ===================================================== */
+
+    async function init() {
+
+        console.log(
+            "SIDAT Data Warga initializing..."
+        );
+
+        if (!initSupabase()) {
+            return;
+        }
+
+        bindEvents();
+
+        bindFileInfo();
+
+        try {
+
+            await loadData();
+
+            console.log(
+                "SIDAT Data Warga ready."
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Data Warga init error:",
+                error
+            );
+
+            showFatalError(
+                error?.message ||
+                "Data Warga gagal diinisialisasi."
+            );
+        }
+    }
+
+
+    /* =====================================================
+       START
+       ===================================================== */
+
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            init
+        );
+
+    } else {
+
+        init();
+    }
+
+
+    /* =====================================================
+       GLOBAL API
+       ===================================================== */
+
+    window.SIDATDataWarga = {
+
+        reload:
+            reloadData,
+
+        openAdd:
+            openAddResident,
+
+        openEdit:
+            openEditResident,
+
+        openFamily:
+            openFamily,
+
+        exportExcel:
+            exportExcel,
+
+        downloadTemplate:
+            downloadTemplate
+    };
+
+})();

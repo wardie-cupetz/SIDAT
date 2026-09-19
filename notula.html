@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#15803d"
+    >
+
+    <title>SIDAT - Notula Rapat</title>
+
+    <link
+        rel="stylesheet"
+        href="notula.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="admin-menu.css"
+    >
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+    <!-- ==================================================
+         HEADER
+    =================================================== -->
+
+    <header class="header">
+
+        <div class="header-left">
+
+            <button
+                type="button"
+                class="back-button"
+                id="btnBack"
+                aria-label="Kembali"
+            >
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+
+                    <path
+                        d="M15 18l-6-6 6-6"
+                    />
+
+                </svg>
+
+            </button>
+
+
+            <div>
+
+                <h1>Notula Rapat</h1>
+
+                <span>
+                    Catatan, keputusan, dan tindak lanjut rapat
+                </span>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- ==================================================
+         CONTENT
+    =================================================== -->
+
+    <main class="content">
+
+
+        <!-- ==================================================
+             PAGE MESSAGE
+        =================================================== -->
+
+        <div
+            id="pageMessage"
+            class="page-message hidden"
+        ></div>
+
+
+        <!-- ==================================================
+             ARSIP NOTULA
+        =================================================== -->
+
+        <section class="section">
+
+            <div class="section-header">
+
+                <div>
+
+                    <span class="section-label">
+                        DOKUMENTASI RAPAT
+                    </span>
+
+                    <h2>
+                        Arsip Notula
+                    </h2>
+
+                    <p>
+                        Simpan dan kelola catatan hasil rapat RT.
+                    </p>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="btnTambahNotula"
+                    class="btn-primary"
+                >
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+
+                        <path
+                            d="M12 5v14M5 12h14"
+                        />
+
+                    </svg>
+
+                    <span>
+                        Buat Notula
+                    </span>
+
+                </button>
+
+            </div>
+
+
+            <!-- ==================================================
+                 SEARCH
+            =================================================== -->
+
+            <div class="search-box">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+
+                    <path
+                        d="m21 21-4.35-4.35
+                           M10.5 18a7.5 7.5 0 1 1 0-15
+                           7.5 7.5 0 0 1 0 15Z"
+                    />
+
+                </svg>
+
+
+                <input
+                    type="search"
+                    id="notulaSearch"
+                    placeholder="Cari judul atau lokasi rapat..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <!-- ==================================================
+                 LOADING
+            =================================================== -->
+
+            <div
+                id="notulaLoading"
+                class="loading"
+            >
+                Memuat arsip notula...
+            </div>
+
+
+            <!-- ==================================================
+                 EMPTY
+            =================================================== -->
+
+            <div
+                id="notulaEmpty"
+                class="empty-state hidden"
+            >
+                Belum ada notula rapat.
+            </div>
+
+
+            <!-- ==================================================
+                 LIST
+            =================================================== -->
+
+            <div
+                id="notulaList"
+                class="notula-list"
+            ></div>
+
+        </section>
+
+
+        <!-- ==================================================
+             DETAIL NOTULA
+        =================================================== -->
+
+        <section
+            id="notulaDetailSection"
+            class="section detail-section hidden"
+        >
+
+            <div class="section-header">
+
+                <div>
+
+                    <span class="section-label">
+                        DETAIL NOTULA
+                    </span>
+
+                    <h2 id="detailTitle">
+                        Detail Notula
+                    </h2>
+
+                    <p id="detailSubtitle">
+                        Ringkasan hasil rapat.
+                    </p>
+
+                </div>
+
+
+                <div class="detail-actions">
+
+                    <button
+                        type="button"
+                        id="btnEditNotula"
+                        class="btn-secondary"
+                    >
+                        Edit
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="btnCetakNotula"
+                        class="btn-primary"
+                    >
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+
+                            <path
+                                d="M6 9V3h12v6
+                                   M6 18H4a2 2 0 0 1-2-2v-5
+                                   a2 2 0 0 1 2-2h16
+                                   a2 2 0 0 1 2 2v5
+                                   a2 2 0 0 1-2 2h-2
+                                   M6 14h12v7H6z"
+                            />
+
+                        </svg>
+
+                        <span>
+                            Cetak
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==================================================
+                 PRINT DOCUMENT
+            =================================================== -->
+
+            <article
+                id="printNotula"
+                class="print-document"
+            >
+
+                <!-- HEADER DOKUMEN -->
+
+                <div class="print-header">
+
+                    <div class="print-brand">
+                        SIDAT
+                    </div>
+
+                    <div class="print-organization">
+                        SISTEM INFORMASI DATA WARGA RT
+                    </div>
+
+                    <div class="print-title">
+                        NOTULA RAPAT
+                    </div>
+
+                </div>
+
+
+                <!-- DATA RAPAT -->
+
+                <div class="print-block">
+
+                    <h3>
+                        A. DATA RAPAT
+                    </h3>
+
+
+                    <table class="print-info-table">
+
+                        <tbody>
+
+                            <tr>
+
+                                <td>
+                                    Judul Rapat
+                                </td>
+
+                                <td>
+                                    :
+                                </td>
+
+                                <td id="detailPrintTitle">
+                                    -
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>
+                                    Jenis Rapat
+                                </td>
+
+                                <td>
+                                    :
+                                </td>
+
+                                <td id="detailPrintType">
+                                    -
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>
+                                    Hari / Tanggal
+                                </td>
+
+                                <td>
+                                    :
+                                </td>
+
+                                <td id="detailPrintDate">
+                                    -
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>
+                                    Waktu
+                                </td>
+
+                                <td>
+                                    :
+                                </td>
+
+                                <td id="detailPrintTime">
+                                    -
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>
+                                    Tempat
+                                </td>
+
+                                <td>
+                                    :
+                                </td>
+
+                                <td id="detailPrintLocation">
+                                    -
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>
+                                    Pimpinan Rapat
+                                </td>
+
+                                <td>
+                                    :
+                                </td>
+
+                                <td id="detailPrintChairman">
+                                    -
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>
+                                    Notulis
+                                </td>
+
+                                <td>
+                                    :
+                                </td>
+
+                                <td id="detailPrintSecretary">
+                                    -
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- PESERTA -->
+
+                <div class="print-block">
+
+                    <h3>
+                        B. PESERTA RAPAT
+                    </h3>
+
+
+                    <div
+                        id="detailAttendees"
+                        class="print-table-container"
+                    ></div>
+
+                </div>
+
+
+                <!-- PEMBAHASAN -->
+
+                <div class="print-block">
+
+                    <h3>
+                        C. PEMBAHASAN
+                    </h3>
+
+
+                    <div
+                        id="detailDiscussions"
+                        class="discussion-container"
+                    ></div>
+
+                </div>
+
+
+                <!-- KEPUTUSAN -->
+
+                <div class="print-block">
+
+                    <h3>
+                        D. HASIL KEPUTUSAN
+                    </h3>
+
+
+                    <div
+                        id="detailDecisions"
+                        class="decision-container"
+                    ></div>
+
+                </div>
+
+
+                <!-- CATATAN PEMBUKA -->
+
+                <div
+                    id="detailOpeningBlock"
+                    class="print-block hidden"
+                >
+
+                    <h3>
+                        E. CATATAN PEMBUKA
+                    </h3>
+
+
+                    <div
+                        id="detailOpeningNotes"
+                        class="print-text"
+                    ></div>
+
+                </div>
+
+
+                <!-- CATATAN PENUTUP -->
+
+                <div
+                    id="detailClosingBlock"
+                    class="print-block hidden"
+                >
+
+                    <h3>
+                        F. CATATAN PENUTUP
+                    </h3>
+
+
+                    <div
+                        id="detailClosingNotes"
+                        class="print-text"
+                    ></div>
+
+                </div>
+
+
+                <!-- TANDA TANGAN -->
+
+                <div class="signature-section">
+
+                    <div class="signature-column">
+
+                        <div>
+                            Mengetahui,
+                        </div>
+
+                        <strong>
+                            Ketua RT
+                        </strong>
+
+
+                        <div class="signature-space"></div>
+
+
+                        <div class="signature-line">
+                            (................................)
+                        </div>
+
+                    </div>
+
+
+                    <div class="signature-column">
+
+                        <div>
+                            Dibuat oleh,
+                        </div>
+
+                        <strong>
+                            Notulis
+                        </strong>
+
+
+                        <div class="signature-space"></div>
+
+
+                        <div class="signature-line">
+                            (................................)
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- FOOTER DOKUMEN CETAK -->
+
+                <div class="print-document-footer">
+
+                    SIDAT • Sistem Informasi Data Warga RT
+                    • © 2026 • Dibuat oleh Suwardi
+
+                </div>
+
+            </article>
+
+        </section>
+
+    </main>
+
+
+    <!-- ==================================================
+         MODAL NOTULA
+    =================================================== -->
+
+    <div
+        id="notulaModal"
+        class="modal hidden"
+    >
+
+        <div class="modal-overlay"></div>
+
+
+        <div
+            class="modal-content"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="notulaModalTitle"
+        >
+
+
+            <!-- ==================================================
+                 MODAL HEADER
+            =================================================== -->
+
+            <div class="modal-header">
+
+                <div>
+
+                    <span class="section-label">
+                        NOTULA RAPAT
+                    </span>
+
+                    <h2 id="notulaModalTitle">
+                        Buat Notula
+                    </h2>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="btnCloseNotulaModal"
+                    class="modal-close"
+                    aria-label="Tutup"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <!-- ==================================================
+                 FORM NOTULA
+            =================================================== -->
+
+            <form id="notulaForm">
+
+                <input
+                    type="hidden"
+                    id="notulaId"
+                >
+
+
+                <!-- ==================================================
+                     DATA RAPAT
+                =================================================== -->
+
+                <div class="form-group">
+
+                    <label for="notulaTitle">
+                        Judul Rapat
+                    </label>
+
+                    <input
+                        type="text"
+                        id="notulaTitle"
+                        placeholder="Contoh: Rapat RT Bulanan"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label for="notulaType">
+                            Jenis Rapat
+                        </label>
+
+                        <select
+                            id="notulaType"
+                            required
+                        >
+
+                            <option value="rapat_rt">
+                                Rapat RT
+                            </option>
+
+                            <option value="rapat_pengurus">
+                                Rapat Pengurus
+                            </option>
+
+                            <option value="rapat_kegiatan">
+                                Rapat Kegiatan
+                            </option>
+
+                            <option value="rapat_khusus">
+                                Rapat Khusus
+                            </option>
+
+                            <option value="lainnya">
+                                Lainnya
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="notulaDate">
+                            Tanggal
+                        </label>
+
+                        <input
+                            type="date"
+                            id="notulaDate"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label for="notulaStartTime">
+                            Jam Mulai
+                        </label>
+
+                        <input
+                            type="time"
+                            id="notulaStartTime"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="notulaEndTime">
+                            Jam Selesai
+                        </label>
+
+                        <input
+                            type="time"
+                            id="notulaEndTime"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="notulaLocation">
+                        Tempat
+                    </label>
+
+                    <input
+                        type="text"
+                        id="notulaLocation"
+                        placeholder="Contoh: Balai RT"
+                    >
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label for="notulaChairman">
+                            Pimpinan Rapat
+                        </label>
+
+                        <input
+                            type="text"
+                            id="notulaChairman"
+                            placeholder="Nama pimpinan rapat"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="notulaSecretary">
+                            Notulis
+                        </label>
+
+                        <input
+                            type="text"
+                            id="notulaSecretary"
+                            placeholder="Nama notulis"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- ==================================================
+                     CATATAN PEMBUKA
+                =================================================== -->
+
+                <div class="form-group">
+
+                    <label for="notulaOpeningNotes">
+                        Catatan Pembuka
+                    </label>
+
+                    <textarea
+                        id="notulaOpeningNotes"
+                        rows="3"
+                        placeholder="Catatan pembuka rapat..."
+                    ></textarea>
+
+                </div>
+
+
+                <!-- ==================================================
+                     PESERTA RAPAT
+                =================================================== -->
+
+                <div class="form-section-title">
+
+                    <div>
+
+                        <span class="section-label">
+                            PESERTA
+                        </span>
+
+                        <h3>
+                            Peserta Rapat
+                        </h3>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="btnTambahPeserta"
+                        class="btn-small"
+                    >
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+
+                            <path
+                                d="M12 5v14M5 12h14"
+                            />
+
+                        </svg>
+
+                        Tambah
+
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="attendeesFormList"
+                    class="dynamic-list"
+                ></div>
+
+
+                <!-- ==================================================
+                     PEMBAHASAN
+                =================================================== -->
+
+                <div class="form-section-title">
+
+                    <div>
+
+                        <span class="section-label">
+                            PEMBAHASAN
+                        </span>
+
+                        <h3>
+                            Pembahasan Rapat
+                        </h3>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="btnTambahPembahasan"
+                        class="btn-small"
+                    >
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+
+                            <path
+                                d="M12 5v14M5 12h14"
+                            />
+
+                        </svg>
+
+                        Tambah
+
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="discussionsFormList"
+                    class="dynamic-list"
+                ></div>
+
+
+                <!-- ==================================================
+                     KEPUTUSAN
+                =================================================== -->
+
+                <div class="form-section-title">
+
+                    <div>
+
+                        <span class="section-label">
+                            KEPUTUSAN
+                        </span>
+
+                        <h3>
+                            Hasil Keputusan
+                        </h3>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="btnTambahKeputusan"
+                        class="btn-small"
+                    >
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+
+                            <path
+                                d="M12 5v14M5 12h14"
+                            />
+
+                        </svg>
+
+                        Tambah
+
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="decisionsFormList"
+                    class="dynamic-list"
+                ></div>
+
+
+                <!-- ==================================================
+                     CATATAN PENUTUP
+                =================================================== -->
+
+                <div class="form-group">
+
+                    <label for="notulaClosingNotes">
+                        Catatan Penutup
+                    </label>
+
+                    <textarea
+                        id="notulaClosingNotes"
+                        rows="3"
+                        placeholder="Catatan penutup rapat..."
+                    ></textarea>
+
+                </div>
+
+
+                <!-- ==================================================
+                     FORM MESSAGE
+                =================================================== -->
+
+                <div
+                    id="notulaFormMessage"
+                    class="form-message"
+                ></div>
+
+
+                <!-- ==================================================
+                     ACTION
+                =================================================== -->
+
+                <div class="modal-actions">
+
+                    <button
+                        type="button"
+                        id="btnCancelNotula"
+                        class="btn-secondary"
+                    >
+                        Batal
+                    </button>
+
+
+                    <button
+                        type="submit"
+                        id="btnSaveNotula"
+                        class="btn-primary"
+                    >
+                        Simpan Notula
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==================================================
+         SUPABASE
+    =================================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+
+    <!-- ==================================================
+         SIDAT CONFIG
+    =================================================== -->
+
+    <script
+        src="../js/supabase-config.js"
+    ></script>
+
+
+    <!-- ==================================================
+         ADMIN MENU
+    =================================================== -->
+
+    <script
+        src="admin-menu.js"
+    ></script>
+
+
+    <!-- ==================================================
+         NOTULA JS
+    =================================================== -->
+
+    <script
+        src="notula.js"
+    ></script>
+
+</div>
+
+</body>
+
+</html>

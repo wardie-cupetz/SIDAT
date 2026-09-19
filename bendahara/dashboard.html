@@ -1,0 +1,504 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+>
+
+<meta
+    name="theme-color"
+    content="#15803d"
+>
+
+<title>SIDAT - Dashboard Bendahara</title>
+
+
+<!-- =====================================================
+     CSS DASHBOARD BENDAHARA
+     ===================================================== -->
+
+<link
+    rel="stylesheet"
+    href="../ketua-rt/dashboard.css"
+>
+
+
+<!-- =====================================================
+     CSS MENU
+     Menggunakan CSS Menu Admin agar tampilan konsisten
+     ===================================================== -->
+
+<link
+    rel="stylesheet"
+    href="../admin/admin-menu.css"
+>
+
+</head><body><div class="dashboard-container"><!-- =================================================
+     HEADER
+     ================================================= -->
+
+<header class="dashboard-header">
+
+    <div class="header-top">
+
+        <div class="header-brand">
+
+            <div class="header-bubble">
+
+                <span class="header-bubble-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+
+                        <path
+                            d="M12 3a9 9 0 1 0 9 9"
+                        ></path>
+
+                        <path
+                            d="M12 7v5l3 2"
+                        ></path>
+
+                    </svg>
+
+                </span>
+
+            </div>
+
+
+            <div class="header-brand-text">
+
+                <h1>
+                    SIDAT
+                </h1>
+
+                <span>
+                    Sistem Informasi Data Warga
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="header-role-badge">
+            BENDAHARA
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         WILAYAH
+         ================================================= -->
+
+    <div class="region-info">
+
+        <div class="region-icon">
+
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+
+                <path
+                    d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"
+                ></path>
+
+                <circle
+                    cx="12"
+                    cy="9"
+                    r="2.5"
+                ></circle>
+
+            </svg>
+
+        </div>
+
+
+        <div class="region-text">
+
+            <strong id="regionDusun">
+                Memuat wilayah...
+            </strong>
+
+            <span id="regionDesa">
+                Memuat informasi wilayah...
+            </span>
+
+            <span id="regionRTRW">
+                RT / RW
+            </span>
+
+            <span id="regionKecamatan">
+                Kecamatan
+            </span>
+
+            <span id="regionKabupaten">
+                Kabupaten
+            </span>
+
+            <span id="regionProvinsi">
+                Provinsi
+            </span>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+
+<!-- =================================================
+     WELCOME
+     ================================================= -->
+
+<section class="welcome-section">
+
+    <div>
+
+        <span class="welcome-label">
+            Selamat datang,
+        </span>
+
+
+        <h2 id="namaBendahara">
+            Bendahara
+        </h2>
+
+
+        <p>
+            Kelola arus kas dan jimpitan RT melalui SIDAT.
+        </p>
+
+    </div>
+
+</section>
+
+
+
+<!-- =================================================
+     STATISTIK
+     ================================================= -->
+
+<main class="dashboard-content">
+
+    <section
+        class="stats-grid"
+        aria-label="Ringkasan keuangan RT"
+    >
+
+
+        <!-- =================================================
+             SALDO KAS
+             ================================================= -->
+
+        <article
+            class="stat-card"
+            id="cardSaldoKas"
+        >
+
+            <div class="stat-icon stat-icon-kas">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+
+                    <rect
+                        x="3"
+                        y="6"
+                        width="18"
+                        height="13"
+                        rx="2"
+                    ></rect>
+
+                    <path
+                        d="M7 6V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1"
+                    ></path>
+
+                    <path
+                        d="M3 10h18"
+                    ></path>
+
+                    <circle
+                        cx="16"
+                        cy="14"
+                        r="1.5"
+                    ></circle>
+
+                </svg>
+
+            </div>
+
+
+            <div class="stat-content">
+
+                <span>
+                    Saldo Kas
+                </span>
+
+                <strong id="saldoKas">
+                    Rp 0
+                </strong>
+
+            </div>
+
+        </article>
+
+
+
+        <!-- =================================================
+             SALDO JIMPITAN
+             ================================================= -->
+
+        <article
+            class="stat-card"
+            id="cardSaldoJimpitan"
+        >
+
+            <div class="stat-icon stat-icon-jimpitan">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+
+                    <rect
+                        x="3"
+                        y="6"
+                        width="18"
+                        height="13"
+                        rx="2"
+                    ></rect>
+
+                    <path
+                        d="M7 6V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1"
+                    ></path>
+
+                    <path
+                        d="M3 10h18"
+                    ></path>
+
+                    <circle
+                        cx="16"
+                        cy="14"
+                        r="1.5"
+                    ></circle>
+
+                </svg>
+
+            </div>
+
+
+            <div class="stat-content">
+
+                <span>
+                    Saldo Jimpitan
+                </span>
+
+                <strong id="saldoJimpitan">
+                    Rp 0
+                </strong>
+
+            </div>
+
+        </article>
+
+
+
+        <!-- =================================================
+             JIMPITAN BELUM DIAMBIL
+             ================================================= -->
+
+        <article
+            class="stat-card"
+            id="cardJimpitanBelumDiambil"
+        >
+
+            <div class="stat-icon stat-icon-belum">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+
+                    <path
+                        d="M4 5h16v14H4z"
+                    ></path>
+
+                    <path
+                        d="M8 9h8"
+                    ></path>
+
+                    <path
+                        d="M8 13h5"
+                    ></path>
+
+                    <path
+                        d="M8 17h3"
+                    ></path>
+
+                </svg>
+
+            </div>
+
+
+            <div class="stat-content">
+
+                <span>
+                    Jimpitan Belum Diambil
+                </span>
+
+                <strong id="jimpitanBelumDiambil">
+                    0
+                </strong>
+
+            </div>
+
+        </article>
+
+
+
+        <!-- =================================================
+             AKTIVITAS / NOTIFIKASI
+             ================================================= -->
+
+        <article
+            class="stat-card"
+            id="cardAktivitas"
+        >
+
+            <div class="stat-icon stat-icon-laporan">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+
+                    <path
+                        d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                    ></path>
+
+                    <path
+                        d="M14 2v6h6"
+                    ></path>
+
+                    <path
+                        d="M8 13h8"
+                    ></path>
+
+                    <path
+                        d="M8 17h6"
+                    ></path>
+
+                </svg>
+
+            </div>
+
+
+            <div class="stat-content">
+
+                <span>
+                    Aktivitas
+                </span>
+
+                <strong id="jumlahAktivitas">
+                    0
+                </strong>
+
+            </div>
+
+        </article>
+
+
+    </section>
+
+
+
+    <!-- =================================================
+         AKTIVITAS TERBARU
+         ================================================= -->
+
+    <section class="activity-section">
+
+        <div class="section-title">
+
+            <div>
+
+                <h3>
+                    Aktivitas Terbaru
+                </h3>
+
+                <span>
+                    Aktivitas terbaru di SIDAT
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="activityList"
+            class="activity-list"
+        >
+
+            <div class="activity-loading">
+                Memuat aktivitas...
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+
+<!-- =================================================
+     LOADING SCREEN
+     ================================================= -->
+
+<div
+    id="loadingScreen"
+    class="loading-screen"
+>
+
+    <div class="loading-spinner"></div>
+
+    <span>
+        Memuat dashboard...
+    </span>
+
+</div>
+
+</div><!-- =====================================================
+     SUPABASE
+     ===================================================== --><script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script><!-- =====================================================
+     SUPABASE CONFIG
+     ===================================================== --><script
+    src="../js/supabase-config.js"
+></script><!-- =====================================================
+     SUPABASE CLIENT
+     ===================================================== --><script>
+
+    window.supabaseClient =
+        window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_KEY
+        );
+
+</script><!-- =====================================================
+     MENU BENDAHARA
+     ===================================================== --><script
+    src="bendahara-menu.js"
+></script><!-- =====================================================
+     DASHBOARD BENDAHARA
+     ===================================================== --><script
+    src="dashboard.js"
+></script></body></html>
