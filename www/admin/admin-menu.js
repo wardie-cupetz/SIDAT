@@ -265,7 +265,7 @@
     function bukaProfilAdmin() {
         closeMenu();
 
-        window.location.href = "profil.html";
+        window.location.href = "profil-admin.html";
     }
 
 

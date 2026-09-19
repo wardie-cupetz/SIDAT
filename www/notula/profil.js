@@ -166,7 +166,55 @@
     );
 
 
+    // =========================================================
+    // LOGOUT NOTULA
+    // =========================================================
+
+    async function logoutNotula() {
+        const confirmed = confirm(
+            "Apakah Anda yakin ingin keluar dari akun NOTULA?"
+        );
+
+        if (!confirmed) return;
+
+        try {
+            if (window.supabaseClient?.auth) {
+                await window.supabaseClient.auth.signOut();
+            }
+        } catch (error) {
+            console.error(
+                "Logout NOTULA gagal:",
+                error
+            );
+        } finally {
+            const sessionKeys = [
+                "sidat_access_token",
+                "sidat_refresh_token",
+                "sidat_role",
+                "sidat_role_label",
+                "sidat_user"
+            ];
+
+            sessionKeys.forEach(key => {
+                localStorage.removeItem(key);
+            });
+
+            window.location.href = "../index.html";
+        }
+    }
+
     async function init() {
+        const logoutButton =
+            document.getElementById("logoutButton");
+
+        if (logoutButton) {
+            logoutButton.addEventListener(
+                "click",
+                logoutNotula
+            );
+        }
+
+
 
         console.log(
             "[SIDAT] Profil NOTULA mulai."

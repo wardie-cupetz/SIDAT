@@ -51,7 +51,55 @@
     );
 
 
+    // =========================================================
+    // LOGOUT BENDAHARA
+    // =========================================================
+
+    async function logoutBendahara() {
+        const confirmed = confirm(
+            "Apakah Anda yakin ingin keluar dari akun BENDAHARA?"
+        );
+
+        if (!confirmed) return;
+
+        try {
+            if (window.supabaseClient?.auth) {
+                await window.supabaseClient.auth.signOut();
+            }
+        } catch (error) {
+            console.error(
+                "Logout BENDAHARA gagal:",
+                error
+            );
+        } finally {
+            const sessionKeys = [
+                "sidat_access_token",
+                "sidat_refresh_token",
+                "sidat_role",
+                "sidat_role_label",
+                "sidat_user"
+            ];
+
+            sessionKeys.forEach(key => {
+                localStorage.removeItem(key);
+            });
+
+            window.location.href = "../index.html";
+        }
+    }
+
     async function initProfil() {
+        const logoutButton =
+            document.getElementById("logoutButton");
+
+        if (logoutButton) {
+            logoutButton.addEventListener(
+                "click",
+                logoutBendahara
+            );
+        }
+
+
 
         try {
 

@@ -1008,6 +1008,77 @@ document
 }
 
 /* =========================================================
+LOGOUT ADMIN
+========================================================= */
+
+async function logoutAdmin() {
+
+    const confirmed = confirm(
+        "Apakah Anda yakin ingin keluar dari akun Admin?"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+
+        const token = localStorage.getItem(
+            "sidat_access_token"
+        );
+
+        /*
+         * Akhiri session Supabase.
+         */
+        if (token) {
+
+            await fetch(
+                `${SUPABASE_URL}/auth/v1/logout`,
+                {
+                    method: "POST",
+                    headers: {
+                        "apikey": SUPABASE_KEY,
+                        "Authorization": `Bearer ${token}`
+                    }
+                }
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Logout Supabase gagal:",
+            error
+        );
+
+    } finally {
+
+        /*
+         * Bersihkan seluruh session login SIDAT.
+         */
+        const sessionKeys = [
+            "sidat_access_token",
+            "sidat_refresh_token",
+            "sidat_role",
+            "sidat_role_label",
+            "sidat_user",
+            "sidat_admin_user"
+        ];
+
+        sessionKeys.forEach(key => {
+            localStorage.removeItem(key);
+        });
+
+        /*
+         * Kembali ke halaman login.
+         */
+        window.location.href = "../index.html";
+    }
+}
+
+
+/* =========================================================
 INIT
 ========================================================= */
 
@@ -1019,6 +1090,13 @@ showLoading();
 try {
 
     setupEvents();
+
+    document
+        .getElementById("logoutButton")
+        ?.addEventListener(
+            "click",
+            logoutAdmin
+        );
 
 
     /*

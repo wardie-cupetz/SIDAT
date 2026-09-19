@@ -109,6 +109,16 @@ async function init() {
     setupPhotoEvents();
     setupPasswordEvents();
 
+    const logoutButton =
+        document.getElementById("logoutButton");
+
+    if (logoutButton) {
+        logoutButton.addEventListener(
+            "click",
+            logoutKetuaRT
+        );
+    }
+
     await loadProfile();
 
 }
@@ -1310,8 +1320,55 @@ function showError(message) {
 }
 
 /* =====================================================
+   LOGOUT KETUA RT
+   ===================================================== */
+
+async function logoutKetuaRT() {
+
+    const confirmed = confirm(
+        "Apakah Anda yakin ingin keluar dari akun KETUA RT?"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+
+        await supabaseClient.auth.signOut();
+
+    } catch (error) {
+
+        console.error(
+            "Logout KETUA RT gagal:",
+            error
+        );
+
+    } finally {
+
+        const sessionKeys = [
+            "sidat_access_token",
+            "sidat_refresh_token",
+            "sidat_role",
+            "sidat_role_label",
+            "sidat_user"
+        ];
+
+        sessionKeys.forEach(key => {
+            localStorage.removeItem(key);
+        });
+
+        window.location.href =
+            "../index.html";
+    }
+}
+
+
+/* =====================================================
    TOAST
    ===================================================== */
+
+
 
 let toastTimer = null;
 

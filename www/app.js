@@ -31,8 +31,17 @@ const adminLogin =
 const supabaseClient =
     supabase.createClient(
         SUPABASE_URL,
-        SUPABASE_KEY
+        SUPABASE_KEY,
+        {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: false
+            }
+        }
     );
+
+window.supabaseClient = supabaseClient;
 
 
 // ==========================================
@@ -231,6 +240,37 @@ supabaseClient.auth.onAuthStateChange(
 
 syncSidatSession();
 
+
+// ==========================================
+// RESTORE SESSION SAAT APLIKASI DIBUKA
+// ==========================================
+
+async function restoreSidatSession() {
+    try {
+        const { data, error } = await supabaseClient.auth.getSession();
+        if (error) { console.error("Gagal restore session:", error); return; }
+        const session = data?.session;
+        if (!session?.user) { console.log("SIDAT: Tidak ada session aktif."); return; }
+        const user = session.user;
+        console.log("SIDAT: Session ditemukan:", user.id);
+        const { data: profile, error: profileError } = await supabaseClient.from("profiles").select("role").eq("user_id", user.id).single();
+        if (profileError) { console.error("Gagal membaca role session:", profileError); return; }
+        if (!profile?.role) { console.warn("SIDAT: Role session tidak ditemukan."); return; }
+        const role = String(profile.role).trim().toLowerCase();
+        if (!isValidSidatRole(role)) { console.warn("SIDAT: Role session tidak valid:", role); return; }
+        saveSidatRole(role);
+        localStorage.setItem("sidat_user", JSON.stringify(user));
+        if (role === SIDAT_ROLES.ADMIN) localStorage.setItem("sidat_admin_user", JSON.stringify(user));
+        const dashboard = SIDAT_AVAILABLE_DASHBOARDS[role];
+        if (!dashboard) { console.warn("SIDAT: Dashboard role tidak ditemukan:", role); return; }
+        console.log("SIDAT: Restore login →", role, dashboard);
+        window.location.href = dashboard;
+    } catch (error) {
+        console.error("Restore session error:", error);
+    }
+}
+
+restoreSidatSession();
 
 // ==========================================
 // NAVIGASI
