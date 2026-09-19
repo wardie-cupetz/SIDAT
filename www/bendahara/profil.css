@@ -1,0 +1,1273 @@
+/* =========================================================
+   SIDAT
+   PROFIL BENDAHARA
+   Tampilan diselaraskan dengan PROFIL KETUA RT
+   ========================================================= */
+
+
+/* =========================================================
+   DASAR HALAMAN
+   ========================================================= */
+
+html {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+
+    min-height: 100vh;
+
+    background: #f5f7f6;
+
+    color: #17201a;
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+
+    -webkit-font-smoothing: antialiased;
+}
+
+
+/* =========================================================
+   HEADER PROFIL BENDAHARA
+   ========================================================= */
+
+.profil-header {
+    position: relative;
+
+    width: 100%;
+    min-height: 178px;
+
+    box-sizing: border-box;
+
+    overflow: hidden;
+
+    padding:
+        calc(18px + env(safe-area-inset-top))
+        18px
+        26px;
+
+    color: #ffffff;
+
+    background:
+        linear-gradient(
+            135deg,
+            #15803d 0%,
+            #16a34a 55%,
+            #22c55e 100%
+        );
+
+    border-radius:
+        0 0 28px 28px;
+
+    box-shadow:
+        0 6px 18px
+        rgba(21, 128, 61, 0.18);
+}
+
+
+/* =========================================================
+   BUBBLE HEADER
+   ========================================================= */
+
+.profil-header::before {
+    content: "";
+
+    position: absolute;
+
+    width: 155px;
+    height: 155px;
+
+    right: -55px;
+    top: -72px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255, 255, 255, 0.13);
+
+    pointer-events: none;
+}
+
+.profil-header::after {
+    content: "";
+
+    position: absolute;
+
+    width: 92px;
+    height: 92px;
+
+    right: 48px;
+    bottom: -48px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255, 255, 255, 0.10);
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   TOMBOL KEMBALI
+   ========================================================= */
+
+.profil-header .back-button {
+    position: relative;
+
+    z-index: 5;
+
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    margin:
+        0 0 17px 0;
+
+    padding: 0;
+
+    box-sizing: border-box;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.28);
+
+    border-radius: 13px;
+
+    color: #ffffff;
+
+    background:
+        rgba(255, 255, 255, 0.14);
+
+    cursor: pointer;
+
+    -webkit-tap-highlight-color: transparent;
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease;
+}
+
+.profil-header .back-button:hover {
+    background:
+        rgba(255, 255, 255, 0.22);
+}
+
+.profil-header .back-button:active {
+    transform: scale(0.94);
+}
+
+.profil-header .back-button svg {
+    width: 21px;
+    height: 21px;
+
+    display: block;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 2;
+
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+/* =========================================================
+   JUDUL HEADER
+   ========================================================= */
+
+.header-title {
+    position: relative;
+
+    z-index: 3;
+
+    margin: 0;
+    padding: 0;
+}
+
+.header-title-main {
+    margin: 0;
+
+    color: #ffffff;
+
+    font-size: 25px;
+
+    line-height: 1.15;
+
+    font-weight: 800;
+
+    letter-spacing: -0.35px;
+}
+
+.header-title-sub {
+    margin-top: 6px;
+
+    color:
+        rgba(255, 255, 255, 0.86);
+
+    font-size: 13px;
+
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   BADGE BENDAHARA
+   ========================================================= */
+
+.header-role {
+    position: relative;
+
+    z-index: 3;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    margin-top: 11px;
+
+    padding: 6px 11px;
+
+    box-sizing: border-box;
+
+    border-radius: 999px;
+
+    color: #166534;
+
+    background:
+        rgba(255, 255, 255, 0.94);
+
+    font-size: 11px;
+
+    line-height: 1;
+
+    font-weight: 800;
+
+    letter-spacing: 0.45px;
+
+    box-shadow:
+        0 3px 9px
+        rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================================
+   CONTAINER UTAMA
+   ========================================================= */
+
+.profil-container {
+    width: 100%;
+
+    max-width: 680px;
+
+    margin: 0 auto;
+
+    box-sizing: border-box;
+
+    padding:
+        18px 16px
+        calc(105px + env(safe-area-inset-bottom));
+}
+
+
+/* =========================================================
+   LOADING PROFIL
+   ========================================================= */
+
+.loading-profil {
+    min-height: 240px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+}
+
+.loading-profil p {
+    margin: 12px 0 0;
+
+    color: #6b7280;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   LOADING SPINNER
+   ========================================================= */
+
+.loading-spinner {
+    width: 32px;
+    height: 32px;
+
+    box-sizing: border-box;
+
+    border:
+        3px solid
+        #dcfce7;
+
+    border-top-color:
+        #15803d;
+
+    border-radius: 50%;
+
+    animation:
+        sidat-profile-spin
+        0.8s
+        linear
+        infinite;
+}
+
+.loading-spinner.small {
+    width: 21px;
+    height: 21px;
+
+    border-width: 2px;
+}
+
+@keyframes sidat-profile-spin {
+
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+
+}
+
+
+/* =========================================================
+   HIDDEN
+   ========================================================= */
+
+.hidden {
+    display: none !important;
+}
+
+
+/* =========================================================
+   CARD PROFIL
+   ========================================================= */
+
+.profil-card {
+    width: 100%;
+
+    margin:
+        0 0 16px 0;
+
+    padding: 19px;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border:
+        1px solid
+        #e5e7eb;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 3px 12px
+        rgba(15, 23, 42, 0.05);
+}
+
+
+/* =========================================================
+   JUDUL CARD
+   ========================================================= */
+
+.card-title {
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    margin:
+        0 0 17px;
+
+    color: #17201a;
+
+    font-size: 17px;
+
+    line-height: 1.3;
+
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   ICON CARD
+   ========================================================= */
+
+.card-title-icon {
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    box-sizing: border-box;
+
+    border-radius: 10px;
+
+    color: #15803d;
+
+    background: #ecfdf3;
+}
+
+.card-title-icon svg {
+    width: 19px;
+    height: 19px;
+
+    display: block;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 1.8;
+
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+/* =========================================================
+   FOTO SECTION
+   ========================================================= */
+
+.photo-section {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 16px;
+
+    margin:
+        0 0 17px;
+
+    text-align: left;
+}
+
+
+/* =========================================================
+   FOTO WRAPPER
+   ========================================================= */
+
+.profile-photo-wrapper {
+    position: relative;
+
+    width: 92px;
+    height: 92px;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   FOTO
+   ========================================================= */
+
+.profile-photo {
+    width: 92px;
+    height: 92px;
+
+    display: block;
+
+    object-fit: cover;
+
+    box-sizing: border-box;
+
+    border:
+        4px solid
+        #ffffff;
+
+    border-radius: 50%;
+
+    background: #dcfce7;
+
+    box-shadow:
+        0 4px 14px
+        rgba(21, 128, 61, 0.18);
+}
+
+
+/* =========================================================
+   LOADING FOTO
+   ========================================================= */
+
+.photo-loading {
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255, 255, 255, 0.80);
+}
+
+
+/* =========================================================
+   INFO FOTO
+   ========================================================= */
+
+.photo-info {
+    min-width: 0;
+}
+
+.profile-name {
+    margin: 0;
+
+    color: #17201a;
+
+    font-size: 18px;
+
+    line-height: 1.3;
+
+    font-weight: 800;
+
+    word-break: break-word;
+}
+
+.profile-role {
+    display: inline-flex;
+
+    align-items: center;
+
+    margin-top: 6px;
+
+    padding: 5px 9px;
+
+    border-radius: 999px;
+
+    color: #166534;
+
+    background: #ecfdf3;
+
+    font-size: 10px;
+
+    line-height: 1;
+
+    font-weight: 800;
+
+    letter-spacing: 0.4px;
+}
+
+
+/* =========================================================
+   BUTTON WITH ICON
+   ========================================================= */
+
+.button-with-icon {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+}
+
+.button-with-icon svg {
+    width: 19px;
+    height: 19px;
+
+    flex-shrink: 0;
+
+    display: block;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 1.8;
+
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+/* =========================================================
+   PRIMARY BUTTON
+   ========================================================= */
+
+.profil-card .primary-button {
+    width: 100%;
+
+    min-height: 46px;
+
+    box-sizing: border-box;
+
+    margin: 0;
+
+    padding: 11px 15px;
+
+    border: 0;
+
+    border-radius: 12px;
+
+    color: #ffffff;
+
+    background: #15803d;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    line-height: 1.3;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    -webkit-tap-highlight-color: transparent;
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease;
+}
+
+.profil-card .primary-button:hover {
+    background: #166534;
+
+    box-shadow:
+        0 4px 12px
+        rgba(21, 128, 61, 0.16);
+}
+
+.profil-card .primary-button:active {
+    transform: scale(0.98);
+}
+
+.profil-card .primary-button:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+
+    box-shadow: none;
+}
+
+
+/* =========================================================
+   SECONDARY BUTTON
+   ========================================================= */
+
+.secondary-button {
+    width: 100%;
+
+    min-height: 46px;
+
+    box-sizing: border-box;
+
+    margin: 0;
+
+    padding: 11px 15px;
+
+    border:
+        1px solid
+        #bbf7d0;
+
+    border-radius: 12px;
+
+    color: #166534;
+
+    background: #f0fdf4;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    line-height: 1.3;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    -webkit-tap-highlight-color: transparent;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease;
+}
+
+.secondary-button:hover {
+    background: #dcfce7;
+
+    border-color: #86efac;
+}
+
+.secondary-button:active {
+    transform: scale(0.98);
+}
+
+
+/* =========================================================
+   BANTUAN FOTO
+   ========================================================= */
+
+.form-help {
+    margin:
+        9px 0 0;
+
+    color: #9ca3af;
+
+    font-size: 11.5px;
+
+    line-height: 1.45;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   DESKRIPSI PASSWORD
+   ========================================================= */
+
+.section-description {
+    margin:
+        -5px 0 16px;
+
+    color: #6b7280;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   FORM GROUP
+   ========================================================= */
+
+.form-group {
+    width: 100%;
+
+    margin:
+        0 0 15px;
+}
+
+.form-group > label {
+    display: block;
+
+    margin:
+        0 0 7px;
+
+    color: #374151;
+
+    font-size: 13px;
+
+    line-height: 1.3;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   PASSWORD INPUT
+   ========================================================= */
+
+.password-input-wrapper {
+    position: relative;
+
+    width: 100%;
+}
+
+.password-input-wrapper input {
+    width: 100%;
+
+    min-height: 46px;
+
+    padding:
+        11px 46px 11px 13px;
+
+    box-sizing: border-box;
+
+    border:
+        1px solid
+        #d1d5db;
+
+    border-radius: 11px;
+
+    outline: none;
+
+    color: #111827;
+
+    background: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    line-height: 1.3;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.password-input-wrapper input::placeholder {
+    color: #9ca3af;
+}
+
+.password-input-wrapper input:focus {
+    border-color: #15803d;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(21, 128, 61, 0.10);
+}
+
+
+/* =========================================================
+   TOGGLE PASSWORD
+   ========================================================= */
+
+.password-toggle {
+    position: absolute;
+
+    top: 50%;
+    right: 6px;
+
+    width: 35px;
+    height: 35px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    transform:
+        translateY(-50%);
+
+    border: 0;
+
+    border-radius: 9px;
+
+    color: #6b7280;
+
+    background: transparent;
+
+    cursor: pointer;
+
+    -webkit-tap-highlight-color: transparent;
+}
+
+.password-toggle:hover {
+    color: #15803d;
+
+    background: #f3f4f6;
+}
+
+.password-toggle:active {
+    transform:
+        translateY(-50%)
+        scale(0.94);
+}
+
+.password-toggle svg {
+    width: 19px;
+    height: 19px;
+
+    display: block;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 1.8;
+
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+/* =========================================================
+   PASSWORD RULES
+   ========================================================= */
+
+.password-rules {
+    margin:
+        3px 0 0;
+
+    padding: 0;
+
+    color: #9ca3af;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+.password-rules > div {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    min-height: 22px;
+}
+
+.rule-icon {
+    width: 17px;
+
+    flex-shrink: 0;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    color: #9ca3af;
+
+    font-size: 15px;
+}
+
+
+/* =========================================================
+   PASSWORD ACTION
+   ========================================================= */
+
+.password-actions {
+    display: flex;
+
+    gap: 10px;
+
+    width: 100%;
+
+    margin-top: 18px;
+}
+
+.password-actions button {
+    flex: 1;
+
+    min-width: 0;
+}
+
+
+/* =========================================================
+   CANCEL BUTTON
+   ========================================================= */
+
+.cancel-button {
+    min-height: 46px;
+
+    box-sizing: border-box;
+
+    padding:
+        11px 15px;
+
+    border:
+        1px solid
+        #d1d5db;
+
+    border-radius: 12px;
+
+    color: #374151;
+
+    background: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    line-height: 1.3;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease;
+}
+
+.cancel-button:hover {
+    background: #f9fafb;
+
+    border-color: #9ca3af;
+}
+
+.cancel-button:active {
+    transform: scale(0.98);
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+.toast {
+    position: fixed;
+
+    z-index: 9999;
+
+    left: 50%;
+
+    bottom:
+        calc(
+            88px +
+            env(safe-area-inset-bottom)
+        );
+
+    width: max-content;
+
+    max-width:
+        calc(100vw - 32px);
+
+    box-sizing: border-box;
+
+    padding:
+        11px 15px;
+
+    transform:
+        translateX(-50%)
+        translateY(20px);
+
+    border-radius: 12px;
+
+    color: #ffffff;
+
+    background:
+        rgba(17, 24, 39, 0.94);
+
+    font-size: 13px;
+
+    line-height: 1.4;
+
+    text-align: center;
+
+    box-shadow:
+        0 7px 22px
+        rgba(0, 0, 0, 0.18);
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+}
+
+.toast.show {
+    opacity: 1;
+
+    transform:
+        translateX(-50%)
+        translateY(0);
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .profil-header {
+        min-height: 168px;
+
+        padding:
+            calc(16px + env(safe-area-inset-top))
+            15px
+            24px;
+
+        border-radius:
+            0 0 24px 24px;
+    }
+
+
+    .profil-header .back-button {
+        width: 40px;
+        height: 40px;
+
+        margin-bottom: 15px;
+    }
+
+
+    .header-title-main {
+        font-size: 23px;
+    }
+
+
+    .header-title-sub {
+        font-size: 12.5px;
+    }
+
+
+    .profil-container {
+        padding:
+            16px 12px
+            calc(
+                105px +
+                env(safe-area-inset-bottom)
+            );
+    }
+
+
+    .profil-card {
+        padding: 17px;
+
+        border-radius: 17px;
+    }
+
+
+    .photo-section {
+        gap: 14px;
+    }
+
+
+    .profile-photo-wrapper,
+    .profile-photo {
+        width: 86px;
+        height: 86px;
+    }
+
+
+    .profile-name {
+        font-size: 17px;
+    }
+
+
+    .card-title {
+        font-size: 16px;
+    }
+}
+
+
+/* =========================================================
+   HP KECIL
+   ========================================================= */
+
+@media (max-width: 360px) {
+
+    .profil-header {
+        min-height: 160px;
+    }
+
+
+    .header-title-main {
+        font-size: 21px;
+    }
+
+
+    .header-title-sub {
+        font-size: 12px;
+    }
+
+
+    .profil-container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+
+    .profil-card {
+        padding: 15px;
+    }
+
+
+    .photo-section {
+        gap: 11px;
+    }
+
+
+    .profile-photo-wrapper,
+    .profile-photo {
+        width: 80px;
+        height: 80px;
+    }
+
+
+    .profile-name {
+        font-size: 16px;
+    }
+
+
+    .password-actions {
+        gap: 8px;
+    }
+}
+
+
+/* =========================================================
+   FOCUS
+   ========================================================= */
+
+.profil-header .back-button:focus-visible,
+.primary-button:focus-visible,
+.secondary-button:focus-visible,
+.cancel-button:focus-visible,
+.password-toggle:focus-visible,
+.password-input-wrapper input:focus-visible {
+    outline:
+        2px solid
+        #15803d;
+
+    outline-offset: 2px;
+}
+
+
+/* =========================================================
+   REDUCE MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration:
+            0.01ms !important;
+
+        animation-iteration-count:
+            1 !important;
+
+        transition-duration:
+            0.01ms !important;
+    }
+}

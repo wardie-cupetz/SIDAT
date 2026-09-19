@@ -1,0 +1,811 @@
+/* =========================================================
+SIDAT - DASHBOARD BENDAHARA
+Acuan Dashboard Ketua RT
+========================================================= */
+
+* {
+  box-sizing: border-box;
+  }
+
+html {
+margin: 0;
+padding: 0;
+min-height: 100%;
+}
+
+body {
+margin: 0;
+padding: 0;
+min-height: 100%;
+background: #f4f7f5;
+color: #17211b;
+font-family:
+system-ui,
+-apple-system,
+BlinkMacSystemFont,
+"Segoe UI",
+sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+font: inherit;
+}
+
+.dashboard-container {
+width: 100%;
+min-height: 100vh;
+padding-bottom: 88px;
+}
+
+/* =========================================================
+HEADER
+========================================================= */
+
+.dashboard-header {
+position: relative;
+overflow: hidden;
+padding:
+calc(18px + env(safe-area-inset-top))
+18px
+22px;
+
+background:
+    linear-gradient(
+        145deg,
+        #166534 0%,
+        #15803d 55%,
+        #16a34a 100%
+    );
+
+color: #ffffff;
+
+border-radius:
+    0 0 28px 28px;
+
+box-shadow:
+    0 8px 24px
+    rgba(21, 128, 61, 0.18);
+
+}
+
+.dashboard-header::after {
+content: "";
+position: absolute;
+
+width: 180px;
+height: 180px;
+
+right: -70px;
+top: -80px;
+
+border-radius: 50%;
+
+background:
+    rgba(255, 255, 255, 0.08);
+
+}
+
+.header-top {
+position: relative;
+z-index: 1;
+
+display: flex;
+align-items: center;
+justify-content: space-between;
+
+gap: 12px;
+
+}
+
+.header-brand {
+display: flex;
+align-items: center;
+min-width: 0;
+}
+
+.header-bubble {
+width: 46px;
+height: 46px;
+
+flex: 0 0 46px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+border-radius: 15px;
+
+background:
+    rgba(255, 255, 255, 0.15);
+
+border:
+    1px solid
+    rgba(255, 255, 255, 0.18);
+
+}
+
+.header-bubble-icon {
+width: 25px;
+height: 25px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+}
+
+.header-bubble-icon svg {
+width: 24px;
+height: 24px;
+
+fill: none;
+stroke: currentColor;
+stroke-width: 1.8;
+stroke-linecap: round;
+stroke-linejoin: round;
+
+}
+
+.header-brand-text {
+margin-left: 11px;
+min-width: 0;
+}
+
+.header-brand-text h1 {
+margin: 0;
+
+font-size: 22px;
+line-height: 1.05;
+
+font-weight: 800;
+letter-spacing: 0.3px;
+
+}
+
+.header-brand-text span {
+display: block;
+
+margin-top: 4px;
+
+font-size: 11px;
+line-height: 1.3;
+
+opacity: 0.88;
+
+}
+
+.header-role-badge {
+position: relative;
+z-index: 2;
+
+flex: 0 0 auto;
+
+padding:
+    7px 10px;
+
+border-radius: 999px;
+
+background:
+    rgba(255, 255, 255, 0.16);
+
+border:
+    1px solid
+    rgba(255, 255, 255, 0.25);
+
+font-size: 10px;
+font-weight: 800;
+
+letter-spacing: 0.4px;
+
+}
+
+/* =========================================================
+WILAYAH
+========================================================= */
+
+.region-info {
+position: relative;
+z-index: 1;
+
+display: flex;
+align-items: flex-start;
+
+margin-top: 20px;
+
+padding:
+    12px 13px;
+
+border-radius: 17px;
+
+background:
+    rgba(0, 0, 0, 0.10);
+
+border:
+    1px solid
+    rgba(255, 255, 255, 0.10);
+
+}
+
+.region-icon {
+width: 34px;
+height: 34px;
+
+flex: 0 0 34px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+border-radius: 11px;
+
+background:
+    rgba(255, 255, 255, 0.12);
+
+}
+
+.region-icon svg {
+width: 19px;
+height: 19px;
+
+fill: none;
+stroke: currentColor;
+stroke-width: 1.8;
+stroke-linecap: round;
+stroke-linejoin: round;
+
+}
+
+.region-text {
+display: flex;
+flex-direction: column;
+
+min-width: 0;
+
+margin-left: 10px;
+
+line-height: 1.45;
+
+}
+
+.region-text strong {
+font-size: 13px;
+font-weight: 800;
+}
+
+.region-text span {
+font-size: 10px;
+opacity: 0.88;
+}
+
+/* =========================================================
+WELCOME
+========================================================= */
+
+.welcome-section {
+margin:
+18px 16px 0;
+
+padding:
+    17px 18px;
+
+background: #ffffff;
+
+border:
+    1px solid
+    #e5ebe7;
+
+border-radius: 20px;
+
+box-shadow:
+    0 4px 14px
+    rgba(15, 23, 42, 0.05);
+
+}
+
+.welcome-label {
+display: block;
+
+margin-bottom: 4px;
+
+color: #647067;
+
+font-size: 12px;
+
+}
+
+.welcome-section h2 {
+margin: 0;
+
+color: #14532d;
+
+font-size: 21px;
+line-height: 1.2;
+
+font-weight: 800;
+
+}
+
+.welcome-section p {
+margin:
+7px 0 0;
+
+color: #6b756e;
+
+font-size: 12px;
+line-height: 1.45;
+
+}
+
+/* =========================================================
+CONTENT
+========================================================= */
+
+.dashboard-content {
+padding:
+16px;
+}
+
+.stats-grid {
+display: grid;
+
+grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+gap: 12px;
+
+}
+
+.stat-card {
+min-width: 0;
+
+display: flex;
+align-items: center;
+
+padding:
+    14px;
+
+background: #ffffff;
+
+border:
+    1px solid
+    #e5ebe7;
+
+border-radius: 18px;
+
+box-shadow:
+    0 4px 12px
+    rgba(15, 23, 42, 0.045);
+
+transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+
+}
+
+.stat-card:active {
+transform: scale(0.985);
+
+box-shadow:
+    0 2px 7px
+    rgba(15, 23, 42, 0.06);
+
+}
+
+.stat-icon {
+width: 42px;
+height: 42px;
+
+flex: 0 0 42px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+border-radius: 14px;
+
+}
+
+.stat-icon svg {
+width: 21px;
+height: 21px;
+
+fill: none;
+stroke: currentColor;
+stroke-width: 1.7;
+stroke-linecap: round;
+stroke-linejoin: round;
+
+}
+
+.stat-icon-warga {
+background: #dcfce7;
+color: #15803d;
+}
+
+.stat-icon-kk {
+background: #ecfccb;
+color: #4d7c0f;
+}
+
+.stat-icon-kas {
+background: #dbeafe;
+color: #2563eb;
+}
+
+.stat-icon-jimpitan {
+background: #fef3c7;
+color: #b45309;
+}
+
+.stat-icon-belum {
+background: #fee2e2;
+color: #dc2626;
+}
+
+.stat-icon-laporan {
+background: #ede9fe;
+color: #7c3aed;
+}
+
+.stat-content {
+min-width: 0;
+
+margin-left: 11px;
+
+}
+
+.stat-content span {
+display: block;
+
+overflow: hidden;
+
+color: #69736d;
+
+font-size: 10px;
+line-height: 1.35;
+
+text-overflow: ellipsis;
+
+}
+
+.stat-content strong {
+display: block;
+
+margin-top: 4px;
+
+overflow: hidden;
+
+color: #18231c;
+
+font-size: 16px;
+line-height: 1.2;
+
+font-weight: 800;
+
+text-overflow: ellipsis;
+
+}
+
+/* =========================================================
+AKTIVITAS
+========================================================= */
+
+.activity-section {
+margin-top: 18px;
+
+padding:
+    16px;
+
+background: #ffffff;
+
+border:
+    1px solid
+    #e5ebe7;
+
+border-radius: 20px;
+
+box-shadow:
+    0 4px 14px
+    rgba(15, 23, 42, 0.05);
+
+}
+
+.section-title {
+display: flex;
+align-items: center;
+justify-content: space-between;
+
+margin-bottom: 13px;
+
+}
+
+.section-title h3 {
+margin: 0;
+
+color: #17211b;
+
+font-size: 15px;
+font-weight: 800;
+
+}
+
+.section-title span {
+display: block;
+
+margin-top: 3px;
+
+color: #7a847d;
+
+font-size: 10px;
+
+}
+
+.activity-list {
+display: flex;
+flex-direction: column;
+}
+
+.activity-item {
+display: flex;
+align-items: flex-start;
+
+padding:
+    11px 0;
+
+border-bottom:
+    1px solid
+    #edf1ee;
+
+}
+
+.activity-item:last-child {
+border-bottom: 0;
+}
+
+.activity-icon {
+width: 35px;
+height: 35px;
+
+flex: 0 0 35px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+border-radius: 11px;
+
+background: #ecfdf5;
+
+color: #15803d;
+
+}
+
+.activity-icon svg {
+width: 17px;
+height: 17px;
+
+fill: none;
+stroke: currentColor;
+stroke-width: 1.7;
+stroke-linecap: round;
+stroke-linejoin: round;
+
+}
+
+.activity-content {
+min-width: 0;
+
+margin-left: 10px;
+
+}
+
+.activity-content strong {
+display: block;
+
+overflow: hidden;
+
+color: #263129;
+
+font-size: 11px;
+line-height: 1.35;
+
+font-weight: 750;
+
+text-overflow: ellipsis;
+
+}
+
+.activity-content span {
+display: block;
+
+margin-top: 3px;
+
+color: #707a73;
+
+font-size: 10px;
+line-height: 1.4;
+
+word-break: break-word;
+
+}
+
+.activity-content small {
+display: block;
+
+margin-top: 4px;
+
+color: #9aa39d;
+
+font-size: 9px;
+
+}
+
+.activity-loading,
+.activity-empty {
+padding:
+20px 10px;
+
+color: #8a938d;
+
+text-align: center;
+
+font-size: 11px;
+
+}
+
+/* =========================================================
+LOADING
+========================================================= */
+
+.loading-screen {
+position: fixed;
+
+inset: 0;
+
+z-index: 9999;
+
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+
+background:
+    rgba(244, 247, 245, 0.97);
+
+color: #166534;
+
+transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease;
+
+}
+
+.loading-screen.hidden {
+opacity: 0;
+visibility: hidden;
+pointer-events: none;
+}
+
+.loading-spinner {
+width: 34px;
+height: 34px;
+
+margin-bottom: 11px;
+
+border:
+    3px solid
+    #d9e8dd;
+
+border-top-color:
+    #15803d;
+
+border-radius: 50%;
+
+animation:
+    sidat-spin 0.8s linear infinite;
+
+}
+
+.loading-screen span {
+font-size: 11px;
+font-weight: 600;
+}
+
+@keyframes sidat-spin {
+
+to {
+    transform: rotate(360deg);
+}
+
+}
+
+/* =========================================================
+ERROR
+========================================================= */
+
+.dashboard-error {
+display: none;
+
+margin:
+    12px 16px;
+
+padding:
+    12px 14px;
+
+color: #991b1b;
+
+background: #fef2f2;
+
+border:
+    1px solid
+    #fecaca;
+
+border-radius: 14px;
+
+font-size: 11px;
+line-height: 1.4;
+
+}
+
+.dashboard-error.show {
+display: block;
+}
+
+/* =========================================================
+RESPONSIVE
+========================================================= */
+
+@media (min-width: 600px) {
+
+.dashboard-header {
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+
+.welcome-section {
+    margin-left: 24px;
+    margin-right: 24px;
+}
+
+
+.dashboard-content {
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+
+.stats-grid {
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+}
+
+}
+
+@media (min-width: 900px) {
+
+.dashboard-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+}
+
+/* =========================================================
+SAFE AREA ANDROID
+========================================================= */
+
+@supports (padding: env(safe-area-inset-bottom)) {
+
+.dashboard-container {
+    padding-bottom:
+        calc(
+            88px +
+            env(safe-area-inset-bottom)
+        );
+}
+
+}

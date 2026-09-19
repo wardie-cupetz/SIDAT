@@ -1,0 +1,600 @@
+/* =========================================================
+   SIDAT - KETUA RT MENU
+   CSS KHUSUS
+   ========================================================= */
+
+:root {
+    --sidat-krt-green: #15803d;
+    --sidat-krt-green-dark: #166534;
+    --sidat-krt-green-light: #dcfce7;
+    --sidat-krt-border: #e5e7eb;
+    --sidat-krt-text: #111827;
+    --sidat-krt-muted: #6b7280;
+    --sidat-krt-white: #ffffff;
+}
+
+/* =========================================================
+   BOTTOM NAVIGATION
+   ========================================================= */
+
+#sidatKetuaRTBottomNav {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+
+    width: 100% !important;
+    height: 68px !important;
+
+    display: flex !important;
+    align-items: stretch !important;
+    justify-content: space-around !important;
+
+    background: var(--sidat-krt-white) !important;
+
+    border-top: 1px solid var(--sidat-krt-border) !important;
+
+    box-shadow:
+        0 -4px 16px rgba(0, 0, 0, 0.08) !important;
+
+    z-index: 99999 !important;
+
+    pointer-events: auto !important;
+
+    padding:
+        5px
+        0
+        env(safe-area-inset-bottom, 5px)
+        0 !important;
+
+    box-sizing: border-box !important;
+}
+
+/* =========================================================
+   BOTTOM NAV BUTTON
+   ========================================================= */
+
+#sidatKetuaRTBottomNav .admin-bottom-nav-item {
+    flex: 1 1 0 !important;
+
+    min-width: 0 !important;
+    max-width: 180px !important;
+
+    border: 0 !important;
+    outline: none !important;
+
+    background: transparent !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    gap: 3px !important;
+
+    padding: 4px 8px !important;
+    margin: 0 !important;
+
+    color: #6b7280 !important;
+
+    cursor: pointer !important;
+
+    pointer-events: auto !important;
+
+    -webkit-tap-highlight-color: transparent !important;
+
+    touch-action: manipulation !important;
+}
+
+/* =========================================================
+   ACTIVE
+   ========================================================= */
+
+#sidatKetuaRTBottomNav
+.admin-bottom-nav-item.active {
+    color: var(--sidat-krt-green) !important;
+}
+
+/* =========================================================
+   ICON
+   ========================================================= */
+
+#sidatKetuaRTBottomNav
+.admin-bottom-nav-icon {
+    width: 25px !important;
+    height: 25px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    pointer-events: none !important;
+}
+
+#sidatKetuaRTBottomNav
+.admin-bottom-nav-icon svg {
+    width: 23px !important;
+    height: 23px !important;
+
+    fill: none !important;
+
+    stroke: currentColor !important;
+
+    stroke-width: 1.8 !important;
+
+    stroke-linecap: round !important;
+    stroke-linejoin: round !important;
+
+    pointer-events: none !important;
+}
+
+/* =========================================================
+   LABEL
+   ========================================================= */
+
+#sidatKetuaRTBottomNav
+.admin-bottom-nav-label {
+    font-size: 11px !important;
+
+    line-height: 1.2 !important;
+
+    font-weight: 600 !important;
+
+    white-space: nowrap !important;
+
+    pointer-events: none !important;
+}
+
+/* =========================================================
+   MENU OVERLAY
+   ========================================================= */
+
+#sidatKetuaRTMenuOverlay {
+    position: fixed !important;
+
+    inset: 0 !important;
+
+    width: 100vw !important;
+    height: 100vh !important;
+
+    background: rgba(0, 0, 0, 0.45) !important;
+
+    display: flex !important;
+
+    align-items: flex-end !important;
+    justify-content: center !important;
+
+    opacity: 0 !important;
+
+    visibility: hidden !important;
+
+    pointer-events: none !important;
+
+    z-index: 100000 !important;
+
+    transition:
+        opacity 0.2s ease,
+        visibility 0.2s ease !important;
+
+    box-sizing: border-box !important;
+}
+
+/* =========================================================
+   OVERLAY ACTIVE
+   ========================================================= */
+
+#sidatKetuaRTMenuOverlay.active {
+    opacity: 1 !important;
+
+    visibility: visible !important;
+
+    pointer-events: auto !important;
+}
+
+/* =========================================================
+   MENU PANEL
+   ========================================================= */
+
+#sidatKetuaRTMenuPanel {
+    width: 100% !important;
+
+    max-width: 520px !important;
+
+    max-height: 85vh !important;
+
+    overflow-y: auto !important;
+
+    background: var(--sidat-krt-white) !important;
+
+    border-radius:
+        20px
+        20px
+        0
+        0 !important;
+
+    transform: translateY(100%) !important;
+
+    transition:
+        transform 0.25s ease !important;
+
+    box-shadow:
+        0 -8px 30px rgba(0, 0, 0, 0.18) !important;
+
+    box-sizing: border-box !important;
+
+    pointer-events: auto !important;
+
+    overscroll-behavior: contain !important;
+}
+
+/* =========================================================
+   PANEL ACTIVE
+   ========================================================= */
+
+#sidatKetuaRTMenuPanel.active {
+    transform: translateY(0) !important;
+}
+
+/* =========================================================
+   MENU HEADER
+   ========================================================= */
+
+#sidatKetuaRTMenuPanel
+.admin-menu-header {
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    padding: 20px 20px 16px !important;
+
+    border-bottom: 1px solid var(--sidat-krt-border) !important;
+
+    position: sticky !important;
+
+    top: 0 !important;
+
+    background: var(--sidat-krt-white) !important;
+
+    z-index: 5 !important;
+}
+
+/* =========================================================
+   ROLE
+   ========================================================= */
+
+#sidatKetuaRTMenuPanel
+.admin-menu-role {
+    color: var(--sidat-krt-green) !important;
+
+    font-size: 12px !important;
+
+    font-weight: 800 !important;
+
+    letter-spacing: 0.5px !important;
+
+    text-transform: uppercase !important;
+}
+
+/* =========================================================
+   TITLE
+   ========================================================= */
+
+#sidatKetuaRTMenuPanel
+.admin-menu-title {
+    margin-top: 3px !important;
+
+    color: var(--sidat-krt-text) !important;
+
+    font-size: 20px !important;
+
+    font-weight: 800 !important;
+}
+
+/* =========================================================
+   CLOSE BUTTON
+   ========================================================= */
+
+#sidatKetuaRTMenuPanel
+.admin-menu-close {
+    width: 42px !important;
+    height: 42px !important;
+
+    border: 0 !important;
+
+    border-radius: 50% !important;
+
+    background: #f3f4f6 !important;
+
+    color: #374151 !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    padding: 0 !important;
+
+    cursor: pointer !important;
+
+    pointer-events: auto !important;
+
+    touch-action: manipulation !important;
+}
+
+#sidatKetuaRTMenuPanel
+.admin-menu-close svg {
+    width: 21px !important;
+    height: 21px !important;
+
+    fill: none !important;
+
+    stroke: currentColor !important;
+
+    stroke-width: 2 !important;
+
+    stroke-linecap: round !important;
+    stroke-linejoin: round !important;
+
+    pointer-events: none !important;
+}
+
+/* =========================================================
+   MENU LIST
+   ========================================================= */
+
+#sidatKetuaRTMenuPanel
+.admin-menu-list {
+    padding: 10px 14px 16px !important;
+}
+
+/* =========================================================
+   MENU ITEM
+   ========================================================= */
+
+#sidatKetuaRTMenuPanel
+.admin-menu-item {
+    width: 100% !important;
+
+    min-height: 68px !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 13px !important;
+
+    padding: 10px 12px !important;
+
+    margin: 3px 0 !important;
+
+    border: 0 !important;
+
+    border-radius: 14px !important;
+
+    background: transparent !important;
+
+    text-align: left !important;
+
+    cursor: pointer !important;
+
+    pointer-events: auto !important;
+
+    touch-action: manipulation !important;
+
+    box-sizing: border-box !important;
+}
+
+#sidatKetuaRTMenuPanel
+.admin-menu-item:active {
+    background: var(--sidat-krt-green-light) !important;
+}
+
+/* =========================================================
+   ITEM ICON
+   ========================================================= */
+
+#sidatKetuaRTMenuPanel
+.admin-menu-item-icon {
+    width: 44px !important;
+    height: 44px !important;
+
+    flex: 0 0 44px !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 12px !important;
+
+    background: var(--sidat-krt-green-light) !important;
+
+    color: var(--sidat-krt-green-dark) !important;
+
+    pointer-events: none !important;
+}
+
+#sidatKetuaRTMenuPanel
+.admin-menu-item-icon svg {
+    width: 23px !important;
+    height: 23px !important;
+
+    fill: none !important;
+
+    stroke: currentColor !important;
+
+    stroke-width: 1.8 !important;
+
+    stroke-linecap: round !important;
+    stroke-linejoin: round !important;
+
+    pointer-events: none !important;
+}
+
+/* =========================================================
+   ITEM CONTENT
+   ========================================================= */
+
+#sidatKetuaRTMenuPanel
+.admin-menu-item-content {
+    min-width: 0 !important;
+
+    flex: 1 !important;
+
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    gap: 3px !important;
+
+    pointer-events: none !important;
+}
+
+/* =========================================================
+   ITEM TITLE
+   ========================================================= */
+
+#sidatKetuaRTMenuPanel
+.admin-menu-item-title {
+    color: var(--sidat-krt-text) !important;
+
+    font-size: 15px !important;
+
+    font-weight: 700 !important;
+
+    line-height: 1.25 !important;
+}
+
+/* =========================================================
+   ITEM DESCRIPTION
+   ========================================================= */
+
+#sidatKetuaRTMenuPanel
+.admin-menu-item-description {
+    color: var(--sidat-krt-muted) !important;
+
+    font-size: 12px !important;
+
+    line-height: 1.3 !important;
+}
+
+/* =========================================================
+   ARROW
+   ========================================================= */
+
+#sidatKetuaRTMenuPanel
+.admin-menu-item-arrow {
+    flex: 0 0 auto !important;
+
+    color: #9ca3af !important;
+
+    font-size: 25px !important;
+
+    line-height: 1 !important;
+
+    pointer-events: none !important;
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+#sidatKetuaRTMenuPanel
+.admin-menu-footer {
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    align-items: center !important;
+
+    gap: 3px !important;
+
+    padding: 14px 20px 20px !important;
+
+    color: #9ca3af !important;
+
+    font-size: 11px !important;
+
+    text-align: center !important;
+}
+
+#sidatKetuaRTMenuPanel
+.admin-menu-footer strong {
+    color: var(--sidat-krt-green) !important;
+
+    font-size: 13px !important;
+}
+
+/* =========================================================
+   BODY SAAT MENU TERBUKA
+   ========================================================= */
+
+body.sidat-ketua-rt-menu-open {
+    overflow: hidden !important;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    #sidatKetuaRTBottomNav {
+        height: 66px !important;
+    }
+
+    #sidatKetuaRTMenuPanel {
+        max-height: 88vh !important;
+
+        border-radius:
+            18px
+            18px
+            0
+            0 !important;
+    }
+
+    #sidatKetuaRTMenuPanel
+    .admin-menu-header {
+        padding: 18px 16px 14px !important;
+    }
+
+    #sidatKetuaRTMenuPanel
+    .admin-menu-list {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    #sidatKetuaRTMenuPanel
+    .admin-menu-item {
+        min-height: 64px !important;
+    }
+}
+
+/* =========================================================
+   DESKTOP / TABLET
+   ========================================================= */
+
+@media (min-width: 768px) {
+
+    #sidatKetuaRTBottomNav {
+        left: 50% !important;
+        right: auto !important;
+
+        transform: translateX(-50%) !important;
+
+        width: min(520px, 100%) !important;
+
+        border-left: 1px solid var(--sidat-krt-border) !important;
+        border-right: 1px solid var(--sidat-krt-border) !important;
+    }
+
+    #sidatKetuaRTMenuPanel {
+        margin-bottom: 68px !important;
+
+        border-radius: 20px !important;
+
+        max-height: 80vh !important;
+    }
+}
