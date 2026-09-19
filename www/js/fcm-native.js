@@ -2,7 +2,6 @@
 // SIDAT
 // FCM NATIVE - ANDROID APK
 // Capacitor + Firebase Cloud Messaging
-// VERSI DEBUG VISUAL
 // ==========================================
 
 (function () {
@@ -11,289 +10,20 @@
 
 
     // ======================================
-    // DEBUG PANEL
+    // DEBUG DINONAKTIFKAN UNTUK PRODUKSI
     // ======================================
 
-    const DEBUG_ID =
-        "sidat-fcm-debug-panel";
+    function debug() {}
 
-
-    function buatDebugPanel() {
-
-        if (
-            document.getElementById(
-                DEBUG_ID
-            )
-        ) {
-            return;
-        }
-
-
-        const panel =
-            document.createElement(
-                "div"
-            );
-
-
-        panel.id =
-            DEBUG_ID;
-
-
-        panel.style.cssText = `
-            position: fixed;
-            left: 10px;
-            right: 10px;
-            bottom: 10px;
-            z-index: 999999;
-            background: #111827;
-            color: #ffffff;
-            border-radius: 12px;
-            padding: 14px;
-            font-family: Arial, sans-serif;
-            font-size: 13px;
-            line-height: 1.5;
-            box-shadow: 0 8px 30px rgba(0,0,0,.35);
-            max-height: 45vh;
-            overflow-y: auto;
-        `;
-
-
-        panel.innerHTML = `
-            <div style="
-                font-weight:bold;
-                font-size:15px;
-                margin-bottom:8px;
-            ">
-                🔔 SIDAT FCM DEBUG
-            </div>
-
-            <div id="sidat-fcm-status">
-                Memulai...
-            </div>
-
-            <button
-                id="sidat-fcm-close"
-                style="
-                    margin-top:10px;
-                    border:0;
-                    padding:7px 12px;
-                    border-radius:7px;
-                    background:#374151;
-                    color:#fff;
-                "
-            >
-                Tutup Debug
-            </button>
-        `;
-
-
-        document.body.appendChild(
-            panel
-        );
-
-
-        const closeButton =
-            document.getElementById(
-                "sidat-fcm-close"
-            );
-
-
-        if (closeButton) {
-
-            closeButton.onclick =
-                function () {
-
-                    panel.remove();
-
-                };
-
-        }
-
+    function tampilkanError(error) {
+        // Tidak menampilkan debug ke pengguna.
     }
-
-
-    function debug(
-        message,
-        type = "info"
-    ) {
-
-        console.log(
-            "SIDAT FCM:",
-            message
-        );
-
-
-        const status =
-            document.getElementById(
-                "sidat-fcm-status"
-            );
-
-
-        if (!status) {
-            return;
-        }
-
-
-        const waktu =
-            new Date()
-                .toLocaleTimeString(
-                    "id-ID"
-                );
-
-
-        let symbol =
-            "ℹ️";
-
-
-        if (
-            type === "success"
-        ) {
-
-            symbol =
-                "✅";
-
-        }
-
-
-        if (
-            type === "error"
-        ) {
-
-            symbol =
-                "❌";
-
-        }
-
-
-        if (
-            type === "warning"
-        ) {
-
-            symbol =
-                "⚠️";
-
-        }
-
-
-        const row =
-            document.createElement(
-                "div"
-            );
-
-
-        row.style.cssText = `
-            padding:5px 0;
-            border-bottom:1px solid #374151;
-        `;
-
-
-        row.innerHTML =
-            `${symbol} <span style="color:#9ca3af">${waktu}</span> ${message}`;
-
-
-        status.appendChild(
-            row
-        );
-
-
-        status.scrollTop =
-            status.scrollHeight;
-
-    }
-
-
-    function tampilkanError(
-        error
-    ) {
-
-        let message;
-
-
-        if (
-            error instanceof Error
-        ) {
-
-            message =
-                error.message;
-
-        }
-
-        else if (
-            typeof error === "object"
-        ) {
-
-            try {
-
-                message =
-                    JSON.stringify(
-                        error
-                    );
-
-            }
-
-            catch {
-
-                message =
-                    String(error);
-
-            }
-
-        }
-
-        else {
-
-            message =
-                String(error);
-
-        }
-
-
-        debug(
-            message,
-            "error"
-        );
-
-    }
-
 
     // ======================================
     // MULAI
     // ======================================
 
-    function mulaiDebug() {
-
-        if (
-            !document.body
-        ) {
-
-            document.addEventListener(
-                "DOMContentLoaded",
-                mulaiDebug,
-                {
-                    once: true
-                }
-            );
-
-            return;
-
-        }
-
-
-        buatDebugPanel();
-
-
-        debug(
-            "Modul fcm-native.js dimuat.",
-            "success"
-        );
-
-    }
-
-
-    mulaiDebug();
-
-
-    // ======================================
+        // ======================================
     // CEK CAPACITOR
     // ======================================
 
@@ -1069,6 +799,13 @@
                     existing?.id
                 ) {
 
+                    debug(
+                        "Subscription Warga ditemukan: " +
+                        existing.id,
+                        "success"
+                    );
+
+
                     const {
                         error
                     } =
@@ -1083,6 +820,18 @@
 
                                 user_id:
                                     user.id,
+
+                                resident_id:
+                                    residentId,
+
+                                endpoint:
+                                    `fcm-native:${user.id}`,
+
+                                p256dh:
+                                    `fcm-native-${user.id}`,
+
+                                auth:
+                                    `fcm-native-${user.id}`,
 
                                 updated_at:
                                     new Date()
@@ -1120,12 +869,69 @@
 
 
                 debug(
-                    "Subscription warga belum ditemukan.",
+                    "Subscription Warga belum ditemukan. Membuat record baru...",
                     "warning"
                 );
 
 
-                return false;
+                const {
+                    error: insertError
+                } =
+                    await client
+                        .from(
+                            "push_subscriptions"
+                        )
+                        .insert({
+
+                            user_id:
+                                user.id,
+
+                            resident_id:
+                                residentId,
+
+                            endpoint:
+                                `fcm-native:${user.id}`,
+
+                            p256dh:
+                                `fcm-native-${user.id}`,
+
+                            auth:
+                                `fcm-native-${user.id}`,
+
+                            fcm_token:
+                                token,
+
+                            created_at:
+                                new Date()
+                                    .toISOString(),
+
+                            updated_at:
+                                new Date()
+                                    .toISOString()
+
+                        });
+
+
+                if (insertError) {
+
+                    debug(
+                        "GAGAL INSERT TOKEN WARGA: " +
+                        insertError.message,
+                        "error"
+                    );
+
+                    return false;
+
+                }
+
+
+                debug(
+                    "TOKEN FCM WARGA BERHASIL DISIMPAN.",
+                    "success"
+                );
+
+
+                return true;
 
             }
 
@@ -1150,6 +956,90 @@
             return false;
 
         }
+
+    }
+
+
+    // ======================================
+    // RETRY SINKRONISASI FCM
+    // ======================================
+
+    async function sinkronkanFCMRetry(
+        jumlahPercobaan = 6,
+        jeda = 2000
+    ) {
+
+        debug(
+            "Memulai retry sinkronisasi FCM..."
+        );
+
+        for (
+            let percobaan = 1;
+            percobaan <= jumlahPercobaan;
+            percobaan++
+        ) {
+
+            const token =
+                ambilTokenFCM();
+
+            if (token) {
+
+                debug(
+                    "Token FCM ditemukan pada percobaan " +
+                    percobaan + ".",
+                    "success"
+                );
+
+                const berhasil =
+                    await sinkronkanTokenFCM();
+
+                if (berhasil) {
+
+                    debug(
+                        "🎉 Retry FCM berhasil. Token sudah tersimpan ke Supabase.",
+                        "success"
+                    );
+
+                    return true;
+
+                }
+
+            } else {
+
+                debug(
+                    "Token FCM belum tersedia. Percobaan " +
+                    percobaan +
+                    "/" +
+                    jumlahPercobaan,
+                    "warning"
+                );
+
+            }
+
+            if (
+                percobaan <
+                jumlahPercobaan
+            ) {
+
+                await new Promise(
+                    function (resolve) {
+                        setTimeout(
+                            resolve,
+                            jeda
+                        );
+                    }
+                );
+
+            }
+
+        }
+
+        debug(
+            "Retry sinkronisasi FCM selesai tetapi belum berhasil.",
+            "error"
+        );
+
+        return false;
 
     }
 
@@ -1334,34 +1224,6 @@
     );
 
 
-    // ======================================
-    // NOTIFICATION RECEIVED
-    // ======================================
-
-    PushNotifications.addListener(
-        "pushNotificationReceived",
-        function (
-            notification
-        ) {
-
-            debug(
-                "Notifikasi FCM diterima.",
-                "success"
-            );
-
-
-            console.log(
-                "SIDAT FCM Notification:",
-                notification
-            );
-
-        }
-    );
-
-
-    // ======================================
-    // NOTIFICATION ACTION
-    // ======================================
 
     PushNotifications.addListener(
         "pushNotificationActionPerformed",
@@ -1415,6 +1277,9 @@
     window.SIDATSinkronkanFCM =
         sinkronkanTokenFCM;
 
+    window.SIDATSinkronkanFCMRetry =
+        sinkronkanFCMRetry;
+
 
     // ======================================
     // AUTO REGISTER
@@ -1429,9 +1294,42 @@
      */
 
     setTimeout(
-        function () {
+        async function () {
 
-            registerFCM();
+            try {
+
+                const session =
+                    await ambilSessionSupabase();
+
+                if (
+                    session?.user
+                ) {
+
+                    debug(
+                        "Session ditemukan. Menjalankan auto-register FCM...",
+                        "success"
+                    );
+
+                    await registerFCM();
+
+                } else {
+
+                    debug(
+                        "Belum ada session login. Auto-register FCM dilewati.",
+                        "warning"
+                    );
+
+                }
+
+            } catch (error) {
+
+                debug(
+                    "Auto-register FCM gagal: " +
+                    (error?.message || error),
+                    "error"
+                );
+
+            }
 
         },
         1500

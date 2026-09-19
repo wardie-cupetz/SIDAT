@@ -1,0 +1,82 @@
+name: Release Android APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Prepare release keystore
+        env:
+          SIDAT_KEYSTORE_BASE64: ${{ secrets.SIDAT_KEYSTORE_BASE64 }}
+          SIDAT_KEYSTORE_PASSWORD: ${{ secrets.SIDAT_KEYSTORE_PASSWORD }}
+          SIDAT_KEY_ALIAS: ${{ secrets.SIDAT_KEY_ALIAS }}
+          SIDAT_KEY_PASSWORD: ${{ secrets.SIDAT_KEY_PASSWORD }}
+        run: |
+          echo "$SIDAT_KEYSTORE_BASE64" | base64 --decode > /tmp/sidat-release.jks
+
+          cat > android/key.properties <<EOF2
+          storeFile=/tmp/sidat-release.jks
+          storeType=PKCS12
+          storePassword=$SIDAT_KEYSTORE_PASSWORD
+          keyAlias=$SIDAT_KEY_ALIAS
+          keyPassword=$SIDAT_KEY_PASSWORD
+          EOF2
+
+          keytool -list \
+            -keystore /tmp/sidat-release.jks \
+            -storetype PKCS12 \
+            -alias "$SIDAT_KEY_ALIAS" \
+            -storepass "$SIDAT_KEYSTORE_PASSWORD"
+
+      - name: Build Release APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: Prepare APK files
+        run: |
+          VERSION_NAME=$(grep 'versionName' android/app/build.gradle | sed 's/.*versionName "\([^"]*\)".*/\1/')
+          cp android/app/build/outputs/apk/release/app-release.apk SIDAT.apk
+          cp android/app/build/outputs/apk/release/app-release.apk "SIDAT-v${VERSION_NAME}.apk"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION_NAME=$(grep 'versionName' android/app/build.gradle | sed 's/.*versionName "\([^"]*\)".*/\1/')
+          gh release create "v${VERSION_NAME}" \
+            SIDAT.apk \
+            "SIDAT-v${VERSION_NAME}.apk" \
+            --title "SIDAT v${VERSION_NAME}" \
+            --generate-notes

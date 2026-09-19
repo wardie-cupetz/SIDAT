@@ -35,6 +35,8 @@ const supabaseClient =
             }
         }
     );
+window.supabaseClient = supabaseClient;
+
 
 // ==========================================
 // SIDAT SESSION SYNC
@@ -44,7 +46,7 @@ async function syncSidatSession() {
 
     try {
 
-        console.log("SIDAT: memeriksa session...");
+
 
         const {
             data: { session },
@@ -73,9 +75,7 @@ async function syncSidatSession() {
 
         if (!session) {
 
-            console.log(
-                "SIDAT: tidak ada session aktif."
-            );
+
 
             return;
         }
@@ -85,9 +85,7 @@ async function syncSidatSession() {
         // SESSION MASIH AKTIF
         // ======================================
 
-        console.log(
-            "SIDAT: session berhasil dipulihkan."
-        );
+
 
 
         // ======================================
@@ -166,9 +164,7 @@ async function syncSidatSession() {
                 profile?.role === "admin"
             ) {
 
-                console.log(
-                    "SIDAT: session ADMIN dipulihkan."
-                );
+
 
 
                 // Pastikan data admin tetap ada
@@ -225,9 +221,7 @@ async function syncSidatSession() {
             user?.id_resident
         ) {
 
-            console.log(
-                "SIDAT: session WARGA dipulihkan."
-            );
+
 
 
             // ==================================
@@ -284,10 +278,7 @@ async function syncSidatSession() {
 supabaseClient.auth.onAuthStateChange(
     (event, session) => {
 
-        console.log(
-            "SIDAT AUTH EVENT:",
-            event
-        );
+
 
 
         // ======================================
@@ -689,18 +680,7 @@ localStorage.setItem(
 );
 
 
-// DEBUG
-console.log(
-    "SUPABASE SESSION WARGA:",
-    session
-);
-
-console.log(
-    "ACCESS TOKEN SIDAT:",
-    session.access_token
-);
-
-                // ==================================
+// ==================================
                 // SIMPAN DATA SIDAT
                 // ==================================
 
@@ -710,29 +690,72 @@ console.log(
                         result.user
                     )
                 );
-                
+
 // ==========================================
-// SIMPAN FCM TOKEN SETELAH LOGIN
+// REGISTER FCM SETELAH LOGIN WARGA
 // ==========================================
+// Saat aplikasi pertama dibuka, session Warga
+// mungkin belum tersedia sehingga register FCM
+// sebelumnya belum bisa menyimpan token.
+// Setelah login berhasil, register ulang FCM.
+// ==========================================
+
+if (
+    typeof window.SIDATRegisterFCM ===
+    "function"
+) {
+
+    try {
+
+        await window.SIDATRegisterFCM();
+
+    } catch (error) {
+        // Register FCM tidak boleh menghentikan proses login.
+    }
+
+    const tokenSetelahRegister =
+        localStorage.getItem(
+            "sidat_fcm_native_token"
+        );
+
+    if (
+        tokenSetelahRegister &&
+        typeof window.SIDATSinkronkanFCMRetry ===
+        "function"
+    ) {
+
+        try {
+
+            await window.SIDATSinkronkanFCMRetry();
+
+        } catch (error) {
+            // Sinkronisasi FCM tidak boleh menghentikan proses login.
+        }
+
+    }
+
+} else {
+
+    console.warn(
+        "SIDAT FCM WARGA: SIDATRegisterFCM belum tersedia."
+    );
+
+}
+
+// SINKRONKAN TOKEN FCM SETELAH LOGIN
+// ==========================================
+
 await updatePushSubscription();
 
                 // ==================================
                 // CEK USER SESSION
                 // ==================================
 
-                console.log(
-                    "LOGIN WARGA BERHASIL"
-                );
 
-                console.log(
-                    "USER:",
-                    sessionData?.user
-                );
 
-                console.log(
-                    "SESSION:",
-                    sessionData?.session
-                );
+
+
+
 
 
                 // ==================================
@@ -905,19 +928,11 @@ localStorage.setItem(
                 // LOG LOGIN
                 // ==================================
 
-                console.log(
-                    "LOGIN ADMIN BERHASIL"
-                );
 
-                console.log(
-                    "USER:",
-                    data.user
-                );
 
-                console.log(
-                    "SESSION:",
-                    data.session
-                );
+
+
+
 
 
                 // ==================================
@@ -951,10 +966,7 @@ localStorage.setItem(
                 }
 
 
-                console.log(
-                    "PROFILE:",
-                    profile
-                );
+
 
 
                 // ==================================
@@ -1013,10 +1025,7 @@ localStorage.setItem(
                 }
 
 
-                console.log(
-                    "STATUS ADMIN:",
-                    adminStatus
-                );
+
 
 
                 if (
@@ -1042,14 +1051,12 @@ if (
     "function"
 ) {
 
-    console.log(
-        "SIDAT: Menyinkronkan token FCM Admin..."
-    );
+
 
     await window.SIDATSinkronkanFCM();
 
 }
-                
+
 // ==========================================
 // SINKRONISASI FCM TOKEN ADMIN
 // ==========================================
@@ -1063,9 +1070,7 @@ try {
 
     if (fcmToken) {
 
-        console.log(
-            "SIDAT ADMIN: FCM token ditemukan."
-        );
+
 
         const adminUserId =
             data.user.id;
@@ -1104,9 +1109,7 @@ try {
 
         } else {
 
-            console.log(
-                "SIDAT ADMIN: FCM token berhasil disimpan."
-            );
+
 
         }
 
@@ -1205,9 +1208,7 @@ checkAppVersion();
 openOfflineDatabase()
     .then(() => {
 
-        console.log(
-            "SIDAT Offline DB siap."
-        );
+
 
     })
     .catch(err => {
@@ -1234,9 +1235,7 @@ async function updatePushSubscription() {
 
         if (!token) {
 
-            console.log(
-                "SIDAT FCM: Token belum tersedia."
-            );
+
 
             return;
         }
@@ -1253,9 +1252,7 @@ async function updatePushSubscription() {
 
         if (!accessToken) {
 
-            console.log(
-                "SIDAT FCM: Access token belum tersedia."
-            );
+
 
             return;
         }
@@ -1296,9 +1293,7 @@ async function updatePushSubscription() {
 
         if (!user) {
 
-            console.log(
-                "SIDAT FCM: User belum tersedia."
-            );
+
 
             return;
         }
@@ -1347,24 +1342,13 @@ async function updatePushSubscription() {
             );
 
 
-        console.log(
-            "SIDAT FCM: Sinkronisasi token."
-        );
 
-        console.log(
-            "ROLE:",
-            role
-        );
 
-        console.log(
-            "USER ID:",
-            userId
-        );
 
-        console.log(
-            "RESIDENT ID:",
-            residentId
-        );
+
+
+
+
 
 
         // ======================================
@@ -1507,9 +1491,7 @@ async function updatePushSubscription() {
             }
 
 
-            console.log(
-                "SIDAT FCM: Token berhasil diperbarui."
-            );
+
 
             return;
         }
@@ -1578,9 +1560,7 @@ async function updatePushSubscription() {
         }
 
 
-        console.log(
-            "SIDAT FCM: FCM token berhasil disimpan."
-        );
+
 
 
     } catch (error) {

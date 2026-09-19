@@ -598,16 +598,14 @@ function buatItemPengumuman(
 }
 
 
-// ==========================================
+
+       // ==========================================
 // KIRIM PENGUMUMAN
 // ==========================================
 
-async function kirimPengumuman(
-    event
-) {
+async function kirimPengumuman(event) {
 
     event.preventDefault();
-
 
     const title =
         judul.value.trim();
@@ -625,6 +623,10 @@ async function kirimPengumuman(
         targetWarga.value || null;
 
 
+    // ======================================
+    // VALIDASI
+    // ======================================
+
     if (!title) {
 
         tampilkanPesan(
@@ -633,9 +635,7 @@ async function kirimPengumuman(
         );
 
         judul.focus();
-
         return;
-
     }
 
 
@@ -647,15 +647,12 @@ async function kirimPengumuman(
         );
 
         isi.focus();
-
         return;
-
     }
 
 
     if (
-        target ===
-        "selected" &&
+        target === "selected" &&
         !targetUser
     ) {
 
@@ -665,14 +662,11 @@ async function kirimPengumuman(
         );
 
         targetWarga.focus();
-
         return;
-
     }
 
 
-    btnKirim.disabled =
-        true;
+    btnKirim.disabled = true;
 
     btnKirim.textContent =
         "⏳ Mengirim...";
@@ -680,121 +674,408 @@ async function kirimPengumuman(
 
     try {
 
+        // ==================================
+        // 1. PASTIKAN SESSION LOGIN
+        // ==================================
+
         const {
-            data: userData,
-            error: userError
+            data: sessionData,
+            error: sessionError
         } =
-            await supabaseClient.auth
-                .getUser();
+            await supabaseClient
+                .auth
+                .getSession();
 
 
-        if (userError) {
-            throw userError;
+        if (sessionError) {
+            throw sessionError;
         }
 
 
-        if (
-            !userData ||
-            !userData.user
-        ) {
+        const session =
+            sessionData?.session;
+
+
+        if (!session) {
 
             throw new Error(
                 "Sesi login tidak ditemukan. Silakan login kembali."
             );
-
         }
 
 
-       const {
-    data: announcement,
-    error
-} = await supabaseClient
-    .from("announcements")
-    .insert({
-        title: title,
-        content: content,
-        type: type,
-        target_type: target,
-        target_user_id:
-            target === "selected"
-                ? targetUser
-                : null,
-        is_active: true,
-        created_by: userData.user.id
-    })
-    .select()
-    .single();
+        const accessToken =
+            session.access_token;
 
 
+        const userId =
+            session.user.id;
 
 
-console.log("INSERT RESULT:", announcement, error);
-        if (error) {
-            throw error;
+        console.log(
+            "SIDAT: Admin session ditemukan:",
+            userId
+        );
+
+
+        // ==================================
+        // 2. SIMPAN PENGUMUMAN
+        // ==================================
+
+        const {
+            data: announcement,
+            error: announcementError
+        } =
+            await supabaseClient
+
+                .from("announcements")
+
+                .insert({
+
+                    title:
+                        title,
+
+                    content:
+                        content,
+
+                    type:
+                        type,
+
+                    target_type:
+                        target,
+
+                    target_user_id:
+                        target === "selected"
+                            ? targetUser
+                            : null,
+
+                    is_active:
+                        true,
+
+                    created_by:
+                        userId
+
+                })
+
+                .select()
+
+                .single();
+
+
+        if (announcementError) {
+
+            throw announcementError;
         }
-console.log("LEWAT SETELAH INSERT");
-await new Promise(resolve => setTimeout(resolve, 500));
-
-const {
-    data: notification,
-    error: notificationError
-} = await supabaseClient
-    .from("notifications")
-    .select("id")
-    .eq("created_by", userData.user.id)
-    .eq("title", title)
-    .order("created_at", {
-        ascending: false
-    })
-    .limit(1)
-    .single();
-
-console.log("notification =", notification);
-console.log("notificationError =", notificationError);
 
 
-if (notification) {
+        if (!announcement) {
 
-    const {
-        data: sessionData
-    } = await supabaseClient.auth.getSession();
-
-    const accessToken =
-        sessionData.session?.access_token;
-
-    console.log("Memanggil Edge Function", notification.id);
-    const response = await fetch(
-        `${SUPABASE_URL}/functions/v1/send-push-notification`,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${accessToken}`,
-                "apikey": SUPABASE_KEY
-            },
-            body: JSON.stringify({
-                notification_id: notification.id
-            })
+            throw new Error(
+                "Data pengumuman tidak berhasil dibuat."
+            );
         }
-    );
 
-    console.log(
-        "Push Result:",
-        await response.json()
-    );
-}
+
+        console.log(
+            "SIDAT: Pengumuman berhasil dibuat:",
+            announcement.id
+        );
+
+
+        // ==================================
+        // 3. TENTUKAN TARGET NOTIFICATION
+        // ==================================
+
+        let notificationTarget =
+            "all";
+
+        let notificationResidentId =
+            null;
+
+
+        if (target === "selected") {
+
+            notificationTarget =
+                "resident";
+
+
+            // ----------------------------------
+            // targetWarga berasal dari profiles.id
+            // Cari resident_id milik profile tersebut
+            // ----------------------------------
+
+            const {
+                data: profile,
+                error: profileError
+            } =
+                await supabaseClient
+
+                    .from("profiles")
+
+                    .select(
+                        "id,user_id,resident_id"
+                    )
+
+                    .eq(
+                        "id",
+                        targetUser
+                    )
+
+                    .maybeSingle();
+
+
+            if (profileError) {
+
+                throw profileError;
+            }
+
+
+            if (!profile) {
+
+                throw new Error(
+                    "Profile warga tidak ditemukan."
+                );
+            }
+
+
+            if (!profile.resident_id) {
+
+                throw new Error(
+                    "Profile warga belum memiliki resident_id."
+                );
+            }
+
+
+            notificationResidentId =
+                profile.resident_id;
+
+
+            console.log(
+                "SIDAT: Target warga:",
+                notificationResidentId
+            );
+        }
+
+
+        // ==================================
+        // 4. BUAT NOTIFICATION
+        // ==================================
+
+        const notificationId =
+            crypto.randomUUID();
+
+
+        const notificationPayload = {
+
+            id:
+                notificationId,
+
+            title:
+                type === "important"
+                    ? "🚨 " + title
+                    : "📢 " + title,
+
+            message:
+                content,
+
+            target_type:
+                notificationTarget,
+
+            target_resident_id:
+                notificationResidentId,
+
+            is_read:
+                false,
+
+            created_by:
+                userId,
+
+            created_at:
+                new Date().toISOString(),
+
+            report_id:
+                null
+
+        };
+
+
+        console.log(
+            "SIDAT: Membuat notification:",
+            notificationPayload
+        );
+
+
+        const {
+            data: notification,
+            error: notificationError
+        } =
+            await supabaseClient
+
+                .from("notifications")
+
+                .insert(
+                    notificationPayload
+                )
+
+                .select()
+
+                .single();
+
+
+        if (notificationError) {
+
+            throw notificationError;
+        }
+
+
+        if (!notification) {
+
+            throw new Error(
+                "Notification berhasil dibuat tetapi data tidak ditemukan."
+            );
+        }
+
+
+        console.log(
+            "SIDAT: Notification berhasil dibuat:",
+            notification.id
+        );
+
+
+        // ==================================
+        // 5. KIRIM KE EDGE FUNCTION
+        // ==================================
+
+        console.log(
+            "SIDAT: Mengirim notification ke FCM Edge Function..."
+        );
+
+
+        const pushResponse =
+            await fetch(
+
+                `${SUPABASE_URL}/functions/v1/send-push-notification`,
+
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            `Bearer ${accessToken}`,
+
+                        "apikey":
+                            SUPABASE_KEY
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            notification_id:
+                                notification.id
+
+                        })
+
+                }
+            );
+
+
+        let pushResult =
+            null;
+
+
+        try {
+
+            pushResult =
+                await pushResponse.json();
+
+        } catch {
+
+            pushResult =
+                null;
+        }
+
+
+        console.log(
+            "SIDAT: HTTP Push:",
+            pushResponse.status
+        );
+
+
+        console.log(
+            "SIDAT: Push Result:",
+            pushResult
+        );
+
+
+        if (!pushResponse.ok) {
+
+            throw new Error(
+
+                pushResult?.message ||
+
+                pushResult?.error ||
+
+                `Push notification gagal. HTTP ${pushResponse.status}`
+
+            );
+        }
+
+
+        // ==================================
+        // 6. CEK HASIL EDGE FUNCTION
+        // ==================================
+
+        if (
+            pushResult &&
+            pushResult.ok === false
+        ) {
+
+            throw new Error(
+
+                pushResult.message ||
+
+                "Edge Function gagal mengirim push notification."
+
+            );
+        }
+
+
+        console.log(
+            "SIDAT: Push notification berhasil diproses."
+        );
+
+
+        // ==================================
+        // 7. SUKSES
+        // ==================================
 
         tampilkanPesan(
-            "Pengumuman berhasil dikirim kepada warga.",
+
+            target === "selected"
+
+                ? "Pengumuman berhasil dikirim kepada warga terpilih."
+
+                : "Pengumuman berhasil dikirim kepada semua warga.",
+
             "success"
+
         );
 
 
         formPengumuman.reset();
 
+
         targetWargaGroup.classList.add(
             "hidden"
         );
+
 
         charCount.textContent =
             "0";
@@ -806,29 +1087,36 @@ if (notification) {
     } catch (error) {
 
         console.error(
-            "Gagal mengirim pengumuman:",
+            "SIDAT: Gagal mengirim pengumuman:",
             error
         );
 
 
         tampilkanPesan(
+
             "Gagal mengirim: " +
-            error.message,
+
+            (
+                error?.message ||
+                "Terjadi kesalahan."
+            ),
+
             "error"
+
         );
+
 
     } finally {
 
         btnKirim.disabled =
             false;
 
+
         btnKirim.textContent =
             "📢 Kirim Pengumuman";
 
     }
-
 }
-
 
 // ==========================================
 // TOGGLE STATUS
