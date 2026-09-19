@@ -242,6 +242,14 @@ syncSidatSession();
 
 
 // ==========================================
+// DETEKSI APK / WEB
+// ==========================================
+
+if (window.Capacitor) {
+    document.documentElement.classList.add("sidat-apk");
+}
+
+// ==========================================
 // RESTORE SESSION SAAT APLIKASI DIBUKA
 // ==========================================
 

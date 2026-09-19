@@ -2663,3 +2663,11 @@ a {
     }
 
 }
+/* =========================================================
+   KONTEN KHUSUS WEB
+   Disembunyikan ketika SIDAT berjalan sebagai APK
+   ========================================================= */
+
+html.sidat-apk .web-only {
+    display: none !important;
+}

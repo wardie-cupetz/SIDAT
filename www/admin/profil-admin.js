@@ -19,6 +19,23 @@ const SUPABASE_KEY =
 "sb_publishable_i--xXc0Jso51OAYj8Vy92g_OVIt8e3x";
 
 /* =========================================================
+SUPABASE CLIENT
+========================================================= */
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY,
+        {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: false
+            }
+        }
+    );
+
+/* =========================================================
 ELEMENT
 ========================================================= */
 
@@ -1030,7 +1047,12 @@ async function logoutAdmin() {
         /*
          * Akhiri session Supabase.
          */
-        if (token) {
+        if (
+            supabaseClient &&
+            supabaseClient.auth
+        ) {
+            await supabaseClient.auth.signOut();
+        } else if (token) {
 
             await fetch(
                 `${SUPABASE_URL}/auth/v1/logout`,

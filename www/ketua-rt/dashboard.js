@@ -1357,20 +1357,82 @@
     // ========================================================
 
     function setupBackProtection() {
-        let backPressed =
-            false;
+        let backPressed = false;
+
+        // ========================================================
+        // ANDROID APK — TANGANI TOMBOL BACK NATIVE CAPACITOR
+        // ========================================================
+
+        if (
+            window.Capacitor &&
+            window.Capacitor.Plugins &&
+            window.Capacitor.Plugins.App
+        ) {
+            try {
+                window.Capacitor.Plugins.App.addListener(
+                    "backButton",
+                    () => {
+                        if (backPressed) {
+                            return;
+                        }
+
+                        backPressed = true;
+
+                        const closeApp =
+                            window.confirm(
+                                "Apakah Anda ingin menutup aplikasi SIDAT?"
+                            );
+
+                        if (closeApp) {
+                            try {
+                                window.Capacitor
+                                    .Plugins
+                                    .App
+                                    .exitApp();
+
+                                return;
+                            } catch (error) {
+                                console.warn(
+                                    "[SIDAT] exitApp gagal:",
+                                    error
+                                );
+                            }
+                        }
+
+                        setTimeout(
+                            () => {
+                                backPressed = false;
+                            },
+                            300
+                        );
+                    }
+                );
+
+                console.log(
+                    "[SIDAT] Native Android Back Protection aktif."
+                );
+
+                return;
+            } catch (error) {
+                console.warn(
+                    "[SIDAT] Gagal memasang native Back Protection:",
+                    error
+                );
+            }
+        }
+
+        // ========================================================
+        // WEB — TETAP GUNAKAN POPSTATE
+        // ========================================================
 
         window.addEventListener(
             "popstate",
             () => {
-                if (
-                    backPressed
-                ) {
+                if (backPressed) {
                     return;
                 }
 
-                backPressed =
-                    true;
+                backPressed = true;
 
                 const closeApp =
                     window.confirm(
@@ -1391,9 +1453,7 @@
 
                             return;
                         }
-                    } catch (
-                        error
-                    ) {
+                    } catch (error) {
                         console.warn(
                             "[SIDAT] exitApp gagal:",
                             error
@@ -1413,8 +1473,7 @@
 
                 setTimeout(
                     () => {
-                        backPressed =
-                            false;
+                        backPressed = false;
                     },
                     300
                 );
