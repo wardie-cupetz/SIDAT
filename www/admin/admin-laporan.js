@@ -1900,119 +1900,237 @@ async function simpanPerubahanLaporan() {
 
 
         // ==================================
-        // NOTIFIKASI UPDATE KEPADA WARGA
+// NOTIFIKASI UPDATE KEPADA WARGA
+// ==================================
+
+try {
+
+    const statusText = {
+
+        pending:
+            "Menunggu",
+
+        processing:
+            "Diproses",
+
+        completed:
+            "Selesai"
+
+    };
+
+
+    const namaStatus =
+        statusText[status] ||
+        status;
+
+
+    const judulLaporan =
+        laporanTerpilih.title ||
+        "Laporan warga";
+
+
+    let pesan =
+        `Laporan "${judulLaporan}" ` +
+        `telah diperbarui menjadi ` +
+        `"${namaStatus}".`;
+
+
+    if (adminNote) {
+
+        pesan +=
+            ` Tanggapan admin: ${adminNote}`;
+
+    }
+
+
+    if (
+        laporanTerpilih.resident_id
+    ) {
+
+        const notificationPayload = {
+
+            title:
+                "Laporan Diperbarui",
+
+            message:
+                pesan,
+
+            target_type:
+                "resident",
+
+            target_resident_id:
+                laporanTerpilih.resident_id,
+
+            is_read:
+                false,
+
+            created_by:
+                null,
+
+            created_at:
+                new Date()
+                    .toISOString(),
+
+            report_id:
+                laporanTerpilih.id
+
+        };
+
+
+        // ==================================
+        // SIMPAN NOTIFIKASI
         // ==================================
 
-        try {
+        const notificationResult =
+            await supabaseRequestAdmin(
 
-            const statusText = {
+                `${SUPABASE_URL}/rest/v1/notifications`,
 
-                pending:
-                    "Menunggu",
+                {
 
-                processing:
-                    "Diproses",
+                    method: "POST",
 
-                completed:
-                    "Selesai"
+                    headers: {
 
-            };
+                        "Content-Type":
+                            "application/json",
 
+                        "Prefer":
+                            "return=representation"
 
-            const namaStatus =
-                statusText[status] ||
-                status;
+                    },
 
+                    body:
+                        JSON.stringify(
+                            notificationPayload
+                        )
 
-            const judulLaporan =
-                laporanTerpilih.title ||
-                "Laporan warga";
+                }
 
-
-            let pesan =
-                `Laporan "${judulLaporan}" ` +
-                `telah diperbarui menjadi ` +
-                `"${namaStatus}".`;
+            );
 
 
-            if (adminNote) {
-
-                pesan +=
-                    ` Tanggapan admin: ${adminNote}`;
-
-            }
-
-
-            if (
-                laporanTerpilih.resident_id
-            ) {
-
-                const notificationPayload = {
-
-                    title:
-                        "Laporan Diperbarui",
-
-                    message:
-                        pesan,
-
-                    target_type:
-                        "resident",
-
-                    target_resident_id:
-                        laporanTerpilih.resident_id,
-
-                    is_read:
-                        false,
-
-                    created_by:
-                        null,
-
-                    created_at:
-                        new Date()
-                            .toISOString()
-
-                };
+        const notificationData =
+            Array.isArray(
+                notificationResult
+            )
+                ? notificationResult[0]
+                : notificationResult;
 
 
-                await supabaseRequestAdmin(
+        const notificationId =
+            notificationData?.id ||
+            null;
 
-                    `${SUPABASE_URL}/rest/v1/notifications`,
 
-                    {
+        console.log(
+            "SIDAT: Notifikasi update WARGA berhasil dibuat:",
+            notificationId
+        );
 
-                        method: "POST",
 
-                        headers: {
+        // ==================================
+        // KIRIM PUSH FCM KE WARGA
+        // ==================================
 
-                            "Content-Type":
-                                "application/json",
+        if (notificationId) {
 
-                            "Prefer":
-                                "return=minimal"
+            try {
 
-                        },
+                const session =
+                    await supabaseClient.auth.getSession();
 
-                        body:
-                            JSON.stringify(
-                                notificationPayload
-                            )
 
-                    }
+                const accessToken =
+                    session?.data?.session
+                        ?.access_token;
 
+
+                if (!accessToken) {
+
+                    throw new Error(
+                        "Session Supabase tidak ditemukan."
+                    );
+
+                }
+
+
+                const pushResponse =
+                    await fetch(
+                        `${SUPABASE_URL}/functions/v1/send-push-notification`,
+                        {
+
+                            method:
+                                "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${accessToken}`,
+
+                                "apikey":
+                                    SUPABASE_KEY
+
+                            },
+
+                            body:
+                                JSON.stringify({
+
+                                    notification_id:
+                                        notificationId
+
+                                })
+
+                        }
+
+                    );
+
+
+                const pushText =
+                    await pushResponse.text();
+
+
+                if (!pushResponse.ok) {
+
+                    throw new Error(
+                        pushText ||
+                        "Pengiriman push FCM gagal."
+                    );
+
+                }
+
+
+                console.log(
+                    "SIDAT: Push FCM update WARGA berhasil:",
+                    pushText
+                );
+
+            } catch (pushError) {
+
+                console.error(
+                    "SIDAT: Push FCM update WARGA gagal:",
+                    pushError
                 );
 
             }
 
-        } catch (
-            notificationError
-        ) {
-
-            console.error(
-                "SIDAT: Gagal membuat notifikasi update:",
-                notificationError
-            );
-
         }
+
+    }
+
+} catch (
+    notificationError
+) {
+
+    console.error(
+        "SIDAT: Gagal membuat notifikasi update:",
+        notificationError
+    );
+
+}
 
 
         // ==================================
