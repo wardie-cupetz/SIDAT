@@ -1254,6 +1254,10 @@ width: 100%;
 
 max-width: 720px;
 
+/*
+ * Beri ruang untuk bottom navbar warga
+ * agar bagian paling bawah modal tidak tertutup.
+ */
 max-height:
     calc(
         92vh -
@@ -1262,11 +1266,13 @@ max-height:
 
 overflow-y: auto;
 
+-webkit-overflow-scrolling: touch;
+
 padding:
     18px
     16px
     calc(
-        24px +
+        110px +
         env(safe-area-inset-bottom)
     );
 
@@ -1284,7 +1290,6 @@ animation:
     .2s ease;
 
 }
-
 @keyframes laporan-modal-in {
 from {
 opacity: 0;
