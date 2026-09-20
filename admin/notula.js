@@ -152,10 +152,153 @@ function bindEvents() {
         }
     });
 
-    el.btnCetakNotula?.addEventListener("click", () => {
+    el.btnCetakNotula?.addEventListener("click", async () => {
+
         if (!currentNotula) return;
 
+
+        /*
+         * =====================================================
+         * APK ANDROID
+         * =====================================================
+         * Gunakan Android Print Framework melalui PrintBridge.
+         */
+
+        if (
+            window.Capacitor &&
+            window.Capacitor.Plugins &&
+            window.Capacitor.Plugins.PrintBridge &&
+            window.SIDATPrint &&
+            typeof window.SIDATPrint.printHTML === "function"
+        ) {
+
+            const printElement =
+                document.getElementById("printNotula");
+
+            if (!printElement) {
+
+                alert(
+                    "Dokumen cetak Notula tidak ditemukan."
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * Ambil seluruh stylesheet yang sedang digunakan
+             * halaman agar tampilan cetak tetap sama di APK.
+             */
+
+            const styles =
+                Array.from(
+                    document.querySelectorAll(
+                        'link[rel="stylesheet"], style'
+                    )
+                )
+                .map(
+                    element =>
+                        element.outerHTML
+                )
+                .join("\n");
+
+
+            const laporan = `
+<!DOCTYPE html>
+
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    ${styles}
+
+    <style>
+
+        @page {
+            size: A4;
+            margin: 12mm;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: #ffffff;
+        }
+
+        body {
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+        }
+
+        #printNotula {
+            display: block !important;
+            width: 100%;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    ${printElement.outerHTML}
+
+</body>
+
+</html>
+`;
+
+
+            try {
+
+                await window.SIDATPrint.printHTML(
+                    laporan,
+                    "SIDAT - Notula Rapat"
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "SIDAT CETAK NOTULA NATIVE ERROR:",
+                    error
+                );
+
+                alert(
+                    "Gagal membuka cetak Android: " +
+                    (
+                        error?.message ||
+                        error ||
+                        "Kesalahan tidak diketahui."
+                    )
+                );
+
+            }
+
+            return;
+
+        }
+
+
+        /*
+         * =====================================================
+         * WEB BROWSER
+         * =====================================================
+         * Tetap menggunakan mekanisme cetak browser lama.
+         */
+
         window.print();
+
     });
 
     el.btnCloseNotulaModal?.addEventListener("click", closeNotulaModal);

@@ -19,6 +19,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(BackupBridge.class);
+        registerPlugin(PrintBridge.class);
         super.onCreate(savedInstanceState);
 
         requestNotificationPermission();

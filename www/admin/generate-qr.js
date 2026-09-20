@@ -1252,27 +1252,7 @@ function bukaJendelaCetak(
     data
 ) {
 
-    const printWindow =
-        window.open(
-            "",
-            "_blank"
-        );
-
-
-    if (!printWindow) {
-
-        alert(
-            "Popup diblokir browser. Izinkan popup untuk mencetak QR."
-        );
-
-        return;
-
-    }
-
-
-    let cards =
-        "";
-
+    let cards = "";
 
     data.forEach(
         item => {
@@ -1305,7 +1285,6 @@ function bukaJendelaCetak(
                         )}
                     </div>
 
-
                     <div class="qr-token">
                         ID Warga:
                         ${escapeHTML(
@@ -1325,11 +1304,7 @@ function bukaJendelaCetak(
         }
     );
 
-
-    printWindow.document.open();
-
-
-    printWindow.document.write(
+    const printHTML =
         `
 
         <!DOCTYPE html>
@@ -1356,7 +1331,6 @@ function bukaJendelaCetak(
                         border-box;
                 }
 
-
                 body {
 
                     margin:
@@ -1373,7 +1347,6 @@ function bukaJendelaCetak(
                         #ffffff;
 
                 }
-
 
                 .print-grid {
 
@@ -1393,7 +1366,6 @@ function bukaJendelaCetak(
                         15px;
 
                 }
-
 
                 .qr-card {
 
@@ -1418,7 +1390,6 @@ function bukaJendelaCetak(
 
                 }
 
-
                 .qr-brand {
 
                     font-size:
@@ -1431,7 +1402,6 @@ function bukaJendelaCetak(
                         #15803d;
 
                 }
-
 
                 .qr-title {
 
@@ -1448,7 +1418,6 @@ function bukaJendelaCetak(
                         bold;
 
                 }
-
 
                 .qr-image {
 
@@ -1469,7 +1438,6 @@ function bukaJendelaCetak(
 
                 }
 
-
                 .qr-name {
 
                     font-size:
@@ -1482,7 +1450,6 @@ function bukaJendelaCetak(
                         5px;
 
                 }
-
 
                 .qr-token {
 
@@ -1509,7 +1476,6 @@ function bukaJendelaCetak(
 
                 }
 
-
                 .qr-footer {
 
                     margin-top:
@@ -1526,7 +1492,6 @@ function bukaJendelaCetak(
 
                 }
 
-
                 @media print {
 
                     body {
@@ -1535,7 +1500,6 @@ function bukaJendelaCetak(
                             8px;
 
                     }
-
 
                     .qr-card {
 
@@ -1561,6 +1525,84 @@ function bukaJendelaCetak(
 
             </div>
 
+        </body>
+
+        </html>
+
+        `;
+
+    /*
+     * APK ANDROID
+     * -----------------------------------------
+     * Gunakan Android Print Framework melalui
+     * Capacitor PrintBridge.
+     */
+
+    if (
+        window.Capacitor &&
+        window.Capacitor.Plugins &&
+        window.Capacitor.Plugins.PrintBridge &&
+        window.SIDATPrint &&
+        typeof window.SIDATPrint.printHTML === "function"
+    ) {
+
+        window.SIDATPrint
+            .printHTML(
+                printHTML,
+                "SIDAT - QR Jimpitan"
+            )
+            .catch(
+                error => {
+
+                    console.error(
+                        "SIDAT CETAK QR NATIVE ERROR:",
+                        error
+                    );
+
+                    alert(
+                        "Gagal membuka cetak Android: " +
+                        (
+                            error?.message ||
+                            error ||
+                            "Kesalahan tidak diketahui."
+                        )
+                    );
+
+                }
+            );
+
+        return;
+
+    }
+
+    /*
+     * WEB BROWSER
+     * -----------------------------------------
+     * Tetap menggunakan mekanisme cetak lama.
+     */
+
+    const printWindow =
+        window.open(
+            "",
+            "_blank"
+        );
+
+    if (!printWindow) {
+
+        alert(
+            "Popup diblokir browser. Izinkan popup untuk mencetak QR."
+        );
+
+        return;
+
+    }
+
+    printWindow.document.open();
+
+    printWindow.document.write(
+        printHTML.replace(
+            "</body>",
+            `
 
             <script>
 
@@ -1580,13 +1622,9 @@ function bukaJendelaCetak(
 
             <\/script>
 
-        </body>
-
-        </html>
-
-        `
+            </body>`
+        )
     );
-
 
     printWindow.document.close();
 

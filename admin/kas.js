@@ -2605,6 +2605,57 @@ ${rows}
 `;
 
 
+        /*
+         * APK ANDROID
+         * -----------------------------------------
+         * Gunakan Android Print Framework melalui
+         * Capacitor PrintBridge.
+         */
+
+        if (
+            window.Capacitor &&
+            window.Capacitor.Plugins &&
+            window.Capacitor.Plugins.PrintBridge &&
+            window.SIDATPrint &&
+            typeof window.SIDATPrint.printHTML === "function"
+        ) {
+
+            window.SIDATPrint
+                .printHTML(
+                    laporan,
+                    "SIDAT - Laporan Kas RT"
+                )
+                .catch(
+                    error => {
+
+                        console.error(
+                            "SIDAT CETAK KAS NATIVE ERROR:",
+                            error
+                        );
+
+                        alert(
+                            "Gagal membuka cetak Android: " +
+                            (
+                                error?.message ||
+                                error ||
+                                "Kesalahan tidak diketahui."
+                            )
+                        );
+
+                    }
+                );
+
+            return;
+
+        }
+
+
+        /*
+         * WEB BROWSER
+         * -----------------------------------------
+         * Tetap menggunakan mekanisme cetak lama.
+         */
+
         const printWindow =
             window.open(
                 "",
