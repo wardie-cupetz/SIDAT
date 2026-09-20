@@ -1296,15 +1296,16 @@
 
 
     // ======================================
-    // AUTO REGISTER
+    // AUTO REGISTER + RETRY SESSION
     // ======================================
 
     /*
-     * Beri sedikit waktu agar:
-     * - Supabase
-     * - session login
-     * - DOM
-     * siap terlebih dahulu.
+     * Session Supabase pada APK dapat selesai
+     * setelah file FCM dimuat.
+     *
+     * Karena itu jangan hanya mencoba sekali.
+     * Kita coba beberapa kali sampai session
+     * WARGA/ADMIN tersedia.
      */
 
     setTimeout(
@@ -1312,28 +1313,78 @@
 
             try {
 
-                const session =
-                    await ambilSessionSupabase();
+                debug(
+                    "Memulai auto-register FCM..."
+                );
 
-                if (
-                    session?.user
+                for (
+                    let percobaan = 1;
+                    percobaan <= 6;
+                    percobaan++
                 ) {
 
-                    debug(
-                        "Session ditemukan. Menjalankan auto-register FCM...",
-                        "success"
-                    );
+                    const session =
+                        await ambilSessionSupabase();
 
-                    await registerFCM();
+                    if (
+                        session?.user
+                    ) {
 
-                } else {
+                        debug(
+                            "Session ditemukan pada percobaan " +
+                            percobaan +
+                            ". Menjalankan register FCM...",
+                            "success"
+                        );
 
-                    debug(
-                        "Belum ada session login. Auto-register FCM dilewati.",
-                        "warning"
-                    );
+                        const berhasil =
+                            await registerFCM();
+
+                        if (
+                            berhasil
+                        ) {
+
+                            debug(
+                                "Auto-register FCM berhasil dijalankan.",
+                                "success"
+                            );
+
+                            return;
+
+                        }
+
+                    } else {
+
+                        debug(
+                            "Session belum tersedia. Percobaan " +
+                            percobaan +
+                            "/6.",
+                            "warning"
+                        );
+
+                    }
+
+                    if (
+                        percobaan < 6
+                    ) {
+
+                        await new Promise(
+                            function (resolve) {
+                                setTimeout(
+                                    resolve,
+                                    2000
+                                );
+                            }
+                        );
+
+                    }
 
                 }
+
+                debug(
+                    "Auto-register FCM selesai tetapi session belum tersedia.",
+                    "error"
+                );
 
             } catch (error) {
 
