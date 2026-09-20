@@ -56,9 +56,8 @@ function formatTanggal(value) {
 function statusLabel(status) {
     const map = {
         pending: "Menunggu",
-        process: "Diproses",
-        resolved: "Selesai",
-        rejected: "Ditolak"
+        processing: "Diproses",
+        completed: "Selesai"
     };
 
     return map[status] || "Menunggu";
@@ -68,16 +67,14 @@ function statusLabel(status) {
 function statusClass(status) {
     const allowed = [
         "pending",
-        "process",
-        "resolved",
-        "rejected"
+        "processing",
+        "completed"
     ];
 
     return allowed.includes(status)
         ? status
         : "pending";
 }
-
 
 function svgIcon(type, className = "") {
     const cls = className
