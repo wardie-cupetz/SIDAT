@@ -2037,24 +2037,17 @@ try {
 
             try {
 
-                const session =
-                    await supabaseClient.auth.getSession();
-
-
                 const accessToken =
-                    session?.data?.session
-                        ?.access_token;
+    adminAccessToken;
 
 
-                if (!accessToken) {
+if (!accessToken) {
 
-                    throw new Error(
-                        "Session Supabase tidak ditemukan."
-                    );
+    throw new Error(
+        "Token login ADMIN tidak ditemukan."
+    );
 
-                }
-
-
+}
                 const pushResponse =
                     await fetch(
                         `${SUPABASE_URL}/functions/v1/send-push-notification`,
