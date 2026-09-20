@@ -1180,9 +1180,14 @@ async function buatNotifikasiSemuaWarga(
 
     } catch (error) {
 
-        console.warn(
-            "Notifikasi warga gagal:",
+        console.error(
+            "DEBUG INSERT NOTIFIKASI WARGA GAGAL:",
             error
+        );
+
+        alert(
+            "DEBUG NOTIFIKASI WARGA GAGAL: " +
+            (error?.message || error)
         );
     }
 }
