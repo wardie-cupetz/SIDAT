@@ -1903,281 +1903,109 @@ async function simpanPerubahanLaporan() {
 // NOTIFIKASI UPDATE KEPADA WARGA
 // ==================================
 
-try {
+        try {
+            if (laporanTerpilih.resident_id) {
 
-    const statusText = {
+                const statusText = {
+                    pending: "Menunggu",
+                    processing: "Diproses",
+                    completed: "Selesai"
+                };
 
-        pending:
-            "Menunggu",
+                const namaStatus = statusText[status] || status;
+                const judulLaporan = laporanTerpilih.title || "Laporan warga";
 
-        processing:
-            "Diproses",
+                let pesan = `Laporan "${judulLaporan}" telah diperbarui menjadi "${namaStatus}".`;
 
-        completed:
-            "Selesai"
-
-    };
-
-
-    const namaStatus =
-        statusText[status] ||
-        status;
-
-
-    const judulLaporan =
-        laporanTerpilih.title ||
-        "Laporan warga";
-
-
-    let pesan =
-        `Laporan "${judulLaporan}" ` +
-        `telah diperbarui menjadi ` +
-        `"${namaStatus}".`;
-
-
-    if (adminNote) {
-
-        pesan +=
-            ` Tanggapan admin: ${adminNote}`;
-
-    }
-
-
-    if (
-        laporanTerpilih.resident_id
-    ) {
-
-        const notificationPayload = {
-
-            title:
-                "Laporan Diperbarui",
-
-            message:
-                pesan,
-
-            target_type:
-                "resident",
-
-            target_resident_id:
-                laporanTerpilih.resident_id,
-
-            is_read:
-                false,
-
-            created_by:
-                null,
-
-            created_at:
-                new Date()
-                    .toISOString(),
-
-            report_id:
-                laporanTerpilih.id
-
-        };
-
-
-        // ==================================
-// SIMPAN NOTIFIKASI
-// ==================================
-
-const notificationResult =
-    await supabaseRequestAdmin(
-
-        `${SUPABASE_URL}/rest/v1/notifications`,
-
-        {
-
-            method:
-                "POST",
-
-            headers: {
-
-                "Content-Type":
-                    "application/json",
-
-                "Prefer":
-                    "return=representation"
-
-            },
-
-            body:
-                JSON.stringify(
-                    notificationPayload
-                )
-
-        }
-
-    );
-
-
-// ==================================
-// AMBIL ID NOTIFIKASI
-// ==================================
-
-let notificationData =
-    Array.isArray(notificationResult)
-        ? notificationResult[0]
-        : notificationResult;
-
-let notificationId =
-    notificationData?.id ||
-    null;
-
-
-// ==================================
-// FALLBACK JIKA RESPONSE INSERT
-// TIDAK MENGEMBALIKAN ID
-// ==================================
-
-if (!notificationId) {
-
-    const notificationRows =
-        await supabaseRequestAdmin(
-
-            `${SUPABASE_URL}/rest/v1/notifications` +
-            `?report_id=eq.${encodeURIComponent(laporanTerpilih.id)}` +
-            `&target_type=eq.resident` +
-            `&target_resident_id=eq.${encodeURIComponent(laporanTerpilih.resident_id)}` +
-            `&order=created_at.desc` +
-            `&limit=1`,
-
-            {
-
-                method:
-                    "GET"
-
-            }
-
-        );
-
-
-    const latestNotification =
-        Array.isArray(notificationRows)
-            ? notificationRows[0]
-            : null;
-
-
-    notificationId =
-        latestNotification?.id ||
-        null;
-
-}
-
-
-// ==================================
-// KIRIM PUSH FCM KE WARGA
-// ==================================
-
-if (notificationId) {
-
-    try {
-
-        const accessToken =
-            adminAccessToken;
-
-
-        if (!accessToken) {
-
-            throw new Error(
-                "Token login tidak ditemukan."
-            );
-
-        }
-
-
-        const pushResponse =
-            await fetch(
-
-                `${SUPABASE_URL}/functions/v1/send-push-notification`,
-
-                {
-
-                    method:
-                        "POST",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json",
-
-                        "Authorization":
-                            `Bearer ${accessToken}`,
-
-                        "apikey":
-                            SUPABASE_KEY
-
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            notification_id:
-                                notificationId
-
-                        })
-
+                if (adminNote) {
+                    pesan += ` Tanggapan admin: ${adminNote}`;
                 }
 
+                const notificationPayload = {
+                    title: "Laporan Diperbarui",
+                    message: pesan,
+                    target_type: "resident",
+                    target_resident_id: laporanTerpilih.resident_id,
+                    is_read: false,
+                    created_by: null,
+                    created_at: new Date().toISOString(),
+                    report_id: laporanTerpilih.id
+                };
+
+                const notificationResult = await supabaseRequestAdmin(
+                    `${SUPABASE_URL}/rest/v1/notifications`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Prefer": "return=representation"
+                        },
+                        body: JSON.stringify(notificationPayload)
+                    }
+                );
+
+                const notificationData = Array.isArray(notificationResult)
+                    ? notificationResult[0]
+                    : notificationResult;
+
+                const notificationId = notificationData?.id || null;
+
+                if (notificationId) {
+                    try {
+                        const accessToken = adminAccessToken;
+
+                        if (!accessToken) {
+                            throw new Error("Token login tidak ditemukan.");
+                        }
+
+                        const pushResponse = await fetch(
+                            `${SUPABASE_URL}/functions/v1/send-push-notification`,
+                            {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "Authorization": `Bearer ${accessToken}`,
+                                    "apikey": SUPABASE_KEY
+                                },
+                                body: JSON.stringify({
+                                    notification_id: notificationId
+                                })
+                            }
+                        );
+
+                        const pushText = await pushResponse.text();
+
+                        if (!pushResponse.ok) {
+                            throw new Error(
+                                pushText || "Pengiriman push FCM gagal."
+                            );
+                        }
+
+                        console.log(
+                            "SIDAT: Push FCM update WARGA berhasil.",
+                            notificationId
+                        );
+
+                    } catch (pushError) {
+                        console.error(
+                            "SIDAT: Push FCM update WARGA gagal:",
+                            pushError
+                        );
+                    }
+                } else {
+                    console.error(
+                        "SIDAT: ID notification tidak ditemukan."
+                    );
+                }
+            }
+
+        } catch (notificationError) {
+            console.error(
+                "SIDAT: Gagal membuat notifikasi update:",
+                notificationError
             );
-
-
-        const pushText =
-            await pushResponse.text();
-
-
-        if (!pushResponse.ok) {
-
-            throw new Error(
-
-                pushText ||
-                "Pengiriman push FCM gagal."
-
-            );
-
         }
 
-
-    }
-
-    catch (
-        pushError
-    ) {
-
-        console.error(
-
-            "SIDAT: Push FCM update WARGA gagal:",
-
-            pushError
-
-        );
-
-    }
-
-}
-
-else {
-
-    console.error(
-
-        "SIDAT: ID notification tidak ditemukan."
-
-    );
-
-}
-} catch (
-    notificationError
-) {
-
-    console.error(
-        "SIDAT: Gagal membuat notifikasi update:",
-        notificationError
-    );
-
-}
-
-
-        // ==================================
         // UPDATE DATA LOKAL
         // ==================================
 
