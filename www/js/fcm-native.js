@@ -2,6 +2,7 @@
 // SIDAT
 // FCM NATIVE - ANDROID APK
 // Capacitor + Firebase Cloud Messaging
+// PRODUKSI - TANPA DEBUG PANEL
 // ==========================================
 
 (function () {
@@ -10,123 +11,20 @@
 
 
     // ======================================
-    // DEBUG DINONAKTIFKAN UNTUK PRODUKSI
-    // ======================================
-
-    function debug(message, level = "info") {
-        const prefix = "[SIDAT FCM]";
-
-        if (level === "error") {
-            console.error(prefix, message);
-        } else if (level === "warning") {
-            console.warn(prefix, message);
-        } else {
-            console.log(prefix, message);
-        }
-
-        // DEBUG SEMENTARA UNTUK APK
-        try {
-            let panel = document.getElementById("sidat-fcm-debug-panel");
-
-            if (!panel) {
-                panel = document.createElement("div");
-                panel.id = "sidat-fcm-debug-panel";
-
-                panel.style.cssText =
-                    "position:fixed;" +
-                    "left:10px;" +
-                    "right:10px;" +
-                    "bottom:80px;" +
-                    "max-height:45vh;" +
-                    "overflow:auto;" +
-                    "z-index:999999;" +
-                    "background:#111;" +
-                    "color:#fff;" +
-                    "padding:12px;" +
-                    "border-radius:12px;" +
-                    "font:12px monospace;" +
-                    "box-shadow:0 4px 20px rgba(0,0,0,.4);";
-
-                document.body.appendChild(panel);
-            }
-
-            const row = document.createElement("div");
-
-            row.textContent =
-                new Date().toLocaleTimeString() +
-                " | " +
-                level.toUpperCase() +
-                " | " +
-                String(message);
-
-            row.style.marginBottom = "6px";
-
-            if (level === "error") {
-                row.style.color = "#ff6b6b";
-            } else if (level === "warning") {
-                row.style.color = "#ffd166";
-            } else if (level === "success") {
-                row.style.color = "#6ee7b7";
-            }
-
-            panel.appendChild(row);
-            panel.scrollTop = panel.scrollHeight;
-
-        } catch (e) {
-            console.error(
-                "[SIDAT FCM] Gagal menampilkan debug:",
-                e
-            );
-        }
-    }
-
-    function tampilkanError(error) {
-        console.error(
-            "[SIDAT FCM] ERROR:",
-            error?.message || error,
-            error
-        );
-    }
-
-    // ======================================
-    // MULAI
-    // ======================================
-
-        // ======================================
     // CEK CAPACITOR
     // ======================================
 
     if (
         !window.Capacitor
     ) {
-
-        debug(
-            "Capacitor tidak ditemukan.",
-            "error"
-        );
-
         return;
-
     }
-
-
-    debug(
-        "Capacitor ditemukan.",
-        "success"
-    );
 
 
     if (
         !window.Capacitor.Plugins
     ) {
-
-        debug(
-            "Capacitor.Plugins tidak tersedia.",
-            "error"
-        );
-
         return;
-
     }
 
 
@@ -134,26 +32,13 @@
         !window.Capacitor.Plugins
             .PushNotifications
     ) {
-
-        debug(
-            "Plugin PushNotifications tidak tersedia.",
-            "error"
-        );
-
         return;
-
     }
 
 
     const PushNotifications =
         window.Capacitor.Plugins
             .PushNotifications;
-
-
-    debug(
-        "Plugin PushNotifications ditemukan.",
-        "success"
-    );
 
 
     // ======================================
@@ -169,11 +54,6 @@
     // ======================================
 
     async function ambilSessionSupabase() {
-
-        debug(
-            "Mencari session Supabase..."
-        );
-
 
         try {
 
@@ -197,24 +77,7 @@
                     data?.session
                 ) {
 
-                    debug(
-                        "Session Supabase ditemukan melalui supabaseClient.",
-                        "success"
-                    );
-
-
                     return data.session;
-
-                }
-
-
-                if (error) {
-
-                    debug(
-                        "supabaseClient.getSession(): " +
-                        error.message,
-                        "warning"
-                    );
 
                 }
 
@@ -229,11 +92,6 @@
                 typeof supabase ===
                     "undefined"
             ) {
-
-                debug(
-                    "Konfigurasi Supabase belum tersedia.",
-                    "error"
-                );
 
                 return null;
 
@@ -257,36 +115,7 @@
 
 
             if (error) {
-
-                debug(
-                    "Gagal mengambil session: " +
-                    error.message,
-                    "error"
-                );
-
                 return null;
-
-            }
-
-
-            if (
-                data?.session
-            ) {
-
-                debug(
-                    "Session Supabase ditemukan melalui client fallback.",
-                    "success"
-                );
-
-            }
-
-            else {
-
-                debug(
-                    "Session Supabase tidak ditemukan.",
-                    "warning"
-                );
-
             }
 
 
@@ -296,10 +125,6 @@
         }
 
         catch (error) {
-
-            tampilkanError(
-                error
-            );
 
             return null;
 
@@ -317,26 +142,13 @@
     ) {
 
         if (!token) {
-
-            debug(
-                "Token FCM kosong.",
-                "error"
-            );
-
             return;
-
         }
 
 
         localStorage.setItem(
             FCM_STORAGE_KEY,
             token
-        );
-
-
-        debug(
-            "Token FCM disimpan ke localStorage.",
-            "success"
         );
 
     }
@@ -346,44 +158,6 @@
 
         return localStorage.getItem(
             FCM_STORAGE_KEY
-        );
-
-    }
-
-
-    // ======================================
-    // RINGKAS TOKEN
-    // ======================================
-
-    function ringkasToken(
-        token
-    ) {
-
-        if (!token) {
-
-            return "(kosong)";
-
-        }
-
-
-        if (
-            token.length <= 16
-        ) {
-
-            return token;
-
-        }
-
-
-        return (
-            token.substring(
-                0,
-                8
-            ) +
-            "..." +
-            token.substring(
-                token.length - 8
-            )
         );
 
     }
@@ -436,11 +210,6 @@
 
     async function sinkronkanTokenFCM() {
 
-        debug(
-            "Memulai sinkronisasi token FCM..."
-        );
-
-
         try {
 
             const token =
@@ -448,22 +217,8 @@
 
 
             if (!token) {
-
-                debug(
-                    "Token FCM belum tersedia.",
-                    "warning"
-                );
-
                 return false;
-
             }
-
-
-            debug(
-                "Token FCM tersedia: " +
-                ringkasToken(token),
-                "success"
-            );
 
 
             const session =
@@ -474,11 +229,6 @@
                 !session?.user
             ) {
 
-                debug(
-                    "Session user belum tersedia. Token belum disimpan ke Supabase.",
-                    "warning"
-                );
-
                 return false;
 
             }
@@ -488,37 +238,18 @@
                 session.user;
 
 
-            debug(
-                "User aktif: " +
-                user.id,
-                "success"
-            );
-
-
             const client =
                 ambilClientSupabase();
 
 
             if (!client) {
-
-                debug(
-                    "Supabase client tidak tersedia.",
-                    "error"
-                );
-
                 return false;
-
             }
 
 
             // ==================================
             // PROFILE
             // ==================================
-
-            debug(
-                "Mengambil profile user..."
-            );
-
 
             const {
                 data: profile,
@@ -537,40 +268,13 @@
 
 
             if (profileError) {
-
-                debug(
-                    "Gagal mengambil profile: " +
-                    profileError.message,
-                    "error"
-                );
-
                 return false;
-
             }
 
 
             if (!profile) {
-
-                debug(
-                    "Profile user tidak ditemukan.",
-                    "error"
-                );
-
                 return false;
-
             }
-
-
-            debug(
-                "Profile ditemukan. Role: " +
-                profile.role +
-                " | resident_id: " +
-                (
-                    profile.resident_id ||
-                    "NULL"
-                ),
-                "success"
-            );
 
 
             // ==================================
@@ -581,21 +285,6 @@
                 profile.role ===
                 "admin"
             ) {
-
-                debug(
-                    "Akun ADMIN terdeteksi.",
-                    "success"
-                );
-
-
-                // ------------------------------
-                // CARI SUBSCRIPTION
-                // ------------------------------
-
-                debug(
-                    "Mencari subscription Admin..."
-                );
-
 
                 const {
                     data: existing,
@@ -616,28 +305,13 @@
 
 
                 if (existingError) {
-
-                    debug(
-                        "Gagal mencari subscription Admin: " +
-                        existingError.message,
-                        "error"
-                    );
-
                     return false;
-
                 }
 
 
                 if (
                     existing?.id
                 ) {
-
-                    debug(
-                        "Subscription Admin ditemukan: " +
-                        existing.id,
-                        "success"
-                    );
-
 
                     const {
                         error
@@ -669,36 +343,13 @@
 
 
                     if (error) {
-
-                        debug(
-                            "Gagal UPDATE token Admin: " +
-                            error.message,
-                            "error"
-                        );
-
                         return false;
-
                     }
-
-
-                    debug(
-                        "TOKEN FCM ADMIN BERHASIL DIPERBARUI.",
-                        "success"
-                    );
 
 
                     return true;
 
                 }
-
-
-                // ------------------------------
-                // INSERT
-                // ------------------------------
-
-                debug(
-                    "Subscription Admin belum ada. Membuat record baru..."
-                );
 
 
                 const {
@@ -710,92 +361,38 @@
                         )
                         .insert({
 
-    user_id:
-        user.id,
+                            user_id:
+                                user.id,
 
-    resident_id:
-        null,
+                            resident_id:
+                                null,
 
-    endpoint:
-        `fcm-native:${user.id}`,
+                            endpoint:
+                                `fcm-native:${user.id}`,
 
-    p256dh:
-        `fcm-native-${user.id}`,
+                            p256dh:
+                                `fcm-native-${user.id}`,
 
-    auth:
-        `fcm-native-${user.id}`,
+                            auth:
+                                `fcm-native-${user.id}`,
 
-    fcm_token:
-        token,
+                            fcm_token:
+                                token,
 
-    created_at:
-        new Date()
-            .toISOString(),
+                            created_at:
+                                new Date()
+                                    .toISOString(),
 
-    updated_at:
-        new Date()
-            .toISOString()
+                            updated_at:
+                                new Date()
+                                    .toISOString()
 
-});
+                        });
 
 
                 if (insertError) {
-
-                    debug(
-                        "GAGAL INSERT TOKEN ADMIN: " +
-                        insertError.message,
-                        "error"
-                    );
-
-
-                    if (
-                        insertError.code
-                    ) {
-
-                        debug(
-                            "Supabase code: " +
-                            insertError.code,
-                            "error"
-                        );
-
-                    }
-
-
-                    if (
-                        insertError.details
-                    ) {
-
-                        debug(
-                            "Details: " +
-                            insertError.details,
-                            "error"
-                        );
-
-                    }
-
-
-                    if (
-                        insertError.hint
-                    ) {
-
-                        debug(
-                            "Hint: " +
-                            insertError.hint,
-                            "warning"
-                        );
-
-                    }
-
-
                     return false;
-
                 }
-
-
-                debug(
-                    "TOKEN FCM ADMIN BERHASIL DISIMPAN.",
-                    "success"
-                );
 
 
                 return true;
@@ -812,24 +409,12 @@
                 "warga"
             ) {
 
-                debug(
-                    "Akun WARGA terdeteksi."
-                );
-
-
                 const residentId =
                     profile.resident_id;
 
 
                 if (!residentId) {
-
-                    debug(
-                        "resident_id warga tidak ditemukan.",
-                        "error"
-                    );
-
                     return false;
-
                 }
 
 
@@ -852,28 +437,13 @@
 
 
                 if (existingError) {
-
-                    debug(
-                        "Gagal mencari subscription warga: " +
-                        existingError.message,
-                        "error"
-                    );
-
                     return false;
-
                 }
 
 
                 if (
                     existing?.id
                 ) {
-
-                    debug(
-                        "Subscription Warga ditemukan: " +
-                        existing.id,
-                        "success"
-                    );
-
 
                     const {
                         error
@@ -914,33 +484,13 @@
 
 
                     if (error) {
-
-                        debug(
-                            "Gagal update token warga: " +
-                            error.message,
-                            "error"
-                        );
-
                         return false;
-
                     }
-
-
-                    debug(
-                        "TOKEN FCM WARGA BERHASIL DIPERBARUI.",
-                        "success"
-                    );
 
 
                     return true;
 
                 }
-
-
-                debug(
-                    "Subscription Warga belum ditemukan. Membuat record baru...",
-                    "warning"
-                );
 
 
                 const {
@@ -982,22 +532,8 @@
 
 
                 if (insertError) {
-
-                    debug(
-                        "GAGAL INSERT TOKEN WARGA: " +
-                        insertError.message,
-                        "error"
-                    );
-
                     return false;
-
                 }
-
-
-                debug(
-                    "TOKEN FCM WARGA BERHASIL DISIMPAN.",
-                    "success"
-                );
 
 
                 return true;
@@ -1005,22 +541,11 @@
             }
 
 
-            debug(
-                "Role tidak dikenali: " +
-                profile.role,
-                "error"
-            );
-
-
             return false;
 
         }
 
         catch (error) {
-
-            tampilkanError(
-                error
-            );
 
             return false;
 
@@ -1038,10 +563,6 @@
         jeda = 2000
     ) {
 
-        debug(
-            "Memulai retry sinkronisasi FCM..."
-        );
-
         for (
             let percobaan = 1;
             percobaan <= jumlahPercobaan;
@@ -1051,39 +572,19 @@
             const token =
                 ambilTokenFCM();
 
-            if (token) {
 
-                debug(
-                    "Token FCM ditemukan pada percobaan " +
-                    percobaan + ".",
-                    "success"
-                );
+            if (token) {
 
                 const berhasil =
                     await sinkronkanTokenFCM();
 
+
                 if (berhasil) {
-
-                    debug(
-                        "🎉 Retry FCM berhasil. Token sudah tersimpan ke Supabase.",
-                        "success"
-                    );
-
                     return true;
-
                 }
 
-            } else {
-
-                debug(
-                    "Token FCM belum tersedia. Percobaan " +
-                    percobaan +
-                    "/" +
-                    jumlahPercobaan,
-                    "warning"
-                );
-
             }
+
 
             if (
                 percobaan <
@@ -1092,10 +593,12 @@
 
                 await new Promise(
                     function (resolve) {
+
                         setTimeout(
                             resolve,
                             jeda
                         );
+
                     }
                 );
 
@@ -1103,10 +606,6 @@
 
         }
 
-        debug(
-            "Retry sinkronisasi FCM selesai tetapi belum berhasil.",
-            "error"
-        );
 
         return false;
 
@@ -1119,29 +618,11 @@
 
     async function registerFCM() {
 
-        debug(
-            "Memulai proses register FCM..."
-        );
-
-
         try {
-
-            debug(
-                "Meminta izin notifikasi..."
-            );
-
 
             const permission =
                 await PushNotifications
                     .requestPermissions();
-
-
-            debug(
-                "Status izin: " +
-                JSON.stringify(
-                    permission
-                )
-            );
 
 
             if (
@@ -1149,35 +630,13 @@
                 "granted"
             ) {
 
-                debug(
-                    "Izin notifikasi TIDAK diberikan.",
-                    "error"
-                );
-
                 return false;
 
             }
 
 
-            debug(
-                "Izin notifikasi diberikan.",
-                "success"
-            );
-
-
-            debug(
-                "Memanggil PushNotifications.register()..."
-            );
-
-
             await PushNotifications
                 .register();
-
-
-            debug(
-                "Register FCM dipanggil. Menunggu token Firebase...",
-                "success"
-            );
 
 
             return true;
@@ -1185,10 +644,6 @@
         }
 
         catch (error) {
-
-            tampilkanError(
-                error
-            );
 
             return false;
 
@@ -1207,35 +662,13 @@
             token
         ) {
 
-            debug(
-                "EVENT REGISTRATION diterima.",
-                "success"
-            );
-
-
             const fcmToken =
                 token?.value;
 
 
             if (!fcmToken) {
-
-                debug(
-                    "Firebase tidak memberikan token.",
-                    "error"
-                );
-
                 return;
-
             }
-
-
-            debug(
-                "TOKEN FCM DITERIMA: " +
-                ringkasToken(
-                    fcmToken
-                ),
-                "success"
-            );
 
 
             simpanTokenFCM(
@@ -1243,29 +676,7 @@
             );
 
 
-            const berhasil =
-                await sinkronkanTokenFCM();
-
-
-            if (
-                berhasil
-            ) {
-
-                debug(
-                    "🎉 PROSES FCM SELESAI. TOKEN SUDAH TERSIMPAN.",
-                    "success"
-                );
-
-            }
-
-            else {
-
-                debug(
-                    "Token FCM ada, tetapi sinkronisasi ke Supabase belum berhasil.",
-                    "error"
-                );
-
-            }
+            await sinkronkanTokenFCM();
 
         }
     );
@@ -1277,34 +688,25 @@
 
     PushNotifications.addListener(
         "registrationError",
-        function (
-            error
-        ) {
+        function () {
 
-            debug(
-                "FCM REGISTRATION ERROR: " +
-                JSON.stringify(
-                    error
-                ),
-                "error"
-            );
+            // Sengaja kosong.
+            // Error tidak ditampilkan
+            // kepada pengguna.
 
         }
     );
 
 
+    // ======================================
+    // NOTIFICATION ACTION
+    // ======================================
 
     PushNotifications.addListener(
         "pushNotificationActionPerformed",
         function (
             event
         ) {
-
-            debug(
-                "Notifikasi FCM diklik.",
-                "success"
-            );
-
 
             const data =
                 event?.notification
@@ -1346,6 +748,7 @@
     window.SIDATSinkronkanFCM =
         sinkronkanTokenFCM;
 
+
     window.SIDATSinkronkanFCMRetry =
         sinkronkanFCMRetry;
 
@@ -1354,23 +757,10 @@
     // AUTO REGISTER + RETRY SESSION
     // ======================================
 
-    /*
-     * Session Supabase pada APK dapat selesai
-     * setelah file FCM dimuat.
-     *
-     * Karena itu jangan hanya mencoba sekali.
-     * Kita coba beberapa kali sampai session
-     * WARGA/ADMIN tersedia.
-     */
-
     setTimeout(
         async function () {
 
             try {
-
-                debug(
-                    "Memulai auto-register FCM..."
-                );
 
                 for (
                     let percobaan = 1;
@@ -1381,43 +771,25 @@
                     const session =
                         await ambilSessionSupabase();
 
+
                     if (
                         session?.user
                     ) {
 
-                        debug(
-                            "Session ditemukan pada percobaan " +
-                            percobaan +
-                            ". Menjalankan register FCM...",
-                            "success"
-                        );
-
                         const berhasil =
                             await registerFCM();
+
 
                         if (
                             berhasil
                         ) {
 
-                            debug(
-                                "Auto-register FCM berhasil dijalankan.",
-                                "success"
-                            );
-
                             return;
 
                         }
 
-                    } else {
-
-                        debug(
-                            "Session belum tersedia. Percobaan " +
-                            percobaan +
-                            "/6.",
-                            "warning"
-                        );
-
                     }
+
 
                     if (
                         percobaan < 6
@@ -1425,10 +797,12 @@
 
                         await new Promise(
                             function (resolve) {
+
                                 setTimeout(
                                     resolve,
                                     2000
                                 );
+
                             }
                         );
 
@@ -1436,18 +810,12 @@
 
                 }
 
-                debug(
-                    "Auto-register FCM selesai tetapi session belum tersedia.",
-                    "error"
-                );
+            }
 
-            } catch (error) {
+            catch (error) {
 
-                debug(
-                    "Auto-register FCM gagal: " +
-                    (error?.message || error),
-                    "error"
-                );
+                // Tidak menampilkan
+                // debug kepada pengguna.
 
             }
 
