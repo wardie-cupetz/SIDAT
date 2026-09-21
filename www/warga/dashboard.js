@@ -276,16 +276,101 @@ async function supabasePostRPC(
    ===================================================== */
 
 async function loadProfilWarga() {
-    const residentId =
-        warga.resident_id ||
-        warga.residentId;
-
-    if (!residentId) {
-        tampilkanProfilWarga(warga);
-        return;
-    }
 
     try {
+
+        /*
+         * 1. Ambil user yang sedang login
+         *    menggunakan access token yang sudah ada.
+         */
+        const userResponse =
+            await fetch(
+                `${SUPABASE_URL}/auth/v1/user`,
+                {
+                    method: "GET",
+
+                    headers: {
+                        "apikey":
+                            SUPABASE_KEY,
+
+                        "Authorization":
+                            `Bearer ${accessToken}`,
+
+                        "Accept":
+                            "application/json"
+                    }
+                }
+            );
+
+        if (!userResponse.ok) {
+            throw new Error(
+                "Gagal membaca user login."
+            );
+        }
+
+        const user =
+            await userResponse.json();
+
+        const userId =
+            user?.id || "";
+
+        if (!userId) {
+            throw new Error(
+                "ID user login tidak ditemukan."
+            );
+        }
+
+
+        /*
+         * 2. Ambil resident_id dari profiles.
+         */
+        const profileRows =
+            await supabaseGet(
+                "profiles",
+                [
+                    "select=user_id,role,resident_id",
+                    "user_id=eq." +
+                        encodeURIComponent(
+                            userId
+                        ),
+                    "limit=1"
+                ].join("&")
+            );
+
+        const profile =
+            Array.isArray(profileRows) &&
+            profileRows.length
+                ? profileRows[0]
+                : null;
+
+        const residentId =
+            profile?.resident_id ||
+            warga?.resident_id ||
+            warga?.residentId ||
+            null;
+
+
+        /*
+         * Jika resident_id tidak tersedia,
+         * tetap tampilkan data lokal.
+         */
+        if (!residentId) {
+
+            tampilkanProfilWarga(
+                warga
+            );
+
+            return;
+        }
+
+
+        /*
+         * 3. Ambil data lengkap warga.
+         *
+         * Termasuk:
+         * - name
+         * - photo_url
+         */
         const rows =
             await supabaseGet(
                 "residents",
@@ -299,66 +384,135 @@ async function loadProfilWarga() {
                 ].join("&")
             );
 
+
+        /*
+         * 4. Gabungkan data resident
+         *    dengan data login yang sudah ada.
+         */
         if (
             Array.isArray(rows) &&
             rows.length
         ) {
+
             warga = {
                 ...warga,
+
+                user_id:
+                    userId,
+
+                resident_id:
+                    residentId,
+
+                role:
+                    profile?.role ||
+                    warga?.role ||
+                    "warga",
+
                 ...rows[0]
             };
 
+
+            /*
+             * Simpan kembali ke localStorage
+             * supaya nama/foto tersedia saat
+             * dashboard dibuka kembali.
+             */
             localStorage.setItem(
                 "sidat_user",
-                JSON.stringify(warga)
+                JSON.stringify(
+                    warga
+                )
             );
         }
+
     } catch (error) {
+
         console.error(
             "SIDAT profil:",
             error
         );
     }
 
-    tampilkanProfilWarga(warga);
+
+    /*
+     * 5. Tampilkan nama dan foto.
+     */
+    tampilkanProfilWarga(
+        warga
+    );
 }
 
 
-function tampilkanProfilWarga(data) {
+function tampilkanProfilWarga(
+    data
+) {
+
     const name =
-        data?.name ||
-        data?.resident_name ||
-        "Warga";
+        String(
+            data?.name ||
+            data?.resident_name ||
+            "Warga"
+        ).trim();
+
 
     const photo =
-        data?.photo_url || "";
+        String(
+            data?.photo_url ||
+            ""
+        ).trim();
+
 
     const image =
         document.getElementById(
             "profilePhoto"
         );
 
+
     const nameElement =
         document.getElementById(
             "profileName"
         );
 
+
+    /*
+     * Tampilkan nama warga.
+     */
     if (nameElement) {
+
         nameElement.textContent =
             name;
     }
 
+
+    /*
+     * Tampilkan foto warga.
+     */
     if (image) {
+
+        /*
+         * Jika ada foto dari residents,
+         * gunakan foto tersebut.
+         */
         image.src =
             photo ||
-            createInitialAvatar(name);
+            createInitialAvatar(
+                name
+            );
 
         image.alt =
             "Foto " + name;
 
+
+        /*
+         * Jika URL foto gagal,
+         * otomatis kembali ke avatar inisial.
+         */
         image.onerror =
             function () {
-                this.onerror = null;
+
+                this.onerror =
+                    null;
+
                 this.src =
                     createInitialAvatar(
                         name
@@ -366,7 +520,6 @@ function tampilkanProfilWarga(data) {
             };
     }
 }
-
 
 /* =====================================================
    WILAYAH
@@ -399,48 +552,70 @@ async function loadWilayah() {
         terapkanWilayah(
             wilayahData
         );
+
     } catch (error) {
+
         console.error(
             "SIDAT wilayah:",
             error
         );
 
+        /*
+         * Gunakan cache jika Supabase
+         * sedang tidak dapat diakses.
+         */
         try {
+
             const cache =
                 localStorage.getItem(
                     "sidat_wilayah_data"
                 );
 
             if (cache) {
+
                 wilayahData =
-                    JSON.parse(cache);
+                    JSON.parse(
+                        cache
+                    );
 
                 terapkanWilayah(
                     wilayahData
                 );
             }
+
         } catch (_) {}
     }
 }
 
 
 function terapkanWilayah(data) {
+
     if (!data) return;
+
 
     const info =
         document.getElementById(
             "wilayahInfo"
         );
 
+
     const logo =
         document.getElementById(
             "wilayahLogo"
         );
 
+
     const fallback =
         document.getElementById(
             "logoFallback"
         );
+
+
+    /*
+     * =================================================
+     * RT / RW
+     * =================================================
+     */
 
     const rt =
         data.rt
@@ -449,6 +624,7 @@ function terapkanWilayah(data) {
                   .padStart(2, "0")
             : "";
 
+
     const rw =
         data.rw
             ? "RW " +
@@ -456,32 +632,78 @@ function terapkanWilayah(data) {
                   .padStart(2, "0")
             : "";
 
+
     const region =
         [rt, rw]
             .filter(Boolean)
             .join(" / ");
 
+
+    /*
+     * =================================================
+     * WILAYAH LENGKAP
+     * =================================================
+     */
+
     const detail =
         [
-            data.nama_dusun,
-            data.nama_desa,
+            data.nama_dusun
+                ? "Dusun " +
+                  data.nama_dusun
+                : "",
+
+            data.nama_desa
+                ? "Desa " +
+                  data.nama_desa
+                : "",
+
             data.kecamatan
                 ? "Kec. " +
                   data.kecamatan
+                : "",
+
+            data.kabupaten
+                ? "Kab. " +
+                  data.kabupaten
+                : "",
+
+            data.provinsi
+                ? data.provinsi
                 : ""
         ]
             .filter(Boolean)
             .join(" • ");
 
+
+    /*
+     * =================================================
+     * TAMPILKAN RT/RW + WILAYAH
+     * =================================================
+     */
+
     if (info) {
+
+        const wilayahLengkap =
+            [region, detail]
+                .filter(Boolean)
+                .join(" • ");
+
         info.textContent =
-            region ||
-            detail ||
+            wilayahLengkap ||
             "Wilayah RT";
     }
 
+
+    /*
+     * =================================================
+     * LOGO WILAYAH
+     * =================================================
+     */
+
     if (logo) {
+
         if (data.logo_url) {
+
             logo.src =
                 data.logo_url;
 
@@ -489,38 +711,52 @@ function terapkanWilayah(data) {
                 "block";
 
             if (fallback) {
+
                 fallback.style.display =
                     "none";
             }
+
         } else {
+
             logo.style.display =
                 "none";
 
             if (fallback) {
+
                 fallback.style.display =
                     "flex";
             }
         }
 
+
         logo.onerror =
             function () {
+
                 this.style.display =
                     "none";
 
                 if (fallback) {
+
                     fallback.style.display =
                         "flex";
                 }
             };
     }
 
+
+    /*
+     * =================================================
+     * JUDUL APLIKASI
+     * =================================================
+     */
+
     if (data.nama_aplikasi) {
+
         document.title =
             data.nama_aplikasi +
             " - Dashboard Warga";
     }
 }
-
   /* =====================================================
    BANNER
    ===================================================== */
