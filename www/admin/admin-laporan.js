@@ -1922,6 +1922,7 @@ async function simpanPerubahanLaporan() {
                 }
 
                 const notificationPayload = {
+                    id: crypto.randomUUID(),
                     title: "Laporan Diperbarui",
                     message: pesan,
                     target_type: "resident",
@@ -1938,18 +1939,17 @@ async function simpanPerubahanLaporan() {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
-                            "Prefer": "return=representation"
+                            "Prefer": "return=minimal"
                         },
                         body: JSON.stringify(notificationPayload)
                     }
                 );
 
-                console.log("SIDAT DEBUG notificationResult:", notificationResult);
                 const notificationData = Array.isArray(notificationResult)
                     ? notificationResult[0]
                     : notificationResult;
 
-                const notificationId = notificationData?.id || null;
+                const notificationId = notificationPayload.id;
 
                 if (notificationId) {
                     try {
