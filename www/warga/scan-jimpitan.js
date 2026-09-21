@@ -826,6 +826,40 @@ async function kirimNotifikasiJimpitan() {
 
     try {
 
+        // Ambil user yang sedang login
+        const userResponse =
+            await fetch(
+                `${SUPABASE_URL}/auth/v1/user`,
+                {
+                    method: "GET",
+
+                    headers: {
+                        "apikey":
+                            SUPABASE_KEY,
+
+                        "Authorization":
+                            `Bearer ${accessToken}`
+                    }
+                }
+            );
+
+        if (!userResponse.ok) {
+
+            throw new Error(
+                "Gagal membaca user petugas."
+            );
+        }
+
+        const user =
+            await userResponse.json();
+
+        if (!user?.id) {
+
+            throw new Error(
+                "User petugas tidak ditemukan."
+            );
+        }
+
         const notificationId =
             crypto.randomUUID();
 
@@ -850,7 +884,7 @@ async function kirimNotifikasiJimpitan() {
                 false,
 
             created_by:
-                null,
+                user.id,
 
             created_at:
                 new Date().toISOString()
@@ -861,8 +895,7 @@ async function kirimNotifikasiJimpitan() {
             await fetch(
                 `${SUPABASE_URL}/rest/v1/notifications`,
                 {
-                    method:
-                        "POST",
+                    method: "POST",
 
                     headers: {
 
@@ -898,8 +931,7 @@ async function kirimNotifikasiJimpitan() {
             await fetch(
                 `${SUPABASE_URL}/functions/v1/send-push-notification`,
                 {
-                    method:
-                        "POST",
+                    method: "POST",
 
                     headers: {
 
@@ -934,10 +966,7 @@ async function kirimNotifikasiJimpitan() {
 
     } catch (error) {
 
-        /*
-         * Jangan menggagalkan transaksi jimpitan
-         * hanya karena push notification gagal.
-         */
+        // Jangan menggagalkan transaksi jimpitan
         console.error(
             "SIDAT: gagal mengirim notifikasi jimpitan:",
             error
