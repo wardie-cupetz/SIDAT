@@ -1944,6 +1944,7 @@ async function simpanPerubahanLaporan() {
                     }
                 );
 
+                console.log("SIDAT DEBUG notificationResult:", notificationResult);
                 const notificationData = Array.isArray(notificationResult)
                     ? notificationResult[0]
                     : notificationResult;
