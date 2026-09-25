@@ -267,7 +267,20 @@ async function restoreSidatSession() {
         const role = String(profile.role).trim().toLowerCase();
         if (!isValidSidatRole(role)) { console.warn("SIDAT: Role session tidak valid:", role); return; }
         saveSidatRole(role);
-        localStorage.setItem("sidat_user", JSON.stringify(user));
+        const oldUser =
+            JSON.parse(
+                localStorage.getItem("sidat_user") || "null"
+            );
+
+        const restoredUser = {
+            ...(oldUser || {}),
+            ...user
+        };
+
+        localStorage.setItem(
+            "sidat_user",
+            JSON.stringify(restoredUser)
+        );
         if (role === SIDAT_ROLES.ADMIN) localStorage.setItem("sidat_admin_user", JSON.stringify(user));
         const dashboard = SIDAT_AVAILABLE_DASHBOARDS[role];
         if (!dashboard) { console.warn("SIDAT: Dashboard role tidak ditemukan:", role); return; }
