@@ -56,9 +56,8 @@ function formatTanggal(value) {
 function statusLabel(status) {
     const map = {
         pending: "Menunggu",
-        process: "Diproses",
-        resolved: "Selesai",
-        rejected: "Ditolak"
+        processing: "Diproses",
+        completed: "Selesai"
     };
 
     return map[status] || "Menunggu";
@@ -68,9 +67,8 @@ function statusLabel(status) {
 function statusClass(status) {
     const allowed = [
         "pending",
-        "process",
-        "resolved",
-        "rejected"
+        "processing",
+        "completed"
     ];
 
     return allowed.includes(status)
@@ -358,16 +356,6 @@ async function loadLaporan() {
             Array.isArray(reports)
                 ? reports
                 : [];
-
-        console.log(
-            "SIDAT DEBUG STATUS LAPORAN:",
-            safeReports.map(item => ({
-                id: item.id,
-                status: item.status,
-                admin_note: item.admin_note,
-                updated_at: item.updated_at
-            }))
-        );
 
         const residentIds = [
             ...new Set(
