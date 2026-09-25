@@ -9,89 +9,20 @@
     "use strict";
 
 
-    // ======================================
+        // ======================================
     // DEBUG DINONAKTIFKAN UNTUK PRODUKSI
     // ======================================
 
-    function debug(message, level = "info") {
-        const prefix = "[SIDAT FCM]";
-
-        if (level === "error") {
-            console.error(prefix, message);
-        } else if (level === "warning") {
-            console.warn(prefix, message);
-        } else {
-            console.log(prefix, message);
-        }
-
-        // DEBUG SEMENTARA UNTUK APK
-        try {
-            let panel = document.getElementById("sidat-fcm-debug-panel");
-
-            if (!panel) {
-                panel = document.createElement("div");
-                panel.id = "sidat-fcm-debug-panel";
-
-                panel.style.cssText =
-                    "position:fixed;" +
-                    "left:10px;" +
-                    "right:10px;" +
-                    "bottom:80px;" +
-                    "max-height:45vh;" +
-                    "overflow:auto;" +
-                    "z-index:999999;" +
-                    "background:#111;" +
-                    "color:#fff;" +
-                    "padding:12px;" +
-                    "border-radius:12px;" +
-                    "font:12px monospace;" +
-                    "box-shadow:0 4px 20px rgba(0,0,0,.4);";
-
-                document.body.appendChild(panel);
-            }
-
-            const row = document.createElement("div");
-
-            row.textContent =
-                new Date().toLocaleTimeString() +
-                " | " +
-                level.toUpperCase() +
-                " | " +
-                String(message);
-
-            row.style.marginBottom = "6px";
-
-            if (level === "error") {
-                row.style.color = "#ff6b6b";
-            } else if (level === "warning") {
-                row.style.color = "#ffd166";
-            } else if (level === "success") {
-                row.style.color = "#6ee7b7";
-            }
-
-            panel.appendChild(row);
-            panel.scrollTop = panel.scrollHeight;
-
-        } catch (e) {
-            console.error(
-                "[SIDAT FCM] Gagal menampilkan debug:",
-                e
-            );
-        }
+    function debug() {
+        // Debug FCM dinonaktifkan.
+        // Tidak membuat debug panel.
+        // Tidak menulis log ke Console.
     }
 
     function tampilkanError(error) {
-        console.error(
-            "[SIDAT FCM] ERROR:",
-            error?.message || error,
-            error
-        );
+        // Error internal tetap ditangani oleh alur fungsi.
+        // Tidak ditampilkan sebagai debug ke pengguna.
     }
-
-    // ======================================
-    // MULAI
-    // ======================================
-
         // ======================================
     // CEK CAPACITOR
     // ======================================

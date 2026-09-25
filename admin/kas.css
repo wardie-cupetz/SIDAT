@@ -1149,3 +1149,25 @@ max-width: 360px
 }
 
 }
+.wilayah {
+
+    margin-top:
+        3px;
+
+    font-size:
+        12px;
+
+    color:
+        #374151;
+
+}
+/* ==========================================
+   GARIS KOP LAPORAN
+   ========================================== */
+
+.kop-line {
+    width: 100%;
+    border-bottom: 2px solid #111827;
+    margin-top: 10px;
+    margin-bottom: 12px;
+}

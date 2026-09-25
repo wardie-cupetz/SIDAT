@@ -1203,6 +1203,60 @@ try {
 
     }
 
+/* ==========================================
+   URUTKAN KEMBALI BERDASARKAN TANGGAL
+   TERBARU
+   ========================================== */
+
+dataLaporan.sort(
+    (
+        a,
+        b
+    ) => {
+
+        const tanggalA =
+            String(
+                a.transaction_date ||
+                ""
+            );
+
+        const tanggalB =
+            String(
+                b.transaction_date ||
+                ""
+            );
+
+
+        if (
+            tanggalA !==
+            tanggalB
+        ) {
+
+            return tanggalB.localeCompare(
+                tanggalA
+            );
+
+        }
+
+
+        const waktuA =
+            new Date(
+                a.created_at ||
+                0
+            ).getTime();
+
+        const waktuB =
+            new Date(
+                b.created_at ||
+                0
+            ).getTime();
+
+
+        return waktuB - waktuA;
+
+    }
+);
+
 
     const rows = [
 
@@ -1845,8 +1899,56 @@ function cetakLaporanKas() {
 
 
         let data =
-            [...semuaTransaksiKas];
+    [...semuaTransaksiKas];
 
+
+/* ==========================================
+   DATA WILAYAH UNTUK KOP LAPORAN
+   ========================================== */
+
+let wilayahLaporan = null;
+
+try {
+
+    const cacheWilayah =
+        localStorage.getItem(
+            "sidat_wilayah_data"
+        );
+
+    if (cacheWilayah) {
+
+        wilayahLaporan =
+            JSON.parse(
+                cacheWilayah
+            );
+
+    }
+
+} catch (error) {
+
+    console.warn(
+        "SIDAT: gagal membaca cache wilayah:",
+        error
+    );
+
+}
+
+
+/*
+ * Jika data wilayah sudah tersedia
+ * secara global, gunakan sebagai fallback.
+ */
+
+if (
+    !wilayahLaporan &&
+    typeof wilayahData !== "undefined" &&
+    wilayahData
+) {
+
+    wilayahLaporan =
+        wilayahData;
+
+}
 
         if (mulai) {
 
@@ -1893,6 +1995,142 @@ function cetakLaporanKas() {
             return;
 
         }
+      /* ==========================================
+   DATA LAPORAN CETAK
+   ========================================== */
+
+const dataTransaksiAsli =
+    [...data];
+
+const dataLaporan = [];
+
+const jimpitanPerTanggal = {};
+
+
+/* ==========================================
+   GABUNG TRANSFER JIMPITAN BERDASARKAN TANGGAL
+   ========================================== */
+
+dataTransaksiAsli.forEach(
+    transaksi => {
+
+        if (
+            transaksi.transaction_type ===
+            "jimpitan_transfer"
+        ) {
+
+            const tanggal =
+                transaksi.transaction_date;
+
+
+            if (
+                !jimpitanPerTanggal[tanggal]
+            ) {
+
+                jimpitanPerTanggal[tanggal] = {
+
+                    ...transaksi,
+
+                    amount:
+                        0,
+
+                    description:
+                        "Transfer jimpitan ke kas RT"
+
+                };
+
+            }
+
+
+            jimpitanPerTanggal[tanggal].amount +=
+                Number(
+                    transaksi.amount
+                ) || 0;
+
+
+            return;
+
+        }
+
+
+        dataLaporan.push(
+            transaksi
+        );
+
+    }
+);
+
+
+/* ==========================================
+   MASUKKAN HASIL GABUNGAN JIMPITAN
+   ========================================== */
+
+Object.values(
+    jimpitanPerTanggal
+).forEach(
+    transaksi => {
+
+        dataLaporan.push(
+            transaksi
+        );
+
+    }
+);
+
+
+/* ==========================================
+   URUTKAN LAPORAN
+   ========================================== */
+
+dataLaporan.sort(
+    (
+        a,
+        b
+    ) => {
+
+        const tanggalA =
+            String(
+                a.transaction_date ||
+                ""
+            );
+
+        const tanggalB =
+            String(
+                b.transaction_date ||
+                ""
+            );
+
+
+        if (
+            tanggalA !==
+            tanggalB
+        ) {
+
+            return tanggalB.localeCompare(
+                tanggalA
+            );
+
+        }
+
+
+        const waktuA =
+            new Date(
+                a.created_at ||
+                0
+            ).getTime();
+
+        const waktuB =
+            new Date(
+                b.created_at ||
+                0
+            ).getTime();
+
+
+        return waktuB - waktuA;
+
+    }
+);
+      
 
 
         let totalMasuk = 0;
@@ -2013,7 +2251,7 @@ function cetakLaporanKas() {
 
 
         const rows =
-            data.map(
+            dataLaporan.map(
                 transaksi => {
 
                     const isIncome =
@@ -2412,7 +2650,17 @@ th {
     }
 
 }
-
+.print-footer {
+    position: fixed;
+    bottom: 8px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 9px;
+    color: #6b7280;
+    border-top: 1px solid #d1d5db;
+    padding-top: 4px;
+}
 </style>
 
 </head>
@@ -2424,19 +2672,98 @@ th {
 <div class="header">
 
     <h1>
-        LAPORAN KAS RT
+        LAPORAN KAS
     </h1>
 
-    <h2>
-        SIDAT
-    </h2>
+    <div class="wilayah">
 
-    <p>
-        Sistem Informasi Data RT
-    </p>
+        ${
+            wilayahLaporan?.rt
+                ? "RT " +
+                  String(
+                      wilayahLaporan.rt
+                  ).padStart(
+                      2,
+                      "0"
+                  )
+                : ""
+        }
 
+        ${
+            wilayahLaporan?.rw
+                ? " / RW " +
+                  String(
+                      wilayahLaporan.rw
+                  ).padStart(
+                      2,
+                      "0"
+                  )
+                : ""
+        }
+
+    </div>
+
+
+    <div class="wilayah">
+
+        ${
+            wilayahLaporan?.nama_dusun
+                ? "Dusun " +
+                  escapeHTML(
+                      wilayahLaporan.nama_dusun
+                  )
+                : ""
+        }
+
+        ${
+            wilayahLaporan?.nama_desa
+                ? " • Desa " +
+                  escapeHTML(
+                      wilayahLaporan.nama_desa
+                  )
+                : ""
+        }
+
+    </div>
+
+
+    <div class="wilayah">
+
+        ${
+            wilayahLaporan?.kecamatan
+                ? "Kec. " +
+                  escapeHTML(
+                      wilayahLaporan.kecamatan
+                  )
+                : ""
+        }
+
+        ${
+            wilayahLaporan?.kabupaten
+                ? " • Kab. " +
+                  escapeHTML(
+                      wilayahLaporan.kabupaten
+                  )
+                : ""
+        }
+
+        ${
+            wilayahLaporan?.provinsi
+                ? " • " +
+                  escapeHTML(
+                      wilayahLaporan.provinsi
+                  )
+                : ""
+        }
+
+    </div>
+     <div style="
+    width: 100%;
+    border-bottom: 2px solid #111827;
+    margin-top: 10px;
+    margin-bottom: 12px;
+"></div>
 </div>
-
 
 <div class="info">
 
@@ -2467,7 +2794,7 @@ th {
             Jumlah Transaksi:
         </strong>
 
-        ${data.length}
+        ${dataLaporan.length}
 
         transaksi
 
@@ -2575,31 +2902,97 @@ ${rows}
 </table>
 
 
-<div class="footer">
+<div style="
+    position: relative;
+    width: 100%;
+    margin-top: 30px;
+    min-height: 145px;
+    box-sizing: border-box;
+">
 
-    <div class="signature">
+    <!-- TANGGAL -->
+    <div style="
+        width: 100%;
+        text-align: right;
+        margin-bottom: 18px;
+        box-sizing: border-box;
+    ">
+        ${
+            wilayahLaporan?.kabupaten
+                ? escapeHTML(wilayahLaporan.kabupaten) + ", "
+                : ""
+        }${tanggalCetak}
+    </div>
 
-        <div>
-            Dibuat pada:
+    <!-- TANDA TANGAN -->
+    <div style="
+        width: 100%;
+        display: block;
+        position: relative;
+        height: 105px;
+        box-sizing: border-box;
+    ">
+
+        <!-- KOLOM KIRI -->
+        <div style="
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 50%;
+            text-align: center;
+            box-sizing: border-box;
+        ">
+            <div>
+                Mengetahui,
+            </div>
+
+            <div style="
+                font-weight: bold;
+            ">
+                Ketua RT
+            </div>
+
+            <div style="
+                height: 55px;
+            "></div>
+
+            <div>
+                (.................................)
+            </div>
         </div>
 
-        <div>
-            ${tanggalCetak}
+        <!-- KOLOM KANAN -->
+        <div style="
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 50%;
+            text-align: center;
+            box-sizing: border-box;
+        ">
+            <div style="
+                font-weight: bold;
+            ">
+                Bendahara RT
+            </div>
+
+            <div style="
+                height: 73px;
+            "></div>
+
+            <div>
+                (.................................)
+            </div>
         </div>
-
-        <div class="space"></div>
-
-        <strong>
-            Bendahara RT
-        </strong>
 
     </div>
 
 </div>
 
-
-</body>
-
+<!-- FOOTER PALING BAWAH -->
+<div class="print-footer">
+    SIDAT • Sistem Informasi Data RT • Suwardi
+</div>
 </html>
 
 `;
@@ -2705,6 +3098,92 @@ ${rows}
 
         alert(
             "Gagal membuat laporan kas."
+        );
+
+    }
+
+}
+/* ==========================================
+   LOAD WILAYAH KAS RT
+   ========================================== */
+
+async function loadWilayahKas() {
+
+    try {
+
+        const accessToken =
+            localStorage.getItem(
+                "sidat_access_token"
+            );
+
+        if (!accessToken) {
+
+            console.warn(
+                "SIDAT: access token tidak ditemukan saat memuat wilayah."
+            );
+
+            return;
+
+        }
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/wilayah?select=id,nama_aplikasi,nama_dusun,nama_desa,rt,rw,nama_ketua_rt,kecamatan,kabupaten,provinsi,logo_url&limit=1`,
+                {
+                    method: "GET",
+
+                    headers: {
+                        apikey:
+                            SUPABASE_KEY,
+
+                        Authorization:
+                            `Bearer ${accessToken}`
+                    }
+                }
+            );
+
+        if (!response.ok) {
+
+            throw new Error(
+                `Gagal memuat wilayah: HTTP ${response.status}`
+            );
+
+        }
+
+        const rows =
+            await response.json();
+
+        if (
+            !Array.isArray(rows) ||
+            !rows.length
+        ) {
+
+            console.warn(
+                "SIDAT: data wilayah tidak ditemukan."
+            );
+
+            return;
+
+        }
+
+        const wilayah =
+            rows[0];
+
+        localStorage.setItem(
+            "sidat_wilayah_data",
+            JSON.stringify(wilayah)
+        );
+
+        console.log(
+            "SIDAT: Wilayah Kas RT berhasil dimuat.",
+            wilayah
+        );
+
+    } catch (error) {
+
+        console.error(
+            "SIDAT: gagal memuat wilayah Kas RT:",
+            error
         );
 
     }
@@ -2879,12 +3358,13 @@ const btnCetak =
 
     await Promise.all([
 
-        loadSaldoKas(),
+    loadWilayahKas(),
 
-        loadRiwayatKas()
+    loadSaldoKas(),
 
-    ]);
+    loadRiwayatKas()
 
+]);
 
     console.log(
         "SIDAT: Kas RT siap."

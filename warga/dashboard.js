@@ -269,6 +269,388 @@ async function supabasePostRPC(
 
     return response.json();
 }
+  // =========================================================
+// BADGE PENGUMUMAN & NOTIFIKASI
+// =========================================================
+
+function setBadge(
+    elementId,
+    jumlah
+) {
+
+    const badge =
+        document.getElementById(
+            elementId
+        );
+
+    if (!badge) {
+        return;
+    }
+
+
+    const total =
+        Number.isFinite(
+            Number(jumlah)
+        )
+            ? Math.max(
+                0,
+                Number(jumlah)
+            )
+            : 0;
+
+
+    if (total <= 0) {
+
+        badge.textContent =
+            "0";
+
+        badge.classList.add(
+            "hidden"
+        );
+
+        return;
+
+    }
+
+
+    badge.textContent =
+        total > 99
+            ? "99+"
+            : String(total);
+
+    badge.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+// =========================================================
+// BADGE NOTIFIKASI
+//
+// Menggunakan notification_reads yang sama dengan
+// halaman warga/notifikasi.html.
+// =========================================================
+
+async function loadBadgeNotifikasi() {
+
+    const badge =
+        document.getElementById(
+            "badgeNotifikasi"
+        );
+
+    if (!badge) {
+        return;
+    }
+
+
+    try {
+
+        const rows =
+            await supabaseGet(
+                "notifications",
+                "select=*&order=created_at.desc"
+            );
+
+
+        const userId =
+            warga?.id ||
+            warga?.user_id ||
+            "";
+
+
+        const residentId =
+            warga?.resident_id ||
+            warga?.residentId ||
+            "";
+
+
+        if (
+            !userId &&
+            !residentId
+        ) {
+
+            setBadge(
+                "badgeNotifikasi",
+                0
+            );
+
+            return;
+
+        }
+
+
+        const notifications =
+            (
+                Array.isArray(rows)
+                    ? rows
+                    : []
+            )
+            .filter(
+                function (item) {
+
+                    const type =
+                        item.target_type ||
+                        "all";
+
+
+                    const target =
+                        item.target_resident_id ||
+                        item.resident_id ||
+                        "";
+
+
+                    if (
+                        type === "all" ||
+                        type === "warga"
+                    ) {
+
+                        return true;
+
+                    }
+
+
+                    if (
+                        type === "resident" ||
+                        type === "user"
+                    ) {
+
+                        return (
+                            String(target) ===
+                                String(
+                                    residentId
+                                ) ||
+                            String(target) ===
+                                String(
+                                    userId
+                                )
+                        );
+
+                    }
+
+
+                    return false;
+
+                }
+            );
+
+
+        if (
+            !notifications.length
+        ) {
+
+            setBadge(
+                "badgeNotifikasi",
+                0
+            );
+
+            return;
+
+        }
+
+
+        const readRows =
+            await supabaseGet(
+                "notification_reads",
+                "select=notification_id" +
+                "&user_id=eq." +
+                encodeURIComponent(
+                    userId
+                )
+            );
+
+
+        const sudahDibaca =
+            new Set(
+                (
+                    Array.isArray(
+                        readRows
+                    )
+                        ? readRows
+                        : []
+                )
+                .map(
+                    function (item) {
+
+                        return String(
+                            item.notification_id
+                        );
+
+                    }
+                )
+            );
+
+
+        const belumDibaca =
+            notifications.filter(
+                function (item) {
+
+                    return !sudahDibaca.has(
+                        String(
+                            item.id
+                        )
+                    );
+
+                }
+            ).length;
+
+
+        setBadge(
+            "badgeNotifikasi",
+            belumDibaca
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "SIDAT badge notifikasi:",
+            error
+        );
+
+        setBadge(
+            "badgeNotifikasi",
+            0
+        );
+
+    }
+
+}
+
+
+// =========================================================
+// BADGE PENGUMUMAN
+//
+// Karena announcements belum memiliki mekanisme
+// notification_reads sendiri, kita menggunakan waktu
+// terakhir halaman Pengumuman dibuka pada perangkat.
+// =========================================================
+
+const KEY_PENGUMUMAN_TERAKHIR_DILIHAT =
+    "sidat_pengumuman_terakhir_dilihat";
+
+
+async function loadBadgePengumuman() {
+
+    try {
+
+        const rows =
+            await supabaseGet(
+                "announcements",
+                "select=id,created_at,is_active" +
+                "&is_active=eq.true" +
+                "&order=created_at.desc"
+            );
+
+
+        if (
+            !Array.isArray(rows) ||
+            !rows.length
+        ) {
+
+            setBadge(
+                "badgePengumuman",
+                0
+            );
+
+            return;
+
+        }
+
+
+        const terakhirDilihat =
+            localStorage.getItem(
+                KEY_PENGUMUMAN_TERAKHIR_DILIHAT
+            );
+
+
+        /*
+         * Jika belum pernah membuka halaman
+         * Pengumuman, semua pengumuman aktif
+         * dianggap baru.
+         */
+
+        if (
+            !terakhirDilihat
+        ) {
+
+            setBadge(
+                "badgePengumuman",
+                rows.length
+            );
+
+            return;
+
+        }
+
+
+        const waktuTerakhir =
+            new Date(
+                terakhirDilihat
+            ).getTime();
+
+
+        if (
+            Number.isNaN(
+                waktuTerakhir
+            )
+        ) {
+
+            setBadge(
+                "badgePengumuman",
+                rows.length
+            );
+
+            return;
+
+        }
+
+
+        const jumlahBaru =
+            rows.filter(
+                function (item) {
+
+                    const waktuDibuat =
+                        new Date(
+                            item.created_at
+                        ).getTime();
+
+
+                    return (
+                        !Number.isNaN(
+                            waktuDibuat
+                        ) &&
+                        waktuDibuat >
+                            waktuTerakhir
+                    );
+
+                }
+            ).length;
+
+
+        setBadge(
+            "badgePengumuman",
+            jumlahBaru
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "SIDAT badge pengumuman:",
+            error
+        );
+
+        setBadge(
+            "badgePengumuman",
+            0
+        );
+
+    }
+
+}
 
 
 /* =====================================================
@@ -276,95 +658,337 @@ async function supabasePostRPC(
    ===================================================== */
 
 async function loadProfilWarga() {
-    const residentId =
-        warga.resident_id ||
-        warga.residentId;
-
-    if (!residentId) {
-        tampilkanProfilWarga(warga);
-        return;
-    }
-
     try {
+
+        /* =================================================
+           AMBIL DATA USER LOGIN
+           ================================================= */
+
+        const userData =
+            JSON.parse(
+                localStorage.getItem(
+                    "sidat_user"
+                ) || "null"
+            );
+
+        if (!userData) {
+            return;
+        }
+
+
+        /* =================================================
+           TENTUKAN ID WARGA
+           ================================================= */
+
+        const residentId =
+            userData.resident_id ||
+            userData.residentId ||
+            userData.id_warga ||
+            userData.id;
+
+        if (!residentId) {
+            tampilkanProfilWarga(
+                userData
+            );
+
+            return;
+        }
+
+
+        /* =================================================
+           AMBIL DATA RESIDENT
+           ================================================= */
+
         const rows =
             await supabaseGet(
                 "residents",
-                [
-                    "select=id,resident_code,name,photo_url,phone,jimpitan_balance,is_active,family_status",
-                    "id=eq." +
-                        encodeURIComponent(
-                            residentId
-                        ),
-                    "limit=1"
-                ].join("&")
+                "select=*&id=eq." +
+                encodeURIComponent(
+                    residentId
+                ) +
+                "&limit=1"
             );
 
         if (
-            Array.isArray(rows) &&
-            rows.length
+            !Array.isArray(rows) ||
+            !rows.length
         ) {
-            warga = {
+
+            tampilkanProfilWarga(
+                userData
+            );
+
+            return;
+        }
+
+
+        /* =================================================
+           DATA WARGA TERBARU
+           ================================================= */
+
+        const warga =
+            rows[0];
+
+
+        /* =================================================
+           GABUNGKAN DATA LOGIN + DATA RESIDENT
+           ================================================= */
+
+        const profil =
+            {
+                ...userData,
                 ...warga,
-                ...rows[0]
+                resident_id:
+                    warga.id ||
+                    userData.resident_id ||
+                    userData.residentId
             };
 
-            localStorage.setItem(
-                "sidat_user",
-                JSON.stringify(warga)
-            );
-        }
-    } catch (error) {
-        console.error(
-            "SIDAT profil:",
-            error
-        );
-    }
 
-    tampilkanProfilWarga(warga);
+        /* =================================================
+           SIMPAN DATA TERBARU
+           ================================================= */
+
+        localStorage.setItem(
+            "sidat_user",
+            JSON.stringify(
+                profil
+            )
+        );
+
+
+        /* =================================================
+           TAMPILKAN PROFIL KE HEADER
+           ================================================= */
+
+        tampilkanProfilWarga(
+            profil
+        );
+
+    } catch (error) {
+
+        /*
+         * Jika Supabase gagal,
+         * tetap tampilkan data login
+         * yang tersimpan lokal.
+         */
+
+        try {
+
+            const userData =
+                JSON.parse(
+                    localStorage.getItem(
+                        "sidat_user"
+                    ) || "null"
+                );
+
+            if (userData) {
+                tampilkanProfilWarga(
+                    userData
+                );
+            }
+
+        } catch (_) {}
+    }
 }
 
 
-function tampilkanProfilWarga(data) {
-    const name =
-        data?.name ||
-        data?.resident_name ||
-        "Warga";
+function tampilkanProfilWarga(warga) {
+
+    if (!warga) {
+        return;
+    }
+
+
+    /* =================================================
+       ELEMENT HEADER
+       ================================================= */
 
     const photo =
-        data?.photo_url || "";
-
-    const image =
         document.getElementById(
             "profilePhoto"
         );
 
-    const nameElement =
+    const name =
         document.getElementById(
             "profileName"
         );
 
-    if (nameElement) {
-        nameElement.textContent =
-            name;
+
+    /* =================================================
+       NAMA WARGA
+       ================================================= */
+
+    const nama =
+        warga.name ||
+        warga.nama ||
+        warga.nama_lengkap ||
+        warga.full_name ||
+        warga.nama_warga ||
+        "Warga";
+
+
+    /* =================================================
+       TAMPILKAN NAMA
+       ================================================= */
+
+    if (name) {
+
+        name.textContent =
+            nama;
     }
 
-    if (image) {
-        image.src =
-            photo ||
-            createInitialAvatar(name);
 
-        image.alt =
-            "Foto " + name;
+    /* =================================================
+       CARI FOTO PROFIL
+       ================================================= */
 
-        image.onerror =
+    const foto =
+        warga.photo_url ||
+        warga.foto_url ||
+        warga.profile_photo ||
+        warga.profile_photo_url ||
+        warga.avatar_url ||
+        warga.foto ||
+        "";
+
+
+    /* =================================================
+       AVATAR / FOTO
+       ================================================= */
+
+    if (!photo) {
+        return;
+    }
+
+
+    /* =================================================
+       JIKA ADA FOTO
+       ================================================= */
+
+    if (foto) {
+
+        photo.src =
+            foto;
+
+        photo.alt =
+            nama;
+
+        photo.style.display =
+            "block";
+
+
+        /* =============================================
+           JIKA FOTO GAGAL DIMUAT
+           ============================================= */
+
+        photo.onerror =
             function () {
-                this.onerror = null;
-                this.src =
-                    createInitialAvatar(
-                        name
-                    );
+
+                this.onerror =
+                    null;
+
+                buatAvatarProfil(
+                    this,
+                    nama
+                );
             };
+
+    } else {
+
+        buatAvatarProfil(
+            photo,
+            nama
+        );
     }
+}
+
+  function buatAvatarProfil(
+    imageElement,
+    nama
+) {
+
+    if (!imageElement) {
+        return;
+    }
+
+
+    /* =================================================
+       BUAT INISIAL NAMA
+       ================================================= */
+
+    const teks =
+        String(
+            nama || "W"
+        )
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean);
+
+
+    let inisial =
+        "W";
+
+
+    if (teks.length >= 2) {
+
+        inisial =
+            (
+                teks[0][0] +
+                teks[1][0]
+            ).toUpperCase();
+
+    } else if (teks.length === 1) {
+
+        inisial =
+            teks[0][0]
+                .toUpperCase();
+    }
+
+
+    /* =================================================
+       BUAT AVATAR SVG
+       ================================================= */
+
+    const svg =
+        `
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="100"
+            height="100"
+            viewBox="0 0 100 100"
+        >
+            <rect
+                width="100"
+                height="100"
+                rx="50"
+                fill="#166534"
+            />
+
+            <text
+                x="50"
+                y="58"
+                text-anchor="middle"
+                font-family="Arial, sans-serif"
+                font-size="34"
+                font-weight="700"
+                fill="#ffffff"
+            >
+                ${escapeHTML(inisial)}
+            </text>
+        </svg>
+        `;
+
+
+    imageElement.src =
+        "data:image/svg+xml;charset=UTF-8," +
+        encodeURIComponent(svg);
+
+    imageElement.alt =
+        nama || "Warga";
+
+    imageElement.style.display =
+        "block";
 }
 
 
@@ -442,46 +1066,99 @@ function terapkanWilayah(data) {
             "logoFallback"
         );
 
+    /* =================================================
+       FORMAT WILAYAH
+       ================================================= */
+
     const rt =
         data.rt
             ? "RT " +
-              String(data.rt)
-                  .padStart(2, "0")
+              String(data.rt).padStart(2, "0")
             : "";
 
     const rw =
         data.rw
             ? "RW " +
-              String(data.rw)
-                  .padStart(2, "0")
+              String(data.rw).padStart(2, "0")
             : "";
 
-    const region =
+    const rtRw =
         [rt, rw]
             .filter(Boolean)
             .join(" / ");
 
-    const detail =
+    const dusunDesa =
         [
-            data.nama_dusun,
-            data.nama_desa,
-            data.kecamatan
-                ? "Kec. " +
-                  data.kecamatan
+            data.nama_dusun
+                ? "Dusun " +
+                  data.nama_dusun
+                : "",
+
+            data.nama_desa
+                ? "Desa " +
+                  data.nama_desa
                 : ""
         ]
             .filter(Boolean)
             .join(" • ");
 
+    const kecKabProv =
+        [
+            data.kecamatan
+                ? "Kec. " +
+                  data.kecamatan
+                : "",
+
+            data.kabupaten
+                ? "Kab. " +
+                  data.kabupaten
+                : "",
+
+            data.provinsi || ""
+        ]
+            .filter(Boolean)
+            .join(" • ");
+
+
+    /* =================================================
+       TAMPILKAN INFORMASI WILAYAH
+       ================================================= */
+
     if (info) {
-        info.textContent =
-            region ||
-            detail ||
-            "Wilayah RT";
+
+        const baris = [];
+
+        if (rtRw) {
+            baris.push(
+                escapeHTML(rtRw)
+            );
+        }
+
+        if (dusunDesa) {
+            baris.push(
+                escapeHTML(dusunDesa)
+            );
+        }
+
+        if (kecKabProv) {
+            baris.push(
+                escapeHTML(kecKabProv)
+            );
+        }
+
+        info.innerHTML =
+            baris.join("<br>");
     }
 
+
+    /* =================================================
+       LOGO WILAYAH
+       ================================================= */
+
     if (logo) {
+
         if (data.logo_url) {
+
             logo.src =
                 data.logo_url;
 
@@ -492,7 +1169,9 @@ function terapkanWilayah(data) {
                 fallback.style.display =
                     "none";
             }
+
         } else {
+
             logo.style.display =
                 "none";
 
@@ -504,6 +1183,9 @@ function terapkanWilayah(data) {
 
         logo.onerror =
             function () {
+
+                this.onerror = null;
+
                 this.style.display =
                     "none";
 
@@ -514,13 +1196,18 @@ function terapkanWilayah(data) {
             };
     }
 
+
+    /* =================================================
+       JUDUL DOKUMEN
+       ================================================= */
+
     if (data.nama_aplikasi) {
+
         document.title =
             data.nama_aplikasi +
             " - Dashboard Warga";
     }
 }
-
   /* =====================================================
    BANNER
    ===================================================== */
@@ -728,65 +1415,105 @@ function renderBannerData(banners) {
         )
     );
 
+
     if (!slides.length) {
+
         console.warn(
             "SIDAT: elemen banner tidak ditemukan."
         );
+
         return;
     }
 
-    /*
-     * Reset semua slide
-     */
+
+    /* =================================================
+       SIMPAN DATA BANNER KE STATE SLIDER
+       ================================================= */
+
+    bannerSlides =
+        Array.isArray(banners)
+            ? banners
+                .slice(0, 5)
+            : [];
+
+
+    /* =================================================
+       RESET SEMUA SLIDE
+       ================================================= */
+
     slides.forEach(
-        (slide, index) => {
+        function (
+            slide,
+            index
+        ) {
 
             slide.classList.toggle(
                 "active",
                 index === 0
             );
 
-            slide.dataset.link = "";
+            slide.dataset.link =
+                "";
+
 
             const image =
                 slide.querySelector(
                     "img"
                 );
 
+
             if (image) {
+
                 image.removeAttribute(
                     "src"
                 );
 
                 image.style.display =
                     "none";
+
             }
+
 
             const title =
                 slide.querySelector(
                     "strong"
                 );
 
+
             const text =
                 slide.querySelector(
                     "span"
                 );
 
+
             if (title) {
-                title.textContent = "";
+
+                title.textContent =
+                    "";
+
             }
 
+
             if (text) {
-                text.textContent = "";
+
+                text.textContent =
+                    "";
+
             }
+
         }
     );
 
-    /*
-     * Reset dots
-     */
+
+    /* =================================================
+       RESET DOT
+       ================================================= */
+
     dots.forEach(
-        (dot, index) => {
+        function (
+            dot,
+            index
+        ) {
 
             dot.classList.toggle(
                 "active",
@@ -795,15 +1522,20 @@ function renderBannerData(banners) {
 
             dot.style.display =
                 "none";
+
         }
     );
 
-    /*
-     * Jika tidak ada banner
-     */
+
+    /* =================================================
+       JIKA TIDAK ADA BANNER
+       ================================================= */
+
     if (
-        !Array.isArray(banners) ||
-        banners.length === 0
+        !Array.isArray(
+            bannerSlides
+        ) ||
+        bannerSlides.length === 0
     ) {
 
         console.warn(
@@ -813,169 +1545,234 @@ function renderBannerData(banners) {
         return;
     }
 
-    /*
-     * Render maksimal 5 banner
-     */
-    banners
-        .slice(0, 5)
-        .forEach(
-            (banner, index) => {
 
-                const slide =
-                    slides[index];
+    /* =================================================
+       RENDER MAKSIMAL 5 BANNER
+       ================================================= */
 
-                const dot =
-                    dots[index];
+    bannerSlides.forEach(
+        function (
+            banner,
+            index
+        ) {
 
-                if (!slide) {
-                    return;
-                }
+            const slide =
+                slides[index];
 
-                /*
-                 * URL gambar
-                 */
-                const imageUrl =
-                    String(
-                        banner.image_url ||
-                        ""
-                    ).trim();
+            const dot =
+                dots[index];
 
-                /*
-                 * URL tujuan
-                 */
-                const targetUrl =
-                    String(
-                        banner.target_url ||
-                        ""
-                    ).trim();
 
-                slide.dataset.link =
-                    targetUrl;
-
-                /*
-                 * Gambar
-                 */
-                const image =
-                    slide.querySelector(
-                        "img"
-                    );
-
-                if (
-                    image &&
-                    imageUrl
-                ) {
-
-                    image.src =
-                        imageUrl;
-
-                    image.alt =
-                        `Banner SIDAT ${index + 1}`;
-
-                    image.style.display =
-                        "block";
-
-                    /*
-                     * Debug penting
-                     */
-                    image.onload =
-                        function () {
-
-                            console.log(
-                                "SIDAT BANNER IMAGE LOADED:",
-                                index + 1,
-                                imageUrl
-                            );
-                        };
-
-                    image.onerror =
-                        function () {
-
-                            console.error(
-                                "SIDAT BANNER IMAGE ERROR:",
-                                index + 1,
-                                imageUrl
-                            );
-                        };
-                }
-
-                /*
-                 * Judul
-                 */
-                const title =
-                    slide.querySelector(
-                        "strong"
-                    );
-
-                if (title) {
-
-                    title.textContent =
-                        String(
-                            banner.title ||
-                            ""
-                        );
-                }
-
-                /*
-                 * Deskripsi
-                 */
-                const text =
-                    slide.querySelector(
-                        "span"
-                    );
-
-                if (text) {
-
-                    text.textContent =
-                        String(
-                            banner.description ||
-                            ""
-                        );
-                }
-
-                /*
-                 * Tampilkan slide
-                 */
-                slide.style.display =
-                    index === 0
-                        ? "block"
-                        : "none";
-
-                /*
-                 * Tampilkan dot
-                 */
-                if (dot) {
-
-                    dot.style.display =
-                        "block";
-
-                    dot.classList.toggle(
-                        "active",
-                        index === 0
-                    );
-                }
+            if (!slide) {
+                return;
             }
-        );
 
-    /*
-     * Pastikan banner pertama aktif
-     */
+
+            /* -----------------------------------------
+               URL GAMBAR
+               ----------------------------------------- */
+
+            const imageUrl =
+                String(
+                    banner.image_url ||
+                    ""
+                ).trim();
+
+
+            /* -----------------------------------------
+               URL TUJUAN
+               ----------------------------------------- */
+
+            const targetUrl =
+                String(
+                    banner.target_url ||
+                    ""
+                ).trim();
+
+
+            slide.dataset.link =
+                targetUrl;
+
+
+            /* -----------------------------------------
+               GAMBAR
+               ----------------------------------------- */
+
+            const image =
+                slide.querySelector(
+                    "img"
+                );
+
+
+            if (
+                image &&
+                imageUrl
+            ) {
+
+                image.src =
+                    imageUrl;
+
+                image.alt =
+                    "Banner SIDAT " +
+                    (index + 1);
+
+                image.style.display =
+                    "block";
+
+
+                image.onload =
+                    function () {
+
+                        /*
+                         * Pastikan slider
+                         * tetap aktif setelah
+                         * gambar benar-benar
+                         * selesai dimuat.
+                         */
+
+                        if (
+                            index === 0 &&
+                            typeof window
+                                .sidatRefreshBannerSlider ===
+                                "function"
+                        ) {
+
+                            window
+                                .sidatRefreshBannerSlider();
+
+                        }
+
+                    };
+
+
+                image.onerror =
+                    function () {
+
+                        console.error(
+                            "SIDAT BANNER IMAGE ERROR:",
+                            index + 1,
+                            imageUrl
+                        );
+
+                    };
+
+            }
+
+
+            /* -----------------------------------------
+               JUDUL
+               ----------------------------------------- */
+
+            const title =
+                slide.querySelector(
+                    "strong"
+                );
+
+
+            if (title) {
+
+                title.textContent =
+                    String(
+                        banner.title ||
+                        ""
+                    );
+
+            }
+
+
+            /* -----------------------------------------
+               DESKRIPSI
+               ----------------------------------------- */
+
+            const text =
+                slide.querySelector(
+                    "span"
+                );
+
+
+            if (text) {
+
+                text.textContent =
+                    String(
+                        banner.description ||
+                        ""
+                    );
+
+            }
+
+
+            /* -----------------------------------------
+               TAMPILKAN SLIDE
+               ----------------------------------------- */
+
+            slide.style.display =
+                index === 0
+                    ? "block"
+                    : "none";
+
+
+            /* -----------------------------------------
+               TAMPILKAN DOT
+               ----------------------------------------- */
+
+            if (dot) {
+
+                dot.style.display =
+                    "block";
+
+                dot.classList.toggle(
+                    "active",
+                    index === 0
+                );
+
+            }
+
+        }
+    );
+
+
+    /* =================================================
+       PASTIKAN BANNER PERTAMA AKTIF
+       ================================================= */
+
     slides.forEach(
-        (slide, index) => {
+        function (
+            slide,
+            index
+        ) {
 
             slide.classList.toggle(
                 "active",
                 index === 0
             );
+
         }
     );
 
+
+    /* =================================================
+       AKTIFKAN ULANG SLIDER
+       SETELAH DATA SUPABASE SELESAI DIRENDER
+       ================================================= */
+
+    if (
+        typeof window
+            .sidatRefreshBannerSlider ===
+        "function"
+    ) {
+
+        window
+            .sidatRefreshBannerSlider();
+
+    }
+
+
     console.log(
         "SIDAT BANNER RENDERED:",
-        banners.length
+        bannerSlides.length
     );
+
 }
-
-
 /* =====================================================
    REFRESH SLIDER
    ===================================================== */
@@ -1617,6 +2414,11 @@ window.sidatRefreshBannerSlider =
     };
 
 
+/* =====================================================
+   INIT BANNER SLIDER
+   SISTEM SLIDER WARGA — FINAL
+   ===================================================== */
+
 function initBannerSlider() {
 
     const slider =
@@ -1628,12 +2430,14 @@ function initBannerSlider() {
         return;
     }
 
+
     const slides =
         Array.from(
             slider.querySelectorAll(
                 ".sidat-banner-slide"
             )
         );
+
 
     const dots =
         Array.from(
@@ -1642,46 +2446,68 @@ function initBannerSlider() {
             )
         );
 
+
     const prevButton =
         document.getElementById(
             "bannerPrev"
         );
+
 
     const nextButton =
         document.getElementById(
             "bannerNext"
         );
 
+
     if (!slides.length) {
         return;
     }
 
+
+    /* =================================================
+       STATE SLIDER
+       ================================================= */
+
     let currentBanner = 0;
+
     let bannerTimer = null;
 
-    /*
-     * Ambil hanya slide yang
-     * benar-benar memiliki gambar.
-     */
+
+    /* =================================================
+       AMBIL SLIDE AKTIF
+       HANYA YANG MEMILIKI GAMBAR
+       ================================================= */
+
     function getActiveSlides() {
 
         return slides.filter(
-            (slide) => {
+            function (slide) {
 
                 const image =
                     slide.querySelector(
                         "img"
                     );
 
-                return (
-                    image &&
-                    image.getAttribute(
-                        "src"
-                    )
-                );
+                if (!image) {
+                    return false;
+                }
+
+                const src =
+                    String(
+                        image.getAttribute(
+                            "src"
+                        ) || ""
+                    ).trim();
+
+                return !!src;
             }
         );
     }
+
+
+    /* =================================================
+       TAMPILKAN SLIDE
+       ================================================= */
 
     function tampilkanBanner(
         index
@@ -1690,34 +2516,46 @@ function initBannerSlider() {
         const activeSlides =
             getActiveSlides();
 
+
         if (!activeSlides.length) {
             return;
         }
 
-        /*
-         * Pastikan index valid.
-         */
+
+        /* ---------------------------------------------
+           NORMALISASI INDEX
+           --------------------------------------------- */
+
         if (
             index < 0
         ) {
+
             index =
                 activeSlides.length - 1;
+
         }
+
 
         if (
             index >=
             activeSlides.length
         ) {
+
             index = 0;
+
         }
 
-        currentBanner = index;
 
-        /*
-         * Sembunyikan semua slide.
-         */
+        currentBanner =
+            index;
+
+
+        /* ---------------------------------------------
+           SEMBUNYIKAN SEMUA SLIDE
+           --------------------------------------------- */
+
         slides.forEach(
-            (slide) => {
+            function (slide) {
 
                 slide.classList.remove(
                     "active"
@@ -1725,16 +2563,20 @@ function initBannerSlider() {
 
                 slide.style.display =
                     "none";
+
             }
         );
 
-        /*
-         * Tampilkan slide aktif.
-         */
+
+        /* ---------------------------------------------
+           TAMPILKAN SLIDE AKTIF
+           --------------------------------------------- */
+
         const activeSlide =
             activeSlides[
                 currentBanner
             ];
+
 
         if (activeSlide) {
 
@@ -1744,14 +2586,19 @@ function initBannerSlider() {
 
             activeSlide.style.display =
                 "block";
+
         }
 
-        /*
-         * Atur dot sesuai jumlah
-         * banner yang benar-benar aktif.
-         */
+
+        /* ---------------------------------------------
+           UPDATE DOT
+           --------------------------------------------- */
+
         dots.forEach(
-            (dot, dotIndex) => {
+            function (
+                dot,
+                dotIndex
+            ) {
 
                 if (
                     dotIndex <
@@ -1771,46 +2618,89 @@ function initBannerSlider() {
 
                     dot.style.display =
                         "none";
+
                 }
+
             }
         );
+
     }
 
-    function mulaiTimer() {
 
-        if (bannerTimer) {
+    /* =================================================
+       STOP AUTOPLAY
+       ================================================= */
+
+    function stopAutoplay() {
+
+        if (bannerTimer !== null) {
 
             clearInterval(
                 bannerTimer
             );
+
+            bannerTimer =
+                null;
+
         }
 
+    }
+
+
+    /* =================================================
+       START AUTOPLAY
+       ================================================= */
+
+    function startAutoplay() {
+
+        stopAutoplay();
+
+
+        const total =
+            getActiveSlides().length;
+
+
         /*
-         * Tidak perlu timer kalau
-         * hanya ada satu banner.
+         * Kalau hanya satu banner,
+         * tidak perlu autoplay.
          */
+
         if (
-            getActiveSlides().length <= 1
+            total <= 1
         ) {
+
             return;
+
         }
+
+
+        /*
+         * AUTOPLAY LANGSUNG DIMULAI.
+         *
+         * Banner pertama ditampilkan
+         * terlebih dahulu, kemudian
+         * berpindah setiap 6 detik.
+         */
 
         bannerTimer =
             setInterval(
-                () => {
+                function () {
 
                     tampilkanBanner(
                         currentBanner + 1
                     );
 
                 },
-                5000
+                6000
             );
+
     }
 
-    /*
-     * Tombol sebelumnya.
-     */
+
+    /* =================================================
+       NAVIGASI SEBELUMNYA
+       ================================================= */
+
     if (prevButton) {
 
         prevButton.onclick =
@@ -1822,13 +2712,17 @@ function initBannerSlider() {
                     currentBanner - 1
                 );
 
-                mulaiTimer();
+                startAutoplay();
+
             };
+
     }
 
-    /*
-     * Tombol berikutnya.
-     */
+
+    /* =================================================
+       NAVIGASI BERIKUTNYA
+       ================================================= */
+
     if (nextButton) {
 
         nextButton.onclick =
@@ -1840,15 +2734,22 @@ function initBannerSlider() {
                     currentBanner + 1
                 );
 
-                mulaiTimer();
+                startAutoplay();
+
             };
+
     }
 
-    /*
-     * Dot navigasi.
-     */
+
+    /* =================================================
+       DOT NAVIGATION
+       ================================================= */
+
     dots.forEach(
-        (dot, index) => {
+        function (
+            dot,
+            index
+        ) {
 
             dot.onclick =
                 function (event) {
@@ -1859,17 +2760,22 @@ function initBannerSlider() {
                         index
                     );
 
-                    mulaiTimer();
+                    startAutoplay();
+
                 };
+
         }
     );
 
-    /*
-     * Swipe kiri / kanan
-     * untuk Android/mobile.
-     */
+
+    /* =================================================
+       SWIPE ANDROID / MOBILE
+       ================================================= */
+
     let touchStartX = 0;
+
     let touchEndX = 0;
+
 
     slider.addEventListener(
         "touchstart",
@@ -1879,8 +2785,11 @@ function initBannerSlider() {
                 !event.touches ||
                 !event.touches.length
             ) {
+
                 return;
+
             }
+
 
             touchStartX =
                 event.touches[0].clientX;
@@ -1891,6 +2800,7 @@ function initBannerSlider() {
         }
     );
 
+
     slider.addEventListener(
         "touchend",
         function (event) {
@@ -1899,73 +2809,112 @@ function initBannerSlider() {
                 !event.changedTouches ||
                 !event.changedTouches.length
             ) {
+
                 return;
+
             }
+
 
             touchEndX =
                 event.changedTouches[0].clientX;
+
 
             const distance =
                 touchEndX -
                 touchStartX;
 
+
             /*
-             * Minimal swipe 50px.
+             * Bukan swipe.
              */
+
             if (
                 Math.abs(distance) < 50
             ) {
+
                 return;
+
             }
 
-            if (distance < 0) {
+
+            /*
+             * Swipe kiri.
+             */
+
+            if (
+                distance < 0
+            ) {
 
                 tampilkanBanner(
                     currentBanner + 1
                 );
 
-            } else {
+            }
+
+
+            /*
+             * Swipe kanan.
+             */
+
+            else {
 
                 tampilkanBanner(
                     currentBanner - 1
                 );
+
             }
 
-            mulaiTimer();
+
+            /*
+             * Setelah swipe,
+             * autoplay dimulai ulang.
+             */
+
+            startAutoplay();
+
+
+            touchStartX = 0;
+
+            touchEndX = 0;
+
         },
         {
             passive: true
         }
     );
 
-    /*
-     * Klik banner tetap ditangani
-     * oleh pasangEventBanner().
-     */
 
-    /*
-     * Render pertama.
-     */
-    tampilkanBanner(0);
+    /* =================================================
+       RENDER PERTAMA
+       ================================================= */
 
-    /*
-     * Jalankan autoplay.
-     */
-    mulaiTimer();
+    tampilkanBanner(
+        0
+    );
 
-    /*
-     * Simpan controller global supaya
-     * renderBannerData() dapat
-     * me-refresh slider setelah
-     * data Supabase masuk.
-     */
+
+    /* =================================================
+       AUTOPLAY LANGSUNG
+       ================================================= */
+
+    startAutoplay();
+
+
+    /* =================================================
+       REFRESH DARI DATA SUPABASE
+       ================================================= */
+
     window.sidatRefreshBannerSlider =
         function () {
 
-            tampilkanBanner(0);
+            tampilkanBanner(
+                0
+            );
 
-            mulaiTimer();
+            startAutoplay();
+
         };
+
 }
 /* =====================================================
    PENGUMUMAN
@@ -3563,12 +4512,26 @@ function pasangNavigasi() {
     }
 
     if (announcement) {
-        announcement.onclick =
-            function () {
-                window.location.href =
-                    "pengumuman.html";
-            };
-    }
+
+    announcement.onclick =
+        function () {
+
+            localStorage.setItem(
+                KEY_PENGUMUMAN_TERAKHIR_DILIHAT,
+                new Date().toISOString()
+            );
+
+            setBadge(
+                "badgePengumuman",
+                0
+            );
+
+            window.location.href =
+                "pengumuman.html";
+
+        };
+
+}
 
     if (notification) {
         notification.onclick =
@@ -3632,19 +4595,20 @@ async function initDashboard() {
         }
 pasangEventBanner();
         await Promise.allSettled([
-            loadProfilWarga(),
-            loadWilayah(),
-            loadBannerData(),
-            loadPengumuman(),
-            loadNotifikasi(),
-            loadJadwalRonda(),
-            loadStatistikWarga(),
-            loadSaldoJimpitan(),
-            loadSaldoKas(),
-            loadGrafikWarga(),
-            loadGrafikKeuangan()
-        ]);
-
+    loadProfilWarga(),
+    loadWilayah(),
+    loadBannerData(),
+    loadPengumuman(),
+    loadNotifikasi(),
+    loadBadgePengumuman(),
+    loadBadgeNotifikasi(),
+    loadJadwalRonda(),
+    loadStatistikWarga(),
+    loadSaldoJimpitan(),
+    loadSaldoKas(),
+    loadGrafikWarga(),
+    loadGrafikKeuangan()
+]);
     } catch (error) {
 
         console.error(

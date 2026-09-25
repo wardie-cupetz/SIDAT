@@ -1446,3 +1446,34 @@ footer strong {
     }
 
 }
+.notifikasi-baca-semua {
+    border: 0;
+    border-radius: 10px;
+
+    padding: 9px 13px;
+
+    background: #166534;
+    color: #ffffff;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+}
+
+.notifikasi-baca-semua:hover {
+    opacity: 0.9;
+}
+
+.notifikasi-baca-semua:active {
+    transform: scale(0.97);
+}
+
+.notifikasi-baca-semua:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

@@ -645,6 +645,26 @@ function renderDetail() {
     }
 
     const n = currentNotula;
+  const wilayah = JSON.parse(
+    localStorage.getItem("sidat_wilayah_data") || "{}"
+);
+
+const wilayahEl =
+    document.getElementById("detailPrintWilayah");
+
+if (wilayahEl) {
+    wilayahEl.innerHTML = `
+        RT ${escapeHtml(wilayah.rt || "-")}
+        / RW ${escapeHtml(wilayah.rw || "-")}<br>
+
+        Dusun ${escapeHtml(wilayah.nama_dusun || "-")}
+        • Desa ${escapeHtml(wilayah.nama_desa || "-")}<br>
+
+        Kec. ${escapeHtml(wilayah.kecamatan || "-")}
+        • Kab. ${escapeHtml(wilayah.kabupaten || "-")}
+        • ${escapeHtml(wilayah.provinsi || "-")}
+    `;
+}
 
     el.notulaDetailSection?.classList.remove("hidden");
 
@@ -787,29 +807,45 @@ function renderDetailDiscussions() {
         return;
     }
 
+    const table = document.createElement("table");
+
+    table.className = "detail-table";
+
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Seksi / Agenda</th>
+                <th>Pembahasan</th>
+            </tr>
+        </thead>
+
+        <tbody></tbody>
+    `;
+
+    const tbody = table.querySelector("tbody");
+
     discussions.forEach((item, index) => {
-        const article = document.createElement("article");
+        const tr = document.createElement("tr");
 
-        article.className = "discussion-detail";
-
-        article.innerHTML = `
-            <div class="detail-number">
+        tr.innerHTML = `
+            <td>
                 ${index + 1}
-            </div>
+            </td>
 
-            <div class="detail-body">
-                <h4>
-                    ${escapeHtml(item.topic || "Tanpa topik")}
-                </h4>
+            <td>
+                ${escapeHtml(item.topic || "-")}
+            </td>
 
-                <p>
-                    ${formatMultiline(item.discussion || "-")}
-                </p>
-            </div>
+            <td>
+                ${formatMultiline(item.discussion || "-")}
+            </td>
         `;
 
-        el.detailDiscussions.appendChild(article);
+        tbody.appendChild(tr);
     });
+
+    el.detailDiscussions.appendChild(table);
 }
 
 // ==========================================
@@ -819,8 +855,7 @@ function renderDetailDiscussions() {
 function renderDetailDecisions() {
     if (!el.detailDecisions) return;
 
-    const decisions =
-        currentNotula?.decisions || [];
+    const decisions = currentNotula?.decisions || [];
 
     el.detailDecisions.innerHTML = "";
 
@@ -845,47 +880,60 @@ function renderDetailDecisions() {
                 <th>Keterangan</th>
             </tr>
         </thead>
+
         <tbody></tbody>
     `;
 
-    const tbody =
-        table.querySelector("tbody");
+    const tbody = table.querySelector("tbody");
 
     decisions.forEach((item, index) => {
+
+        let targetDate = "-";
+
+        if (item.target_date) {
+            const date = new Date(
+                item.target_date + "T00:00:00"
+            );
+
+            if (!Number.isNaN(date.getTime())) {
+                targetDate = date.toLocaleDateString("id-ID", {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric"
+                });
+            } else {
+                targetDate = item.target_date;
+            }
+        }
+
+        const status =
+            FOLLOW_UP_LABELS[item.follow_up_status] ||
+            item.follow_up_status ||
+            "-";
+
         const tr = document.createElement("tr");
 
         tr.innerHTML = `
             <td>${index + 1}</td>
 
             <td>
-                ${formatMultiline(item.decision || "-")}
+                ${escapeHtml(item.decision || "-")}
             </td>
 
             <td>
-                ${escapeHtml(
-                    item.responsible_person || "-"
-                )}
+                ${escapeHtml(item.responsible_person || "-")}
             </td>
 
             <td>
-                ${item.target_date
-                    ? escapeHtml(
-                        formatDate(item.target_date)
-                    )
-                    : "-"
-                }
+                ${escapeHtml(targetDate)}
             </td>
 
             <td>
-                ${escapeHtml(
-                    FOLLOW_UP_LABELS[item.follow_up_status] ||
-                    item.follow_up_status ||
-                    "-"
-                )}
+                ${escapeHtml(status)}
             </td>
 
             <td>
-                ${formatMultiline(item.notes || "-")}
+                ${escapeHtml(item.notes || "-")}
             </td>
         `;
 

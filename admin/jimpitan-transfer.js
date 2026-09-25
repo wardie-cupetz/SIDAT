@@ -239,6 +239,497 @@ function escapeHTML(
     return div.innerHTML;
 
 }
+// ==========================================
+// FILTER & REKAP KELOMPOK HARI
+// ==========================================
+
+const NAMA_HARI = [
+    "Minggu",
+    "Senin",
+    "Selasa",
+    "Rabu",
+    "Kamis",
+    "Jumat",
+    "Sabtu"
+];
+
+
+let transaksiJimpitanSemua = [];
+
+let tanggalFilterMulai = "";
+
+let tanggalFilterAkhir = "";
+
+
+// ==========================================
+// AMBIL HARI DARI TANGGAL
+// ==========================================
+
+function getNamaHari(
+    tanggal
+) {
+
+    if (!tanggal) {
+
+        return null;
+
+    }
+
+
+    const date =
+        new Date(
+            tanggal + "T00:00:00"
+        );
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return null;
+
+    }
+
+
+    return NAMA_HARI[
+        date.getDay()
+    ];
+
+}
+
+
+// ==========================================
+// FILTER TRANSAKSI BERDASARKAN PERIODE
+// ==========================================
+
+function getTransaksiDalamPeriode() {
+
+    return transaksiJimpitanSemua.filter(
+        transaksi => {
+
+            const tanggal =
+                String(
+                    transaksi.transaction_date || ""
+                );
+
+
+            if (!tanggal) {
+
+                return false;
+
+            }
+
+
+            if (
+                tanggalFilterMulai &&
+                tanggal < tanggalFilterMulai
+            ) {
+
+                return false;
+
+            }
+
+
+            if (
+                tanggalFilterAkhir &&
+                tanggal > tanggalFilterAkhir
+            ) {
+
+                return false;
+
+            }
+
+
+            return true;
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// REKAP JIMPITAN PER HARI
+// ==========================================
+
+function renderRekapHarian() {
+
+    const container =
+        document.getElementById(
+            "dailySummaryList"
+        );
+
+
+    if (!container) {
+
+        return;
+
+    }
+
+
+    const data =
+        getTransaksiDalamPeriode();
+
+
+    const totalPerHari = {
+
+        Senin: 0,
+
+        Selasa: 0,
+
+        Rabu: 0,
+
+        Kamis: 0,
+
+        Jumat: 0,
+
+        Sabtu: 0,
+
+        Minggu: 0
+
+    };
+
+
+    data.forEach(
+        transaksi => {
+
+            const hari =
+                getNamaHari(
+                    transaksi.transaction_date
+                );
+
+
+            if (!hari) {
+
+                return;
+
+            }
+
+
+            totalPerHari[hari] +=
+                Number(
+                    transaksi.amount || 0
+                );
+
+        }
+    );
+
+
+    const warnaHari = {
+
+        Senin: "senin",
+
+        Selasa: "selasa",
+
+        Rabu: "rabu",
+
+        Kamis: "kamis",
+
+        Jumat: "jumat",
+
+        Sabtu: "sabtu",
+
+        Minggu: "minggu"
+
+    };
+
+
+    const jumlahTransaksiPerHari = {
+
+        Senin: 0,
+
+        Selasa: 0,
+
+        Rabu: 0,
+
+        Kamis: 0,
+
+        Jumat: 0,
+
+        Sabtu: 0,
+
+        Minggu: 0
+
+    };
+
+
+    data.forEach(
+        transaksi => {
+
+            const hari =
+                getNamaHari(
+                    transaksi.transaction_date
+                );
+
+
+            if (!hari) {
+
+                return;
+
+            }
+
+
+            jumlahTransaksiPerHari[hari]++;
+
+        }
+    );
+
+
+    if (data.length === 0) {
+
+        container.innerHTML = `
+
+            <div class="daily-summary-empty">
+
+                ${SVG_INFO}
+
+                <span>
+                    Tidak ada jimpitan belum ditransfer
+                    pada periode yang dipilih.
+                </span>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML = "";
+
+
+    const urutanHari = [
+        "Senin",
+        "Selasa",
+        "Rabu",
+        "Kamis",
+        "Jumat",
+        "Sabtu",
+        "Minggu"
+    ];
+
+
+    urutanHari.forEach(
+        hari => {
+
+            const nominal =
+                totalPerHari[hari];
+
+
+            const jumlah =
+                jumlahTransaksiPerHari[hari];
+
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                `daily-summary-card ${warnaHari[hari]}`;
+
+
+            card.innerHTML = `
+
+                <div class="daily-summary-icon">
+
+                    ${SVG_CALENDAR}
+
+                </div>
+
+
+                <div class="daily-summary-info">
+
+                    <strong>
+                        ${hari}
+                    </strong>
+
+                    <span>
+                        ${jumlah} transaksi
+                    </span>
+
+                </div>
+
+
+                <div class="daily-summary-amount">
+
+                    ${formatRupiah(nominal)}
+
+                </div>
+
+            `;
+
+
+            container.appendChild(
+                card
+            );
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// TERAPKAN FILTER PERIODE
+// ==========================================
+
+function terapkanFilterJimpitan() {
+
+    const mulai =
+        document.getElementById(
+            "filterTanggalMulai"
+        )?.value || "";
+
+
+    const akhir =
+        document.getElementById(
+            "filterTanggalAkhir"
+        )?.value || "";
+
+
+    if (
+        mulai &&
+        akhir &&
+        mulai > akhir
+    ) {
+
+        showMessage(
+            `
+                ${SVG_ERROR}
+
+                <strong>
+                    Periode tanggal tidak valid.
+                </strong>
+
+                <br>
+
+                Tanggal mulai tidak boleh
+                lebih besar dari tanggal akhir.
+            `,
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    tanggalFilterMulai =
+        mulai;
+
+
+    tanggalFilterAkhir =
+        akhir;
+
+
+    transaksiJimpitan =
+        getTransaksiDalamPeriode();
+
+
+    /*
+     * Bersihkan pilihan transaksi yang
+     * berada di luar periode.
+     */
+
+    transaksiTerpilih =
+        new Set(
+            [
+                ...transaksiTerpilih
+            ].filter(
+                id =>
+                    transaksiJimpitan.some(
+                        transaksi =>
+                            transaksi.id === id
+                    )
+            )
+        );
+
+
+    renderTransaksi();
+
+    updateRingkasan();
+
+    renderRekapHarian();
+
+    updateInfoPeriode();
+
+
+    const section =
+        document.querySelector(
+            ".daily-summary-section"
+        );
+
+
+    if (section) {
+
+        section.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+    }
+
+}
+
+
+// ==========================================
+// INFORMASI PERIODE
+// ==========================================
+
+function updateInfoPeriode() {
+
+    const element =
+        document.getElementById(
+            "periodeFilterInfo"
+        );
+
+
+    if (!element) {
+
+        return;
+
+    }
+
+
+    if (
+        !tanggalFilterMulai &&
+        !tanggalFilterAkhir
+    ) {
+
+        element.textContent =
+            "Semua periode";
+
+        return;
+
+    }
+
+
+    const mulai =
+        tanggalFilterMulai
+            ? formatTanggal(
+                tanggalFilterMulai
+            )
+            : "Awal data";
+
+
+    const akhir =
+        tanggalFilterAkhir
+            ? formatTanggal(
+                tanggalFilterAkhir
+            )
+            : "Akhir data";
+
+
+    element.textContent =
+        `${mulai} – ${akhir}`;
+
+}
 
 
 // ==========================================
@@ -296,11 +787,14 @@ async function loadTransaksi() {
             await response.json();
 
 
-        transaksiJimpitan =
-            Array.isArray(result)
-                ? result
-                : [];
+        transaksiJimpitanSemua =
+    Array.isArray(result)
+        ? result
+        : [];
 
+
+transaksiJimpitan =
+    getTransaksiDalamPeriode();
 
         transaksiTerpilih =
             new Set(
@@ -318,7 +812,11 @@ async function loadTransaksi() {
 
         renderTransaksi();
 
-        updateRingkasan();
+updateRingkasan();
+
+renderRekapHarian();
+
+updateInfoPeriode();
 
 
         console.log(
@@ -754,7 +1252,24 @@ function pilihSemua() {
     updateRingkasan();
 
 }
+// ==========================================
+// TOMBOL TERAPKAN FILTER
+// ==========================================
 
+const btnTerapkanFilterJimpitan =
+    document.getElementById(
+        "btnTerapkanFilterJimpitan"
+    );
+
+
+if (btnTerapkanFilterJimpitan) {
+
+    btnTerapkanFilterJimpitan.addEventListener(
+        "click",
+        terapkanFilterJimpitan
+    );
+
+}
 
 // ==========================================
 // TOMBOL PILIH SEMUA
@@ -1179,3 +1694,1097 @@ async function initTransferJimpitan() {
 
 
 initTransferJimpitan();
+// =========================================================
+// CETAK REKAP JIMPITAN
+// REKAP HANYA BERDASARKAN KELOMPOK HARI
+// =========================================================
+
+function cetakRekapJimpitan() {
+
+    try {
+
+        // ==========================================
+        // FILTER PERIODE
+        // ==========================================
+
+        const mulai =
+            document.getElementById(
+                "filterTanggalMulai"
+            )?.value || "";
+
+        const akhir =
+            document.getElementById(
+                "filterTanggalAkhir"
+            )?.value || "";
+
+
+        if (
+            mulai &&
+            akhir &&
+            mulai > akhir
+        ) {
+
+            alert(
+                "Tanggal mulai tidak boleh lebih besar dari tanggal akhir."
+            );
+
+            return;
+
+        }
+
+
+        // ==========================================
+        // DATA BELUM TRANSFER
+        // ==========================================
+
+        const data =
+            getTransaksiDalamPeriode();
+
+
+        if (
+            !Array.isArray(data) ||
+            data.length === 0
+        ) {
+
+            alert(
+                "Tidak ada jimpitan belum ditransfer pada periode yang dipilih."
+            );
+
+            return;
+
+        }
+
+
+        // ==========================================
+        // DATA WILAYAH
+        // ==========================================
+
+        let wilayahLaporan = null;
+
+
+        try {
+
+            const cacheWilayah =
+                localStorage.getItem(
+                    "sidat_wilayah_data"
+                );
+
+
+            if (cacheWilayah) {
+
+                wilayahLaporan =
+                    JSON.parse(
+                        cacheWilayah
+                    );
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "SIDAT: gagal membaca cache wilayah:",
+                error
+            );
+
+        }
+
+
+        if (
+            !wilayahLaporan &&
+            typeof wilayahData !== "undefined" &&
+            wilayahData
+        ) {
+
+            wilayahLaporan =
+                wilayahData;
+
+        }
+
+
+        if (!wilayahLaporan) {
+
+            wilayahLaporan = {};
+
+        }
+
+
+        // ==========================================
+        // REKAP PER HARI
+        // ==========================================
+
+        const rekapHari = {
+
+            Senin: {
+                jumlah: 0,
+                total: 0
+            },
+
+            Selasa: {
+                jumlah: 0,
+                total: 0
+            },
+
+            Rabu: {
+                jumlah: 0,
+                total: 0
+            },
+
+            Kamis: {
+                jumlah: 0,
+                total: 0
+            },
+
+            Jumat: {
+                jumlah: 0,
+                total: 0
+            },
+
+            Sabtu: {
+                jumlah: 0,
+                total: 0
+            },
+
+            Minggu: {
+                jumlah: 0,
+                total: 0
+            }
+
+        };
+
+
+        data.forEach(
+            transaksi => {
+
+                const hari =
+                    getNamaHari(
+                        transaksi.transaction_date
+                    );
+
+
+                if (
+                    !rekapHari[hari]
+                ) {
+
+                    return;
+
+                }
+
+
+                rekapHari[hari].jumlah += 1;
+
+                rekapHari[hari].total +=
+                    Number(
+                        transaksi.amount
+                    ) || 0;
+
+            }
+        );
+
+
+        // ==========================================
+        // URUTAN HARI
+        // ==========================================
+
+        const urutanHari = [
+
+            "Senin",
+            "Selasa",
+            "Rabu",
+            "Kamis",
+            "Jumat",
+            "Sabtu",
+            "Minggu"
+
+        ];
+
+
+        // ==========================================
+        // BARIS TABEL
+        // HANYA HARI YANG MEMILIKI DATA
+        // ==========================================
+
+        let rows = "";
+
+
+        urutanHari.forEach(
+            hari => {
+
+                const item =
+                    rekapHari[hari];
+
+
+                if (
+                    item.jumlah === 0
+                ) {
+
+                    return;
+
+                }
+
+
+                rows += `
+
+                    <tr>
+
+                        <td>
+                            ${hari}
+                        </td>
+
+                        <td class="center">
+                            ${item.jumlah}
+                        </td>
+
+                        <td class="right">
+                            ${formatRupiah(
+                                item.total
+                            )}
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        );
+
+
+        // ==========================================
+        // TOTAL
+        // ==========================================
+
+        const totalJimpitan =
+            data.reduce(
+                (
+                    total,
+                    transaksi
+                ) => {
+
+                    return (
+                        total +
+                        (
+                            Number(
+                                transaksi.amount
+                            ) || 0
+                        )
+                    );
+
+                },
+                0
+            );
+
+
+        const jumlahTransaksi =
+            data.length;
+
+
+        // ==========================================
+        // PERIODE
+        // ==========================================
+
+        let periode =
+            "Seluruh Periode";
+
+
+        if (
+            mulai &&
+            akhir
+        ) {
+
+            periode =
+                `${formatTanggal(
+                    mulai
+                )} - ${formatTanggal(
+                    akhir
+                )}`;
+
+        } else if (mulai) {
+
+            periode =
+                `Mulai ${formatTanggal(
+                    mulai
+                )}`;
+
+        } else if (akhir) {
+
+            periode =
+                `Sampai ${formatTanggal(
+                    akhir
+                )}`;
+
+        }
+
+
+        // ==========================================
+        // TANGGAL CETAK
+        // ==========================================
+
+        const tanggalCetak =
+            new Date().toLocaleDateString(
+                "id-ID",
+                {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric"
+                }
+            );
+
+
+        // ==========================================
+        // HTML LAPORAN
+        // ==========================================
+
+        const laporan = `
+
+<!DOCTYPE html>
+
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>
+Laporan Rekap Jimpitan
+</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    color:
+        #111827;
+
+    margin:
+        15mm;
+
+    font-size:
+        11px;
+
+}
+
+
+/* ==========================================
+   KOP
+   ========================================== */
+
+.header {
+
+    text-align:
+        center;
+
+    margin-bottom:
+        15px;
+
+}
+
+.header h1 {
+
+    margin:
+        0 0 5px 0;
+
+    font-size:
+        20px;
+
+    font-weight:
+        700;
+
+}
+
+.wilayah {
+
+    margin:
+        3px 0;
+
+    font-size:
+        11px;
+
+}
+
+.garis {
+
+    width:
+        100%;
+
+    border-bottom:
+        2px solid #111827;
+
+    margin-top:
+        9px;
+
+}
+
+
+/* ==========================================
+   INFORMASI
+   ========================================== */
+
+.info {
+
+    margin:
+        12px 0;
+
+    font-size:
+        11px;
+
+}
+
+.info-row {
+
+    margin-bottom:
+        4px;
+
+}
+
+
+/* ==========================================
+   JUDUL REKAP
+   ========================================== */
+
+.judul-rekap {
+
+    margin:
+        15px 0 8px 0;
+
+    font-size:
+        12px;
+
+    font-weight:
+        700;
+
+}
+
+
+/* ==========================================
+   TABEL
+   ========================================== */
+
+table {
+
+    width:
+        100%;
+
+    border-collapse:
+        collapse;
+
+    font-size:
+        11px;
+
+}
+
+th,
+td {
+
+    border:
+        1px solid #9ca3af;
+
+    padding:
+        7px 8px;
+
+}
+
+th {
+
+    background:
+        #f3f4f6;
+
+    text-align:
+        center;
+
+    font-weight:
+        700;
+
+}
+
+td.center {
+
+    text-align:
+        center;
+
+}
+
+td.right {
+
+    text-align:
+        right;
+
+    white-space:
+        nowrap;
+
+}
+
+.total-row td {
+
+    font-weight:
+        700;
+
+    border-top:
+        2px solid #111827;
+
+}
+
+
+/* ==========================================
+   TANDA TANGAN
+   ========================================== */
+
+.signature-area {
+
+    margin-top:
+        25px;
+
+    width:
+        100%;
+
+}
+
+.tanggal-cetak {
+
+    text-align:
+        right;
+
+    margin-bottom:
+        15px;
+
+}
+
+.signature-columns {
+
+    position:
+        relative;
+
+    width:
+        100%;
+
+    height:
+        105px;
+
+}
+
+.signature-left {
+
+    position:
+        absolute;
+
+    left:
+        0;
+
+    top:
+        0;
+
+    width:
+        50%;
+
+    text-align:
+        center;
+
+}
+
+.signature-right {
+
+    position:
+        absolute;
+
+    right:
+        0;
+
+    top:
+        0;
+
+    width:
+        50%;
+
+    text-align:
+        center;
+
+}
+
+.signature-title {
+
+    font-weight:
+        700;
+
+}
+
+.signature-space {
+
+    height:
+        52px;
+
+}
+
+.signature-name {
+
+    white-space:
+        nowrap;
+
+}
+
+
+/* ==========================================
+   FOOTER
+   ========================================== */
+
+.print-footer {
+
+    margin-top:
+        8px;
+
+    padding-top:
+        4px;
+
+    border-top:
+        1px solid #d1d5db;
+
+    text-align:
+        center;
+
+    font-size:
+        8px;
+
+    color:
+        #6b7280;
+
+}
+
+
+/* ==========================================
+   PRINT
+   ========================================== */
+
+@media print {
+
+    @page {
+
+        size:
+            A4 portrait;
+
+        margin:
+            10mm;
+
+    }
+
+    html,
+    body {
+
+        margin:
+            0;
+
+        padding:
+            0;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<!-- ========================================
+     KOP
+     ======================================== -->
+
+<div class="header">
+
+    <h1>
+        LAPORAN REKAP JIMPITAN
+    </h1>
+
+
+    <div class="wilayah">
+
+        ${
+            wilayahLaporan.rt
+                ? "RT " +
+                  String(
+                      wilayahLaporan.rt
+                  ).padStart(
+                      2,
+                      "0"
+                  )
+                : "RT 03"
+        }
+
+        ${
+            wilayahLaporan.rw
+                ? " / RW " +
+                  String(
+                      wilayahLaporan.rw
+                  ).padStart(
+                      2,
+                      "0"
+                  )
+                : " / RW 02"
+        }
+
+    </div>
+
+
+    <div class="wilayah">
+
+        ${
+            wilayahLaporan.nama_dusun
+                ? "Dusun " +
+                  escapeHTML(
+                      wilayahLaporan.nama_dusun
+                  )
+                : "Dusun Morangan"
+        }
+
+        ${
+            wilayahLaporan.nama_desa
+                ? " • Desa " +
+                  escapeHTML(
+                      wilayahLaporan.nama_desa
+                  )
+                : " • Desa Karanganom"
+        }
+
+    </div>
+
+
+    <div class="wilayah">
+
+        ${
+            wilayahLaporan.kecamatan
+                ? "Kec. " +
+                  escapeHTML(
+                      wilayahLaporan.kecamatan
+                  )
+                : "Kec. Klaten Utara"
+        }
+
+        ${
+            wilayahLaporan.kabupaten
+                ? " • Kab. " +
+                  escapeHTML(
+                      wilayahLaporan.kabupaten
+                  )
+                : " • Kab. Klaten"
+        }
+
+        ${
+            wilayahLaporan.provinsi
+                ? " • " +
+                  escapeHTML(
+                      wilayahLaporan.provinsi
+                  )
+                : " • Jawa Tengah"
+        }
+
+    </div>
+
+
+    <div class="garis"></div>
+
+</div>
+
+
+<!-- ========================================
+     INFORMASI
+     ======================================== -->
+
+<div class="info">
+
+    <div class="info-row">
+
+        <strong>
+            Periode:
+        </strong>
+
+        ${periode}
+
+    </div>
+
+
+    <div class="info-row">
+
+        <strong>
+            Jumlah Transaksi:
+        </strong>
+
+        ${jumlahTransaksi} transaksi
+
+    </div>
+
+
+    <div class="info-row">
+
+        <strong>
+            Status:
+        </strong>
+
+        Jimpitan belum ditransfer
+
+    </div>
+
+</div>
+
+
+<!-- ========================================
+     REKAP
+     ======================================== -->
+
+<div class="judul-rekap">
+
+    REKAP BERDASARKAN KELOMPOK HARI
+
+</div>
+
+
+<table>
+
+<thead>
+
+<tr>
+
+    <th>
+        Kelompok Hari
+    </th>
+
+    <th>
+        Jumlah Transaksi
+    </th>
+
+    <th>
+        Total Jimpitan
+    </th>
+
+</tr>
+
+</thead>
+
+
+<tbody>
+
+${rows}
+
+
+<tr class="total-row">
+
+    <td>
+        TOTAL JIMPITAN
+    </td>
+
+    <td class="center">
+        ${jumlahTransaksi}
+    </td>
+
+    <td class="right">
+        ${formatRupiah(
+            totalJimpitan
+        )}
+    </td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+
+<!-- ========================================
+     TANDA TANGAN
+     ======================================== -->
+
+<div class="signature-area">
+
+    <div class="tanggal-cetak">
+
+        ${
+            wilayahLaporan.kabupaten
+                ? escapeHTML(
+                    wilayahLaporan.kabupaten
+                  ) + ", "
+                : "Klaten, "
+        }
+
+        ${tanggalCetak}
+
+    </div>
+
+
+    <div class="signature-columns">
+
+
+        <div class="signature-left">
+
+            <div>
+                Mengetahui,
+            </div>
+
+            <div class="signature-title">
+                Ketua RT
+            </div>
+
+            <div class="signature-space"></div>
+
+            <div class="signature-name">
+                (................................)
+            </div>
+
+        </div>
+
+
+        <div class="signature-right">
+
+            <div class="signature-title">
+                Bendahara RT
+            </div>
+
+            <div class="signature-space"></div>
+
+            <div class="signature-name">
+                (................................)
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- ========================================
+     FOOTER
+     ======================================== -->
+
+<div class="print-footer">
+
+    SIDAT • Sistem Informasi Data RT • Suwardi
+
+</div>
+
+
+</body>
+
+</html>
+
+`;
+
+
+        // ==========================================
+        // APK ANDROID
+        // MENGIKUTI CETAK KAS RT
+        // ==========================================
+
+        if (
+            window.Capacitor &&
+            window.Capacitor.Plugins &&
+            window.Capacitor.Plugins.PrintBridge &&
+            window.SIDATPrint &&
+            typeof window.SIDATPrint.printHTML === "function"
+        ) {
+
+            window.SIDATPrint
+                .printHTML(
+                    laporan,
+                    "SIDAT - Rekap Jimpitan RT"
+                )
+                .catch(
+                    error => {
+
+                        console.error(
+                            "SIDAT CETAK JIMPITAN NATIVE ERROR:",
+                            error
+                        );
+
+                        alert(
+                            "Gagal membuka cetak Android: " +
+                            (
+                                error?.message ||
+                                error ||
+                                "Kesalahan tidak diketahui."
+                            )
+                        );
+
+                    }
+                );
+
+            return;
+
+        }
+
+
+        // ==========================================
+        // BROWSER
+        // ==========================================
+
+        const printWindow =
+            window.open(
+                "",
+                "_blank"
+            );
+
+
+        if (!printWindow) {
+
+            alert(
+                "Popup diblokir browser. Izinkan popup untuk mencetak laporan."
+            );
+
+            return;
+
+        }
+
+
+        printWindow.document.open();
+
+        printWindow.document.write(
+            laporan
+        );
+
+        printWindow.document.close();
+
+
+        printWindow.onload =
+            function () {
+
+                printWindow.focus();
+
+                printWindow.print();
+
+            };
+
+
+    } catch (error) {
+
+        console.error(
+            "Cetak rekap jimpitan error:",
+            error
+        );
+
+        alert(
+            "Gagal membuat laporan rekap jimpitan."
+        );
+
+    }
+
+}
+
+
+// =========================================================
+// PASTIKAN BISA DIPANGGIL DARI HTML ONCLICK
+// =========================================================
+
+window.cetakRekapJimpitan =
+    cetakRekapJimpitan;
