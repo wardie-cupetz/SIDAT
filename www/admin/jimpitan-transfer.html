@@ -158,7 +158,154 @@
 
         </section>
 
+<!-- ================================================
+     FILTER PERIODE JIMPITAN
+     ================================================ -->
 
+<section class="period-filter-card">
+
+    <div class="period-filter-header">
+
+        <div>
+
+            <h2>
+                Rekap Jimpitan
+            </h2>
+
+            <span>
+                Pilih periode untuk melihat jimpitan
+                yang belum ditransfer.
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="period-filter-grid">
+
+        <div class="period-field">
+
+            <label for="filterTanggalMulai">
+                Tanggal Mulai
+            </label>
+
+            <input
+                type="date"
+                id="filterTanggalMulai"
+            >
+
+        </div>
+
+
+        <div class="period-field">
+
+            <label for="filterTanggalAkhir">
+                Tanggal Akhir
+            </label>
+
+            <input
+                type="date"
+                id="filterTanggalAkhir"
+            >
+
+        </div>
+
+    </div>
+
+
+    <button
+        id="btnTerapkanFilterJimpitan"
+        class="period-filter-button"
+        type="button"
+    >
+
+        <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+        >
+            <path d="M4 6h16"></path>
+            <path d="M7 12h10"></path>
+            <path d="M10 18h4"></path>
+        </svg>
+
+        <span>
+            Terapkan Filter
+        </span>
+
+    </button>
+  
+  <button
+    id="btnCetakRekapJimpitan"
+    class="period-print-button"
+    type="button"
+    onclick="cetakRekapJimpitan()"
+>
+    <svg
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+    >
+        <path d="M6 9V3h12v6"></path>
+        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+        <rect
+            x="6"
+            y="14"
+            width="12"
+            height="7"
+        ></rect>
+    </svg>
+
+    <span>
+        Cetak Rekap Jimpitan
+    </span>
+</button>
+
+    <div
+        id="periodeFilterInfo"
+        class="period-filter-info"
+    >
+        Semua periode
+    </div>
+
+</section>
+      <!-- ================================================
+     REKAP JIMPITAN PER KELOMPOK HARI
+     ================================================ -->
+
+<section class="daily-summary-section">
+
+    <div class="daily-summary-header">
+
+        <div>
+
+            <h2>
+                Total Jimpitan Belum Ditransfer
+            </h2>
+
+            <span>
+                Rekap berdasarkan kelompok hari ronda
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div
+        id="dailySummaryList"
+        class="daily-summary-list"
+    >
+
+        <div class="daily-summary-empty">
+
+            Pilih periode untuk melihat
+            total jimpitan setiap kelompok hari.
+
+        </div>
+
+    </div>
+
+</section>
 
         <!-- INFORMASI -->
 

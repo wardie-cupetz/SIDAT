@@ -44,26 +44,16 @@ function initSupabase() {
 // ==================================================
 
 const HARI = {
-    1: "Minggu",
-    2: "Senin",
-    3: "Selasa",
-    4: "Rabu",
-    5: "Kamis",
-    6: "Jumat",
-    7: "Sabtu"
+    0: "Minggu",
+    1: "Senin",
+    2: "Selasa",
+    3: "Rabu",
+    4: "Kamis",
+    5: "Jumat",
+    6: "Sabtu"
 };
 
-
-const HARI_URUT = [
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    1
-];
-
+const HARI_URUT = [1, 2, 3, 4, 5, 6, 0];
 
 // ==================================================
 // STATE
@@ -1435,7 +1425,7 @@ async function loadRonda() {
             error
         } =
             await supabaseClient
-                .from("ronda_schedule")
+                .from("ronda_schedules")
                 .select(
                     `
                     id,
@@ -1820,7 +1810,7 @@ function resetRondaForm() {
     document.getElementById(
         "rondaDay"
     ).value =
-        currentRondaDay || "";
+        currentRondaDay ?? "";
 
 
     document.getElementById(
@@ -2307,7 +2297,7 @@ async function saveRonda() {
         ).value;
 
 
-    if (!day || !HARI[day]) {
+    if (!Number.isInteger(day) || day < 0 || day > 6 || !HARI[day]) {
 
         showFormMessage(
             "rondaFormMessage",
@@ -2347,23 +2337,25 @@ async function saveRonda() {
 
     const payload = {
 
-        day_of_week:
-            day,
+    day_of_week:
+        day,
 
-        resident_id:
-            residentId,
+    schedule_date:
+        new Date().toISOString().slice(0, 10),
 
-        start_time:
-            startTime,
+    resident_id:
+        residentId,
 
-        end_time:
-            endTime,
+    start_time:
+        startTime,
 
-        is_active:
-            true
+    end_time:
+        endTime,
 
-    };
+    is_active:
+        true
 
+};
 
     const button =
         document.getElementById(
@@ -2386,7 +2378,7 @@ async function saveRonda() {
                 error
             } =
                 await supabaseClient
-                    .from("ronda_schedule")
+                    .from("ronda_schedules")
                     .update(
                         payload
                     )
@@ -2402,7 +2394,7 @@ async function saveRonda() {
                 error
             } =
                 await supabaseClient
-                    .from("ronda_schedule")
+                    .from("ronda_schedules")
                     .insert(
                         payload
                     ));
@@ -2418,7 +2410,7 @@ async function saveRonda() {
             ) {
 
                 throw new Error(
-                    "Warga tersebut sudah memiliki jadwal ronda pada hari ini."
+                    "Warga tersebut sudah memiliki jadwal ronda aktif."
                 );
             }
 
@@ -2507,7 +2499,7 @@ async function deleteRonda(id) {
             error
         } =
             await supabaseClient
-                .from("ronda_schedule")
+                .from("ronda_schedules")
                 .delete()
                 .eq(
                     "id",

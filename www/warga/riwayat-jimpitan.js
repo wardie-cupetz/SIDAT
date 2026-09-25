@@ -167,7 +167,404 @@
             }
         );
     }
+    /* =========================================================
+       REKAP JIMPITAN BELUM DITRANSFER
+       ========================================================= */
 
+    const NAMA_HARI = [
+        "Minggu",
+        "Senin",
+        "Selasa",
+        "Rabu",
+        "Kamis",
+        "Jumat",
+        "Sabtu"
+    ];
+
+    let tanggalRekapMulai = "";
+    let tanggalRekapAkhir = "";
+
+    function getNamaHariRekap(tanggal) {
+        if (!tanggal) {
+            return null;
+        }
+
+        const date = new Date(
+            String(tanggal).slice(0, 10) +
+            "T00:00:00"
+        );
+
+        if (Number.isNaN(date.getTime())) {
+            return null;
+        }
+
+        return NAMA_HARI[date.getDay()];
+    }
+
+    function getJimpitanBelumTransfer() {
+        return semuaRiwayat.filter(function (item) {
+
+            /*
+             * Hanya jimpitan yang sudah diambil
+             * tetapi belum ditransfer ke Kas RT.
+             */
+            const sudahDiambil =
+                Boolean(
+                    item.taken_at ||
+                    item.transaction_date ||
+                    item.tanggal ||
+                    item.created_at
+                );
+
+            const belumTransfer =
+                !Boolean(
+                    item.transferred_to_cash
+                );
+
+            return (
+                sudahDiambil &&
+                belumTransfer
+            );
+        });
+    }
+
+    function getJimpitanRekapPeriode() {
+
+        const data =
+            getJimpitanBelumTransfer();
+
+        return data.filter(function (item) {
+
+            const tanggal =
+                String(
+                    item.transaction_date ??
+                    item.taken_at ??
+                    item.tanggal ??
+                    item.created_at ??
+                    ""
+                ).slice(0, 10);
+
+            if (!tanggal) {
+                return false;
+            }
+
+            if (
+                tanggalRekapMulai &&
+                tanggal < tanggalRekapMulai
+            ) {
+                return false;
+            }
+
+            if (
+                tanggalRekapAkhir &&
+                tanggal > tanggalRekapAkhir
+            ) {
+                return false;
+            }
+
+            return true;
+        });
+    }
+
+    function renderRekapJimpitanWarga() {
+
+        const container =
+            document.getElementById(
+                "wargaDailySummaryList"
+            );
+
+        if (!container) {
+            return;
+        }
+
+        const data =
+            getJimpitanRekapPeriode();
+
+        const rekap = {
+            Senin:  { jumlah: 0, total: 0 },
+            Selasa: { jumlah: 0, total: 0 },
+            Rabu:   { jumlah: 0, total: 0 },
+            Kamis:  { jumlah: 0, total: 0 },
+            Jumat:  { jumlah: 0, total: 0 },
+            Sabtu:  { jumlah: 0, total: 0 },
+            Minggu: { jumlah: 0, total: 0 }
+        };
+
+        data.forEach(function (item) {
+
+            const tanggal =
+                item.transaction_date ??
+                item.taken_at ??
+                item.tanggal ??
+                item.created_at;
+
+            const hari =
+                getNamaHariRekap(tanggal);
+
+            if (!hari || !rekap[hari]) {
+                return;
+            }
+
+            rekap[hari].jumlah += 1;
+
+            rekap[hari].total +=
+                Number(item.amount || 0);
+        });
+
+        const warnaHari = {
+            Senin: "senin",
+            Selasa: "selasa",
+            Rabu: "rabu",
+            Kamis: "kamis",
+            Jumat: "jumat",
+            Sabtu: "sabtu",
+            Minggu: "minggu"
+        };
+
+        if (!data.length) {
+
+            container.innerHTML = `
+                <div class="warga-daily-summary-empty">
+                    <span>
+                        Tidak ada jimpitan yang belum
+                        ditransfer ke Kas RT pada periode ini.
+                    </span>
+                </div>
+            `;
+
+            return;
+        }
+
+        container.innerHTML = "";
+
+        [
+            "Senin",
+            "Selasa",
+            "Rabu",
+            "Kamis",
+            "Jumat",
+            "Sabtu",
+            "Minggu"
+        ].forEach(function (hari) {
+
+            const item =
+                rekap[hari];
+
+            const card =
+                document.createElement("div");
+
+            card.className =
+                `warga-daily-summary-card ${warnaHari[hari]}`;
+
+            card.innerHTML = `
+
+                <div class="warga-daily-summary-info">
+
+                    <strong>
+                        ${hari}
+                    </strong>
+
+                    <span>
+                        ${item.jumlah} transaksi
+                    </span>
+
+                </div>
+
+                <div class="warga-daily-summary-amount">
+                    ${formatRupiah(item.total)}
+                </div>
+
+            `;
+
+            container.appendChild(card);
+        });
+    }
+
+    function renderFilterRekapJimpitanWarga() {
+
+        const historyList =
+            document.getElementById(
+                "historyList"
+            );
+
+        if (!historyList) {
+            return;
+        }
+
+        /*
+         * Jangan membuat ulang jika sudah ada.
+         */
+        if (
+            document.getElementById(
+                "wargaJimpitanRekap"
+            )
+        ) {
+            return;
+        }
+
+        const section =
+            document.createElement("section");
+
+        section.id =
+            "wargaJimpitanRekap";
+
+        section.className =
+            "warga-jimpitan-rekap";
+
+        section.innerHTML = `
+
+            <div class="warga-rekap-header">
+
+                <div>
+                    <h2>
+                        Rekap Jimpitan
+                    </h2>
+
+                    <span>
+                        Total jimpitan yang belum
+                        ditransfer ke Kas RT
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="warga-rekap-filter">
+
+                <div class="warga-rekap-field">
+
+                    <label for="wargaFilterTanggalMulai">
+                        Tanggal Mulai
+                    </label>
+
+                    <input
+                        type="date"
+                        id="wargaFilterTanggalMulai"
+                    >
+
+                </div>
+
+                <div class="warga-rekap-field">
+
+                    <label for="wargaFilterTanggalAkhir">
+                        Tanggal Akhir
+                    </label>
+
+                    <input
+                        type="date"
+                        id="wargaFilterTanggalAkhir"
+                    >
+
+                </div>
+
+            </div>
+
+            <button
+                type="button"
+                id="btnTerapkanFilterWargaJimpitan"
+                class="warga-rekap-filter-button"
+            >
+                Terapkan Filter
+            </button>
+
+            <div
+                id="wargaPeriodeRekapInfo"
+                class="warga-periode-rekap-info"
+            >
+                Semua periode
+            </div>
+
+            <div
+                id="wargaDailySummaryList"
+                class="warga-daily-summary-list"
+            ></div>
+
+        `;
+
+        historyList.parentNode.insertBefore(
+            section,
+            historyList
+        );
+
+        const btn =
+            document.getElementById(
+                "btnTerapkanFilterWargaJimpitan"
+            );
+
+        if (btn) {
+
+            btn.addEventListener(
+                "click",
+                terapkanFilterRekapWarga
+            );
+        }
+
+        renderRekapJimpitanWarga();
+    }
+
+    function terapkanFilterRekapWarga() {
+
+        const mulai =
+            document.getElementById(
+                "wargaFilterTanggalMulai"
+            )?.value || "";
+
+        const akhir =
+            document.getElementById(
+                "wargaFilterTanggalAkhir"
+            )?.value || "";
+
+        if (
+            mulai &&
+            akhir &&
+            mulai > akhir
+        ) {
+
+            alert(
+                "Tanggal mulai tidak boleh lebih besar dari tanggal akhir."
+            );
+
+            return;
+        }
+
+        tanggalRekapMulai =
+            mulai;
+
+        tanggalRekapAkhir =
+            akhir;
+
+        const info =
+            document.getElementById(
+                "wargaPeriodeRekapInfo"
+            );
+
+        if (info) {
+
+            if (!mulai && !akhir) {
+
+                info.textContent =
+                    "Semua periode";
+
+            } else {
+
+                const teksMulai =
+                    mulai
+                        ? formatTanggal(mulai)
+                        : "Awal data";
+
+                const teksAkhir =
+                    akhir
+                        ? formatTanggal(akhir)
+                        : "Akhir data";
+
+                info.textContent =
+                    `${teksMulai} – ${teksAkhir}`;
+            }
+        }
+
+        renderRekapJimpitanWarga();
+
+    }
+  
     /* =========================================================
        TANGGAL HARI INI
        ========================================================= */
@@ -353,13 +750,16 @@
                 await response.json();
 
             semuaRiwayat =
-                Array.isArray(data)
-                    ? data
-                    : [];
+    Array.isArray(data)
+        ? data
+        : [];
 
-            tampilkanRiwayat(
-                semuaRiwayat
-            );
+tampilkanRiwayat(
+    semuaRiwayat
+);
+
+renderFilterRekapJimpitanWarga();
+renderRekapJimpitanWarga();
 
         } catch (error) {
             console.error(

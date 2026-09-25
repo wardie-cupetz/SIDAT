@@ -1900,113 +1900,122 @@ async function simpanPerubahanLaporan() {
 
 
         // ==================================
-// NOTIFIKASI UPDATE KEPADA WARGA
-// ==================================
+        // NOTIFIKASI UPDATE KEPADA WARGA
+        // ==================================
 
         try {
-            if (laporanTerpilih.resident_id) {
 
-                const statusText = {
-                    pending: "Menunggu",
-                    processing: "Diproses",
-                    completed: "Selesai"
-                };
+            const statusText = {
 
-                const namaStatus = statusText[status] || status;
-                const judulLaporan = laporanTerpilih.title || "Laporan warga";
+                pending:
+                    "Menunggu",
 
-                let pesan = `Laporan "${judulLaporan}" telah diperbarui menjadi "${namaStatus}".`;
+                processing:
+                    "Diproses",
 
-                if (adminNote) {
-                    pesan += ` Tanggapan admin: ${adminNote}`;
-                }
+                completed:
+                    "Selesai"
 
-                const notificationPayload = {
-                    id: crypto.randomUUID(),
-                    title: "Laporan Diperbarui",
-                    message: pesan,
-                    target_type: "resident",
-                    target_resident_id: laporanTerpilih.resident_id,
-                    is_read: false,
-                    created_by: null,
-                    created_at: new Date().toISOString(),
-                    report_id: laporanTerpilih.id
-                };
+            };
 
-                const notificationResult = await supabaseRequestAdmin(
-                    `${SUPABASE_URL}/rest/v1/notifications`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Prefer": "return=minimal"
-                        },
-                        body: JSON.stringify(notificationPayload)
-                    }
-                );
 
-                const notificationData = Array.isArray(notificationResult)
-                    ? notificationResult[0]
-                    : notificationResult;
+            const namaStatus =
+                statusText[status] ||
+                status;
 
-                const notificationId = notificationPayload.id;
 
-                if (notificationId) {
-                    try {
-                        const accessToken = adminAccessToken;
+            const judulLaporan =
+                laporanTerpilih.title ||
+                "Laporan warga";
 
-                        if (!accessToken) {
-                            throw new Error("Token login tidak ditemukan.");
-                        }
 
-                        const pushResponse = await fetch(
-                            `${SUPABASE_URL}/functions/v1/send-push-notification`,
-                            {
-                                method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                    "Authorization": `Bearer ${accessToken}`,
-                                    "apikey": SUPABASE_KEY
-                                },
-                                body: JSON.stringify({
-                                    notification_id: notificationId
-                                })
-                            }
-                        );
+            let pesan =
+                `Laporan "${judulLaporan}" ` +
+                `telah diperbarui menjadi ` +
+                `"${namaStatus}".`;
 
-                        const pushText = await pushResponse.text();
 
-                        if (!pushResponse.ok) {
-                            throw new Error(
-                                pushText || "Pengiriman push FCM gagal."
-                            );
-                        }
+            if (adminNote) {
 
-                        console.log(
-                            "SIDAT: Push FCM update WARGA berhasil.",
-                            notificationId
-                        );
+                pesan +=
+                    ` Tanggapan admin: ${adminNote}`;
 
-                    } catch (pushError) {
-                        console.error(
-                            "SIDAT: Push FCM update WARGA gagal:",
-                            pushError
-                        );
-                    }
-                } else {
-                    console.error(
-                        "SIDAT: ID notification tidak ditemukan."
-                    );
-                }
             }
 
-        } catch (notificationError) {
+
+            if (
+                laporanTerpilih.resident_id
+            ) {
+
+                const notificationPayload = {
+
+                    title:
+                        "Laporan Diperbarui",
+
+                    message:
+                        pesan,
+
+                    target_type:
+                        "resident",
+
+                    target_resident_id:
+                        laporanTerpilih.resident_id,
+
+                    is_read:
+                        false,
+
+                    created_by:
+                        null,
+
+                    created_at:
+                        new Date()
+                            .toISOString()
+
+                };
+
+
+                await supabaseRequestAdmin(
+
+                    `${SUPABASE_URL}/rest/v1/notifications`,
+
+                    {
+
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Prefer":
+                                "return=minimal"
+
+                        },
+
+                        body:
+                            JSON.stringify(
+                                notificationPayload
+                            )
+
+                    }
+
+                );
+
+            }
+
+        } catch (
+            notificationError
+        ) {
+
             console.error(
                 "SIDAT: Gagal membuat notifikasi update:",
                 notificationError
             );
+
         }
 
+
+        // ==================================
         // UPDATE DATA LOKAL
         // ==================================
 

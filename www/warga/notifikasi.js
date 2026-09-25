@@ -2,8 +2,17 @@
 // SIDAT
 // NOTIFIKASI WARGA
 //
-// Scope dibuat terisolasi agar tidak bentrok dengan
-// warga-menu.js atau JavaScript halaman lainnya.
+// Fitur:
+// - Menampilkan notifikasi WARGA
+// - Status sudah dibaca melalui notification_reads
+// - Tandai satu notifikasi sudah dibaca
+// - Tandai semua notifikasi sudah dibaca
+// - Badge/unread count dapat digunakan dashboard
+//
+// PERBAIKAN:
+// - notification_reads.user_id menggunakan Supabase Auth UID
+// - resident_id tetap menggunakan Resident ID
+// - Struktur tampilan dipertahankan
 // =========================================================
 
 (function () {
@@ -15,45 +24,58 @@
     // ELEMENT
     // =====================================================
 
-    const loadingNotifikasi =
-        document.getElementById(
-            "loadingNotifikasi"
-        );
+    function ambilElement() {
 
-    const notifikasiList =
-        document.getElementById(
-            "notifikasiList"
-        );
+        return {
 
-    const emptyNotifikasi =
-        document.getElementById(
-            "emptyNotifikasi"
-        );
+            loading:
+                document.getElementById(
+                    "loadingNotifikasi"
+                ),
 
-    const errorNotifikasi =
-        document.getElementById(
-            "errorNotifikasi"
-        );
+            notifikasiList:
+                document.getElementById(
+                    "notifikasiList"
+                ),
 
-    const errorMessage =
-        document.getElementById(
-            "errorMessage"
-        );
+            emptyNotifikasi:
+                document.getElementById(
+                    "emptyNotifikasi"
+                ),
 
-    const notificationSummary =
-        document.getElementById(
-            "notificationSummary"
-        );
+            errorNotifikasi:
+                document.getElementById(
+                    "errorNotifikasi"
+                ),
 
-    const totalNotifikasi =
-        document.getElementById(
-            "totalNotifikasi"
-        );
+            errorMessage:
+                document.getElementById(
+                    "errorMessage"
+                ),
 
-    const totalBelumDibaca =
-        document.getElementById(
-            "totalBelumDibaca"
-        );
+            notificationSummary:
+                document.getElementById(
+                    "notificationSummary"
+                ),
+
+            totalNotifikasi:
+                document.getElementById(
+                    "totalNotifikasi"
+                ),
+
+            totalBelumDibaca:
+                document.getElementById(
+                    "totalBelumDibaca"
+                ),
+
+            tombolBacaSemua:
+                document.getElementById(
+                    "btnBacaSemua"
+                )
+
+        };
+
+    }
 
 
     // =====================================================
@@ -81,9 +103,7 @@
     function formatTanggal(tanggal) {
 
         if (!tanggal) {
-
             return "-";
-
         }
 
 
@@ -98,9 +118,7 @@
                 waktu.getTime()
             )
         ) {
-
             return "-";
-
         }
 
 
@@ -176,7 +194,15 @@
 
 
     // =====================================================
-    // AMBIL USER ID
+    // AMBIL USER ID SIDAT
+    // =====================================================
+    //
+    // Fungsi ini dipertahankan untuk kompatibilitas
+    // dengan struktur sidat_user.
+    //
+    // CATATAN:
+    // ID ini TIDAK digunakan untuk notification_reads.
+    // notification_reads harus memakai Auth UID.
     // =====================================================
 
     function ambilUserId() {
@@ -201,6 +227,122 @@
 
 
     // =====================================================
+    // AMBIL SUPABASE AUTH UID
+    // =====================================================
+    //
+    // RLS notification_reads:
+    //
+    //     user_id = auth.uid()
+    //
+    // Karena sidat_user.id pada WARGA dapat berupa
+    // resident_id, kita harus mengambil UID Auth
+    // langsung dari session Supabase.
+    // =====================================================
+
+    let cachedAuthUserId = null;
+
+
+    async function ambilAuthUserId() {
+
+        if (cachedAuthUserId) {
+
+            return cachedAuthUserId;
+
+        }
+
+
+        const token =
+            localStorage.getItem(
+                "sidat_access_token"
+            );
+
+
+        if (!token) {
+
+            throw new Error(
+                "Session warga tidak ditemukan."
+            );
+
+        }
+
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/auth/v1/user`,
+                {
+
+                    method: "GET",
+
+                    headers: {
+
+                        "apikey":
+                            SUPABASE_KEY,
+
+                        "Authorization":
+                            `Bearer ${token}`,
+
+                        "Accept":
+                            "application/json"
+
+                    }
+
+                }
+            );
+
+
+        const responseText =
+            await response.text();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                responseText ||
+                `Gagal membaca Auth User (${response.status})`
+            );
+
+        }
+
+
+        let user;
+
+        try {
+
+            user =
+                JSON.parse(
+                    responseText
+                );
+
+        }
+
+        catch (error) {
+
+            throw new Error(
+                "Data Auth User tidak valid."
+            );
+
+        }
+
+
+        if (!user?.id) {
+
+            throw new Error(
+                "Auth User ID tidak ditemukan."
+            );
+
+        }
+
+
+        cachedAuthUserId =
+            user.id;
+
+
+        return cachedAuthUserId;
+
+    }
+
+
+    // =====================================================
     // NORMALISASI JENIS
     // =====================================================
 
@@ -209,15 +351,10 @@
         const sumber = [
 
             item?.type,
-
             item?.notification_type,
-
             item?.category,
-
             item?.kind,
-
             item?.target_page,
-
             item?.target_url
 
         ];
@@ -436,36 +573,23 @@
     // =====================================================
 
     function ambilReferenceId(
-        item,
-        jenis
+        item
     ) {
 
         const kandidat = [
 
             item?.reference_id,
-
             item?.target_id,
-
             item?.data_id,
-
             item?.record_id,
-
             item?.source_id,
-
             item?.report_id,
-
             item?.laporan_id,
-
             item?.announcement_id,
-
             item?.pengumuman_id,
-
             item?.agenda_id,
-
             item?.ronda_id,
-
             item?.schedule_id,
-
             item?.ronda_schedule_id
 
         ];
@@ -488,7 +612,7 @@
 
 
     // =====================================================
-    // TARGET URL LANGSUNG
+    // TARGET URL
     // =====================================================
 
     function ambilTargetUrlLangsung(item) {
@@ -496,13 +620,9 @@
         const kandidat = [
 
             item?.target_url,
-
             item?.url,
-
             item?.link,
-
             item?.target_path,
-
             item?.path
 
         ];
@@ -538,8 +658,7 @@
 
         const referenceId =
             ambilReferenceId(
-                item,
-                jenis
+                item
             );
 
 
@@ -572,69 +691,45 @@
             case "laporan":
 
                 return {
-
                     jenis,
-
-                    url:
-                        "laporan.html",
-
+                    url: "laporan.html",
                     referenceId
-
                 };
 
 
             case "pengumuman":
 
                 return {
-
                     jenis,
-
-                    url:
-                        "pengumuman.html",
-
+                    url: "pengumuman.html",
                     referenceId
-
                 };
 
 
             case "agenda":
 
                 return {
-
                     jenis,
-
-                    url:
-                        "agenda.html",
-
+                    url: "agenda.html",
                     referenceId
-
                 };
 
 
             case "jadwal_ronda":
 
                 return {
-
                     jenis,
-
-                    url:
-                        "jadwal-ronda.html",
-
+                    url: "jadwal-ronda.html",
                     referenceId
-
                 };
 
 
             default:
 
                 return {
-
                     jenis,
-
                     url: null,
-
                     referenceId
-
                 };
 
         }
@@ -715,10 +810,6 @@
             ambilResidentId();
 
 
-        const userId =
-            ambilUserId();
-
-
         if (!residentId) {
 
             throw new Error(
@@ -728,17 +819,26 @@
         }
 
 
+        /*
+         * PENTING:
+         *
+         * notification_reads menggunakan AUTH UID.
+         */
+        const userId =
+            await ambilAuthUserId();
+
+
         if (!userId) {
 
             throw new Error(
-                "User ID tidak ditemukan."
+                "Auth User ID tidak ditemukan."
             );
 
         }
 
 
         // =================================================
-        // NOTIFICATIONS
+        // AMBIL NOTIFIKASI
         // =================================================
 
         const urlNotifikasi =
@@ -811,7 +911,7 @@
 
 
         // =================================================
-        // NOTIFICATION READS
+        // AMBIL STATUS BACA
         // =================================================
 
         const urlReads =
@@ -872,14 +972,12 @@
             new Set(
 
                 Array.isArray(readData)
-
                     ? readData.map(
                         item =>
                             String(
                                 item.notification_id
                             )
                     )
-
                     : []
 
             );
@@ -904,18 +1002,20 @@
 
 
     // =====================================================
-    // SUMMARY
+    // UPDATE SUMMARY
     // =====================================================
 
     function updateSummary(data) {
 
-        if (
-            !notificationSummary
-        ) {
+        const {
 
-            return;
+            notificationSummary,
+            totalNotifikasi,
+            totalBelumDibaca,
+            tombolBacaSemua
 
-        }
+        } =
+            ambilElement();
 
 
         const total =
@@ -949,10 +1049,29 @@
         }
 
 
-        notificationSummary.classList.toggle(
-            "hidden",
-            total === 0
-        );
+        if (notificationSummary) {
+
+            notificationSummary.classList.toggle(
+                "hidden",
+                total === 0
+            );
+
+        }
+
+
+        // Tombol hanya aktif jika ada yang belum dibaca
+
+        if (tombolBacaSemua) {
+
+            tombolBacaSemua.disabled =
+                unread === 0;
+
+            tombolBacaSemua.classList.toggle(
+                "hidden",
+                total === 0
+            );
+
+        }
 
     }
 
@@ -962,6 +1081,15 @@
     // =====================================================
 
     function renderNotifikasi(data) {
+
+        const {
+
+            notifikasiList,
+            emptyNotifikasi
+
+        } =
+            ambilElement();
+
 
         if (
             notifikasiList
@@ -1015,7 +1143,7 @@
         notifikasiList.innerHTML =
 
             data.map(
-                item => {
+                function (item) {
 
                     const isUnread =
                         item.is_read !== true;
@@ -1177,12 +1305,7 @@
                                             <button
                                                 type="button"
                                                 class="notifikasi-read-button"
-                                                onclick="
-                                                    event.stopPropagation();
-                                                    tandaiNotifikasiDibaca(
-                                                        '${safeId}'
-                                                    )
-                                                "
+                                                data-notification-id="${safeId}"
                                             >
 
                                                 ✓ Tandai sudah dibaca
@@ -1201,8 +1324,131 @@
 
                 }
             )
-
             .join("");
+
+
+        // =================================================
+        // EVENT TOMBOL TANDAI SATU
+        // =================================================
+
+        notifikasiList
+            .querySelectorAll(
+                ".notifikasi-read-button"
+            )
+            .forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        "click",
+                        async function (event) {
+
+                            event.preventDefault();
+
+                            event.stopPropagation();
+
+
+                            const notificationId =
+                                button.dataset.notificationId;
+
+
+                            if (!notificationId) {
+                                return;
+                            }
+
+
+                            button.disabled =
+                                true;
+
+                            button.textContent =
+                                "Menyimpan...";
+
+
+                            try {
+
+                                await tandaiNotifikasiDibaca(
+                                    notificationId,
+                                    false
+                                );
+
+
+                                // Langsung ubah kartu menjadi sudah dibaca
+
+                                const card =
+                                    button.closest(
+                                        ".notifikasi-card"
+                                    );
+
+
+                                if (card) {
+
+                                    card.classList.remove(
+                                        "notifikasi-unread"
+                                    );
+
+                                }
+
+
+                                const action =
+                                    button.closest(
+                                        ".notifikasi-action"
+                                    );
+
+
+                                if (action) {
+
+                                    action.remove();
+
+                                }
+
+
+                                // Muat ulang data agar summary benar
+
+                                const data =
+                                    await loadNotifikasi();
+
+
+                                renderNotifikasi(
+                                    data
+                                );
+
+
+                                // Beritahu dashboard jika masih terbuka
+
+                                window.dispatchEvent(
+                                    new CustomEvent(
+                                        "sidat-notifikasi-updated"
+                                    )
+                                );
+
+                            }
+
+                            catch (error) {
+
+                                console.error(
+                                    "SIDAT: Gagal menandai notifikasi:",
+                                    error
+                                );
+
+
+                                button.disabled =
+                                    false;
+
+                                button.textContent =
+                                    "✓ Tandai sudah dibaca";
+
+
+                                alert(
+                                    error?.message ||
+                                    "Notifikasi gagal ditandai sebagai sudah dibaca."
+                                );
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
 
     }
 
@@ -1217,9 +1463,7 @@
     ) {
 
         if (!notificationId) {
-
             return;
-
         }
 
 
@@ -1242,9 +1486,7 @@
         }
 
 
-        if (
-            targetUrl
-        ) {
+        if (targetUrl) {
 
             window.location.href =
                 targetUrl;
@@ -1254,15 +1496,13 @@
         }
 
 
-        alert(
-            "Halaman tujuan notifikasi belum ditentukan."
-        );
+        await tampilkanNotifikasi();
 
     }
 
 
     // =====================================================
-    // TANDAI DIBACA
+    // TANDAI SATU NOTIFIKASI DIBACA
     // =====================================================
 
     async function tandaiNotifikasiDibaca(
@@ -1272,7 +1512,9 @@
 
         if (!notificationId) {
 
-            return;
+            throw new Error(
+                "ID notifikasi tidak ditemukan."
+            );
 
         }
 
@@ -1292,14 +1534,30 @@
         }
 
 
+        /*
+         * PERBAIKAN UTAMA:
+         *
+         * Sebelumnya:
+         *
+         *     const userId = ambilUserId();
+         *
+         * sidat_user.id pada WARGA adalah resident_id.
+         *
+         * Sekarang:
+         *
+         *     const userId = await ambilAuthUserId();
+         *
+         * sehingga nilainya sama dengan auth.uid().
+         */
+
         const userId =
-            ambilUserId();
+            await ambilAuthUserId();
 
 
         if (!userId) {
 
             throw new Error(
-                "User ID tidak ditemukan."
+                "Auth User ID tidak ditemukan."
             );
 
         }
@@ -1379,6 +1637,287 @@
 
 
     // =====================================================
+    // BACA SEMUA
+    // =====================================================
+
+    async function tandaiSemuaNotifikasiDibaca() {
+
+        const token =
+            localStorage.getItem(
+                "sidat_access_token"
+            );
+
+
+        if (!token) {
+
+            throw new Error(
+                "Session warga tidak ditemukan."
+            );
+
+        }
+
+
+        /*
+         * Pastikan Auth UID tersedia.
+         */
+        const userId =
+            await ambilAuthUserId();
+
+
+        if (!userId) {
+
+            throw new Error(
+                "Auth User ID tidak ditemukan."
+            );
+
+        }
+
+
+        const data =
+            await loadNotifikasi();
+
+
+        const belumDibaca =
+            data.filter(
+                function (item) {
+
+                    return item.is_read !== true;
+
+                }
+            );
+
+
+        if (!belumDibaca.length) {
+
+            await tampilkanNotifikasi();
+
+            return;
+
+        }
+
+
+        /*
+         * Tandai satu per satu.
+         *
+         * Tidak menggunakan bulk INSERT.
+         *
+         * Setiap record menggunakan mekanisme yang
+         * sama dengan "Tandai sudah dibaca".
+         *
+         * Ini juga menghindari masalah bulk insert
+         * pada constraint/RLS notification_reads.
+         */
+
+        for (
+            const item
+            of belumDibaca
+        ) {
+
+            if (!item?.id) {
+                continue;
+            }
+
+
+            /*
+             * Tidak memanggil tandaiNotifikasiDibaca()
+             * dengan refresh=true agar halaman tidak
+             * refresh setiap record.
+             *
+             * userId yang benar tetap digunakan.
+             */
+
+            const payload = {
+
+                notification_id:
+                    item.id,
+
+                user_id:
+                    userId,
+
+                read_at:
+                    new Date().toISOString()
+
+            };
+
+
+            const response =
+                await fetch(
+                    `${SUPABASE_URL}` +
+                    `/rest/v1/notification_reads`,
+                    {
+
+                        method: "POST",
+
+                        headers: {
+
+                            "apikey":
+                                SUPABASE_KEY,
+
+                            "Authorization":
+                                `Bearer ${token}`,
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Accept":
+                                "application/json",
+
+                            "Prefer":
+                                "return=representation,resolution=ignore-duplicates"
+
+                        },
+
+                        body:
+                            JSON.stringify(
+                                payload
+                            )
+
+                    }
+                );
+
+
+            const responseText =
+                await response.text();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    responseText ||
+                    `Gagal menandai notifikasi ${item.id}. HTTP ${response.status}`
+                );
+
+            }
+
+        }
+
+
+        await tampilkanNotifikasi();
+
+
+        window.dispatchEvent(
+            new CustomEvent(
+                "sidat-notifikasi-updated"
+            )
+        );
+
+    }
+
+
+    // =====================================================
+    // PASANG EVENT BACA SEMUA
+    // =====================================================
+
+    function pasangEventBacaSemua() {
+
+        const tombol =
+            document.getElementById(
+                "btnBacaSemua"
+            );
+
+
+        if (!tombol) {
+
+            return;
+
+        }
+
+
+        tombol.onclick =
+            async function () {
+
+                if (
+                    tombol.disabled
+                ) {
+
+                    return;
+
+                }
+
+
+                const konfirmasi =
+                    window.confirm(
+                        "Tandai semua notifikasi sebagai sudah dibaca?"
+                    );
+
+
+                if (!konfirmasi) {
+
+                    return;
+
+                }
+
+
+                const teksAwal =
+                    tombol.textContent;
+
+
+                tombol.disabled =
+                    true;
+
+                tombol.textContent =
+                    "Menyimpan...";
+
+
+                try {
+
+                    await tandaiSemuaNotifikasiDibaca();
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "SIDAT: Gagal membaca semua notifikasi:",
+                        error
+                    );
+
+
+                    alert(
+                        error?.message ||
+                        "Semua notifikasi gagal ditandai sebagai sudah dibaca."
+                    );
+
+                }
+
+                finally {
+
+                    tombol.textContent =
+                        teksAwal;
+
+
+                    /*
+                     * Ambil status terbaru tombol.
+                     */
+                    try {
+
+                        const data =
+                            await loadNotifikasi();
+
+
+                        updateSummary(
+                            data
+                        );
+
+                    }
+
+                    catch (refreshError) {
+
+                        console.warn(
+                            "SIDAT: Gagal memperbarui status tombol Baca Semua:",
+                            refreshError
+                        );
+
+                    }
+
+                }
+
+            };
+
+    }
+
+
+    // =====================================================
     // KEMBALI DASHBOARD
     // =====================================================
 
@@ -1396,14 +1935,20 @@
 
     async function tampilkanNotifikasi() {
 
-        console.log(
-            "SIDAT: Memuat halaman Notifikasi WARGA..."
-        );
+        const {
+
+            loading,
+            notifikasiList,
+            emptyNotifikasi,
+            errorNotifikasi
+
+        } =
+            ambilElement();
 
 
-        if (loadingNotifikasi) {
+        if (loading) {
 
-            loadingNotifikasi.classList.remove(
+            loading.classList.remove(
                 "hidden"
             );
 
@@ -1442,9 +1987,9 @@
                 await loadNotifikasi();
 
 
-            if (loadingNotifikasi) {
+            if (loading) {
 
-                loadingNotifikasi.classList.add(
+                loading.classList.add(
                     "hidden"
                 );
 
@@ -1465,9 +2010,9 @@
             );
 
 
-            if (loadingNotifikasi) {
+            if (loading) {
 
-                loadingNotifikasi.classList.add(
+                loading.classList.add(
                     "hidden"
                 );
 
@@ -1481,6 +2026,12 @@
                 );
 
             }
+
+
+            const errorMessage =
+                document.getElementById(
+                    "errorMessage"
+                );
 
 
             if (errorMessage) {
@@ -1497,23 +2048,28 @@
 
 
     // =====================================================
-    // EXPORT KE WINDOW
-    //
-    // Karena HTML menggunakan onclick=""
-    // fungsi harus tersedia secara global.
+    // EXPORT GLOBAL
     // =====================================================
 
     window.tampilkanNotifikasi =
         tampilkanNotifikasi;
 
+
     window.loadNotifikasi =
         loadNotifikasi;
+
 
     window.tandaiNotifikasiDibaca =
         tandaiNotifikasiDibaca;
 
+
+    window.tandaiSemuaNotifikasiDibaca =
+        tandaiSemuaNotifikasiDibaca;
+
+
     window.bukaNotifikasi =
         bukaNotifikasi;
+
 
     window.kembaliDashboard =
         kembaliDashboard;
@@ -1525,10 +2081,7 @@
 
     function mulaiNotifikasi() {
 
-        console.log(
-            "SIDAT: DOM Notifikasi siap."
-        );
-
+        pasangEventBacaSemua();
 
         tampilkanNotifikasi();
 

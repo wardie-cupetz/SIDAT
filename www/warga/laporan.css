@@ -1211,85 +1211,78 @@ font-weight: 700;
 
 }
 
-/* DETAIL MODAL */
+/* =========================================================
+   DETAIL MODAL
+   ========================================================= */
 
 .detail-modal {
-position: fixed;
+    position: fixed;
 
-inset: 0;
+    inset: 0;
 
-z-index: 1000;
+    z-index: 900;
 
-display: flex;
+    display: flex;
 
-align-items: flex-end;
+    align-items: flex-end;
 
-justify-content: center;
-
+    justify-content: center;
 }
 
 .detail-modal[hidden] {
-display: none;
+    display: none;
 }
 
 .detail-modal-overlay {
-position: absolute;
+    position: absolute;
 
-inset: 0;
+    inset: 0;
 
-background:
-    rgba(15, 23, 42, .58);
+    background:
+        rgba(15, 23, 42, .58);
 
-backdrop-filter:
-    blur(3px);
-
+    backdrop-filter:
+        blur(3px);
 }
 
 .detail-modal-content {
-position: relative;
+    position: relative;
 
-z-index: 2;
+    z-index: 2;
 
-width: 100%;
+    width: 100%;
 
-max-width: 720px;
+    max-width: 720px;
 
-/*
- * Beri ruang untuk bottom navbar warga
- * agar bagian paling bawah modal tidak tertutup.
- */
-max-height:
-    calc(
-        92vh -
-        env(safe-area-inset-top)
-    );
+    max-height:
+        calc(
+            92vh -
+            env(safe-area-inset-top)
+        );
 
-overflow-y: auto;
+    overflow-y: auto;
 
--webkit-overflow-scrolling: touch;
-
-padding:
+    padding:
     18px
     16px
     calc(
         110px +
         env(safe-area-inset-bottom)
     );
+    background: #fff;
 
-background: #fff;
+    border-radius:
+        22px 22px 0 0;
 
-border-radius:
-    22px 22px 0 0;
+    box-shadow:
+        0 -10px 35px
+        rgba(15, 23, 42, .18);
 
-box-shadow:
-    0 -10px 35px
-    rgba(15, 23, 42, .18);
-
-animation:
-    laporan-modal-in
-    .2s ease;
-
+    animation:
+        laporan-modal-in
+        .2s ease;
 }
+
 @keyframes laporan-modal-in {
 from {
 opacity: 0;

@@ -32,6 +32,18 @@ window.__SIDAT_WARGA_MENU_INITIALIZED__ = true;
    ===================================================== */
 
 const MENU_ITEMS = [
+  {
+    id: "beranda",
+    label: "Beranda",
+    target: "dashboard.html",
+    icon: `
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+            <path d="M9 21v-6h6v6"/>
+        </svg>
+    `
+},
     {
         id: "data-warga",
         label: "Data Warga",
