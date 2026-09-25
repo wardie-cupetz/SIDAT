@@ -103,24 +103,19 @@ function getJakartaDate() {
 
 
 function getJakartaDayOfWeek() {
-    const day =
-        getJakartaDate().getDay();
-
-    return day === 0
-        ? 1
-        : day + 1;
+    return getJakartaDate().getDay();
 }
 
 
 function getNamaHari(day) {
     const days = {
-        1: "Minggu",
-        2: "Senin",
-        3: "Selasa",
-        4: "Rabu",
-        5: "Kamis",
-        6: "Jumat",
-        7: "Sabtu"
+        0: "Minggu",
+        1: "Senin",
+        2: "Selasa",
+        3: "Rabu",
+        4: "Kamis",
+        5: "Jumat",
+        6: "Sabtu"
     };
 
     return days[Number(day)] || "-";
