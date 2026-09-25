@@ -22,7 +22,7 @@ let currentBanner = 0;
 let bannerTimer = null;
 
 let rondaSchedules = [];
-let rondaCurrentDay = 1;
+let rondaCurrentDay = 0;
 let rondaTimer = null;
 
 if (!accessToken || !wargaRaw) {
@@ -3168,7 +3168,7 @@ async function loadJadwalRonda() {
     try {
         const rows =
             await supabaseGet(
-                "ronda_schedule",
+                "ronda_schedules",
                 "select=id,day_of_week,resident_id,start_time,end_time,is_active,residents(id,resident_code,name)&is_active=eq.true&order=day_of_week.asc,start_time.asc"
             );
 
@@ -3226,8 +3226,8 @@ function renderRondaCarousel() {
     let html = "";
 
     for (
-        let day = 1;
-        day <= 7;
+        let day = 0;
+        day <= 6;
         day++
     ) {
         const rows =
@@ -3383,8 +3383,8 @@ function renderRondaDots() {
     let html = "";
 
     for (
-        let day = 1;
-        day <= 7;
+        let day = 0;
+        day <= 6;
         day++
     ) {
         html +=
@@ -3431,8 +3431,8 @@ function renderRondaDots() {
 
 function showRondaDay(day) {
     if (
-        day < 1 ||
-        day > 7
+        day < 0 ||
+        day > 6
     ) {
         return;
     }
@@ -3555,8 +3555,8 @@ function pasangKontrolRonda() {
                     rondaCurrentDay -
                     1;
 
-                if (day < 1) {
-                    day = 7;
+                if (day < 0) {
+                    day = 6;
                 }
 
                 showRondaDay(day);
@@ -3571,8 +3571,8 @@ function pasangKontrolRonda() {
                     rondaCurrentDay +
                     1;
 
-                if (day > 7) {
-                    day = 1;
+                if (day > 6) {
+                    day = 0;
                 }
 
                 showRondaDay(day);
@@ -3594,8 +3594,8 @@ function startRondaAutoSlide() {
                     rondaCurrentDay +
                     1;
 
-                if (day > 7) {
-                    day = 1;
+                if (day > 6) {
+                    day = 0;
                 }
 
                 showRondaDay(day);
