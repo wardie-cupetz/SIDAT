@@ -359,6 +359,16 @@ async function loadLaporan() {
                 ? reports
                 : [];
 
+        console.log(
+            "SIDAT DEBUG STATUS LAPORAN:",
+            safeReports.map(item => ({
+                id: item.id,
+                status: item.status,
+                admin_note: item.admin_note,
+                updated_at: item.updated_at
+            }))
+        );
+
         const residentIds = [
             ...new Set(
                 safeReports
