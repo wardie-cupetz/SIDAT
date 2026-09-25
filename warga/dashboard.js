@@ -3168,7 +3168,7 @@ async function loadJadwalRonda() {
     try {
         const rows =
             await supabaseGet(
-                "ronda_schedule",
+                "ronda_schedules",
                 "select=id,day_of_week,resident_id,start_time,end_time,is_active,residents(id,resident_code,name)&is_active=eq.true&order=day_of_week.asc,start_time.asc"
             );
 
