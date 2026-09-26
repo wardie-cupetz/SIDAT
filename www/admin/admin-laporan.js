@@ -1902,7 +1902,6 @@ async function simpanPerubahanLaporan() {
         // ==================================
         // NOTIFIKASI UPDATE KEPADA WARGA
         // ==================================
-
         try {
 
             const statusText = {
@@ -1943,44 +1942,51 @@ async function simpanPerubahanLaporan() {
             }
 
 
-            if (
-                laporanTerpilih.resident_id
-            ) {
+            const notificationPayload = {
 
-                const notificationPayload = {
+                title:
+                    "📢 Laporan Diperbarui",
 
-                    title:
-                        "Laporan Diperbarui",
+                message:
+                    pesan,
 
-                    message:
-                        pesan,
+                target_type:
+                    "all",
 
-                    target_type:
-                        "resident",
+                target_resident_id:
+                    null,
 
-                    target_resident_id:
-                        laporanTerpilih.resident_id,
+                is_read:
+                    false,
 
-                    is_read:
-                        false,
+                created_by:
+                    window.currentUser?.id ||
+                    null,
 
-                    created_by:
-                        null,
+                created_at:
+                    new Date().toISOString(),
 
-                    created_at:
-                        new Date()
-                            .toISOString()
+                report_id:
+                    laporanTerpilih.id
 
-                };
+            };
 
 
+            console.log(
+                "SIDAT: Membuat notifikasi update laporan:",
+                notificationPayload
+            );
+
+
+            const notification =
                 await supabaseRequestAdmin(
 
                     `${SUPABASE_URL}/rest/v1/notifications`,
 
                     {
 
-                        method: "POST",
+                        method:
+                            "POST",
 
                         headers: {
 
@@ -1988,7 +1994,7 @@ async function simpanPerubahanLaporan() {
                                 "application/json",
 
                             "Prefer":
-                                "return=minimal"
+                                "return=representation"
 
                         },
 
@@ -2001,14 +2007,120 @@ async function simpanPerubahanLaporan() {
 
                 );
 
+
+            const notificationId =
+                Array.isArray(notification)
+                    ? notification[0]?.id
+                    : notification?.id;
+
+
+            if (!notificationId) {
+
+                console.warn(
+                    "SIDAT: notification_id tidak ditemukan."
+                );
+
+            } else {
+
+                try {
+
+                    const session =
+                        await getValidSession();
+
+
+                    const pushResponse =
+                        await fetch(
+
+                            `${SUPABASE_URL}` +
+                            `/functions/v1/` +
+                            `send-push-notification`,
+
+                            {
+
+                                method:
+                                    "POST",
+
+                                headers: {
+
+                                    apikey:
+                                        SUPABASE_KEY,
+
+                                    Authorization:
+                                        `Bearer ${
+                                            session.access_token
+                                        }`,
+
+                                    "Content-Type":
+                                        "application/json"
+
+                                },
+
+                                body:
+                                    JSON.stringify({
+
+                                        notification_id:
+                                            notificationId
+
+                                    })
+
+                            }
+
+                        );
+
+
+                    const pushText =
+                        await pushResponse.text();
+
+
+                    let pushData = null;
+
+                    try {
+
+                        pushData =
+                            pushText
+                                ? JSON.parse(pushText)
+                                : null;
+
+                    } catch {
+
+                        pushData =
+                            pushText;
+
+                    }
+
+
+                    if (!pushResponse.ok) {
+
+                        console.error(
+                            "SIDAT: Push update laporan gagal:",
+                            pushResponse.status,
+                            pushData
+                        );
+
+                    } else {
+
+                        console.log(
+                            "SIDAT: Push update laporan berhasil:",
+                            pushData
+                        );
+
+                    }
+
+                } catch (pushError) {
+
+                    console.warn(
+                        "SIDAT: Push update laporan gagal:",
+                        pushError
+                    );
+
+                }
+
             }
 
-        } catch (
-            notificationError
-        ) {
+        } catch (notificationError) {
 
             console.error(
-                "SIDAT: Gagal membuat notifikasi update:",
+                "SIDAT: Gagal membuat notifikasi update laporan:",
                 notificationError
             );
 
