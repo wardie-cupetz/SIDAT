@@ -1960,7 +1960,6 @@ async function simpanPerubahanLaporan() {
                     false,
 
                 created_by:
-                    window.currentUser?.id ||
                     null,
 
                 created_at:
@@ -2024,10 +2023,6 @@ async function simpanPerubahanLaporan() {
 
                 try {
 
-                    const session =
-                        await getValidSession();
-
-
                     const pushResponse =
                         await fetch(
 
@@ -2046,9 +2041,7 @@ async function simpanPerubahanLaporan() {
                                         SUPABASE_KEY,
 
                                     Authorization:
-                                        `Bearer ${
-                                            session.access_token
-                                        }`,
+                                        `Bearer ${adminAccessToken}`,
 
                                     "Content-Type":
                                         "application/json"
