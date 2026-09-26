@@ -818,97 +818,26 @@ async function cariKodeManual() {
 // NOTIFIKASI JIMPITAN DIAMBIL
 // ==========================================
 
-async function kirimNotifikasiJimpitan() {
+async function kirimPushNotifikasiJimpitan(
+    notificationId
+) {
 
-    if (!residentId) {
+    if (!notificationId) {
+        console.warn(
+            "SIDAT: notification_id Jimpitan tidak tersedia."
+        );
         return;
     }
 
     try {
 
-        const notificationId =
-            crypto.randomUUID();
-
-        const notificationPayload = {
-
-            id:
-                notificationId,
-
-            title:
-                "Jimpitan Diambil",
-
-            message:
-                "Jimpitan Anda telah diambil oleh petugas.",
-
-            target_type:
-                "resident",
-
-            target_resident_id:
-                residentId,
-
-            is_read:
-                false,
-
-            created_by:
-                null,
-
-            created_at:
-                new Date().toISOString()
-        };
-
-        // ==================================
-        // SIMPAN NOTIFIKASI
-        // ==================================
-
-        const notificationResponse =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/notifications`,
-                {
-                    method:
-                        "POST",
-
-                    headers: {
-
-                        "apikey":
-                            SUPABASE_KEY,
-
-                        "Authorization":
-                            `Bearer ${accessToken}`,
-
-                        "Content-Type":
-                            "application/json",
-
-                        "Prefer":
-                            "return=minimal"
-                    },
-
-                    body:
-                        JSON.stringify(
-                            notificationPayload
-                        )
-                }
-            );
-
-        if (!notificationResponse.ok) {
-
-            throw new Error(
-                await notificationResponse.text()
-            );
-        }
-
-        // ==================================
-        // KIRIM PUSH → FCM
-        // ==================================
-
         const pushResponse =
             await fetch(
                 `${SUPABASE_URL}/functions/v1/send-push-notification`,
                 {
-                    method:
-                        "POST",
+                    method: "POST",
 
                     headers: {
-
                         "apikey":
                             SUPABASE_KEY,
 
@@ -929,21 +858,31 @@ async function kirimNotifikasiJimpitan() {
 
         if (!pushResponse.ok) {
 
+            const errorText =
+                await pushResponse.text();
+
             throw new Error(
-                await pushResponse.text()
+                errorText ||
+                "Gagal mengirim push notification."
             );
         }
 
+        const pushResult =
+            await pushResponse.json()
+                .catch(() => null);
+
         console.log(
-            "SIDAT: notifikasi jimpitan berhasil dikirim."
+            "SIDAT: push Jimpitan berhasil dikirim.",
+            pushResult
         );
 
     } catch (error) {
 
         console.error(
-            "SIDAT: gagal mengirim notifikasi jimpitan:",
+            "SIDAT: gagal mengirim push Jimpitan:",
             error
         );
+
     }
 }
 
@@ -1217,7 +1156,9 @@ async function simpanJimpitan() {
         // NOTIFIKASI JIMPITAN
         // ==================================
 
-        await kirimNotifikasiJimpitan();
+        await kirimPushNotifikasiJimpitan(
+            data.notification_id
+        );
 
         // ==================================
         // SUKSES
