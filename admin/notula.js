@@ -196,6 +196,13 @@ function bindEvents() {
              * tidak ikut masuk ke dokumen cetak.
              */
 
+            /*
+             * APK menggunakan dokumen printNotula yang sama
+             * dengan dokumen cetak Web.
+             *
+             * Tidak mengubah struktur HTML, tabel, isi,
+             * maupun footer dokumen.
+             */
             const printContent =
                 printDocument.outerHTML;
 
@@ -271,8 +278,12 @@ function bindEvents() {
 
             width: 100%;
 
-            margin: 0 0 6px 0;
-            padding: 0;
+            margin: 0 0 10px 0;
+            padding: 0 0 7px 0;
+
+            text-align: center;
+
+            border-bottom: 3px solid #000000;
         }
 
         .print-block {
@@ -306,6 +317,44 @@ function bindEvents() {
             width: 100%;
 
             overflow: visible;
+        }
+
+        .print-info-lines {
+            display: block;
+
+            width: 100%;
+
+            margin: 0 0 8px 0;
+        }
+
+        .print-info-line {
+            display: flex;
+
+            width: 100%;
+
+            margin: 0 0 2px 0;
+
+            font-size: 9pt;
+            line-height: 1.35;
+        }
+
+        .print-info-line > span:first-child {
+            width: 42mm;
+            flex: 0 0 42mm;
+
+            font-weight: 600;
+        }
+
+        .print-info-line > span:nth-child(2) {
+            width: 5mm;
+            flex: 0 0 5mm;
+
+            text-align: center;
+        }
+
+        .print-info-line > span:last-child {
+            flex: 1;
+            min-width: 0;
         }
 
         .print-table-container table,
@@ -417,12 +466,16 @@ function bindEvents() {
             margin-top: 25mm;
             padding-top: 3mm;
 
+            border-top: 1px solid #d1d5db;
+
             page-break-inside: avoid;
             break-inside: avoid;
 
             color: #555555;
 
             text-align: center;
+
+            font-size: 9px;
         }
 
         .print-text {

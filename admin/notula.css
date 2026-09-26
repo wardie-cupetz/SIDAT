@@ -884,7 +884,7 @@ svg {
     margin-bottom: 18px;
 
     border-bottom:
-        2px solid #111827;
+        3px solid #000000;
 
     text-align: center;
 }
@@ -975,6 +975,44 @@ svg {
 
 .print-info-table td:last-child {
     width: auto;
+}
+
+
+/* =========================================================
+   PRINT INFO LINES
+   ========================================================= */
+
+.print-info-lines {
+    width: 100%;
+    margin: 0 0 8px 0;
+}
+
+.print-info-line {
+    display: flex;
+    width: 100%;
+    margin: 0 0 2px 0;
+
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.print-info-line > span:first-child {
+    width: 145px;
+    flex: 0 0 145px;
+
+    font-weight: 600;
+}
+
+.print-info-line > span:nth-child(2) {
+    width: 15px;
+    flex: 0 0 15px;
+
+    text-align: center;
+}
+
+.print-info-line > span:last-child {
+    flex: 1;
+    min-width: 0;
 }
 
 
@@ -1947,7 +1985,12 @@ svg {
     .print-header {
         display: block !important;
 
-        margin-bottom: 6px !important;
+        margin-bottom: 10px !important;
+        padding-bottom: 7px !important;
+
+        border-bottom: 3px solid #000000 !important;
+
+        text-align: center !important;
 
         page-break-before: auto !important;
         page-break-after: avoid !important;
@@ -2093,16 +2136,20 @@ svg {
        ===================================================== */
 
     .print-document-footer {
-    margin-top: 25mm !important;
-    padding-top: 3mm !important;
+        margin-top: 25mm !important;
+        padding-top: 3mm !important;
 
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
+        border-top: 1px solid #d1d5db !important;
 
-    color: #555555 !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
 
-    text-align: center;
-}
+        color: #555555 !important;
+
+        text-align: center !important;
+
+        font-size: 9px !important;
+    }
 
 
     /* =====================================================
