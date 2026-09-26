@@ -172,10 +172,10 @@ function bindEvents() {
             typeof window.SIDATPrint.printHTML === "function"
         ) {
 
-            const printElement =
-                document.getElementById("printNotula");
+            const detailSection =
+                document.getElementById("notulaDetailSection");
 
-            if (!printElement) {
+            if (!detailSection) {
 
                 alert(
                     "Dokumen cetak Notula tidak ditemukan."
@@ -188,7 +188,7 @@ function bindEvents() {
 
             /*
              * Ambil seluruh stylesheet yang sedang digunakan
-             * halaman agar tampilan cetak tetap sama di APK.
+             * agar hasil cetak APK mengikuti hasil cetak Web.
              */
 
             const styles =
@@ -203,6 +203,11 @@ function bindEvents() {
                 )
                 .join("\n");
 
+
+            /*
+             * Gunakan struktur DETAIL NOTULA yang sama
+             * seperti halaman Web.
+             */
 
             const laporan = `
 <!DOCTYPE html>
@@ -220,39 +225,19 @@ function bindEvents() {
 
     ${styles}
 
-    <style>
-
-        @page {
-            size: A4;
-            margin: 12mm;
-        }
-
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            background: #ffffff;
-        }
-
-        body {
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-        }
-
-        #printNotula {
-            display: block !important;
-            width: 100%;
-        }
-
-    </style>
-
 </head>
 
 <body>
 
-    ${printElement.outerHTML}
+    <main class="app">
+
+        <div class="content">
+
+            ${detailSection.outerHTML}
+
+        </div>
+
+    </main>
 
 </body>
 
