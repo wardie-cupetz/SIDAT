@@ -815,6 +815,139 @@ async function cariKodeManual() {
 }
 
 // ==========================================
+// NOTIFIKASI JIMPITAN DIAMBIL
+// ==========================================
+
+async function kirimNotifikasiJimpitan() {
+
+    if (!residentId) {
+        return;
+    }
+
+    try {
+
+        const notificationId =
+            crypto.randomUUID();
+
+        const notificationPayload = {
+
+            id:
+                notificationId,
+
+            title:
+                "Jimpitan Diambil",
+
+            message:
+                "Jimpitan Anda telah diambil oleh petugas.",
+
+            target_type:
+                "resident",
+
+            target_resident_id:
+                residentId,
+
+            is_read:
+                false,
+
+            created_by:
+                null,
+
+            created_at:
+                new Date().toISOString()
+        };
+
+        // ==================================
+        // SIMPAN NOTIFIKASI
+        // ==================================
+
+        const notificationResponse =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/notifications`,
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "apikey":
+                            SUPABASE_KEY,
+
+                        "Authorization":
+                            `Bearer ${accessToken}`,
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Prefer":
+                            "return=minimal"
+                    },
+
+                    body:
+                        JSON.stringify(
+                            notificationPayload
+                        )
+                }
+            );
+
+        if (!notificationResponse.ok) {
+
+            throw new Error(
+                await notificationResponse.text()
+            );
+        }
+
+        // ==================================
+        // KIRIM PUSH → FCM
+        // ==================================
+
+        const pushResponse =
+            await fetch(
+                `${SUPABASE_URL}/functions/v1/send-push-notification`,
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "apikey":
+                            SUPABASE_KEY,
+
+                        "Authorization":
+                            `Bearer ${accessToken}`,
+
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            notification_id:
+                                notificationId
+                        })
+                }
+            );
+
+        if (!pushResponse.ok) {
+
+            throw new Error(
+                await pushResponse.text()
+            );
+        }
+
+        console.log(
+            "SIDAT: notifikasi jimpitan berhasil dikirim."
+        );
+
+    } catch (error) {
+
+        console.error(
+            "SIDAT: gagal mengirim notifikasi jimpitan:",
+            error
+        );
+    }
+}
+
+// ==========================================
 // SIMPAN JIMPITAN
 // ==========================================
 
@@ -1079,6 +1212,12 @@ async function simpanJimpitan() {
 
         const data =
             result.data || {};
+
+        // ==================================
+        // NOTIFIKASI JIMPITAN
+        // ==================================
+
+        await kirimNotifikasiJimpitan();
 
         // ==================================
         // SUKSES
