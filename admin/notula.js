@@ -172,48 +172,42 @@ function bindEvents() {
             typeof window.SIDATPrint.printHTML === "function"
         ) {
 
-            const detailSection =
-                document.getElementById("notulaDetailSection");
+            const printDocument =
+                document.getElementById("printNotula");
 
-            if (!detailSection) {
+            if (!printDocument) {
 
                 alert(
                     "Dokumen cetak Notula tidak ditemukan."
                 );
 
                 return;
-
             }
 
-
             /*
-             * Ambil seluruh stylesheet yang sedang digunakan
-             * agar hasil cetak APK mengikuti hasil cetak Web.
+             * APK PRINT
+             * -------------------------------------------------
+             * Android menggunakan WebView baru melalui
+             * PrintBridge. Karena itu jangan kirim seluruh
+             * detailSection yang masih berisi UI aplikasi.
+             *
+             * Ambil hanya #printNotula agar tombol Edit,
+             * Cetak, Simpan, navigasi, dan elemen UI lainnya
+             * tidak ikut masuk ke dokumen cetak.
              */
 
-            const styles =
-                Array.from(
-                    document.querySelectorAll(
-                        'link[rel="stylesheet"], style'
-                    )
-                )
-                .map(
-                    element =>
-                        element.outerHTML
-                )
-                .join("\n");
-
+            const printContent =
+                printDocument.outerHTML;
 
             /*
-             * Gunakan struktur DETAIL NOTULA yang sama
-             * seperti halaman Web.
+             * CSS dibuat sebagai CSS biasa, bukan bergantung
+             * pada @media print, karena Android PrintBridge
+             * menggunakan WebView terpisah.
              */
 
             const laporan = `
 <!DOCTYPE html>
-
 <html lang="id">
-
 <head>
 
     <meta charset="UTF-8">
@@ -223,27 +217,235 @@ function bindEvents() {
         content="width=device-width, initial-scale=1.0"
     >
 
-    ${styles}
+    <style>
+
+        @page {
+            size: A4 portrait;
+            margin: 10mm 12mm 12mm 12mm;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 0;
+
+            margin: 0;
+            padding: 0;
+
+            background: #ffffff;
+            color: #000000;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            font-size: 10pt;
+        }
+
+        body {
+            overflow: visible;
+
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .print-document {
+            display: block;
+
+            width: 100%;
+
+            margin: 0;
+            padding: 0;
+
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .print-header {
+            display: block;
+
+            width: 100%;
+
+            margin: 0 0 6px 0;
+            padding: 0;
+        }
+
+        .print-block {
+            display: block;
+
+            width: 100%;
+
+            margin-top: 5px;
+            margin-bottom: 7px;
+
+            page-break-before: auto;
+            page-break-after: auto;
+            page-break-inside: auto;
+
+            break-before: auto;
+            break-after: auto;
+            break-inside: auto;
+        }
+
+        .print-block h3 {
+            margin-top: 6px;
+            margin-bottom: 4px;
+
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+
+        .print-table-container {
+            display: block;
+
+            width: 100%;
+
+            overflow: visible;
+        }
+
+        .print-table-container table,
+        .detail-table,
+        .print-info-table {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            margin-top: 0;
+            margin-bottom: 8px;
+
+            font-size: 9pt;
+
+            page-break-inside: auto;
+            break-inside: auto;
+        }
+
+        .print-table-container th,
+        .print-table-container td,
+        .detail-table th,
+        .detail-table td,
+        .print-info-table th,
+        .print-info-table td {
+            padding: 4px 5px;
+
+            line-height: 1.25;
+
+            border: 1px solid #333;
+
+            vertical-align: top;
+        }
+
+        .print-table-container th,
+        .detail-table th,
+        .print-info-table th {
+            background: #eeeeee;
+
+            color: #000000;
+
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .print-table-container tr,
+        .detail-table tr,
+        .print-info-table tr {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .discussion-container,
+        .decision-container {
+            display: block;
+
+            width: 100%;
+
+            page-break-inside: auto;
+            break-inside: auto;
+        }
+
+        .discussion-container > div,
+        .decision-container > div {
+            display: block;
+
+            page-break-inside: avoid;
+            break-inside: avoid;
+
+            background: #ffffff;
+        }
+
+        .opening-block,
+        .closing-block {
+            page-break-inside: auto;
+            break-inside: auto;
+        }
+
+        .signature-section {
+            display: flex;
+
+            width: 100%;
+
+            margin-top: 10px;
+
+            page-break-before: avoid;
+            page-break-inside: avoid;
+
+            break-before: avoid;
+            break-inside: avoid;
+        }
+
+        .signature-column {
+            flex: 1;
+
+            width: 50%;
+
+            text-align: center;
+        }
+
+        .signature-space {
+            height: 25mm;
+        }
+
+        .signature-line {
+            text-align: center;
+        }
+
+        .print-document-footer {
+            margin-top: 25mm;
+            padding-top: 3mm;
+
+            page-break-inside: avoid;
+            break-inside: avoid;
+
+            color: #555555;
+
+            text-align: center;
+        }
+
+        .print-text {
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+    </style>
 
 </head>
 
 <body>
 
-    <main class="app">
-
-        <div class="content">
-
-            ${detailSection.outerHTML}
-
-        </div>
-
-    </main>
+    ${printContent}
 
 </body>
 
 </html>
 `;
-
 
             try {
 
