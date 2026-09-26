@@ -849,18 +849,6 @@ async function buatBackup() {
             );
 
 
-        const url =
-            URL.createObjectURL(
-                blob
-            );
-
-
-        const link =
-            document.createElement(
-                "a"
-            );
-
-
         const sekarang =
             new Date();
 
@@ -887,12 +875,146 @@ async function buatBackup() {
                 );
 
 
+        const namaFile =
+            `SIDAT-backup-${tanggal}-${waktu}.json`;
+
+
+        // ==================================
+        // DETEKSI APK / CAPACITOR
+        // ==================================
+
+        const Filesystem =
+            window.Capacitor?.Plugins?.Filesystem;
+
+
+        const sedangDiAPK =
+            !!window.Capacitor &&
+            !!Filesystem;
+
+
+        // ==================================
+        // APK
+        // Simpan menggunakan Capacitor
+        // ==================================
+
+        if (
+            sedangDiAPK
+        ) {
+
+            console.log(
+                "SIDAT: Mode APK terdeteksi. Menyimpan backup melalui Filesystem..."
+            );
+
+
+            // Ubah JSON menjadi Base64
+            const bytes =
+                new TextEncoder()
+                    .encode(json);
+
+
+            let binary = "";
+
+            const ukuranPotongan =
+                0x8000;
+
+
+            for (
+                let i = 0;
+                i < bytes.length;
+                i += ukuranPotongan
+            ) {
+
+                binary += String.fromCharCode(
+                    ...bytes.subarray(
+                        i,
+                        i + ukuranPotongan
+                    )
+                );
+
+            }
+
+
+            const base64 =
+                btoa(binary);
+
+
+            await Filesystem.writeFile({
+
+                path:
+                    namaFile,
+
+                data:
+                    base64,
+
+                directory:
+                    "DOCUMENTS",
+
+                recursive:
+                    true
+
+            });
+
+
+            simpanInfoBackupTerakhir({
+
+                created_at:
+                    backup.created_at,
+
+                total_records:
+                    totalData,
+
+                file_size:
+                    blob.size,
+
+                file_name:
+                    namaFile
+
+            });
+
+
+            console.log(
+                "SIDAT: Backup APK berhasil disimpan:",
+                namaFile
+            );
+
+
+            tampilkanPesan(
+
+                `Backup berhasil dibuat. Total ${totalData} data telah dicadangkan ke penyimpanan dokumen SIDAT.`,
+
+                "success"
+
+            );
+
+
+            return;
+
+        }
+
+
+        // ==================================
+        // WEB / PWA
+        // Tetap gunakan download browser
+        // ==================================
+
+        const url =
+            URL.createObjectURL(
+                blob
+            );
+
+
+        const link =
+            document.createElement(
+                "a"
+            );
+
+
         link.href =
             url;
 
 
         link.download =
-            `SIDAT-backup-${tanggal}-${waktu}.json`;
+            namaFile;
 
 
         document.body.appendChild(
@@ -905,25 +1027,27 @@ async function buatBackup() {
 
         link.remove();
 
-// ==================================
-// SIMPAN INFO BACKUP TERAKHIR
-// ==================================
 
-simpanInfoBackupTerakhir({
+        // ==================================
+        // SIMPAN INFO BACKUP TERAKHIR
+        // ==================================
 
-    created_at:
-        backup.created_at,
+        simpanInfoBackupTerakhir({
 
-    total_records:
-        totalData,
+            created_at:
+                backup.created_at,
 
-    file_size:
-        blob.size,
+            total_records:
+                totalData,
 
-    file_name:
-        link.download
+            file_size:
+                blob.size,
 
-});
+            file_name:
+                namaFile
+
+        });
+
 
         URL.revokeObjectURL(
             url
