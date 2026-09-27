@@ -22,6 +22,13 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(PrintBridge.class);
         super.onCreate(savedInstanceState);
 
+getBridge()
+        .getWebView()
+        .getSettings()
+        .setTextZoom(110);
+
+requestNotificationPermission();
+setupBackButton();
         requestNotificationPermission();
         setupBackButton();
     }
