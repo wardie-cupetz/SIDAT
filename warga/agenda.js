@@ -24,25 +24,24 @@ const supabaseClient =
 // ==================================================
 
 const HARI = {
-    1: "Minggu",
-    2: "Senin",
-    3: "Selasa",
-    4: "Rabu",
-    5: "Kamis",
-    6: "Jumat",
-    7: "Sabtu"
+    0: "Minggu",
+    1: "Senin",
+    2: "Selasa",
+    3: "Rabu",
+    4: "Kamis",
+    5: "Jumat",
+    6: "Sabtu"
 };
 
 const HARI_URUT = [
+    1,
     2,
     3,
     4,
     5,
     6,
-    7,
-    1
+    0
 ];
-
 
 // ==================================================
 // STATE
@@ -841,7 +840,7 @@ async function loadRonda() {
             error
         } =
             await supabaseClient
-                .from("ronda_schedule")
+                .from("ronda_schedules")
                 .select(`
                     id,
                     day_of_week,
