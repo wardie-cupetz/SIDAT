@@ -888,8 +888,7 @@ async function buatBackup() {
 
 
         const sedangDiAPK =
-            !!window.Capacitor &&
-            !!DownloadFile;
+            window.Capacitor?.isNativePlatform?.() === true;
 
 
         // ==================================
@@ -901,6 +900,12 @@ async function buatBackup() {
         if (
             sedangDiAPK
         ) {
+
+            if (!DownloadFile) {
+                throw new Error(
+                    "Plugin DownloadFile tidak tersedia di APK."
+                );
+            }
 
             console.log(
                 "SIDAT: Mode APK terdeteksi. Menyimpan backup ke folder Download..."
