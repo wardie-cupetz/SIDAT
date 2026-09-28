@@ -883,18 +883,19 @@ async function buatBackup() {
         // DETEKSI APK / CAPACITOR
         // ==================================
 
-        const Filesystem =
-            window.Capacitor?.Plugins?.Filesystem;
+        const DownloadFile =
+            window.Capacitor?.Plugins?.DownloadFile;
 
 
         const sedangDiAPK =
             !!window.Capacitor &&
-            !!Filesystem;
+            !!DownloadFile;
 
 
         // ==================================
         // APK
-        // Simpan menggunakan Capacitor
+        // Simpan langsung ke folder Download
+        // melalui native DownloadFilePlugin
         // ==================================
 
         if (
@@ -902,7 +903,7 @@ async function buatBackup() {
         ) {
 
             console.log(
-                "SIDAT: Mode APK terdeteksi. Menyimpan backup melalui Filesystem..."
+                "SIDAT: Mode APK terdeteksi. Menyimpan backup ke folder Download..."
             );
 
 
@@ -938,19 +939,16 @@ async function buatBackup() {
                 btoa(binary);
 
 
-            await Filesystem.writeFile({
+            await DownloadFile.saveFile({
 
-                path:
+                filename:
                     namaFile,
 
                 data:
                     base64,
 
-                directory:
-                    "DOCUMENTS",
-
-                recursive:
-                    true
+                mimeType:
+                    "application/json"
 
             });
 
@@ -980,7 +978,7 @@ async function buatBackup() {
 
             tampilkanPesan(
 
-                `Backup berhasil dibuat. Total ${totalData} data telah dicadangkan ke penyimpanan dokumen SIDAT.`,
+                `Backup berhasil dibuat. Total ${totalData} data telah dicadangkan ke folder Download.`,
 
                 "success"
 
