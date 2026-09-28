@@ -20,6 +20,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(BackupBridge.class);
         registerPlugin(PrintBridge.class);
+        registerPlugin(DownloadFilePlugin.class);
         super.onCreate(savedInstanceState);
 
 getBridge()
