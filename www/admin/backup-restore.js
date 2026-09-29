@@ -17,6 +17,14 @@ const adminAccessToken =
 
 
 // ==========================================
+// NATIVE DOWNLOAD PLUGIN
+// ==========================================
+
+const DownloadFile =
+    window.Capacitor?.registerPlugin?.("DownloadFile");
+
+
+// ==========================================
 // TABEL YANG DICADANGKAN
 // ==========================================
 
@@ -882,10 +890,6 @@ async function buatBackup() {
         // ==================================
         // DETEKSI APK / CAPACITOR
         // ==================================
-
-        const DownloadFile =
-            window.Capacitor?.Plugins?.DownloadFile;
-
 
         const sedangDiAPK =
             window.Capacitor?.isNativePlatform?.() === true;
