@@ -4543,14 +4543,17 @@ async function exportExcel() {
                 );
             }
 
-            const excelBase64 =
+            const excelBinary =
                 XLSX.write(
                     workbook,
                     {
                         bookType: "xlsx",
-                        type: "base64"
+                        type: "binary"
                     }
                 );
+
+            const excelBase64 =
+                btoa(excelBinary);
 
             await DownloadFile.saveFile({
                 filename: fileName,
@@ -4583,7 +4586,8 @@ async function exportExcel() {
         );
 
         alert(
-            "Gagal melakukan export Excel."
+            "Gagal melakukan export Excel: " +
+            (error?.message || error)
         );
     }
 }
@@ -4647,14 +4651,17 @@ async function downloadTemplate() {
                 );
             }
 
-            const excelBase64 =
+            const excelBinary =
                 XLSX.write(
                     workbook,
                     {
                         bookType: "xlsx",
-                        type: "base64"
+                        type: "binary"
                     }
                 );
+
+            const excelBase64 =
+                btoa(excelBinary);
 
             await DownloadFile.saveFile({
                 filename: fileName,
