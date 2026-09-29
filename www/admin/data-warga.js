@@ -4438,185 +4438,259 @@ function ensureQrJimpitanStyles() {
 
 
     /* =====================================================
-       EXPORT EXCEL
-       ===================================================== */
+   EXPORT EXCEL
+   ===================================================== */
 
-    async function exportExcel() {
+async function exportExcel() {
 
-        try {
+    try {
 
-            await loadXlsxLibrary();
+        await loadXlsxLibrary();
 
-            const rows =
-                state.residents.map(
-                    function (
-                        resident
-                    ) {
+        const rows =
+            state.residents.map(
+                function (
+                    resident
+                ) {
 
-                        return {
+                    return {
 
-                            "Kode Warga":
-                                resident.resident_code ||
-                                "",
+                        "Kode Warga":
+                            resident.resident_code ||
+                            "",
 
-                            "NIK":
-                                resident.nik ||
-                                "",
+                        "NIK":
+                            resident.nik ||
+                            "",
 
-                            "Nomor KK":
-                                resident.kk_number ||
-                                "",
+                        "Nomor KK":
+                            resident.kk_number ||
+                            "",
 
-                            "Nama":
-                                resident.name ||
-                                "",
+                        "Nama":
+                            resident.name ||
+                            "",
 
-                            "Tempat Lahir":
-                                resident.birth_place ||
-                                "",
+                        "Tempat Lahir":
+                            resident.birth_place ||
+                            "",
 
-                            "Tanggal Lahir":
-                                resident.birth_date ||
-                                "",
+                        "Tanggal Lahir":
+                            resident.birth_date ||
+                            "",
 
-                            "Gender":
-                                resident.gender ||
-                                "",
+                        "Gender":
+                            resident.gender ||
+                            "",
 
-                            "Status Keluarga":
-                                resident.family_status ||
-                                "",
+                        "Status Keluarga":
+                            resident.family_status ||
+                            "",
 
-                            "Alamat":
-                                resident.address ||
-                                "",
+                        "Alamat":
+                            resident.address ||
+                            "",
 
-                            "No Rumah":
-                                resident.house_number ||
-                                "",
+                        "No Rumah":
+                            resident.house_number ||
+                            "",
 
-                            "Telepon":
-                                resident.phone ||
-                                "",
+                        "Telepon":
+                            resident.phone ||
+                            "",
 
-                            "Akun WARGA":
-                                resident.account_created
-                                    ? "Ya"
-                                    : "Tidak"
-                        };
+                        "Akun WARGA":
+                            resident.account_created
+                                ? "Ya"
+                                : "Tidak"
+                    };
+                }
+            );
+
+        const worksheet =
+            XLSX.utils.json_to_sheet(
+                rows
+            );
+
+        const workbook =
+            XLSX.utils.book_new();
+
+        XLSX.utils.book_append_sheet(
+            workbook,
+            worksheet,
+            "Data Warga"
+        );
+
+        const fileName =
+            "SIDAT-Data-Warga.xlsx";
+
+        /* =================================================
+           APK
+           ================================================= */
+
+        if (
+            window.Capacitor?.isNativePlatform?.() === true
+        ) {
+
+            const DownloadFile =
+                window.Capacitor?.registerPlugin?.(
+                    "DownloadFile"
+                );
+
+            if (!DownloadFile) {
+                throw new Error(
+                    "Plugin DownloadFile tidak tersedia."
+                );
+            }
+
+            const excelBase64 =
+                XLSX.write(
+                    workbook,
+                    {
+                        bookType: "xlsx",
+                        type: "base64"
                     }
                 );
 
-            const worksheet =
-                XLSX.utils.json_to_sheet(
-                    rows
-                );
-
-            const workbook =
-                XLSX.utils.book_new();
-
-            XLSX.utils.book_append_sheet(
-                workbook,
-                worksheet,
-                "Data Warga"
-            );
-
-            XLSX.writeFile(
-                workbook,
-                "SIDAT-Data-Warga.xlsx"
-            );
-
-        } catch (error) {
-
-            console.error(
-                "Export error:",
-                error
-            );
+            await DownloadFile.saveFile({
+                filename: fileName,
+                data: excelBase64,
+                mimeType:
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            });
 
             alert(
-                "Gagal melakukan export Excel."
+                "Data warga berhasil diexport ke folder Download."
             );
+
+            return;
         }
+
+        /* =================================================
+           WEB / PWA
+           ================================================= */
+
+        XLSX.writeFile(
+            workbook,
+            fileName
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Export error:",
+            error
+        );
+
+        alert(
+            "Gagal melakukan export Excel."
+        );
     }
-
-
+}
+   
     /* =====================================================
-       TEMPLATE EXCEL
-       ===================================================== */
+   TEMPLATE EXCEL
+   ===================================================== */
 
-    async function downloadTemplate() {
+async function downloadTemplate() {
 
-        try {
+    try {
 
-            await loadXlsxLibrary();
+        await loadXlsxLibrary();
 
-            const rows = [
-                {
+        const rows = [
+            {
+                "Nama": "CONTOH NAMA",
+                "NIK": "3300000000000000",
+                "Nomor KK": "3300000000000000",
+                "Tempat Lahir": "Klaten",
+                "Tanggal Lahir": "1990-01-01",
+                "Gender": "L",
+                "Status Keluarga": "Kepala Keluarga",
+                "Alamat": "Morangan",
+                "No Rumah": "01",
+                "Telepon": "081234567890"
+            }
+        ];
 
-                    "Nama":
-                        "CONTOH NAMA",
+        const worksheet =
+            XLSX.utils.json_to_sheet(rows);
 
-                    "NIK":
-                        "3300000000000000",
+        const workbook =
+            XLSX.utils.book_new();
 
-                    "Nomor KK":
-                        "3300000000000000",
+        XLSX.utils.book_append_sheet(
+            workbook,
+            worksheet,
+            "Template"
+        );
 
-                    "Tempat Lahir":
-                        "Klaten",
+        const fileName =
+            "SIDAT-Template-Import-Warga.xlsx";
 
-                    "Tanggal Lahir":
-                        "1990-01-01",
+        /* =================================================
+           APK
+           ================================================= */
 
-                    "Gender":
-                        "L",
+        if (
+            window.Capacitor?.isNativePlatform?.() === true
+        ) {
 
-                    "Status Keluarga":
-                        "Kepala Keluarga",
-
-                    "Alamat":
-                        "Morangan",
-
-                    "No Rumah":
-                        "01",
-
-                    "Telepon":
-                        "081234567890"
-                }
-            ];
-
-            const worksheet =
-                XLSX.utils.json_to_sheet(
-                    rows
+            const DownloadFile =
+                window.Capacitor?.registerPlugin?.(
+                    "DownloadFile"
                 );
 
-            const workbook =
-                XLSX.utils.book_new();
+            if (!DownloadFile) {
+                throw new Error(
+                    "Plugin DownloadFile tidak tersedia."
+                );
+            }
 
-            XLSX.utils.book_append_sheet(
-                workbook,
-                worksheet,
-                "Template"
-            );
+            const excelBase64 =
+                XLSX.write(
+                    workbook,
+                    {
+                        bookType: "xlsx",
+                        type: "base64"
+                    }
+                );
 
-            XLSX.writeFile(
-                workbook,
-                "SIDAT-Template-Import-Warga.xlsx"
-            );
-
-        } catch (error) {
-
-            console.error(
-                "Template error:",
-                error
-            );
+            await DownloadFile.saveFile({
+                filename: fileName,
+                data: excelBase64,
+                mimeType:
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            });
 
             alert(
-                "Gagal membuat template Excel."
+                "Template Excel berhasil disimpan ke folder Download."
             );
-        }
-    }
 
+            return;
+        }
+
+        /* =================================================
+           WEB / PWA
+           ================================================= */
+
+        XLSX.writeFile(
+            workbook,
+            fileName
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Template error:",
+            error
+        );
+
+        alert(
+            "Gagal membuat template Excel."
+        );
+    }
+}
 
     /* =====================================================
        IMPORT STEP
