@@ -21,7 +21,7 @@ const adminAccessToken =
 // ==========================================
 
 const BackupBridge =
-    window.Capacitor?.Plugins?.BackupBridge;
+    window.Capacitor?.registerPlugin?.("BackupBridge");
 
 
 // ==========================================
