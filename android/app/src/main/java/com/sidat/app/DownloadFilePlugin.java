@@ -383,4 +383,188 @@ public class DownloadFilePlugin extends Plugin {
             );
         }
     }
+
+    private Uri backupUri;
+    private OutputStream backupOutputStream;
+    private String backupFileName;
+
+    @PluginMethod
+    public synchronized void startBackup(PluginCall call) {
+        String fileName = call.getString("filename");
+        String mimeType = call.getString("mimeType", "application/json");
+
+        if (fileName == null || fileName.trim().isEmpty()) {
+            call.reject("Nama file backup tidak tersedia.");
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            call.reject("Folder Download memerlukan Android 10 atau lebih baru.");
+            return;
+        }
+
+        try {
+            cancelBackupInternal();
+
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
+            values.put(MediaStore.Downloads.MIME_TYPE, mimeType);
+            values.put(
+                    MediaStore.Downloads.RELATIVE_PATH,
+                    Environment.DIRECTORY_DOWNLOADS
+            );
+            values.put(MediaStore.Downloads.IS_PENDING, 1);
+
+            ContentResolver resolver =
+                    getContext().getContentResolver();
+
+            Uri uri = resolver.insert(
+                    MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+                    values
+            );
+
+            if (uri == null) {
+                call.reject("Gagal membuat file backup di folder Download.");
+                return;
+            }
+
+            OutputStream stream = resolver.openOutputStream(uri);
+
+            if (stream == null) {
+                resolver.delete(uri, null, null);
+                call.reject("Gagal membuka file backup.");
+                return;
+            }
+
+            backupUri = uri;
+            backupOutputStream = stream;
+            backupFileName = fileName;
+
+            JSObject result = new JSObject();
+            result.put("success", true);
+            result.put("uri", uri.toString());
+            result.put("fileName", fileName);
+            result.put("location", "Download");
+
+            call.resolve(result);
+
+        } catch (Exception e) {
+            cancelBackupInternal();
+            call.reject("Gagal memulai backup: " + e.getMessage());
+        }
+    }
+
+    @PluginMethod
+    public synchronized void appendBackup(PluginCall call) {
+        if (backupOutputStream == null || backupUri == null) {
+            call.reject("Backup belum dimulai.");
+            return;
+        }
+
+        String data = call.getString("data");
+
+        if (data == null) {
+            call.reject("Data backup tidak tersedia.");
+            return;
+        }
+
+        try {
+            byte[] bytes = data.getBytes("UTF-8");
+            backupOutputStream.write(bytes);
+            backupOutputStream.flush();
+
+            JSObject result = new JSObject();
+            result.put("success", true);
+            result.put("bytes", bytes.length);
+            call.resolve(result);
+
+        } catch (Exception e) {
+            cancelBackupInternal();
+            call.reject("Gagal menulis backup: " + e.getMessage());
+        }
+    }
+
+    @PluginMethod
+    public synchronized void finishBackup(PluginCall call) {
+        if (backupOutputStream == null || backupUri == null) {
+            call.reject("Backup belum dimulai.");
+            return;
+        }
+
+        Uri uri = backupUri;
+        String fileName = backupFileName;
+
+        try {
+            backupOutputStream.flush();
+            backupOutputStream.close();
+            backupOutputStream = null;
+
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Downloads.IS_PENDING, 0);
+
+            int updated = getContext()
+                    .getContentResolver()
+                    .update(uri, values, null, null);
+
+            if (updated <= 0) {
+                getContext().getContentResolver()
+                        .delete(uri, null, null);
+
+                backupUri = null;
+                backupFileName = null;
+
+                call.reject("Gagal menyelesaikan file backup.");
+                return;
+            }
+
+            backupUri = null;
+            backupFileName = null;
+
+            JSObject result = new JSObject();
+            result.put("success", true);
+            result.put("uri", uri.toString());
+            result.put("fileName", fileName);
+            result.put("location", "Download");
+
+            call.resolve(result);
+
+        } catch (Exception e) {
+            cancelBackupInternal();
+            call.reject("Gagal menyelesaikan backup: " + e.getMessage());
+        }
+    }
+
+    @PluginMethod
+    public synchronized void cancelBackup(PluginCall call) {
+        cancelBackupInternal();
+
+        JSObject result = new JSObject();
+        result.put("success", true);
+        call.resolve(result);
+    }
+
+    private synchronized void cancelBackupInternal() {
+        if (backupOutputStream != null) {
+            try {
+                backupOutputStream.close();
+            } catch (Exception e) {
+                Log.e(TAG, "Gagal menutup stream backup", e);
+            }
+        }
+
+        if (backupUri != null) {
+            try {
+                getContext()
+                        .getContentResolver()
+                        .delete(backupUri, null, null);
+            } catch (Exception e) {
+                Log.e(TAG, "Gagal menghapus backup sementara", e);
+            }
+        }
+
+        backupOutputStream = null;
+        backupUri = null;
+        backupFileName = null;
+    }
+
 }

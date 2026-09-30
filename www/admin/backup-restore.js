@@ -897,7 +897,7 @@ async function buatBackup() {
 
         // ==================================
         // APK
-        // Simpan melalui DownloadFile
+        // Backup native bertahap ke Download
         // ==================================
 
         if (sedangDiAPK) {
@@ -909,97 +909,135 @@ async function buatBackup() {
 
             if (
                 !DownloadFile ||
-                typeof DownloadFile.saveFile !== "function"
+                typeof DownloadFile.startBackup !== "function" ||
+                typeof DownloadFile.appendBackup !== "function" ||
+                typeof DownloadFile.finishBackup !== "function" ||
+                typeof DownloadFile.cancelBackup !== "function"
             ) {
                 throw new Error(
-                    "Plugin DownloadFile tidak tersedia di APK."
+                    "Plugin DownloadFile native backup tidak tersedia di APK."
                 );
             }
 
             console.log(
-                "SIDAT: Mode APK terdeteksi. Menyimpan backup ke folder Download..."
+                "SIDAT: Mode APK terdeteksi. Memulai backup native bertahap..."
             );
 
-            // JSON UTF-8 → Base64
-            const encoder =
-                new TextEncoder();
+            let backupNativeDimulai = false;
 
-            const bytes =
-                encoder.encode(json);
+            try {
 
-            let binary = "";
+                const hasilMulai =
+                    await DownloadFile.startBackup({
 
-            const chunkSize = 0x8000;
+                        filename:
+                            namaFile,
 
-            for (
-                let i = 0;
-                i < bytes.length;
-                i += chunkSize
-            ) {
-                binary += String.fromCharCode(
-                    ...bytes.subarray(
-                        i,
-                        Math.min(
-                            i + chunkSize,
-                            bytes.length
-                        )
-                    )
+                        mimeType:
+                            "application/json"
+
+                    });
+
+                console.log(
+                    "SIDAT: startBackup berhasil:",
+                    hasilMulai
                 );
-            }
 
-            const base64 =
-                btoa(binary);
+                backupNativeDimulai = true;
 
-            const hasilSimpan =
-                await DownloadFile.saveFile({
+                /*
+                 * Tulis JSON secara bertahap agar tidak perlu
+                 * membuat Base64 besar di memory.
+                 */
+                const ukuranPotongan =
+                    32 * 1024;
 
-                    filename:
-                        namaFile,
+                for (
+                    let posisi = 0;
+                    posisi < json.length;
+                    posisi += ukuranPotongan
+                ) {
 
-                    data:
-                        base64,
+                    const potongan =
+                        json.slice(
+                            posisi,
+                            posisi + ukuranPotongan
+                        );
 
-                    mimeType:
-                        "application/json"
+                    await DownloadFile.appendBackup({
+
+                        data:
+                            potongan
+
+                    });
+                }
+
+                const hasilSelesai =
+                    await DownloadFile.finishBackup();
+
+                console.log(
+                    "SIDAT: finishBackup berhasil:",
+                    hasilSelesai
+                );
+
+                backupNativeDimulai = false;
+
+                simpanInfoBackupTerakhir({
+
+                    created_at:
+                        backup.created_at,
+
+                    total_records:
+                        totalData,
+
+                    file_size:
+                        new Blob(
+                            [json],
+                            {
+                                type:
+                                    "application/json"
+                            }
+                        ).size,
+
+                    file_name:
+                        namaFile
 
                 });
 
-            console.log(
-                "SIDAT: Backup APK berhasil disimpan:",
-                hasilSimpan
-            );
+                tampilkanBackupTerakhir();
 
-            simpanInfoBackupTerakhir({
+                tampilkanPesan(
+                    `Backup berhasil dibuat. Total ${totalData} data telah dicadangkan.`,
+                    "success"
+                );
 
-                created_at:
-                    backup.created_at,
+                return;
 
-                total_records:
-                    totalData,
+            } catch (error) {
 
-                file_size:
-                    new Blob(
-                        [json],
-                        {
-                            type:
-                                "application/json"
-                        }
-                    ).size,
+                console.error(
+                    "SIDAT: Backup native gagal:",
+                    error
+                );
 
-                file_name:
-                    namaFile
+                if (backupNativeDimulai) {
 
-            });
+                    try {
 
-            tampilkanBackupTerakhir();
+                        await DownloadFile.cancelBackup();
 
-            tampilkanPesan(
-                `Backup berhasil dibuat. Total ${totalData} data telah dicadangkan.`,
-                "success"
-            );
+                    } catch (cancelError) {
 
-            return;
+                        console.error(
+                            "SIDAT: Gagal membatalkan backup native:",
+                            cancelError
+                        );
+                    }
 
+                }
+
+                throw error;
+            }
         }
 
 
