@@ -896,33 +896,71 @@ async function buatBackup() {
 
 
         // ==================================
-// APK
-// Simpan melalui Android BackupBridge
-// ==================================
+        // APK
+        // Simpan melalui DownloadFile
+        // ==================================
 
         if (sedangDiAPK) {
 
+            const DownloadFile =
+                window.Capacitor?.registerPlugin?.(
+                    "DownloadFile"
+                );
+
             if (
-                !BackupBridge ||
-                typeof BackupBridge.saveBackup !== "function"
+                !DownloadFile ||
+                typeof DownloadFile.saveFile !== "function"
             ) {
                 throw new Error(
-                    "Plugin BackupBridge tidak tersedia di APK."
+                    "Plugin DownloadFile tidak tersedia di APK."
                 );
             }
 
             console.log(
-                "SIDAT: Mode APK terdeteksi. Membuka dialog penyimpanan backup..."
+                "SIDAT: Mode APK terdeteksi. Menyimpan backup ke folder Download..."
             );
 
+            // JSON UTF-8 → Base64
+            const encoder =
+                new TextEncoder();
+
+            const bytes =
+                encoder.encode(json);
+
+            let binary = "";
+
+            const chunkSize = 0x8000;
+
+            for (
+                let i = 0;
+                i < bytes.length;
+                i += chunkSize
+            ) {
+                binary += String.fromCharCode(
+                    ...bytes.subarray(
+                        i,
+                        Math.min(
+                            i + chunkSize,
+                            bytes.length
+                        )
+                    )
+                );
+            }
+
+            const base64 =
+                btoa(binary);
+
             const hasilSimpan =
-                await BackupBridge.saveBackup({
+                await DownloadFile.saveFile({
 
                     filename:
                         namaFile,
 
                     data:
-                        json
+                        base64,
+
+                    mimeType:
+                        "application/json"
 
                 });
 
