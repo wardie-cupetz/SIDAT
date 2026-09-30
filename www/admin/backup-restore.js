@@ -17,11 +17,11 @@ const adminAccessToken =
 
 
 // ==========================================
-// NATIVE DOWNLOAD PLUGIN
+// ANDROID BACKUP BRIDGE
 // ==========================================
 
-const DownloadFile =
-    window.Capacitor?.registerPlugin?.("DownloadFile");
+const BackupBridge =
+    window.Capacitor?.Plugins?.BackupBridge;
 
 
 // ==========================================
@@ -896,71 +896,40 @@ async function buatBackup() {
 
 
         // ==================================
-        // APK
-        // Simpan langsung ke folder Download
-        // melalui native DownloadFilePlugin
-        // ==================================
+// APK
+// Simpan melalui Android BackupBridge
+// ==================================
 
-        if (
-            sedangDiAPK
-        ) {
+        if (sedangDiAPK) {
 
-            if (!DownloadFile) {
+            if (
+                !BackupBridge ||
+                typeof BackupBridge.saveBackup !== "function"
+            ) {
                 throw new Error(
-                    "Plugin DownloadFile tidak tersedia di APK."
+                    "Plugin BackupBridge tidak tersedia di APK."
                 );
             }
 
             console.log(
-                "SIDAT: Mode APK terdeteksi. Menyimpan backup ke folder Download..."
+                "SIDAT: Mode APK terdeteksi. Membuka dialog penyimpanan backup..."
             );
 
+            const hasilSimpan =
+                await BackupBridge.saveBackup({
 
-            // Ubah JSON menjadi Base64
-            const bytes =
-                new TextEncoder()
-                    .encode(json);
+                    filename:
+                        namaFile,
 
+                    data:
+                        json
 
-            let binary = "";
+                });
 
-            const ukuranPotongan =
-                0x8000;
-
-
-            for (
-                let i = 0;
-                i < bytes.length;
-                i += ukuranPotongan
-            ) {
-
-                binary += String.fromCharCode(
-                    ...bytes.subarray(
-                        i,
-                        i + ukuranPotongan
-                    )
-                );
-
-            }
-
-
-            const base64 =
-                btoa(binary);
-
-
-            await DownloadFile.saveFile({
-
-                filename:
-                    namaFile,
-
-                data:
-                    base64,
-
-                mimeType:
-                    "application/json"
-
-            });
-
+            console.log(
+                "SIDAT: Backup APK berhasil disimpan:",
+                hasilSimpan
+            );
 
             simpanInfoBackupTerakhir({
 
@@ -971,35 +940,32 @@ async function buatBackup() {
                     totalData,
 
                 file_size:
-                    blob.size,
+                    new Blob(
+                        [json],
+                        {
+                            type:
+                                "application/json"
+                        }
+                    ).size,
 
                 file_name:
                     namaFile
 
             });
 
-
-            console.log(
-                "SIDAT: Backup APK berhasil disimpan:",
-                namaFile
-            );
-
+            tampilkanBackupTerakhir();
 
             tampilkanPesan(
-
-                `Backup berhasil dibuat. Total ${totalData} data telah dicadangkan ke folder Download.`,
-
+                `Backup berhasil dibuat. Total ${totalData} data telah dicadangkan.`,
                 "success"
-
             );
-
 
             return;
 
         }
 
 
-        // ==================================
+// ==================================
         // WEB / PWA
         // Tetap gunakan download browser
         // ==================================
